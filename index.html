@@ -2502,13 +2502,23 @@ function sayText(text, l, o = {}) {
 }
 /* human recorded voice only (no synthetic voice): clips recorded by the owner in Voice studio */
 const VCLIPS = {}; let VCLIPS_READY = false;
-async function loadVoiceClips() { if (VCLIPS_READY) return; for (let k = 0; k < 40 && AUTH.mode !== "firebase" && !AUTH.ready; k++) await new Promise(r => setTimeout(r, 250));
-  if (AUTH.mode === "firebase") { try { const s = await AUTH.fb.db.collection("voice").get(); s.docs.forEach(d => VCLIPS[d.id] = d.data()); } catch (e) {} } VCLIPS_READY = true; }
+/* voice clips live in Firebase as one small document per moment + language (voice/welcome__ur), loaded only when needed */
+const vWait = async () => { for (let k = 0; k < 40 && AUTH.mode !== "firebase" && !AUTH.ready; k++) await new Promise(r => setTimeout(r, 250)); return AUTH.mode === "firebase"; };
+async function getClip(key, l) {
+  VCLIPS[key] = VCLIPS[key] || {}; if (VCLIPS[key][l] !== undefined) return VCLIPS[key][l];
+  if (!(await vWait())) return ""; try { const d = await AUTH.fb.db.collection("voice").doc(key + "__" + l).get(); VCLIPS[key][l] = d.exists ? (d.data().d || "") : ""; } catch (e) { VCLIPS[key][l] = ""; }
+  return VCLIPS[key][l];
+}
+async function loadVoiceClips() { if (VCLIPS_READY) return; if (!(await vWait())) { VCLIPS_READY = true; return; }
+  if (isOwner()) { try { const s = await AUTH.fb.db.collection("voice").get(); s.docs.forEach(d => { const x = d.data(); if (d.id.includes("__")) { const [k, l] = d.id.split("__"); (VCLIPS[k] = VCLIPS[k] || {})[l] = x.d || ""; } else VCLIPS[d.id] = Object.assign(VCLIPS[d.id] || {}, x); }); } catch (e) {} }
+  else { const l = vlang(); ["welcome", "back"].forEach(k => getClip(k, l)); }
+  VCLIPS_READY = true; }
 let VPLAY = null;
 function speak(key) {
   if (!SND.on || EDU().voiceOn === false) return;
-  const l = vlang(), set = Object.assign({}, (EDU().voiceClips || {})[key] || {}, VCLIPS[key] || {}), clip = set[l] || (l === "hi" ? set.ur : l === "ur" ? set.hi : "") || set.en || set.any;
-  if (!clip) return; try { if (VPLAY) VPLAY.pause(); VPLAY = new Audio(clip); VPLAY.play().catch(() => {}); } catch (e) {}
+  const l = vlang(), order = [l, l === "hi" ? "ur" : l === "ur" ? "hi" : "", "en"].filter(Boolean);
+  (async () => { let clip = ""; for (const x of order) { clip = ((EDU().voiceClips || {})[key] || {})[x] || await getClip(key, x); if (clip) break; }
+    if (!clip) return; try { if (VPLAY) VPLAY.pause(); VPLAY = new Audio(clip); VPLAY.play().catch(() => {}); } catch (e) {} })();
 }
 setTimeout(() => loadVoiceClips(), 2500);
 
@@ -2530,7 +2540,7 @@ async function playAyahs(s, a1, a2, el) {
 const parseRef = r => { const m = String(r || "").match(/(\d{1,3})\s*:\s*(\d{1,3})(?:\s*[–-]\s*(\d{1,3}))?/); return m ? [+m[1], +m[2], m[3] ? +m[3] : +m[2]] : null; };
 document.addEventListener("click", e => {
   const q = e.target.closest("[data-qref]"); if (q) { const r = parseRef(q.dataset.qref); if (r) { play("tap"); playAyahs(r[0], r[1], r[2], q); } return; }
-  const h = e.target.closest("[data-hadith]"); if (h) { if (QAUDIO) { QAUDIO.pause(); QAUDIO = null; } $$(".playing").forEach(x => x.classList.remove("playing")); h.classList.add("playing"); const hc = (VCLIPS.hadith || {}).ar || ((EDU().voiceClips || {}).hadith || {}).ar; if (hc && SND.on) { try { if (VPLAY) VPLAY.pause(); VPLAY = new Audio(hc); VPLAY.onended = () => h.classList.remove("playing"); VPLAY.play().catch(() => {}); } catch (e) {} } else { setTimeout(() => h.classList.remove("playing"), 1200); toast("Hadith recitation will be added soon"); } }
+  const h = e.target.closest("[data-hadith]"); if (h) { if (QAUDIO) { QAUDIO.pause(); QAUDIO = null; } $$(".playing").forEach(x => x.classList.remove("playing")); h.classList.add("playing"); (async () => { const hc = ((EDU().voiceClips || {}).hadith || {}).ar || await getClip("hadith", "ar"); if (hc && SND.on) { try { if (VPLAY) VPLAY.pause(); VPLAY = new Audio(hc); VPLAY.onended = () => h.classList.remove("playing"); VPLAY.play().catch(() => {}); } catch (e) {} } else { setTimeout(() => h.classList.remove("playing"), 1200); toast("Hadith recitation will be added soon"); } })(); }
 });
 
 /* ---------- profile: name + mobile (with country code) are compulsory; student code ---------- */
@@ -3031,7 +3041,7 @@ function wireVoice(box) {
     try { const st = await navigator.mediaDevices.getUserMedia({ audio: true }); const mr = new MediaRecorder(st, { audioBitsPerSecond: 32000 }), ch = []; b._mr = mr; b.dataset.rec = "1"; b.textContent = "■ Stop";
       mr.ondataavailable = e => ch.push(e.data); const to = setTimeout(() => mr.state !== "inactive" && mr.stop(), 12000);
       mr.onstop = async () => { clearTimeout(to); st.getTracks().forEach(t => t.stop()); delete b.dataset.rec; const blob = new Blob(ch, { type: mr.mimeType }); const url = await new Promise(r => { const fr = new FileReader(); fr.onload = () => r(fr.result); fr.readAsDataURL(blob); });
-        try { await AUTH.fb.db.collection("voice").doc(k).set({ [l]: url }, { merge: true }); VCLIPS[k] = Object.assign({}, VCLIPS[k], { [l]: url }); play("save"); toast("Saved in your voice"); const vs = $("#vsBox", box); if (vs) { vs.outerHTML = voiceStudioHTML(); wireVoice(box); } } catch (e) { b.textContent = "● Record"; toast("Could not save. Publish the new Firestore rules first."); } };
+        try { await AUTH.fb.db.collection("voice").doc(k + "__" + l).set({ d: url, t: Date.now() }); VCLIPS[k] = Object.assign({}, VCLIPS[k], { [l]: url }); play("save"); toast("Saved in your voice"); const vs = $("#vsBox", box); if (vs) { vs.outerHTML = voiceStudioHTML(); wireVoice(box); } } catch (e) { b.textContent = "● Record"; toast("Could not save. Publish the new Firestore rules first."); } };
       mr.start(); } catch (e) { toast("Please allow the microphone"); }
   });
 }
