@@ -3869,12 +3869,12 @@ onScroll();
 
 <style id="qs-plus2-css">.qsmenu-w{position:relative}
 .qsmenu .av{display:grid;place-items:center;font-size:18px}
-.qsmenu-p{position:absolute;top:calc(100% + 8px);inset-inline-end:0;z-index:60;width:min(300px,calc(100vw - 24px));max-height:min(70vh,560px);overflow:auto;padding:8px;border-radius:18px;border:1px solid var(--rim);background:var(--glass3,var(--glass2));background:var(--bg);box-shadow:var(--shadow)}
+.qsmenu-p{position:fixed;z-index:300;width:min(300px,calc(100vw - 24px));max-height:min(70vh,560px);overflow:auto;padding:8px;border-radius:18px;border:1px solid var(--rim);background:var(--glass3,var(--glass2));background:var(--bg);box-shadow:var(--shadow)}
 .qsmenu-p[hidden]{display:none}
 .qsmenu-p button{display:flex;align-items:center;gap:8px;width:100%;text-align:start;padding:10px 12px;border-radius:12px;border:0;background:none;color:var(--ink);font:inherit;font-weight:600;font-size:14px;cursor:pointer}
 .qsmenu-p button:hover,.qsmenu-p button:focus-visible{background:rgba(var(--g1),.16);outline:none}
 .qsm-h{padding:8px 12px 4px;font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--hi);font-weight:800}
-@media (max-width:760px){.qsmenu-w{position:static}.qsmenu-p{position:fixed;top:64px;inset-inline:12px;width:auto}}
+@media (max-width:760px){.qsmenu-p{left:12px;right:12px!important;width:auto}}
 .qs-hl{outline:3px solid var(--hi);outline-offset:4px;border-radius:18px;animation:qsHl 1.1s ease 2}
 @keyframes qsHl{50%{outline-color:transparent}}
 .qsl{display:inline-grid;place-items:center;width:28px;height:28px;margin-inline-start:6px;vertical-align:middle;border-radius:50%;border:1px solid var(--rim);background:var(--glass2);color:var(--ink);font-size:13px;cursor:pointer;line-height:1}
@@ -4148,8 +4148,8 @@ const TXT = {
 const MENU_X = [["guide", "🧭", "Website guide"], ["steps", "🪜", "How joining works"], ["namaz", "🕌", "Prayer times"], ["record", "📇", "My record & code"], ["arwa", "🎬", "Cinematic Islamic stories"], ["support", "❤️", "Support this work"], ["alerts", "🔔", "Free class alerts"]];
 function buildMenu() {
   const bar = $(".topbar .topctl"); if (!bar || $("#qsMenu")) return;
-  bar.insertAdjacentHTML("afterbegin", `<div class="qsmenu-w"><button class="acct qsmenu" id="qsMenu" type="button" aria-haspopup="true" aria-expanded="false" data-snd="tap"><span class="av">📚</span><span class="nm">Our courses</span></button>
-    <div class="qsmenu-p glass" id="qsMenuP" hidden role="menu"></div></div>`);
+  bar.insertAdjacentHTML("afterbegin", `<div class="qsmenu-w"><button class="acct qsmenu" id="qsMenu" type="button" aria-haspopup="true" aria-expanded="false" data-snd="tap"><span class="av">📚</span><span class="nm">Our courses</span></button></div>`);
+  if (!$("#qsMenuP")) document.body.insertAdjacentHTML("beforeend", `<div class="qsmenu-p" id="qsMenuP" hidden role="menu"></div>`);
 }
 function fillMenu() {
   const p = $("#qsMenuP"); if (!p) return;
@@ -4171,7 +4171,7 @@ async function menuAction(k) {
 }
 document.addEventListener("click", e => {
   const m = e.target.closest("#qsMenu"); const p = $("#qsMenuP");
-  if (m) { e.preventDefault(); fillMenu(); p.hidden = !p.hidden; m.setAttribute("aria-expanded", String(!p.hidden)); return; }
+  if (m) { e.preventDefault(); fillMenu(); p.hidden = !p.hidden; const r = m.getBoundingClientRect(); p.style.top = Math.round(r.bottom + 8) + "px"; p.style.right = Math.max(12, Math.round(innerWidth - r.right)) + "px"; m.setAttribute("aria-expanded", String(!p.hidden)); return; }
   const c = e.target.closest("[data-qsc]"), x = e.target.closest("[data-qsx]");
   if (c || x) { e.preventDefault(); p.hidden = true; play("tap"); if (c) jumpCourse(+c.dataset.qsc); else menuAction(x.dataset.qsx); return; }
   if (p && !p.hidden && !e.target.closest("#qsMenuP")) p.hidden = true;
