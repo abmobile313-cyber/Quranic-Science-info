@@ -3891,7 +3891,9 @@ onScroll();
 .qs-chip{display:inline-flex;align-items:center;gap:6px;padding:9px 15px;border-radius:999px;border:1px solid var(--rim);background:color-mix(in srgb,var(--bg) 45%,transparent);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);color:var(--ink);font:inherit;font-size:13.5px;font-weight:600;text-decoration:none;cursor:pointer;box-shadow:0 4px 16px rgba(0,0,0,.08)}
 .qs-chip b{color:var(--hi);font-weight:800}
 /* prayer times: big, clear text */
-.qs-prayer{display:grid;gap:14px;padding:18px;border-radius:24px}
+.qs-prayer{position:relative;overflow:hidden;display:grid;gap:14px;padding:18px;border-radius:24px}
+.qs-prayer::before{content:"";position:absolute;inset:0;background:url(/a-prayer-bg.webp?v=1) center 70%/cover no-repeat;opacity:.22;pointer-events:none;z-index:0}
+.qs-prayer>*{position:relative;z-index:1}
 .qsp-top{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between}
 .qsp-title{display:flex;align-items:center;gap:10px}
 .qsp-ic{display:grid;place-items:center;width:44px;height:44px;border-radius:14px;font-size:22px;background:linear-gradient(145deg,rgba(var(--g1),.35),rgba(var(--g2),.35));border:1px solid var(--rim)}
@@ -3912,6 +3914,7 @@ onScroll();
 .qsp.next{border-color:var(--hi);background:linear-gradient(145deg,rgba(var(--g1),.28),rgba(var(--g2),.22));box-shadow:0 6px 20px rgba(var(--g1),.25)}
 .qsp-note{margin:0;font-size:13px;color:var(--ink);opacity:.8}
 .qs-safe{margin:4px 0 12px;padding:13px 15px;border-radius:16px;border:1px solid rgba(var(--g1),.5);background:rgba(var(--g1),.12);font-size:14.5px;line-height:1.65;color:var(--ink)}
+.qs-av{width:46px;height:46px;border-radius:14px;object-fit:cover;box-shadow:0 4px 14px rgba(201,154,69,.45)}
 .qs-pop{position:fixed;z-index:80;inset-inline:12px;bottom:calc(16px + env(safe-area-inset-bottom));margin-inline:auto;max-width:440px;padding:18px 16px 14px;border-radius:22px;border:1px solid var(--rim);
   background:color-mix(in srgb,var(--bg) 72%,transparent);backdrop-filter:blur(22px) saturate(1.5);-webkit-backdrop-filter:blur(22px) saturate(1.5);box-shadow:var(--shadow);display:grid;gap:10px;color:var(--ink)}
 .qs-pop p{margin:0;line-height:1.65;font-size:15px}
@@ -4362,7 +4365,7 @@ function guideBox(html) { let g = $("#qsGuide"); if (!g) { document.body.insertA
 function startGuide(force) {
   if (!force && (LS.get("qs-guide-seen", false) || $("#qsGuide"))) return; LS.set("qs-guide-seen", true);
   const l = L4(), rtl = l === "ur" || l === "ar";
-  guideBox(`<b ${rtl ? `dir="rtl" lang="${l}"` : ""}>${esc(tx4(TXT.guideQ))}</b><div class="qs-row"><button type="button" class="btn sm pri" data-gyes><span class="bl"></span><span>${esc(tx4(TXT.yes))}</span></button><button type="button" class="btn sm" data-gclose>${esc(tx4(TXT.later))}</button></div>`);
+  guideBox(`<div style="display:flex;gap:12px;align-items:center"><img class="qs-av" src="/a-guide.webp?v=1" alt="" width="46" height="46"><b ${rtl ? `dir="rtl" lang="${l}"` : ""}>${esc(tx4(TXT.guideQ))}</b></div><div class="qs-row"><button type="button" class="btn sm pri" data-gyes><span class="bl"></span><span>${esc(tx4(TXT.yes))}</span></button><button type="button" class="btn sm" data-gclose>${esc(tx4(TXT.later))}</button></div>`);
   playClip("guide", tx4(TXT.guideQ));
 }
 async function runTour(key) {
