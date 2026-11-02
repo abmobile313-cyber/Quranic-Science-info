@@ -1,4 +1,5 @@
 User-agent: *
 Allow: /
+Disallow: /*?source=app
 
 Sitemap: https://quranicscience.info/sitemap.xml
