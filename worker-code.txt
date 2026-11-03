@@ -1,0 +1,306 @@
+/*
+ * Quranic Science — free automation worker (Cloudflare Workers, free plan)
+ *
+ * 1) POST /razorpay   Razorpay webhook. When a student pays a course link, the student's classes open
+ *                     at once (users/{uid}.access[course] = true) and a WhatsApp confirmation goes out.
+ * 2) Cron (every 15 min) reminder 30 minutes before each class (classes are 1 hour), and "certificate ready" messages.
+ *    Cheapest first: free app alert → free WhatsApp reply (student wrote to us in last 24 h) → paid WhatsApp template.
+ * 3) GET  /health     quick check that the worker and its settings are in place.
+ * 4) Cron also: tells students when a teacher answered their doubt (free app alert), auto-replies on the bot number,
+ *    and once a day (2 am India time) saves a backup of all student data in Cloudflare KV (binding BACKUP, last 14 days).
+ *
+ * Secrets (set in Cloudflare → Worker → Settings → Variables, type "Secret"; never in this file):
+ *   RAZORPAY_WEBHOOK_SECRET   the secret typed when creating the Razorpay webhook
+ *   FIREBASE_SA               the whole Firebase service-account JSON (Project settings → Service accounts)
+ *   WA_TOKEN                  WhatsApp Cloud API permanent access token (Meta)
+ *   WA_PHONE_ID               WhatsApp phone number ID (Meta → WhatsApp → API setup)
+ *   WA_VERIFY_TOKEN           any word you choose; typed again in Meta → WhatsApp → Configuration → Webhook
+ *   WA_APP_SECRET             (optional) Meta app secret, checks that webhook calls really come from Meta
+ * Plain variables (optional):
+ *   WA_PAID_REMINDERS         "on" = class reminders may use paid WhatsApp templates; default off (free alerts only)
+ *   WA_MONTHLY_LIMIT          most paid WhatsApp messages per month, default 200 (= about Rs 27 at most)
+ *   WA_LANG                   template language code, default "en"
+ *   SITE                      default "https://quranicscience.info"
+ */
+
+const enc = new TextEncoder();
+const b64url = buf => btoa(String.fromCharCode(...new Uint8Array(buf))).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+const b64urlStr = s => b64url(enc.encode(s));
+const hex = buf => [...new Uint8Array(buf)].map(b => b.toString(16).padStart(2, "0")).join("");
+const digits = s => String(s || "").replace(/\D/g, "");
+const last10 = s => digits(s).slice(-10);
+const json = (o, status = 200) => new Response(JSON.stringify(o), { status, headers: { "content-type": "application/json" } });
+
+/* ---------- Razorpay signature ---------- */
+export async function verifyRazorpay(body, signature, secret) {
+  if (!signature || !secret) return false;
+  const key = await crypto.subtle.importKey("raw", enc.encode(secret), { name: "HMAC", hash: "SHA-256" }, false, ["sign"]);
+  const mac = hex(await crypto.subtle.sign("HMAC", key, enc.encode(body)));
+  if (mac.length !== signature.length) return false;
+  let d = 0; for (let i = 0; i < mac.length; i++) d |= mac.charCodeAt(i) ^ signature.charCodeAt(i);
+  return d === 0;
+}
+
+/* ---------- Google service-account token (for Firestore) ---------- */
+let TOKEN = { v: "", exp: 0 };
+export async function googleToken(sa, fetchImpl = fetch) {
+  const now = Math.floor(Date.now() / 1000);
+  if (TOKEN.v && TOKEN.exp - 60 > now) return TOKEN.v;
+  const header = b64urlStr(JSON.stringify({ alg: "RS256", typ: "JWT" }));
+  const claim = b64urlStr(JSON.stringify({ iss: sa.client_email, scope: "https://www.googleapis.com/auth/datastore https://www.googleapis.com/auth/firebase.messaging", aud: "https://oauth2.googleapis.com/token", iat: now, exp: now + 3600 }));
+  const pem = sa.private_key.replace(/-----[^-]+-----/g, "").replace(/\s+/g, "");
+  const der = Uint8Array.from(atob(pem), c => c.charCodeAt(0));
+  const key = await crypto.subtle.importKey("pkcs8", der, { name: "RSASSA-PKCS1-v1_5", hash: "SHA-256" }, false, ["sign"]);
+  const sig = b64url(await crypto.subtle.sign("RSASSA-PKCS1-v1_5", key, enc.encode(header + "." + claim)));
+  const r = await fetchImpl("https://oauth2.googleapis.com/token", { method: "POST", headers: { "content-type": "application/x-www-form-urlencoded" }, body: "grant_type=urn%3Aietf%3Aparams%3Aoauth%3Agrant-type%3Ajwt-bearer&assertion=" + header + "." + claim + "." + sig });
+  const j = await r.json(); if (!j.access_token) throw new Error("google token: " + JSON.stringify(j).slice(0, 200));
+  TOKEN = { v: j.access_token, exp: now + (j.expires_in || 3600) };
+  return TOKEN.v;
+}
+
+/* ---------- Firestore REST (minimal) ---------- */
+const toFS = v => v === null || v === undefined ? { nullValue: null }
+  : typeof v === "boolean" ? { booleanValue: v }
+  : typeof v === "number" ? (Number.isInteger(v) ? { integerValue: String(v) } : { doubleValue: v })
+  : typeof v === "string" ? { stringValue: v }
+  : Array.isArray(v) ? { arrayValue: { values: v.map(toFS) } }
+  : { mapValue: { fields: Object.fromEntries(Object.entries(v).map(([k, x]) => [k, toFS(x)])) } };
+const fromFS = f => f == null ? null : "stringValue" in f ? f.stringValue : "integerValue" in f ? Number(f.integerValue) : "doubleValue" in f ? f.doubleValue
+  : "booleanValue" in f ? f.booleanValue : "nullValue" in f ? null : "timestampValue" in f ? Date.parse(f.timestampValue)
+  : "arrayValue" in f ? (f.arrayValue.values || []).map(fromFS) : "mapValue" in f ? Object.fromEntries(Object.entries(f.mapValue.fields || {}).map(([k, x]) => [k, fromFS(x)])) : null;
+const docOut = d => Object.assign({ id: d.name.split("/").pop() }, fromFS({ mapValue: { fields: d.fields || {} } }));
+
+export function makeFS(env, fetchImpl = fetch) {
+  const sa = typeof env.FIREBASE_SA === "string" ? JSON.parse(env.FIREBASE_SA) : env.FIREBASE_SA;
+  const base = `https://firestore.googleapis.com/v1/projects/${sa.project_id}/databases/(default)/documents`;
+  const call = async (url, init = {}) => {
+    const t = await googleToken(sa, fetchImpl);
+    const r = await fetchImpl(url, Object.assign({}, init, { headers: Object.assign({ authorization: "Bearer " + t, "content-type": "application/json" }, init.headers || {}) }));
+    if (r.status === 404) return null;
+    const j = await r.json(); if (!r.ok) throw new Error("firestore " + r.status + ": " + JSON.stringify(j).slice(0, 300));
+    return j;
+  };
+  const flatPaths = (o, pre = "") => Object.entries(o).flatMap(([k, v]) => v && typeof v === "object" && !Array.isArray(v) && Object.keys(v).length ? flatPaths(v, pre + "`" + k + "`.") : [pre + "`" + k + "`"]);
+  return {
+    async get(path) { const d = await call(`${base}/${path}`); return d ? docOut(d) : null; },
+    /* merge-write: only the given (nested) fields change */
+    async merge(path, data) {
+      const mask = flatPaths(data).map(p => "updateMask.fieldPaths=" + encodeURIComponent(p)).join("&");
+      return call(`${base}/${path}?${mask}`, { method: "PATCH", body: JSON.stringify({ fields: toFS(data).mapValue.fields }) });
+    },
+    async add(coll, data) { return call(`${base}/${coll}`, { method: "POST", body: JSON.stringify({ fields: toFS(data).mapValue.fields }) }); },
+    async query(coll, where = [], limit = 500) {
+      const filters = where.map(([field, op, value]) => ({ fieldFilter: { field: { fieldPath: field }, op, value: toFS(value) } }));
+      const structuredQuery = { from: [{ collectionId: coll }], limit };
+      if (filters.length === 1) structuredQuery.where = filters[0];
+      if (filters.length > 1) structuredQuery.where = { compositeFilter: { op: "AND", filters } };
+      const r = await call(`${base}:runQuery`, { method: "POST", body: JSON.stringify({ structuredQuery }) });
+      return (r || []).filter(x => x.document).map(x => docOut(x.document));
+    }
+  };
+}
+
+/* ---------- WhatsApp Cloud API ---------- */
+export const waNumber = p => { const d = digits(p); return d.length === 10 ? "91" + d : d.replace(/^0+/, ""); };
+export async function sendWA(env, to, template, params, fetchImpl = fetch) {
+  if (!env.WA_TOKEN || !env.WA_PHONE_ID || !to) return { skipped: true };
+  const body = { messaging_product: "whatsapp", to: waNumber(to), type: "template",
+    template: { name: template, language: { code: env.WA_LANG || "en" }, components: [{ type: "body", parameters: params.map(t => ({ type: "text", text: String(t).slice(0, 900) })) }] } };
+  const r = await fetchImpl(`https://graph.facebook.com/v21.0/${env.WA_PHONE_ID}/messages`, { method: "POST", headers: { authorization: "Bearer " + env.WA_TOKEN, "content-type": "application/json" }, body: JSON.stringify(body) });
+  const j = await r.json().catch(() => ({})); return { ok: r.ok, status: r.status, id: (j.messages || [])[0]?.id, error: j.error?.message };
+}
+
+/* ---------- free app alert (Firebase Cloud Messaging, no charge) ---------- */
+export async function sendPush(env, token, msg, fetchImpl = fetch) {
+  const sa = typeof env.FIREBASE_SA === "string" ? JSON.parse(env.FIREBASE_SA) : env.FIREBASE_SA, t = await googleToken(sa, fetchImpl);
+  const r = await fetchImpl(`https://fcm.googleapis.com/v1/projects/${sa.project_id}/messages:send`, { method: "POST", headers: { authorization: "Bearer " + t, "content-type": "application/json" },
+    body: JSON.stringify({ message: { token, webpush: { headers: { Urgency: "high", TTL: "7200" }, data: { title: msg.title, body: msg.body, url: msg.url || "/", tag: msg.tag || "" } } } }) });
+  const j = await r.json().catch(() => ({})), code = JSON.stringify(j.error || "");
+  return { ok: r.ok, gone: r.status === 404 || /UNREGISTERED|INVALID_ARGUMENT/.test(code) };
+}
+/* free WhatsApp text: only allowed within 24 h after the student messaged us (1,000 free per month) */
+export async function sendWAText(env, to, text, fetchImpl = fetch) {
+  if (!env.WA_TOKEN || !env.WA_PHONE_ID) return { skipped: true };
+  const r = await fetchImpl(`https://graph.facebook.com/v21.0/${env.WA_PHONE_ID}/messages`, { method: "POST", headers: { authorization: "Bearer " + env.WA_TOKEN, "content-type": "application/json" }, body: JSON.stringify({ messaging_product: "whatsapp", to: waNumber(to), type: "text", text: { body: text.slice(0, 4000) } }) });
+  return { ok: r.ok, status: r.status };
+}
+/* cheapest first: 1) app alert (free)  2) WhatsApp text in open window (free)  3) WhatsApp template (paid, ~Rs 0.14, monthly cap) */
+/* free alert on the Quranic Science Android app (Firebase Cloud Messaging, no charge) */
+export async function sendAppPush(env, token, msg, fetchImpl = fetch) {
+  const sa = typeof env.FIREBASE_SA === "string" ? JSON.parse(env.FIREBASE_SA) : env.FIREBASE_SA, t = await googleToken(sa, fetchImpl);
+  const r = await fetchImpl(`https://fcm.googleapis.com/v1/projects/${sa.project_id}/messages:send`, { method: "POST", headers: { authorization: "Bearer " + t, "content-type": "application/json" },
+    body: JSON.stringify({ message: { token, notification: { title: msg.title, body: msg.body }, data: { url: msg.url || "", tag: msg.tag || "" },
+      android: { priority: "HIGH", notification: { channel_id: "alerts", icon: "ic_stat", color: "#C99A45", tag: msg.tag || undefined } } } }) });
+  const j = await r.json().catch(() => ({})), code = JSON.stringify(j.error || "");
+  return { ok: r.ok, gone: r.status === 404 || /UNREGISTERED|INVALID_ARGUMENT/.test(code) };
+}
+export async function notify(env, fs, user, msg, now = Date.now(), fetchImpl = fetch) {
+  if (user.pushApp && user.pushApp.token) {
+    const r = await sendAppPush(env, user.pushApp.token, msg, fetchImpl).catch(() => ({ ok: false }));
+    if (r.ok) { if (user.push && user.push.token) await sendPush(env, user.push.token, msg, fetchImpl).catch(() => {}); return { via: "app" }; }
+    if (r.gone && user.id) await fs.merge(`users/${user.id}`, { pushApp: { token: "" } });
+  }
+  if (user.push && user.push.token) {
+    const r = await sendPush(env, user.push.token, msg, fetchImpl).catch(() => ({ ok: false }));
+    if (r.ok) return { via: "push" };
+    if (r.gone && user.id) await fs.merge(`users/${user.id}`, { push: { token: "" } });
+  }
+  const ph = waNumber(user.phone); if (!ph || !env.WA_TOKEN) return { via: "none" };
+  const inbox = await fs.get(`waInbox/${ph}`);
+  if (inbox && now - inbox.ts < 23 * 3600000) { const r = await sendWAText(env, ph, `${msg.title}\n${msg.body}${msg.url ? "\n" + msg.url : ""}`, fetchImpl); if (r.ok) return { via: "whatsapp-free" }; }
+  if (!msg.paid) return { via: "none" };
+  const mk = "m" + new Date(now + 330 * 60000).toISOString().slice(0, 7).replace("-", "_"), cnt = (await fs.get("config/waCount")) || {}, used = cnt[mk] || 0, limit = +(env.WA_MONTHLY_LIMIT || 200);
+  if (used >= limit) return { via: "limit-reached" };
+  const r = await sendWA(env, ph, msg.template, msg.params, fetchImpl);
+  if (r.ok) { await fs.merge("config/waCount", { [mk]: used + 1 }); return { via: "whatsapp-paid" }; }
+  return { via: "failed", error: r.error || r.status };
+}
+
+/* ---------- payment → classes ---------- */
+/* course short forms, same as the website: student code ARS863M + TAJ = ARS863M-TAJ */
+export const SHORT = { "all-in-one-creator-course": "AIO", "tajweed-arabic-combo": "TAC", "ai-masterclass": "AIM", "video-editing-course": "VED", "content-creation-zero-to-pro": "CCP", "tajweed-class": "TAJ", "arabic-speaking-class": "ARB" };
+export const courseCode = (code, course) => code ? code + (SHORT[course] ? "-" + SHORT[course] : "") : "-";
+const slug = s => String(s || "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+export function paymentInfo(evt) {
+  const p = evt?.payload || {}, pay = p.payment?.entity || {}, link = p.payment_link?.entity || {};
+  return {
+    id: pay.id || link.id || "", amount: (pay.amount || link.amount_paid || link.amount || 0) / 100, currency: pay.currency || link.currency || "INR",
+    email: (pay.email || link.customer?.email || "").toLowerCase(), phone: pay.contact || link.customer?.contact || "",
+    linkUrl: link.short_url || "", linkId: link.id || pay.notes?.payment_link_id || "", notes: Object.assign({}, link.notes || {}, pay.notes || {})
+  };
+}
+export async function handlePayment(env, evt, fs, fetchImpl = fetch) {
+  const info = paymentInfo(evt);
+  if (!info.id) return { ignored: "no payment id" };
+  const done = await fs.get(`payments/${info.id}`); if (done && done.status === "applied") return { duplicate: true };
+  /* which course: owner dashboard keeps config/payLinks = { "<rzp short url or id>": "<course key>" } */
+  const cfg = (await fs.get("config/payLinks")) || {}, map = cfg.links || {};
+  const course = info.notes.course ? slug(info.notes.course) : map[info.linkUrl] || map[info.linkId] || "";
+  /* which student: same mobile (last 10 digits) or same email */
+  let user = null;
+  if (info.phone) { const all = await fs.query("users", [["phoneLast10", "EQUAL", last10(info.phone)]], 5); user = all[0] || null; }
+  if (!user && info.email) { const all = await fs.query("users", [["email", "EQUAL", info.email]], 5); user = all[0] || null; }
+  const rec = { id: info.id, amount: info.amount, currency: info.currency, email: info.email, phone: info.phone, link: info.linkUrl || info.linkId, course, uid: user ? user.id : "", ts: Date.now() };
+  if (!course || !user) { await fs.merge(`payments/${info.id}`, Object.assign(rec, { status: "needs-owner", reason: !course ? "course link not recognised" : "no student with this mobile/email" })); return { pending: rec }; }
+  await fs.merge(`users/${user.id}`, { access: { [course]: true }, paid: { [course]: Date.now() }, paidNotified: { [course]: Date.now() } });
+  await fs.merge(`payments/${info.id}`, Object.assign(rec, { status: "applied" }));
+  /* close the student's own "I have paid" requests for this course */
+  for (const a of await fs.query("activities", [["uid", "EQUAL", user.id]], 50))
+    if (a.kind === "payment" && String(a.title || "").includes(`[${course}]`) && !["Paid", "Cancelled"].includes(a.status)) await fs.merge(`activities/${a.id}`, { status: "Paid" });
+  await fs.add("activities", { uid: user.id, name: user.name || "", phone: user.phone || info.phone, email: user.email || info.email, kind: "payment", title: `Paid (auto): ${course} [${course}]`, status: "Paid", section: "learn", sectionName: "Learn with Us", ts: Date.now() });
+  const courseName = (cfg.names || {})[course] || course;
+  /* payment receipt (slip) with the founder's signature: the student opens/saves it at SITE/#receipt=<payment id>; the same link goes in the WhatsApp message */
+  const bl = { M: "Morning batch", E: "Evening batch" }[user.batch] || "";
+  await fs.merge(`receipts/${info.id}`, { uid: user.id, name: user.name || "", code: user.code ? courseCode(user.code, course) : "", course, courseName, amount: info.amount, currency: info.currency, paymentId: info.id, batch: bl ? bl + " · 1 hour classes, timing shared in your batch" : "", ts: Date.now() });
+  const sent = await notify(env, fs, Object.assign({ phone: info.phone }, user), { title: "Payment received ✓", body: `Assalamu Alaikum ${user.name || ""}, your fee for ${courseName} is received. Your classes are open now. Your receipt: ${(env.SITE || "https://quranicscience.info")}/#receipt=${info.id}`, url: (env.SITE || "https://quranicscience.info") + "/#learn", tag: "pay", paid: true, template: "payment_confirmed", params: [user.name || "Student", courseName, courseCode(user.code, course)] }, Date.now(), fetchImpl);
+  return { applied: { uid: user.id, course }, sent };
+}
+
+/* ---------- reminders + certificates (cron) ---------- */
+/* class.date is "YYYY-MM-DD HH:MM" in India time (what the class form saves) */
+export const istMs = s => { const m = /^(\d{4})-(\d{2})-(\d{2})[ T](\d{2}):(\d{2})/.exec(String(s || "")); return m ? Date.UTC(+m[1], +m[2] - 1, +m[3], +m[4] - 5, +m[5] - 30) : NaN; };
+export async function runCron(env, fs, now = Date.now(), fetchImpl = fetch) {
+  const out = { reminded: 0, certs: 0, via: {}, errors: [] }, site = env.SITE || "https://quranicscience.info";
+  const cfg = (await fs.get("config/payLinks")) || {}, names = cfg.names || {};
+  /* 1) class reminders: about 30 minutes before (the 15-minute cron lands once in the 24–39 minute window), once per class */
+  /* only classes dated between now and +2 hours (IST text dates sort correctly) */
+  const ist = ms => new Date(ms + 330 * 60000).toISOString().slice(0, 16).replace("T", " ");
+  const classes = await fs.query("classes", [["date", "GREATER_THAN_OR_EQUAL", ist(now)], ["date", "LESS_THAN_OR_EQUAL", ist(now + 2 * 3600000)]], 200);
+  for (const k of classes) {
+    const t = istMs(k.date); if (isNaN(t) || (k.reminder && k.reminder.sent)) continue;
+    const mins = (t - now) / 60000; if (mins < 24 || mins > 39) continue;
+    const studs = await fs.query("users", [[`access.\`${k.course}\``, "EQUAL", true]], 1000);
+    const when = new Date(t + 330 * 60000).toISOString().slice(11, 16);
+    const title = (k.title && (k.title.en || k.title.ur)) || "Class " + (k.n || "");
+    let n = 0;
+    for (const u of studs) {
+      if (k.batch && k.batch !== "ALL" && u.batch && u.batch !== k.batch) continue;
+      const r = await notify(env, fs, u, { title: `Class in 30 minutes · ${when} IST`, body: `${names[k.course] || k.course}: ${title}. 1 hour class, first 15 minutes Q&A. Tap to join.`, url: k.zoom || site + "/#learn", tag: "class-" + k.id, paid: env.WA_PAID_REMINDERS === "on", template: "class_reminder", params: [u.name || "Student", names[k.course] || k.course, title, when + " IST", k.zoom || site + "/#learn"] }, now, fetchImpl);
+      out.via[r.via] = (out.via[r.via] || 0) + 1; if (r.via !== "none" && r.via !== "failed" && r.via !== "limit-reached") n++; else if (r.via === "failed") out.errors.push(`${u.id}: ${r.error}`);
+    }
+    await fs.merge(`classes/${k.id}`, { reminder: { sent: true, at: now, count: n } });
+    out.reminded += n;
+  }
+  /* 2) certificate ready: certificates not yet announced */
+  /* only certificates made in the last 2 days (older ones were before the automation) */
+  const certs = await fs.query("certificates", [["ts", "GREATER_THAN", now - 2 * 864e5]], 200);
+  for (const c of certs) {
+    if (c.notified || !c.uid) continue;
+    const u = await fs.get(`users/${c.uid}`); if (!u) continue;
+    const r = await notify(env, fs, Object.assign({ id: c.uid }, u), { title: "Certificate ready 🎓", body: `Masha Allah ${u.name || c.name || ""}! Your ${c.course || ""} certificate is ready.`, url: `${site}/#verify=${c.id}`, tag: "cert", paid: true, template: "certificate_ready", params: [u.name || c.name || "Student", c.course || "", `${site}/#verify=${c.id}`] }, now, fetchImpl);
+    await fs.merge(`certificates/${c.id}`, { notified: now, via: r.via });
+    out.via[r.via] = (out.via[r.via] || 0) + 1; if (!["none", "failed", "limit-reached"].includes(r.via)) out.certs++;
+  }
+  /* 2b) classes opened by the owner (Approve button or tick in the student table): tell the student once */
+  try {
+    for (const ck of Object.keys(SHORT)) {
+      const us = await fs.query("users", [[`paid.\`${ck}\``, "GREATER_THAN", now - 2 * 864e5]], 200);
+      for (const u of us) {
+        if ((u.paidNotified || {})[ck] || !(u.access || {})[ck]) continue;
+        const r = await notify(env, fs, u, { title: "Your classes are open ✓", body: `Assalamu Alaikum ${u.name || ""}, your fee for ${names[ck] || ck} is confirmed. Your classes are open now in My classes.`, url: site + "/#learn", tag: "pay-" + ck, paid: false }, now, fetchImpl);
+        await fs.merge(`users/${u.id}`, { paidNotified: { [ck]: now } });
+        out.opened = (out.opened || 0) + 1; out.via[r.via] = (out.via[r.via] || 0) + 1;
+      }
+    }
+  } catch (e) { out.errors.push("opened: " + String(e.message || e).slice(0, 120)); }
+  /* 3) doubts answered by a teacher: tell the student (free app alert or free WhatsApp reply only) */
+  try {
+    const ds = await fs.query("doubts", [["status", "EQUAL", "answered"], ["notified", "EQUAL", false]], 100);
+    for (const d of ds) {
+      const u = d.uid ? await fs.get(`users/${d.uid}`) : null;
+      const r = u ? await notify(env, fs, Object.assign({ id: d.uid }, u), { title: "Your teacher answered ✓", body: `${d.courseName || "Your course"}: ${String(d.answer || "").slice(0, 120)}`, url: site + "/#learn", tag: "doubt-" + d.id, paid: false }, now, fetchImpl) : { via: "none" };
+      await fs.merge(`doubts/${d.id}`, { notified: true, notifiedVia: r.via });
+      out.doubts = (out.doubts || 0) + 1;
+    }
+  } catch (e) { out.errors.push("doubts: " + String(e.message || e).slice(0, 120)); }
+  /* 4) daily backup at about 2 am India time, kept 14 days in Cloudflare KV (free) */
+  const istNow = new Date(now + 330 * 60000);
+  if (env.BACKUP && istNow.getUTCHours() === 2 && istNow.getUTCMinutes() < 15) {
+    try {
+      const dump = { at: new Date(now).toISOString() };
+      for (const n of ["users", "teachers", "classes", "attendance", "certificates", "activities", "payments", "doubts", "config"]) dump[n] = await fs.query(n, [], 5000);
+      await env.BACKUP.put("backup-" + istNow.toISOString().slice(0, 10), JSON.stringify(dump), { expirationTtl: 14 * 86400 });
+      out.backup = istNow.toISOString().slice(0, 10);
+    } catch (e) { out.errors.push("backup: " + String(e.message || e).slice(0, 120)); }
+  }
+  await fs.merge("config/worker", Object.assign({ lastCron: now, lastResult: JSON.stringify(out).slice(0, 900) }, out.backup ? { lastBackup: out.backup } : {}));
+  return out;
+}
+
+export default {
+  async fetch(req, env) {
+    const url = new URL(req.url);
+    if (url.pathname === "/health") return json({ ok: true, razorpay: !!env.RAZORPAY_WEBHOOK_SECRET, firebase: !!env.FIREBASE_SA, whatsapp: !!(env.WA_TOKEN && env.WA_PHONE_ID), whatsappWebhook: !!env.WA_VERIFY_TOKEN, backup: !!env.BACKUP, paidReminders: env.WA_PAID_REMINDERS === "on", monthlyLimit: +(env.WA_MONTHLY_LIMIT || 200) });
+    /* WhatsApp webhook: remembers when a student messaged us, so our replies in the next 24 h are free */
+    if (url.pathname === "/whatsapp" && req.method === "GET") {
+      const ok = url.searchParams.get("hub.mode") === "subscribe" && env.WA_VERIFY_TOKEN && url.searchParams.get("hub.verify_token") === env.WA_VERIFY_TOKEN;
+      return new Response(ok ? url.searchParams.get("hub.challenge") : "forbidden", { status: ok ? 200 : 403 });
+    }
+    if (url.pathname === "/whatsapp" && req.method === "POST") {
+      const body = await req.text();
+      if (env.WA_APP_SECRET && !(await verifyRazorpay(body, String(req.headers.get("x-hub-signature-256") || "").replace(/^sha256=/, ""), env.WA_APP_SECRET))) return json({ error: "bad signature" }, 401);
+      try { const j = JSON.parse(body), fs = makeFS(env);
+        for (const e of j.entry || []) for (const c of e.changes || []) for (const m of (c.value && c.value.messages) || []) {
+          const from = digits(m.from), prev = (await fs.get(`waInbox/${from}`)) || {};
+          await fs.merge(`waInbox/${from}`, { ts: Date.now(), name: ((c.value.contacts || [])[0] || {}).profile?.name || "" });
+          /* this number only sends automatic messages: point people to the main number (free reply, once per 12 hours) */
+          if (!prev.replied || Date.now() - prev.replied > 12 * 3600000) {
+            const main = env.MAIN_WA || "919272527913";
+            const r = await sendWAText(env, from, `Assalamu Alaikum! This number sends Quranic Science's automatic messages only (fees, class reminders, certificates).\nTo talk to us, please message +${main}: https://wa.me/${main}\nبات کرنے کے لیے اس نمبر پر میسج کریں: +${main}`);
+            if (r.ok) await fs.merge(`waInbox/${from}`, { replied: Date.now() });
+          }
+        }
+      } catch (e) {}
+      return json({ ok: true });
+    }
+    if (url.pathname === "/razorpay" && req.method === "POST") {
+      const body = await req.text();
+      if (!(await verifyRazorpay(body, req.headers.get("x-razorpay-signature"), env.RAZORPAY_WEBHOOK_SECRET))) return json({ error: "bad signature" }, 401);
+      const evt = JSON.parse(body);
+      if (evt.event !== "payment_link.paid") return json({ ignored: evt.event });
+      try { return json(await handlePayment(env, evt, makeFS(env))); } catch (e) { return json({ error: String(e.message || e) }, 500); }
+    }
+    return json({ ok: true, service: "quranic-science-automation" });
+  },
+  async scheduled(event, env, ctx) { ctx.waitUntil(runCron(env, makeFS(env)).catch(e => console.log("cron error", e.message))); }
+};
