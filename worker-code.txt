@@ -145,7 +145,7 @@ export async function notify(env, fs, user, msg, now = Date.now(), fetchImpl = f
     if (r.ok) return { via: "push" };
     if (r.gone && user.id) await fs.merge(`users/${user.id}`, { push: { token: "" } });
   }
-  const ph = waNumber(user.phone); if (!ph || !env.WA_TOKEN) return { via: "none" };
+  const ph = waNumber(user.waPhone || user.phone); if (!ph || !env.WA_TOKEN) return { via: "none" };
   const inbox = await fs.get(`waInbox/${ph}`);
   if (inbox && now - inbox.ts < 23 * 3600000) { const r = await sendWAText(env, ph, `${msg.title}\n${msg.body}${msg.url ? "\n" + msg.url : ""}`, fetchImpl); if (r.ok) return { via: "whatsapp-free" }; }
   if (!msg.paid) return { via: "none" };
@@ -194,6 +194,67 @@ export async function handlePayment(env, evt, fs, fetchImpl = fetch) {
   await fs.merge(`receipts/${info.id}`, { uid: user.id, name: user.name || "", code: user.code ? courseCode(user.code, course) : "", course, courseName, amount: info.amount, currency: info.currency, paymentId: info.id, batch: bl ? bl + " · 1 hour classes, timing shared in your batch" : "", ts: Date.now() });
   const sent = await notify(env, fs, Object.assign({ phone: info.phone }, user), { title: "Payment received ✓", body: `Assalamu Alaikum ${user.name || ""}, your fee for ${courseName} is received. Your classes are open now. Your receipt: ${(env.SITE || "https://quranicscience.info")}/#receipt=${info.id}`, url: (env.SITE || "https://quranicscience.info") + "/#learn", tag: "pay", paid: true, template: "payment_confirmed", params: [user.name || "Student", courseName, courseCode(user.code, course)] }, Date.now(), fetchImpl);
   return { applied: { uid: user.id, course }, sent };
+}
+
+
+/* ---------- WhatsApp bot: role-aware free replies (people message us first, so every reply is free) ---------- */
+const BOT_MENU = {
+  student: "Reply with a number:\n1 – My next class\n2 – My courses & fee status\n3 – My certificate\n4 – Talk to a person\n0 – This menu",
+  teacher: "Reply with a number:\n1 – My next class\n2 – Open student doubts\n4 – Talk to the owner\n0 – This menu",
+  visitor: "Reply with a number:\n1 – Courses & fees\n2 – How to join\n3 – Seats left in the first batch\n4 – Talk to a person\n0 – This menu"
+};
+export async function whoIs(fs, from, text) {
+  let user = null;
+  const id = (/\bID[:\s]*([A-Za-z0-9]{20,40})/.exec(text || "") || [])[1];
+  if (id) { const u = await fs.get(`users/${id}`); if (u) user = u; }
+  if (!user) { const l = last10(from); const a = await fs.query("users", [["waPhone", "EQUAL", digits(from)]], 2); user = a[0] || (await fs.query("users", [["phoneLast10", "EQUAL", l]], 2))[0] || null; }
+  let teacher = null;
+  if (user && user.email) teacher = await fs.get(`teachers/${String(user.email).toLowerCase()}`);
+  const paid = user ? Object.keys(user.access || {}).filter(k => user.access[k]) : [];
+  return { user, teacher, paid, role: teacher ? "teacher" : paid.length ? "student" : "visitor" };
+}
+const fmtIST = ms => { const d = new Date(ms + 330 * 60000); return d.toISOString().slice(0, 10) + " " + d.toISOString().slice(11, 16) + " IST"; };
+async function nextClass(fs, courses, batch, now) {
+  const ist = ms => new Date(ms + 330 * 60000).toISOString().slice(0, 16).replace("T", " ");
+  let best = null;
+  for (const ck of courses) {
+    const list = await fs.query("classes", [["course", "EQUAL", ck]], 200);
+    for (const k of list) { const t = istMs(k.date); if (isNaN(t) || t < now - 3600000) continue; if (batch && k.batch && k.batch !== "ALL" && k.batch !== batch) continue; if (!best || t < best.t) best = { t, k }; }
+  }
+  void ist; return best;
+}
+export async function botReply(env, fs, from, text, who, prev, now = Date.now()) {
+  const site = env.SITE || "https://quranicscience.info", main = env.MAIN_WA || "919272527913";
+  const cfg = (await fs.get("config/payLinks")) || {}, names = cfg.names || {}, nm = k => names[k] || k;
+  const u = who.user || {}, name = (u.name || prev.name || "").split(" ")[0], t = String(text || "").trim().toLowerCase();
+  const human = `To talk to us, message +${main}: https://wa.me/${main}\nبات کرنے کے لیے اس نمبر پر میسج کریں۔`;
+  const first = !prev.welcomed || prev.role !== who.role;
+  if (first || /^(0|hi|hello|salam|assalam|menu|start)\b/.test(t) || /hi qs/.test(t)) {
+    if (who.role === "teacher") return `Assalamu Alaikum ${name || "Ustad"}! ✅ Teacher alerts are ON for Quranic Science.\nYou will get here: new student doubts and a reminder 30 minutes before your class.\n\n${BOT_MENU.teacher}\nٹیچر الرٹس شروع ہو گئے ہیں۔`;
+    if (who.role === "student") return `Assalamu Alaikum ${name}! ✅ WhatsApp alerts are ON.\nYou will get here: class reminders (30 min before), fee receipt, your teacher's answers and your certificate.${u.code ? "\nYour student code: " + u.code : ""}\n\n${BOT_MENU.student}\nآپ کے الرٹس شروع ہو گئے ہیں۔`;
+    return `Assalamu Alaikum${name ? " " + name : ""}! Welcome to Quranic Science 🌙\nLive Zoom courses with recordings: Tajweed, Arabic Speaking, AI Masterclass, Video Editing, Content Creation and more.\nFirst batch: enrolment till 30 November, classes from 1 December. Only 100 seats per batch.\n\n${BOT_MENU.visitor}\nخوش آمدید! نمبر لکھ کر جواب دیں۔`;
+  }
+  const n = (/^\d/.exec(t) || [""])[0];
+  if (who.role === "visitor") {
+    if (n === "1" || /course|fee|price/.test(t)) return `📚 Courses & fees (first batch prices):\n${site}/#learn\nEach course shows its fee, duration, timings and an Enroll button.\n\n${BOT_MENU.visitor}`;
+    if (n === "2" || /join|enrol|admission/.test(t)) return `How to join:\n1) Log in at ${site} (Google or mobile)\n2) Open Courses, pick a course and your batch (morning/evening)\n3) Tap Enroll and pay\n4) Tap "I have paid" – your classes open and you get your student code here.\n\n${BOT_MENU.visitor}`;
+    if (n === "3" || /seat/.test(t)) { const s = await fs.get("voice/seats"); const c = (s && s.counts) || s || {}; const cap = +(s && s.cap) || 100; const lines = Object.entries(c).filter(([k, v]) => v && typeof v === "object").slice(0, 8).map(([k, v]) => `• ${nm(k)}: morning ${Math.max(0, cap - (v.M || 0))}, evening ${Math.max(0, cap - (v.E || 0))} seats left`); return `🪑 Seats left (100 per batch):\n${lines.join("\n") || "See " + site + "/#learn"}\n\nSeats fill fast – lock yours at ${site}/#learn\n\n${BOT_MENU.visitor}`; }
+    if (n === "4") return human;
+    return `Sorry, this is an automatic number. ${human}\n\n${BOT_MENU.visitor}`;
+  }
+  if (who.role === "teacher") {
+    const T = who.teacher;
+    if (n === "1" || /class/.test(t)) { const b = await nextClass(fs, [T.course], T.batch, now); return b ? `📅 Your next class: ${nm(T.course)} – ${(b.k.title && (b.k.title.en || b.k.title.ur)) || "Class " + (b.k.n || "")}\n${fmtIST(istMs(b.k.date))}${b.k.zoom ? "\nZoom: " + b.k.zoom : ""}` : `No upcoming class is scheduled yet. Add one in your teacher panel: ${site}/#learn`; }
+    if (n === "2" || /doubt/.test(t)) { const d = (await fs.query("doubts", [["course", "EQUAL", T.course]], 200)).filter(x => x.status === "open"); return `❓ Open student doubts in ${nm(T.course)}: ${d.length}\nAnswer them in your panel → Student doubts: ${site}/#learn`; }
+    if (n === "4") return human;
+    return `This is an automatic number. ${BOT_MENU.teacher}`;
+  }
+  /* student */
+  if (n === "1" || /class|zoom/.test(t)) { const b = await nextClass(fs, who.paid, u.batch, now); return b ? `📅 Your next class: ${nm(b.k.course)} – ${(b.k.title && (b.k.title.en || b.k.title.ur)) || "Class " + (b.k.n || "")}\n${fmtIST(istMs(b.k.date))}\nJoin from My classes: ${site}/#learn\nYou will also get a reminder here 30 minutes before.` : `Your next class date is not announced yet. You will get a message here as soon as it is.`; }
+  if (n === "2" || /fee|course|paid|payment/.test(t)) return `✅ Your open courses:\n${who.paid.map(k => "• " + nm(k)).join("\n")}${u.code ? "\nStudent code: " + u.code : ""}\nBatch: ${({ M: "Morning", E: "Evening" })[u.batch] || "-"}\nReceipts and classes: ${site}/#learn`;
+  if (n === "3" || /certif/.test(t)) { const c = (await fs.query("certificates", [["uid", "EQUAL", u.id]], 10))[0]; return c ? `🎓 Your certificate: ${site}/#verify=${c.id}` : `Your certificate opens after you finish all classes, the 3 questions after each class and the weekly tests. Keep going! 💪`; }
+  if (n === "4") return human;
+  return `This is an automatic number, so a person may not see this. ${human}\n\n${BOT_MENU.student}`;
 }
 
 /* ---------- reminders + certificates (cron) ---------- */
@@ -253,6 +314,49 @@ export async function runCron(env, fs, now = Date.now(), fetchImpl = fetch) {
       out.doubts = (out.doubts || 0) + 1;
     }
   } catch (e) { out.errors.push("doubts: " + String(e.message || e).slice(0, 120)); }
+  /* 3b) new student doubt: tell the course teacher (free app alert / free WhatsApp reply only) */
+  try {
+    const open = await fs.query("doubts", [["status", "EQUAL", "open"]], 200);
+    for (const d of open) {
+      if (d.teacherNotified || now - (d.ts || 0) > 3 * 864e5) continue;
+      const ts = await fs.query("teachers", [["course", "EQUAL", d.course]], 10);
+      for (const T of ts) {
+        if (T.batch && d.batch && T.batch !== d.batch && T.batch !== "ALL") continue;
+        const tu = (await fs.query("users", [["email", "EQUAL", T.id]], 1))[0] || { phone: T.phone };
+        await notify(env, fs, Object.assign({ phone: T.phone }, tu), { title: "New student doubt ❓", body: `${d.name || "A student"} (${d.courseName || d.course}): ${String(d.q || "").slice(0, 160)}
+Answer in Student doubts.`, url: site + "/#learn", tag: "tdoubt-" + d.id, paid: false }, now, fetchImpl);
+      }
+      await fs.merge(`doubts/${d.id}`, { teacherNotified: now });
+    }
+  } catch (e) { out.errors.push("teacher doubts: " + String(e.message || e).slice(0, 120)); }
+  /* 3c) class in 30 minutes: remind the teacher too (free only) */
+  try {
+    for (const k of classes) {
+      const t = istMs(k.date); if (isNaN(t) || (k.reminder && k.reminder.teacher)) continue;
+      const mins = (t - now) / 60000; if (mins < 24 || mins > 39) continue;
+      const ts = await fs.query("teachers", [["course", "EQUAL", k.course]], 10);
+      for (const T of ts) {
+        if (k.batch && k.batch !== "ALL" && T.batch && T.batch !== k.batch && T.batch !== "ALL") continue;
+        const tu = (await fs.query("users", [["email", "EQUAL", T.id]], 1))[0] || {};
+        await notify(env, fs, Object.assign({ phone: T.phone }, tu), { title: "Your class starts in 30 minutes", body: `${names[k.course] || k.course}: ${(k.title && (k.title.en || k.title.ur)) || "Class " + (k.n || "")}. Tap Start class in your panel.`, url: k.zoom || site + "/#learn", tag: "tclass-" + k.id, paid: false }, now, fetchImpl);
+      }
+      await fs.merge(`classes/${k.id}`, { reminder: { teacher: now } });
+    }
+  } catch (e) { out.errors.push("teacher reminders: " + String(e.message || e).slice(0, 120)); }
+  /* 3d) visitors who said Hi but have not joined: one friendly follow-up 6–20 hours later (free: inside the 24 h window) */
+  try {
+    if (env.WA_TOKEN) {
+      const vs = await fs.query("waInbox", [["role", "EQUAL", "visitor"]], 300);
+      for (const v of vs) {
+        const age = now - (v.ts || 0); if (v.nudged || age < 6 * 3600000 || age > 20 * 3600000) continue;
+        const r = await sendWAText(env, v.id, `Assalamu Alaikum${v.name ? " " + v.name.split(" ")[0] : ""}! 🌙 Seats in the first batch of Quranic Science are filling up (only 100 per batch, first-batch discount till 30 November).
+Pick your course: ${site}/#learn
+Any question? Reply 4 to talk to a person.`, fetchImpl);
+        await fs.merge(`waInbox/${v.id}`, { nudged: now, nudgeOk: !!r.ok });
+        out.nudged = (out.nudged || 0) + (r.ok ? 1 : 0);
+      }
+    }
+  } catch (e) { out.errors.push("visitor nudge: " + String(e.message || e).slice(0, 120)); }
   /* 4) daily backup at about 2 am India time, kept 14 days in Cloudflare KV (free) */
   const istNow = new Date(now + 330 * 60000);
   if (env.BACKUP && istNow.getUTCHours() === 2 && istNow.getUTCMinutes() < 15) {
@@ -281,14 +385,14 @@ export default {
       if (env.WA_APP_SECRET && !(await verifyRazorpay(body, String(req.headers.get("x-hub-signature-256") || "").replace(/^sha256=/, ""), env.WA_APP_SECRET))) return json({ error: "bad signature" }, 401);
       try { const j = JSON.parse(body), fs = makeFS(env);
         for (const e of j.entry || []) for (const c of e.changes || []) for (const m of (c.value && c.value.messages) || []) {
-          const from = digits(m.from), prev = (await fs.get(`waInbox/${from}`)) || {};
-          await fs.merge(`waInbox/${from}`, { ts: Date.now(), name: ((c.value.contacts || [])[0] || {}).profile?.name || "" });
-          /* this number only sends automatic messages: point people to the main number (free reply, once per 12 hours) */
-          if (!prev.replied || Date.now() - prev.replied > 12 * 3600000) {
-            const main = env.MAIN_WA || "919272527913";
-            const r = await sendWAText(env, from, `Assalamu Alaikum! This number sends Quranic Science's automatic messages only (fees, class reminders, certificates).\nTo talk to us, please message +${main}: https://wa.me/${main}\nبات کرنے کے لیے اس نمبر پر میسج کریں: +${main}`);
-            if (r.ok) await fs.merge(`waInbox/${from}`, { replied: Date.now() });
-          }
+          const from = digits(m.from), prev = (await fs.get(`waInbox/${from}`)) || {}, now = Date.now();
+          const text = m.type === "text" ? (m.text && m.text.body) || "" : m.type === "button" ? (m.button && m.button.text) || "" : m.type === "interactive" ? JSON.stringify(m.interactive || {}) : "";
+          const who = await whoIs(fs, from, text);
+          const rec = { ts: now, name: ((c.value.contacts || [])[0] || {}).profile?.name || prev.name || "", role: who.role, uid: who.user ? who.user.id : (prev.uid || "") };
+          await fs.merge(`waInbox/${from}`, rec);
+          if (who.user) await fs.merge(`users/${who.user.id}`, { waPhone: from, waOk: now, waRole: who.role });
+          const reply = await botReply(env, fs, from, text, who, prev, now).catch(() => "");
+          if (reply) { const r = await sendWAText(env, from, reply); if (r.ok) await fs.merge(`waInbox/${from}`, { welcomed: true, replied: now }); }
         }
       } catch (e) {}
       return json({ ok: true });
