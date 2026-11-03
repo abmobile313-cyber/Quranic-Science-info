@@ -1,7 +1,7 @@
 /* Quranic Science DEMO MODE: a full practice copy of the website that runs only in this browser.
    Nothing here touches the real student database. Open quranicscience.info/?demo=1 to start, ?demo=0 to leave. */
 (() => {
-  const DBK = "qs-demo-db", UK = "qs-demo-users", CK = "qs-demo-cur";
+  const DBK = "qs-demo-db2", UK = "qs-demo-users2", CK = "qs-demo-cur2";
   const J = (k, d) => { try { return JSON.parse(localStorage.getItem(k)) || d; } catch (e) { return d; } };
   const S = (k, v) => localStorage.setItem(k, JSON.stringify(v));
   const clone = v => v === undefined ? v : JSON.parse(JSON.stringify(v));
@@ -50,7 +50,7 @@
     const db = {
       users: {
         owner1: { name: "Arsalan Ahmed Shaikh", email: "quranicscience01@gmail.com", phone: "+91 9272527913", phoneLast10: "9272527913", createdAt: now },
-        tch1: { name: "Bilal Ahmed", email: "teacher@demo.quranicscience.info", phone: "+91 9876543210", phoneLast10: "9876543210", code: "BIL210E", batch: "E", createdAt: now - 864e5 },
+        tch1: { name: "Bilal Ahmed", email: "teacher@demo.quranicscience.info", phone: "+91 9876543210", phoneLast10: "9876543210", createdAt: now - 864e5 },
         stu1: { name: "Ayesha Khan", email: "student@demo.quranicscience.info", phone: "+91 9820012345", phoneLast10: "9820012345", code: "AYE345E", batch: "E", country: "IN", joinedAt: now - 3 * 864e5, createdAt: now - 3 * 864e5,
           access: { [CK2]: true }, paid: { [CK2]: now - 2 * 864e5 }, prog: { [CK2]: { qz: { demo_c1: { ok: true, a: [0, 0, 0], t: now - 864e5 } }, q: { demo_c1: { a: [0, 0, 0], t: now - 864e5 } } } } },
         stu2: { name: "Zaid Siddiqui", email: "zaid@demo.quranicscience.info", phone: "+91 9000011122", phoneLast10: "9000011122", code: "ZAI122M", batch: "M", country: "IN", joinedAt: now - 864e5, createdAt: now - 864e5 }
