@@ -683,5 +683,49 @@ Open My classes: ${location.origin}/#learn`,"Automatic WhatsApp (+91 78228 31751
     <div class="qs-snext"><b>What happens next?</b><ol><li>Tap the WhatsApp button and send the message.</li><li>We add your name to the waiting list.</li><li>When the next batch opens, you get our message first and can book your seat before anyone else.</li></ol></div>
     <div class="acts">${waBtn("Join the waiting list on WhatsApp",r,{kind:"course",title:"Waiting list: "+e.name+" ("+S(t)+")",sec:"learn"})}</div>
     <p lang="ur" dir="rtl" class="hint" style="margin:6px 0 0">یہ بیچ مکمل ہو گیا ہے (${o} سیٹیں)۔ واٹس ایپ پر ویٹنگ لسٹ میں نام لکھوائیں، اگلے بیچ میں آپ کو سب سے پہلے سیٹ ملے گی۔</p>`);try{play("error"),navigator.vibrate&&navigator.vibrate([120,80,120])}catch{}const l=$("#qsSwitch");l&&(l.onclick=async()=>{try{const d=studentCode(i.name||"",i.phone||"",n);await AUTH.fb.db.collection("users").doc(i.uid).set({batch:n,code:d},{merge:!0}),AUTH.user.batch=n,AUTH.user.code=d,closeTop(),play("success"),toast(`You are now in the ${S(n)}. Your new student code: ${d}`),setTimeout(()=>{const p=$$("[data-enr]").find(u=>u.dataset.cname===e.name&&!u.classList.contains("rec"))||$$("[data-enr]").find(u=>u.dataset.cname===e.name);p&&p.click()},900)}catch{toast("Could not change the batch. Please message us on WhatsApp.")}})}window.addEventListener("click",e=>{const t=e.target.closest&&e.target.closest("[data-enr]");if(!t||!T.ok)return;const a=DATA.learn.courses.find(o=>o.name===t.dataset.cname);if(!a||unlocked(a))return;const n=ckey(a),s=AUTH.user,i=s&&s.batch?s.batch:M(n,"M")===0&&M(n,"E")===0?"M":null;!i||M(n,i)>0||(e.preventDefault(),e.stopImmediatePropagation(),je(a,i))},!0),window.qsSeatsSync=async function(){try{if(!isOwner()||!(AUTH.fb&&AUTH.fb.db)||window.QS_DEMO)return;const e={};DATA.learn.courses.forEach(a=>e[ckey(a)]={M:0,E:0}),(await AUTH.fb.db.collection("users").get()).docs.forEach(a=>{const n=a.data()||{};for(const s in n.access||{})n.access[s]===!0&&e[s]&&e[s][n.batch==="E"?"E":"M"]++}),await AUTH.fb.db.collection("voice").doc("seats").set(Object.assign({t:Date.now()},e)),T.d=e,T.ok=!0,C()}catch{}},document.addEventListener("change",e=>{e.target.matches&&e.target.matches("[data-acc]")&&setTimeout(window.qsSeatsSync,1500)}),setInterval(()=>{AUTH.user&&isOwner()&&Date.now()-g.get("qs-seat-sync",0)>20*6e4&&(g.set("qs-seat-sync",Date.now()),window.qsSeatsSync())},15e3),window.__qsSA=0,setTimeout(()=>{window.__qsSA=Date.now(),W()},window.QS_DEMO?2500:1200),setInterval(()=>{document.hidden||Date.now()-window.__qsSA<3e5||(window.__qsSA=Date.now(),W())},6e5),document.addEventListener("visibilitychange",()=>{document.hidden||Date.now()-window.__qsSA<3e5||(window.__qsSA=Date.now(),W())}),z(),setTimeout(X,300),setTimeout(()=>{AUTH.user||B(!1)},6500),window.QS_PLUS2={talk:de,openRecord:Z,openReceipt:P,startGuide:B,runTour:te,renderPrayer:H,jumpCourse:G,smartFirst:window.smartFirst}})();</script>
+<script id="qs-wa">
+/* ===== WhatsApp alerts opt-in: after login, students / teachers / visitors send one "Hi" to the alerts number.
+   That first message opens WhatsApp's free 24-hour window, so every automatic reply and reminder after it is free. ===== */
+(() => {
+"use strict";
+const BOT = "917822831751";
+const LSg = (k, d) => { try { const v = localStorage.getItem(k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } };
+const LSs = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} };
+const roleOf = u => (u.isTeacher || (typeof TEACH !== "undefined" && TEACH.me && !isOwner())) ? "teacher" : Object.values(u.access || {}).some(Boolean) ? "student" : "visitor";
+const COPY = {
+  student: { h: "Get your class alerts on WhatsApp", p: "Send one “Hi” to our alerts number. After that, class reminders (30 min before), your fee receipt, your teacher’s answers and your certificate come straight to your WhatsApp. Free.", ur: "واٹس ایپ پر ایک بار “Hi” بھیجیں، پھر کلاس کی یاد دہانی، فیس کی رسید، ٹیچر کے جواب اور سرٹیفکیٹ سیدھے آپ کے واٹس ایپ پر آئیں گے۔", b: "Send Hi on WhatsApp" },
+  teacher: { h: "Teacher alerts on WhatsApp", p: "Send one “Hi” to our alerts number. Then every new student doubt and a reminder 30 minutes before your class come to your WhatsApp. Free.", ur: "ایک بار “Hi” بھیجیں، پھر طلبہ کے نئے سوال اور کلاس سے ۳۰ منٹ پہلے یاد دہانی واٹس ایپ پر ملے گی۔", b: "Send Hi on WhatsApp" },
+  visitor: { h: "Get course updates on WhatsApp", p: "Send one “Hi” to our alerts number to get course details, fees, seats left (only 100 per batch) and first-batch offers on WhatsApp. Free, and you can ask anything.", ur: "کورسز، فیس اور باقی سیٹوں کی معلومات کے لیے واٹس ایپ پر ایک بار “Hi” بھیجیں۔", b: "Send Hi on WhatsApp" }
+};
+function show(u, role) {
+  const c = COPY[role], id = u.uid || "";
+  const txt = role === "teacher" ? `Hi QS ✅ Teacher alerts on. Name: ${u.name || ""} ID:${id}`
+    : role === "student" ? `Hi QS ✅ Student alerts on.${u.code ? " Code: " + u.code + "." : ""} Name: ${u.name || ""} ID:${id}`
+    : `Hi QS ✅ I want course details. Name: ${u.name || ""} ID:${id}`;
+  const href = `https://wa.me/${BOT}?text=${encodeURIComponent(txt)}`;
+  openTop(`<div class="shd"><div><span class="chip"><span class="dot"></span>WhatsApp alerts</span><h2>📲 ${esc(c.h)}</h2></div>${xTop}</div>
+    <div class="qs-snext"><p style="margin:0">${esc(c.p)}</p></div>
+    <div class="acts"><a class="btn wa" id="qsWaGo" href="${href}" target="_blank" rel="noopener">${UI.wa}<span>${esc(c.b)}</span></a>
+    <button class="btn sm" type="button" data-closetop>Not now</button></div>
+    <p lang="ur" dir="rtl" class="hint" style="margin:8px 0 0">${esc(c.ur)}</p>`);
+  const go = document.getElementById("qsWaGo");
+  if (go) go.onclick = () => { LSs(`qs-wa-done-${id}-${role}`, Date.now()); try { play("success"); } catch (e) {} setTimeout(closeTop, 400); };
+}
+let busy = false;
+async function check() {
+  const u = typeof AUTH !== "undefined" && AUTH.user; if (!u || !u.uid || busy || window.QS_DEMO_OFF_WA) return;
+  if (typeof isOwner === "function" && isOwner()) return;
+  if (document.getElementById("top2v") || document.getElementById("veil")) return;   /* never on top of another window */
+  const role = roleOf(u), k = `qs-wa-${u.uid}-${role}`, st = LSg(k, { n: 0, at: 0 });
+  if (LSg(`qs-wa-done-${u.uid}-${role}`, 0) || st.n >= 3 || Date.now() - st.at < 3 * 864e5) return;
+  busy = true;
+  try { const d = await AUTH.fb.db.collection("users").doc(u.uid).get(); const x = d.exists ? d.data() : {}; if (x.waOk && (role === "visitor" || (x.waRole || role) === role)) { LSs(`qs-wa-done-${u.uid}-${role}`, x.waOk); busy = false; return; } } catch (e) {}
+  LSs(k, { n: st.n + 1, at: Date.now() }); show(u, role); busy = false;
+}
+let since = 0, last = null;
+setInterval(() => { const id = typeof AUTH !== "undefined" && AUTH.user && AUTH.user.uid; if (id !== last) { last = id; since = Date.now(); } if (id && Date.now() - since > 9000) check(); }, 4000);
+window.qsWaPrompt = () => { const u = AUTH.user; if (u) show(u, roleOf(u)); };
+})();
+</script>
 </body>
 </html>
