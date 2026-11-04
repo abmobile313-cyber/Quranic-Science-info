@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script id="qh-early">if(/QSApp\//.test(navigator.userAgent)){document.documentElement.classList.add("qh-app");var __qhs=document.createElement("style");__qhs.textContent="html.qh-app,html.qh-app body{background:#04070c!important}html.qh-app body>*:not(#qhApp):not(#veilHost):not(#veil2):not(#toastHost):not(#qrVeil):not(#qpVeil):not(.qr-veil){visibility:hidden!important}";document.head.appendChild(__qhs)}</script>
+<script id="qh-early">if(/QSApp\//.test(navigator.userAgent)){document.documentElement.classList.add("qh-app");try{localStorage.setItem("qs-guide-seen","true")}catch(e){}var __qhs=document.createElement("style");__qhs.textContent="html.qh-app,html.qh-app body{background:#04070c!important}html.qh-app body>*:not(#qhApp):not(#veilHost):not(#veil2):not(#toastHost):not(#qrVeil):not(#qpVeil):not(.qr-veil){visibility:hidden!important}";document.head.appendChild(__qhs)}</script>
 <script>try{var q=location.search;if(/[?&]demo=1/.test(q))sessionStorage.setItem("qs-demo","1");if(/[?&]demo=0/.test(q)){sessionStorage.removeItem("qs-demo");}window.QS_DEMO=sessionStorage.getItem("qs-demo")==="1"}catch(e){}</script>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Quranic Science | Arsalan Ahmed Shaikh</title>
@@ -1495,7 +1495,7 @@ function open(tab) {
     window.addEventListener("popstate", () => { if (!root || !root.classList.contains("on")) return; if (IS_APP) { if (cur !== "home" && cur !== "thome" && !root.classList.contains("guest")) go(mode === "t" ? "thome" : "home"); return; } if (location.hash !== "#app") close(true); });
   }
   if (!U() && !(typeof AUTH !== "undefined" && AUTH.ready)) { root.classList.add("guest", "on"); document.documentElement.classList.add("qh-open"); root.querySelector("#qhNav").innerHTML = ""; root.querySelector("#qhMain").innerHTML = `<div class="qh-splash"><div class="qh-logo"><img src="/logo.png" alt=""></div><div class="qh-load"><i></i><i></i><i></i></div></div>`; return; }
-  if (!U()) { root.classList.add("guest", "on"); document.documentElement.classList.add("qh-open"); root.querySelector("#qhNav").innerHTML = ""; root.querySelector(".qh-brand small").textContent = "App"; go("welcome"); return; }
+  if (!U()) { root.classList.add("guest", "on"); document.documentElement.classList.add("qh-open"); root.querySelector("#qhNav").innerHTML = ""; root.querySelector(".qh-brand small").textContent = "App"; go("welcome"); greet(); return; }
   root.classList.remove("guest");
   if (!gateOK()) { root.classList.add("guest", "on"); document.documentElement.classList.add("qh-open"); root.querySelector("#qhNav").innerHTML = ""; root.querySelector(".qh-brand small").textContent = "App"; go("gate"); return; }
   const want = hasT() && !myCourses().length ? "t" : (mode === "t" && hasT() ? "t" : "s");
@@ -1503,7 +1503,13 @@ function open(tab) {
   root.classList.add("on"); document.documentElement.classList.add("qh-open");
   if (location.hash !== "#app") try { history.pushState(null, "", "#app"); } catch (e) {}
   if (mode === "t" && tab === "home") tab = "thome";
-  markDay(); go(tab || cur); snd("open");
+  markDay(); go(tab || cur); snd("open"); greet();
+}
+function greet() {
+  let done = false; try { done = !!sessionStorage.getItem("qh-hi"); sessionStorage.setItem("qh-hi", "1"); } catch (e) {}
+  if (done) return; const u = U();
+  setTimeout(() => { say(u ? `Assalamu Alaikum, ${(u.name || "").split(" ")[0]}! 🌙 Welcome back` : "Assalamu Alaikum! 🌙 Welcome to Quranic Science");
+    if (u && IS_APP && !document.getElementById("top2v") && window.QS_CLIP) try { window.QS_CLIP("back"); } catch (e) {} }, 700);
 }
 function setMode(m, quiet) {
   mode = m; const nav = root.querySelector("#qhNav");
@@ -1690,7 +1696,7 @@ const VIEWS = {
         <div class="qh-row sp"><small class="qh-mut">Class ${k.n || j + 1}${t ? " · " + new Date(t).toLocaleString([], { day: "numeric", month: "short", hour: "numeric", minute: "2-digit" }) : ""}</small><span class="qh-chip ${st[1]}">${st[0]}</span></div>
         <h4>${E(T(k.title) || "Class " + (j + 1))}</h4>
         <div class="qh-acts">${live || up ? `<button class="qh-btn sm pri" data-room="${x.i}|${E(kid(k))}">${live ? "Join" : "Live room"}</button>` : ""}
-          ${k.recording ? `<button class="qh-btn sm" data-rec="${E(k.recording)}">▶ Recording</button>` : ""}
+          ${k.recording ? `<button class="qh-btn sm" data-rec="${E(k.recording)}" data-ci="${x.i}">▶ Recording</button>` : ""}
           ${(k.qs || []).length && (at || !t || Date.now() > t) ? `<button class="qh-btn sm" data-cls="${x.i}">${ok ? "✓ Questions" : "3 questions"}</button>` : ""}
           ${(k.qs || []).length ? `<button class="qh-btn sm ${saved ? "on" : ""}" data-save="${x.i}|${E(kid(k))}">${saved ? "✓ Saved" : "⤓ Offline"}</button>` : ""}</div></div></article>`;
     }).join("") + `</div>`;
@@ -1807,6 +1813,8 @@ function confetti(c) {
 }
 
 /* ---------- live room ---------- */
+/* wudu question before a class or recording (same popup and voice as the website), for courses that ask for it */
+function wudu(i, then) { const c = COURSES()[+i]; if (!c || !c.wuduCheck || OWN()) { then(); return; } try { wuduGate(c, then); } catch (e) { then(); } }
 async function room(i, id) {
   const x = myCourses().find(z => z.i === +i); if (!x) return; const k = (await classes(x)).find(z => kid(z) === id); if (!k) return;
   const t = tm(k), live = !t || Date.now() >= t - 15 * 6e4, z = zoomOf(k), main = root.querySelector("#qhMain");
@@ -1859,10 +1867,10 @@ async function onClick(e) {
   if (d.edit) { const [ci, id] = d.edit.split("|"), c = COURSES()[+ci], b0 = OWN() ? "ALL" : (TEACH.me || {}).batch; const cls = await fetchClasses(ckey(c), b0 === "ALL" ? null : b0) || []; const k = cls.find(z => z.id === id); try { editClass(c, (k && k.batch) || b0, k || null, k ? k.n : cls.length + 1, () => { Object.keys(CACHE).forEach(x => delete CACHE[x]); go(cur); }); } catch (er) { go("panel"); } return; }
   if (d.sel != null) { sel = +d.sel; go(cur); return; }
   if (d.cls != null) { const x = COURSES()[+d.cls]; if (x) { try { eduClasses2(+d.cls); } catch (er) { try { openClasses(+d.cls); } catch (e2) {} } } return; }
-  if (d.room) { const [i, id] = d.room.split("|"); room(i, id); return; }
+  if (d.room) { const [i, id] = d.room.split("|"); wudu(i, () => room(i, id)); return; }
   if (d.zoom) { snd("success"); openUrl(d.zoom); return; }
   if (d.out) { openUrl(d.out); return; }
-  if (d.rec) { openUrl(d.dl ? dlUrl(d.rec) : d.rec); return; }
+  if (d.rec) { const go2 = () => openUrl(d.dl ? dlUrl(d.rec) : d.rec); if (d.ci != null && !d.dl) wudu(d.ci, go2); else go2(); return; }
   if (d.test) { const [i, m] = d.test.split("|"); runTest(i, m); return; }
   if (d.save) { const [i, id] = d.save.split("|"); await saveOffline(i, id); go(cur); return; }
   if (d.saveall) { for (const x of myCourses()) for (const k of await classes(x)) if ((k.qs || []).length) await saveOffline(x.i, kid(k), true); snd("success"); say("All classes saved for offline ✓"); go("offline"); return; }
