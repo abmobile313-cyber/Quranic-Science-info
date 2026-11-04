@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
+<script id="qh-early">if(/QSApp\//.test(navigator.userAgent)){document.documentElement.classList.add("qh-app");var __qhs=document.createElement("style");__qhs.textContent="html.qh-app,html.qh-app body{background:#04070c!important}html.qh-app body>*:not(#qhApp):not(#veilHost):not(#veil2):not(#toastHost):not(#qrVeil):not(#qpVeil):not(.qr-veil){visibility:hidden!important}";document.head.appendChild(__qhs)}</script>
 <script>try{var q=location.search;if(/[?&]demo=1/.test(q))sessionStorage.setItem("qs-demo","1");if(/[?&]demo=0/.test(q)){sessionStorage.removeItem("qs-demo");}window.QS_DEMO=sessionStorage.getItem("qs-demo")==="1"}catch(e){}</script>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Quranic Science | Arsalan Ahmed Shaikh</title>
@@ -1345,6 +1346,9 @@ html.qh-open #qsGuide{display:none!important}
 .qh-in{width:100%;padding:14px;border-radius:14px;font:inherit;font-size:1.15rem;letter-spacing:.12em;text-transform:uppercase;text-align:center;color:var(--qink);background:rgba(0,0,0,.3);border:1px solid var(--qline)}
 .qh-in:focus{outline:2px solid rgba(44,196,242,.55)}.qh-in.bad{border-color:var(--qr);animation:qhShake .4s}
 .qh-welcome .qh-av{margin-bottom:4px}
+html.qh-app #qhClose{visibility:hidden}
+.qh-splash{flex:1;display:grid;place-items:center;align-content:center;gap:26px;min-height:70vh}
+.qh-demo{display:grid;justify-items:center;gap:8px;margin-top:8px;padding:12px 14px;border-radius:16px;border:1px dashed rgba(143,225,251,.35);font-size:.85rem;color:var(--qmut)}
 </style>
 <script id="qs-hub">/* ===== Quranic Science Learning App ("My App"): a full-screen student app inside the website and the Android app.
    Same login, same Firebase data, so anything done in the app shows on the website and the other way round, instantly.
@@ -1487,9 +1491,10 @@ function open(tab) {
     document.body.appendChild(root);
     root.addEventListener("click", onClick);
     root.querySelector("#qhClose").onclick = close;
-    root.querySelector("#qhWeb").onclick = () => { try { sessionStorage.setItem("qh-web", "1"); } catch (e) {} close(); try { location.hash = "#home"; } catch (e) {} say("You are on the website. Tap 📱 below to come back to the app."); };
-    window.addEventListener("popstate", () => { if (root && root.classList.contains("on") && location.hash !== "#app") close(true); });
+    root.querySelector("#qhWeb").onclick = () => { if (IS_APP) { webOut("#home"); return; } close(); try { location.hash = "#home"; } catch (e) {} say("You are on the website. Tap “My App” to come back."); };
+    window.addEventListener("popstate", () => { if (!root || !root.classList.contains("on")) return; if (IS_APP) { if (cur !== "home" && cur !== "thome" && !root.classList.contains("guest")) go(mode === "t" ? "thome" : "home"); return; } if (location.hash !== "#app") close(true); });
   }
+  if (!U() && !(typeof AUTH !== "undefined" && AUTH.ready)) { root.classList.add("guest", "on"); document.documentElement.classList.add("qh-open"); root.querySelector("#qhNav").innerHTML = ""; root.querySelector("#qhMain").innerHTML = `<div class="qh-splash"><div class="qh-logo"><img src="/logo.png" alt=""></div><div class="qh-load"><i></i><i></i><i></i></div></div>`; return; }
   if (!U()) { root.classList.add("guest", "on"); document.documentElement.classList.add("qh-open"); root.querySelector("#qhNav").innerHTML = ""; root.querySelector(".qh-brand small").textContent = "App"; go("welcome"); return; }
   root.classList.remove("guest");
   if (!gateOK()) { root.classList.add("guest", "on"); document.documentElement.classList.add("qh-open"); root.querySelector("#qhNav").innerHTML = ""; root.querySelector(".qh-brand small").textContent = "App"; go("gate"); return; }
@@ -1566,7 +1571,7 @@ const VIEWS = {
       <div class="qh-acts"><button class="qh-btn pri" data-web="#learn">Join a course</button><button class="qh-btn" data-logout="1">Use another Google account</button></div>
       <p class="qh-mut">Teacher? Ask the owner to add your Gmail, then <button class="qh-link" data-role="t">enter your teacher code</button>.</p></section>`;
     return hi + `<section class="qh-card rv" style="--i:1"><h3>👨‍🎓 Your student code</h3><p class="qh-mut">Type the student code from your WhatsApp message (for example ABC123E or ABC123E-TAJ). Only once on this phone.</p>
-      <input class="qh-in" id="qhCode" autocomplete="off" autocapitalize="characters" placeholder="Student code" maxlength="20"><button class="qh-btn pri" data-code="1">Open my app</button>
+      <input class="qh-in" id="qhCode" autocomplete="off" autocapitalize="characters" placeholder="Student code" maxlength="20" value="${window.QS_DEMO ? E(u.code || "") : ""}">${window.QS_DEMO ? `<small class="qh-mut">Sample login: the code is filled in for you.</small>` : ""}<button class="qh-btn pri" data-code="1">Open my app</button>
       ${teacher ? `<button class="qh-btn ghost sm" data-role="t">I am a teacher</button>` : ""}<p class="qh-mut">Lost your code? It is on your fee receipt, or ask us on WhatsApp.</p></section>`;
   },
   async welcome() {
@@ -1575,7 +1580,8 @@ const VIEWS = {
       <div class="qh-only">🔒 This app is only for <b>enrolled students</b> and <b>teachers</b> of Quranic Science.</div>
       <div class="qh-role"><button class="qh-tile big" data-login="s"><span>👨‍🎓</span><b>I am a student</b><small>Google login + your student code</small></button>
       <button class="qh-tile big" data-login="t"><span>👨‍🏫</span><b>I am a teacher</b><small>Google login + your teacher code</small></button></div>
-      <small class="qh-mut">Not a student yet? Join a course on our website, then you get your code on WhatsApp.</small></section>
+      <small class="qh-mut">Not a student yet? Join a course on our website, then you get your code on WhatsApp.</small>
+      <div class="qh-demo"><span>👀 Just looking? Try a sample login</span><div class="qh-acts"><button class="qh-btn sm" data-demotry="s">Sample student</button><button class="qh-btn sm" data-demotry="t">Sample teacher</button></div></div></section>
       <section class="qh-grid rv" style="--i:1"><button class="qh-tile" data-web="#learn"><span>🎓</span><b>Join a course</b></button><button class="qh-tile" data-web="#quran"><span>📖</span><b>Quran & science videos</b></button></section>
       ${await prayerCard(2)}`;
   },
@@ -1737,6 +1743,7 @@ const VIEWS = {
       <button class="qh-tile" data-web="#learn"><span>🎓</span><b>Courses & fees</b></button><button class="qh-tile" data-web="#quran"><span>📖</span><b>Quran & science videos</b></button>
       <button class="qh-tile" data-web="#home"><span>🌐</span><b>Website home</b></button><button class="qh-tile" data-qt="namaz"><span>🕌</span><b>Namaz times</b></button></div></section>`;
     if (hasT()) h += `<section class="qh-card rv" style="--i:6"><div class="qh-row sp"><div><h3>${OWN() ? "Owner tools" : "Teacher tools"}</h3><p class="qh-mut">Switch between the student and teacher app.</p></div><button class="qh-btn sm pri" data-mode="${mode === "t" ? "s" : "t"}">${mode === "t" ? "Student view" : "Teacher app"}</button></div></section>`;
+    if (window.QS_DEMO) h += `<section class="qh-card rv" style="--i:7"><div class="qh-row sp"><div><h3>Sample login</h3><p class="qh-mut">You are trying the app with sample data.</p></div><button class="qh-btn sm pri" data-demoexit="1">Exit sample</button></div></section>`;
     h += `<section class="qh-card rv" style="--i:7"><h3>Share & settings</h3><div class="qh-acts"><button class="qh-btn sm" data-share="1">📣 Share my progress</button><button class="qh-btn sm" data-web="#home">🌐 Website</button>${IS_APP ? "" : `<a class="qh-btn sm" href="/download/QuranicScience.apk">📲 Android app</a>`}</div></section>`;
     return h;
   }
@@ -1812,6 +1819,9 @@ async function room(i, id) {
     <div class="qh-row" style="justify-content:center"><button class="qh-btn sm" data-cls="${x.i}">After class: 3 questions</button><button class="qh-btn sm ghost" data-qt="home">Back</button></div></section>`;
   after(main); markDay();
 }
+/* in the Android app the website always opens in the phone's own browser (Chrome etc.), never inside the app.
+   The github.io address is not claimed by the app, and GitHub forwards it to quranicscience.info inside the browser. */
+function webOut(hash) { openUrl("https://abmobile313-cyber.github.io/Quranic-Science-info/?from=app" + (hash || "")); }
 function openUrl(u) { try { if (window.QSNative && QSNative.openExternal) { QSNative.openExternal(u); return; } } catch (e) {} window.open(u, "_blank", "noopener"); }
 function dlUrl(u) { const m = /drive\.google\.com\/(?:file\/d\/|open\?id=)([\w-]{20,})/.exec(u); return m ? `https://drive.google.com/uc?export=download&id=${m[1]}` : u; }
 
@@ -1843,7 +1853,7 @@ async function onClick(e) {
     const ok = mine && v && (v === mine || v.startsWith(mine) || mine.startsWith(v) && v.length >= 6);
     if (!ok) { snd("error"); say("This code does not match your account. Please check your WhatsApp message."); if (inp) inp.classList.add("bad"); return; }
     LSs("qh-ok-" + u.uid, Date.now()); try { await saveProfile({ appOk: Date.now() }); } catch (er) {} snd("success"); say("Welcome to your app ✓"); open("home"); return; }
-  if (d.tlogin) { try { openTeacherLogin(); } catch (er) {} return; }
+  if (d.tlogin) { try { openTeacherLogin(); } catch (er) {} if (window.QS_DEMO) setTimeout(() => { const c = document.getElementById("tlC"), p = document.getElementById("tlP"); if (c && !c.value) c.value = "T-BIL210-TAJ-E"; if (p && !p.value) p.value = "+91 98765 43210"; }, 700); return; }
   if (d.dsend) { const ta = root.querySelector(`[data-dans="${d.dsend}"]`), v = (ta && ta.value || "").trim(); if (v.length < 2) { say("Please write the answer."); return; }
     b.disabled = true; try { await AUTH.fb.db.collection("doubts").doc(d.dsend).update({ answer: v.slice(0, 3000), answeredBy: OWN() ? "Arsalan Ahmed Shaikh" : (U().name || "Teacher"), answeredAt: Date.now(), status: "answered", notified: false }); snd("save"); say("Answer sent ✓ The student gets an alert."); go("doubts"); } catch (er) { b.disabled = false; snd("error"); say("Could not send. Please check your internet."); } return; }
   if (d.edit) { const [ci, id] = d.edit.split("|"), c = COURSES()[+ci], b0 = OWN() ? "ALL" : (TEACH.me || {}).batch; const cls = await fetchClasses(ckey(c), b0 === "ALL" ? null : b0) || []; const k = cls.find(z => z.id === id); try { editClass(c, (k && k.batch) || b0, k || null, k ? k.n : cls.length + 1, () => { Object.keys(CACHE).forEach(x => delete CACHE[x]); go(cur); }); } catch (er) { go("panel"); } return; }
@@ -1858,7 +1868,9 @@ async function onClick(e) {
   if (d.saveall) { for (const x of myCourses()) for (const k of await classes(x)) if ((k.qs || []).length) await saveOffline(x.i, kid(k), true); snd("success"); say("All classes saved for offline ✓"); go("offline"); return; }
   if (d.read) { readOffline(d.read); return; }
   if (d.del) { const o = LSg("qh-off", {}); delete o[d.del]; LSs("qh-off", o); go("offline"); return; }
-  if (d.web) { close(); setTimeout(() => { try { location.hash = d.web; } catch (er) {} }, 60); return; }
+  if (d.web) { if (IS_APP) { webOut(d.web); return; } close(); setTimeout(() => { try { location.hash = d.web; } catch (er) {} }, 60); return; }
+  if (d.demotry) { try { sessionStorage.setItem("qs-demo", "1"); } catch (er) {} LSs("qh-demo-pick", d.demotry); location.href = "/?demo=1"; return; }
+  if (d.demoexit) { try { sessionStorage.removeItem("qs-demo"); } catch (er) {} LSs("qh-demo-pick", ""); location.href = "/?demo=0"; return; }
   if (d.cert != null) { try { openCertificate(+d.cert, false); } catch (er) { try { eduClasses2(+d.cert); } catch (e2) {} } return; }
   if (d.acct) { try { openAccount(); } catch (er) {} return; }
   if (d.share) { const st = streak(), txt = `MashaAllah! I have a ${st.n}-day learning streak on Quranic Science 🔥 Learn Tajweed, Arabic & more: https://quranicscience.info`; try { if (window.QSNative && QSNative.share) QSNative.share(txt); else if (navigator.share) navigator.share({ text: txt }); else { copyText(txt); } } catch (er) {} return; }
@@ -1900,12 +1912,16 @@ setInterval(() => {
     if (root && root.classList.contains("on") && (u || IS_APP) && (was || IS_APP)) { mode = "s"; open("home"); } }
   if (location.hash === "#app" && (u || IS_APP) && !(root && root.classList.contains("on"))) open();
   /* inside the Android app: everyone lands in the app screens (login screen when logged out); the website opens only when they ask */
-  let web = false; try { web = !!sessionStorage.getItem("qh-web"); } catch (e) {}
-  if (IS_APP && ready && !autoDone && !web) { autoDone = true; open("home"); }
+  if (IS_APP && ready && !autoDone) { autoDone = true; open("home"); }
+  if (IS_APP && root && !root.classList.contains("on") && !document.getElementById("veil") && !document.getElementById("top2v")) open("home");   /* the app never shows the website */
+  /* sample (demo) login chosen on the welcome screen */
+  const pick = LSg("qh-demo-pick", ""); if (pick && window.QS_DEMO && !u && document.getElementById("qsDemoB")) { LSs("qh-demo-pick", ""); try { document.getElementById("qsDemoB").click(); setTimeout(() => { const b = document.querySelector(`[data-demo="${pick === "t" ? "teacher" : "student"}"]`); if (b) b.click(); }, 300); LSs("qh-role", pick); } catch (e) {} }
   /* teacher just verified the code, or student unlocked: move from the gate into the app */
+  if (IS_APP && root && root.classList.contains("guest") && u && gateOK() && document.querySelector("#sheet #tpBody")) { try { closeSheet(); } catch (e) {} }   /* teacher code accepted: skip the website panel, go to the teacher app */
   if (root && root.classList.contains("on") && root.classList.contains("guest") && u && gateOK() && !document.getElementById("top2v")) open("home");
 }, 1500);
 setTimeout(banner, 6000); dockBtn(); setTimeout(dockBtn, 3000);
+if (IS_APP) { document.documentElement.classList.add("qh-app"); setTimeout(() => open("home"), 0); }
 addEventListener("hashchange", () => { if (location.hash === "#app") open(); });
 })();
 </script>
