@@ -1276,9 +1276,11 @@ html.qh-open .dock,html.qh-open #qsBnav,html.qh-open .qs-bnav{display:none!impor
 .qh-open-btn svg{width:18px;height:18px}
 @keyframes qhBtn{50%{box-shadow:inset 0 1px 0 rgba(255,255,255,.7),0 6px 24px -2px rgba(224,164,37,.95)}}
 @media (max-width:420px){.qh-open-btn span{display:none}.qh-open-btn{width:38px;padding:0;justify-content:center}}
-#qhBan{position:fixed;z-index:56;left:10px;right:10px;bottom:calc(80px + env(safe-area-inset-bottom,0px));display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:20px;color:#f4efe6;background:linear-gradient(120deg,rgba(12,34,51,.94),rgba(8,14,22,.94));border:1px solid rgba(246,213,138,.4);box-shadow:0 14px 40px rgba(0,0,0,.45);animation:qhIn .5s both;max-width:520px;margin:0 auto}
-#qhBan img{border-radius:12px}#qhBan div{flex:1;display:grid;line-height:1.25}#qhBan small{opacity:.8;font-size:.74rem}
-#qhBan a{padding:8px 16px;border-radius:12px;font-weight:800;color:#2a1300;background:linear-gradient(180deg,#ffe08a,#e0a425);text-decoration:none}
+#qhBan{position:fixed;z-index:96;left:10px;right:10px;top:calc(10px + env(safe-area-inset-top,0px));display:flex;align-items:center;gap:10px;padding:9px 10px 9px 12px;border-radius:18px;color:#f4efe6;background:linear-gradient(120deg,rgba(12,34,51,.96),rgba(8,14,22,.96));border:1px solid rgba(246,213,138,.4);box-shadow:0 14px 40px rgba(0,0,0,.45);max-width:520px;margin:0 auto;animation:qhBanIn .5s cubic-bezier(.2,.9,.25,1.15) both;transition:opacity .35s,transform .35s}
+#qhBan.out{opacity:0;transform:translateY(-120%)}
+@keyframes qhBanIn{from{opacity:0;transform:translateY(-120%)}}
+#qhBan img{border-radius:10px}#qhBan div{flex:1;display:grid;line-height:1.25;min-width:0}#qhBan b{font-size:.92rem}#qhBan small{opacity:.8;font-size:.72rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#qhBan a{padding:8px 16px;border-radius:12px;font-weight:800;color:#2a1300;background:linear-gradient(180deg,#fbe3a4,#e3aa3c);text-decoration:none}
 #qhBan button{background:none;border:0;color:inherit;font-size:1.4rem;cursor:pointer;padding:0 4px}
 html.qh-open #qhBan{display:none}
 
@@ -1326,6 +1328,8 @@ html.qs-play .enr2,html.qs-play a[href*="rzp.io"],html.qs-play a[href*="razorpay
 .qh-embed .inp,.qh-embed select{background:rgba(0,0,0,.3)!important;color:var(--qink)!important;border:1px solid var(--qline)!important}
 .qh-embed .tbl,.qh-embed table{display:block;overflow-x:auto;color:var(--qink)}
 .qh-embed{grid-template-columns:minmax(0,1fr)}#qhPanel{min-width:0;max-width:100%}.qh-embed .tbl,.qh-embed .twrap,.qh-embed table{max-width:100%}
+/* never stack: while the "shall I guide you" card is open, the floating Courses / AI buttons step aside */
+body:has(#qsGuide) #qsMenu,body:has(#qsGuide) #aiFab,body:has(#qsGuide) .qs-fabc,body:has(#qsGuide) .dock{opacity:0!important;pointer-events:none!important;transition:opacity .3s}
 </style>
 <script id="qs-hub">/* ===== Quranic Science Learning App ("My App"): a full-screen student app inside the website and the Android app.
    Same login, same Firebase data, so anything done in the app shows on the website and the other way round, instantly.
@@ -1819,10 +1823,21 @@ function addButton() {
   if (!b && ctl && ac) { b = document.createElement("button"); b.id = "qhBtn"; b.className = "qh-open-btn"; b.setAttribute("aria-label", "Open my learning app"); b.innerHTML = `${svg('<path d="M4 6l8-3 8 3-8 3z"/><path d="M8 8v5c0 1.5 2 3 4 3s4-1.5 4-3V8"/>')}<span>My App</span>`; b.onclick = () => open("home"); ctl.insertBefore(b, ac); }
 }
 function banner() {
-  if (IS_APP || !/Android/i.test(navigator.userAgent) || LSg("qh-banner-x", 0) > Date.now() - 7 * DAY || document.getElementById("qhBan")) return;
-  const d = document.createElement("div"); d.id = "qhBan"; d.innerHTML = `<img src="/icon-192.png" alt="" width="38" height="38"><div><b>Quranic Science app</b><small>Classes, tests, offline lessons · same account</small></div><a href="/download/QuranicScience.apk">Get</a><button aria-label="Close">×</button>`;
-  d.querySelector("button").onclick = () => { LSs("qh-banner-x", Date.now()); d.remove(); };
-  document.body.appendChild(d);
+  /* phone visitors on Android: one small "get the app" card at the TOP for 8 seconds (never on top of the courses / AI buttons), once a week */
+  if (IS_APP || !/Android/i.test(navigator.userAgent) || LSg("qh-banner-x", 0) > Date.now() - 7 * DAY || document.getElementById("qhBan") || document.querySelector(".veil")) return;
+  const d = document.createElement("div"); d.id = "qhBan"; d.innerHTML = `<img src="/icon-192.png" alt="" width="36" height="36"><div><b>Quranic Science app</b><small>Classes, tests, offline · same account</small></div><a href="/download/QuranicScience.apk">Get</a><button aria-label="Close">×</button>`;
+  const bye = () => { d.classList.add("out"); setTimeout(() => d.remove(), 400); };
+  d.querySelector("button").onclick = () => { LSs("qh-banner-x", Date.now()); bye(); };
+  d.querySelector("a").onclick = () => LSs("qh-banner-x", Date.now());
+  document.body.appendChild(d); LSs("qh-banner-x", Date.now() - 6 * DAY); setTimeout(bye, 8000);
+}
+/* a small "App" button in the bottom dock: opens the learning app (logged in) or downloads the Android app */
+function dockBtn() {
+  const dock = document.querySelector(".dock"); if (!dock || document.getElementById("dApp")) return;
+  const b = document.createElement("button"); b.className = "ibtn"; b.id = "dApp"; b.setAttribute("aria-label", "Quranic Science app");
+  b.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="6" y="2.5" width="12" height="19" rx="3"/><path d="M11 18.5h2"/></svg>`;
+  b.onclick = () => { if (U() || IS_APP) open("home"); else if (/Android/i.test(navigator.userAgent)) location.href = "/download/QuranicScience.apk"; else open("home"); };
+  const acct = document.getElementById("dAcct"); dock.insertBefore(b, acct || null);
 }
 window.qsHub = open;
 /* Google Play build (user agent has "QSPlay"): no payment buttons inside the app, fees are paid on the website only */
@@ -1835,7 +1850,7 @@ setInterval(() => {
   /* inside the Android app: enrolled students land straight in the learning app */
   if (IS_APP && u && !autoDone && myCourses().length && !document.getElementById("veil") && !document.getElementById("top2v") && !OWN()) { autoDone = true; if (!LSg("qh-no-auto", 0)) open("home"); }
 }, 1500);
-setTimeout(banner, 6000);
+setTimeout(banner, 6000); dockBtn(); setTimeout(dockBtn, 3000);
 addEventListener("hashchange", () => { if (location.hash === "#app") open(); });
 })();
 </script>
