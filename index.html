@@ -1070,7 +1070,7 @@ setInterval(() => {
   const u = typeof AUTH !== "undefined" && AUTH.user; if (!u || !u.uid || open) return;
   try { if (isOwner()) return; } catch (e) {}
   if (u.phone && okNum(u.phone)) return;
-  if (document.getElementById("top2v") || document.getElementById("qrVeil")) return;
+  if (document.getElementById("top2v") || document.getElementById("qrVeil") || document.getElementById("sheet")) return;
   ask(u);
 }, 2500);
 })();
