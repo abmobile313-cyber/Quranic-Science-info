@@ -261,6 +261,37 @@ export async function botReply(env, fs, from, text, who, prev, now = Date.now())
 /* ---------- reminders + certificates (cron) ---------- */
 /* class.date is "YYYY-MM-DD HH:MM" in India time (what the class form saves) */
 export const istMs = s => { const m = /^(\d{4})-(\d{2})-(\d{2})[ T](\d{2}):(\d{2})/.exec(String(s || "")); return m ? Date.UTC(+m[1], +m[2] - 1, +m[3], +m[4] - 5, +m[5] - 30) : NaN; };
+
+/* ---------- weekly star students: attendance + 3-question answers + teacher's stars, per course and batch ---------- */
+const slugW = s => String(s || "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+export function leaderRows(classes, users, revs, now, ck, b) {
+  const from = now - 7 * 864e5, to = now - 3600e3;
+  const held = classes.filter(k => k.course === ck && (!k.batch || k.batch === "ALL" || k.batch === b)).filter(k => { const t = istMs(k.date); return !isNaN(t) && t >= from && t <= to; });
+  const rows = [];
+  for (const u of users) {
+    if (!(u.access || {})[ck] || (u.batch || "") !== b) continue;
+    const A = ((u.att || {})[ck]) || {}, Q = (((u.prog || {})[ck]) || {}).qz || {};
+    const att = held.filter(k => { const a = A[slugW(k.id + "-" + k.id)]; return a && a.p !== false; }).length;
+    const quiz = held.filter(k => Q[k.id] && Q[k.id].ok).length;
+    const r = revs.filter(x => x.uid === u.id && x.course === ck && (x.ts || 0) > now - 14 * 864e5).sort((x, y) => (y.ts || 0) - (x.ts || 0))[0];
+    const stars = r ? +r.stars || 0 : 0;
+    const score = Math.round((held.length ? att / held.length * 40 + quiz / held.length * 30 : 0) + (stars ? stars / 5 * 30 : 0));
+    if (score > 0) rows.push({ name: String(u.name || "Student").slice(0, 40), score, att, quiz, held: held.length, stars });
+  }
+  return rows.sort((x, y) => y.score - x.score || y.stars - x.stars || x.name.localeCompare(y.name)).slice(0, 5);
+}
+export async function buildLeaders(fs, now) {
+  const classes = await fs.query("classes", [], 3000), revs = (await fs.query("reviews", [["by", "EQUAL", "teacher"]], 5000));
+  const courses = [...new Set(classes.map(k => k.course).filter(Boolean))]; let n = 0;
+  for (const ck of courses) {
+    const users = await fs.query("users", [[`access.\`${ck}\``, "EQUAL", true]], 3000);
+    for (const b of ["M", "E"]) {
+      const list = leaderRows(classes, users, revs, now, ck, b);
+      await fs.merge(`leaders/${ck}__${b}`, { course: ck, batch: b, list, at: now, from: now - 7 * 864e5 }); n++;
+    }
+  }
+  return n;
+}
 export async function runCron(env, fs, now = Date.now(), fetchImpl = fetch) {
   const out = { reminded: 0, certs: 0, via: {}, errors: [] }, site = env.SITE || "https://quranicscience.info";
   const cfg = (await fs.get("config/payLinks")) || {}, names = cfg.names || {};
@@ -363,11 +394,18 @@ Any question? Reply 4 to talk to a person.`, fetchImpl);
   if (env.BACKUP && istNow.getUTCHours() === 2 && istNow.getUTCMinutes() < 15) {
     try {
       const dump = { at: new Date(now).toISOString() };
-      for (const n of ["users", "teachers", "classes", "attendance", "certificates", "activities", "payments", "doubts", "config"]) dump[n] = await fs.query(n, [], 5000);
+      for (const n of ["users", "teachers", "classes", "attendance", "certificates", "activities", "payments", "doubts", "reviews", "testimonials", "config"]) dump[n] = await fs.query(n, [], 5000);
       await env.BACKUP.put("backup-" + istNow.toISOString().slice(0, 10), JSON.stringify(dump), { expirationTtl: 14 * 86400 });
       out.backup = istNow.toISOString().slice(0, 10);
     } catch (e) { out.errors.push("backup: " + String(e.message || e).slice(0, 120)); }
   }
+  /* 4b) once a day (about 2:30 am India time) or if never made: weekly star students per course + batch */
+  try {
+    const lc = (await fs.get("config/leaders")) || {};
+    if ((istNow.getUTCHours() === 2 && istNow.getUTCMinutes() >= 15 && istNow.getUTCMinutes() < 30) || !lc.at || now - lc.at > 26 * 3600e3) {
+      out.leaders = await buildLeaders(fs, now); await fs.merge("config/leaders", { at: now, n: out.leaders });
+    }
+  } catch (e) { out.errors.push("leaders: " + String(e.message || e).slice(0, 120)); }
   /* 5) once an hour: students' weekly reviews → one public summary doc (voice/reviews), so each website visitor needs 1 read */
   if (new Date(now).getUTCMinutes() < 15) {
     try {

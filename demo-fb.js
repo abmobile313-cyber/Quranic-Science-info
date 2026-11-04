@@ -1,7 +1,7 @@
 /* Quranic Science DEMO MODE: a full practice copy of the website that runs only in this browser.
    Nothing here touches the real student database. Open quranicscience.info/?demo=1 to start, ?demo=0 to leave. */
 (() => {
-  const DBK = "qs-demo-db3", UK = "qs-demo-users3", CK = "qs-demo-cur3";
+  const DBK = "qs-demo-db4", UK = "qs-demo-users4", CK = "qs-demo-cur4";
   const J = (k, d) => { try { return JSON.parse(localStorage.getItem(k)) || d; } catch (e) { return d; } };
   const S = (k, v) => localStorage.setItem(k, JSON.stringify(v));
   const clone = v => v === undefined ? v : JSON.parse(JSON.stringify(v));
@@ -72,6 +72,14 @@
       },
       reviews: {
         "stu1__tajweed-class__student__demo_c1": { by: "student", uid: "stu1", name: "Ayesha Khan", code: "AYE345E", course: CK2, batch: "E", key: "demo_c1", title: "Makharij: the throat letters", stars: 5, comment: "Bahut achha samjhaya, misaal se samajh aaya", ts: now - 20 * 3600e3 }
+      },
+      leaders: {
+        "tajweed-class__E": { course: CK2, batch: "E", at: now - 5 * 3600e3, from: now - 7 * 864e5, list: [
+          { name: "Ayesha Khan", score: 100, att: 2, quiz: 2, held: 2, stars: 5 },
+          { name: "Maryam Siddiqui", score: 88, att: 2, quiz: 2, held: 2, stars: 3 },
+          { name: "Hamza Shaikh", score: 65, att: 2, quiz: 1, held: 2, stars: 3 },
+          { name: "Sana Ansari", score: 52, att: 1, quiz: 1, held: 2, stars: 4 },
+          { name: "Imran Qureshi", score: 35, att: 1, quiz: 0, held: 2, stars: 3 } ] }
       },
       testimonials: {
         "s7__tajweed-class__R1": { uid: "s7", name: "Maryam", course: CK2, courseName: "Tajweed Class", key: "R1", stars: 5, text: "Pehle hafte hi makharij saaf ho gaye. Ustad ji har galti pyaar se theek karte hain. JazakAllah!", show: true, ts: now - 2 * 864e5 },
