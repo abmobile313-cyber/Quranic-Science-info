@@ -184,6 +184,8 @@ export const PAGES = {
   pl_TuP9zWDnFZG8GJ: "tajweed-class", pl_TuPGs7TDUIlODI: "tajweed-class",
   pl_TuPArQv7aZiIsd: "arabic-speaking-class", pl_TuPHbNqlb1HmsA: "arabic-speaking-class"
 };
+/* unique course prices (first-batch price on each Razorpay page); ₹5,999 and $75 are shared by several courses, so those wait for the owner */
+export const AMOUNTS = { "INR:13999": "all-in-one-creator-course", "USD:175": "all-in-one-creator-course", "INR:1499": "ai-masterclass", "USD:19": "ai-masterclass", "INR:2100": "tajweed-class", "USD:26": "tajweed-class", "INR:6000": "arabic-speaking-class", "INR:50": "ref-pdf" };
 const TITLE_KEYS = [[/all-in-one/i, "all-in-one-creator-course"], [/tajweed\s*\+\s*arabic|combo/i, "tajweed-arabic-combo"], [/ai masterclass/i, "ai-masterclass"], [/video editing/i, "video-editing-course"], [/content creation/i, "content-creation-zero-to-pro"], [/reference pdf|pdf download/i, "ref-pdf"], [/tajweed/i, "tajweed-class"], [/arabic speaking/i, "arabic-speaking-class"]];
 export async function handlePayment(env, evt, fs, fetchImpl = fetch) {
   const info = paymentInfo(evt);
@@ -192,7 +194,9 @@ export async function handlePayment(env, evt, fs, fetchImpl = fetch) {
   /* which course: owner dashboard keeps config/payLinks = { "<rzp short url or id>": "<course key>" } */
   const cfg = (await fs.get("config/payLinks")) || {}, map = cfg.links || {};
   const pages = Object.assign({}, PAGES, cfg.pages || {});
-  const course = info.notes.course ? slug(info.notes.course) : map[info.linkUrl] || map[info.linkId] || pages[info.pageId] || (TITLE_KEYS.find(([r]) => r.test(info.desc)) || [])[1] || "";
+  /* last resort: the amount, only when exactly one course has that price in that currency (others go to the owner to approve) */
+  const AMT = Object.assign({}, AMOUNTS, cfg.amounts || {}), byAmt = AMT[`${info.currency}:${Math.round(info.amount)}`];
+  const course = info.notes.course ? slug(info.notes.course) : map[info.linkUrl] || map[info.linkId] || pages[info.pageId] || (TITLE_KEYS.find(([r]) => r.test(info.desc)) || [])[1] || byAmt || "";
   /* which student: same mobile (last 10 digits) or same email */
   let user = null;
   if (info.phone) { const all = await fs.query("users", [["phoneLast10", "EQUAL", last10(info.phone)]], 5); user = all[0] || null; }
