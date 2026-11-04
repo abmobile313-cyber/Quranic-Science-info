@@ -185,6 +185,7 @@ export const PAGES = {
   pl_TuPArQv7aZiIsd: "arabic-speaking-class", pl_TuPHbNqlb1HmsA: "arabic-speaking-class"
 };
 /* unique course prices (first-batch price on each Razorpay page); ₹5,999 and $75 are shared by several courses, so those wait for the owner */
+export const AMOUNTS_MULTI = { "INR:5999": ["tajweed-arabic-combo", "video-editing-course", "content-creation-zero-to-pro"], "USD:75": ["tajweed-arabic-combo", "video-editing-course", "content-creation-zero-to-pro", "arabic-speaking-class"] };
 export const AMOUNTS = { "INR:13999": "all-in-one-creator-course", "USD:175": "all-in-one-creator-course", "INR:1499": "ai-masterclass", "USD:19": "ai-masterclass", "INR:2100": "tajweed-class", "USD:26": "tajweed-class", "INR:6000": "arabic-speaking-class", "INR:50": "ref-pdf" };
 const TITLE_KEYS = [[/all-in-one/i, "all-in-one-creator-course"], [/tajweed\s*\+\s*arabic|combo/i, "tajweed-arabic-combo"], [/ai masterclass/i, "ai-masterclass"], [/video editing/i, "video-editing-course"], [/content creation/i, "content-creation-zero-to-pro"], [/reference pdf|pdf download/i, "ref-pdf"], [/tajweed/i, "tajweed-class"], [/arabic speaking/i, "arabic-speaking-class"]];
 export async function handlePayment(env, evt, fs, fetchImpl = fetch) {
@@ -196,12 +197,17 @@ export async function handlePayment(env, evt, fs, fetchImpl = fetch) {
   const pages = Object.assign({}, PAGES, cfg.pages || {});
   /* last resort: the amount, only when exactly one course has that price in that currency (others go to the owner to approve) */
   const AMT = Object.assign({}, AMOUNTS, cfg.amounts || {}), byAmt = AMT[`${info.currency}:${Math.round(info.amount)}`];
-  const course = info.notes.course ? slug(info.notes.course) : map[info.linkUrl] || map[info.linkId] || pages[info.pageId] || (TITLE_KEYS.find(([r]) => r.test(info.desc)) || [])[1] || byAmt || "";
+  let course = info.notes.course ? slug(info.notes.course) : map[info.linkUrl] || map[info.linkId] || pages[info.pageId] || (TITLE_KEYS.find(([r]) => r.test(info.desc)) || [])[1] || byAmt || "";
   /* which student: same mobile (last 10 digits) or same email */
   let user = null;
   if (info.phone) { const all = await fs.query("users", [["phoneLast10", "EQUAL", last10(info.phone)]], 5); user = all[0] || null; }
   if (!user && info.email) { const all = await fs.query("users", [["email", "EQUAL", info.email]], 5); user = all[0] || null; }
   const rec = { id: info.id, amount: info.amount, currency: info.currency, email: info.email, phone: info.phone, link: info.linkUrl || info.linkId || info.pageId, page: info.pageId, desc: info.desc.slice(0, 120), event: evt.event || "", course, uid: user ? user.id : "", ts: Date.now() };
+  /* same price for several courses (₹5,999 / $75): take the course this student tapped "Enroll" on in the last 2 days */
+  if (!course && user && user.lastEnroll && user.lastEnroll.course && Date.now() - (user.lastEnroll.ts || 0) < 2 * 864e5) {
+    const cands = AMOUNTS_MULTI[`${info.currency}:${Math.round(info.amount)}`] || [];
+    if (cands.includes(user.lastEnroll.course)) course = user.lastEnroll.course;
+  }
   if (!course || !user) { await fs.merge(`payments/${info.id}`, Object.assign(rec, { status: "needs-owner", reason: !course ? "course link not recognised" : "no student with this mobile/email" })); return { pending: rec }; }
   /* reference PDF download (₹50 / international): one paid download credit, kept in the protected "paid" map */
   if (course === "ref-pdf") {
@@ -329,6 +335,15 @@ export async function buildLeaders(fs, now) {
 export async function runCron(env, fs, now = Date.now(), fetchImpl = fetch) {
   const out = { reminded: 0, certs: 0, via: {}, errors: [] }, site = env.SITE || "https://quranicscience.info";
   const cfg = (await fs.get("config/payLinks")) || {}, names = cfg.names || {};
+  /* 0) payments the owner approved in the owner panel (or old payments the automation missed) */
+  try { const ap = (await fs.get("config/approvals")) || {};
+    for (const [pid, a] of Object.entries(ap)) {
+      if (!a || typeof a !== "object" || a.done || !a.uid || !a.course) continue;
+      const u = await fs.get(`users/${a.uid}`); if (!u) { await fs.merge("config/approvals", { [pid]: { done: now, result: "no user" } }); continue; }
+      const evt = { payload: { payment: { entity: { id: pid, amount: Math.round((+a.amount || 0) * 100), currency: a.currency || "INR", email: (u.email || "").toLowerCase(), contact: u.waPhone || u.phone || "", notes: { course: a.course } } } } };
+      const r = await handlePayment(env, evt, fs, fetchImpl).catch(e => ({ error: String(e.message || e).slice(0, 100) }));
+      await fs.merge("config/approvals", { [pid]: { done: now, result: JSON.stringify(r).slice(0, 200) } }); out.approved = (out.approved || 0) + 1;
+    } } catch (e) { out.errors.push("approvals: " + String(e.message || e).slice(0, 120)); }
   /* 0a) combo students (paid online or ticked by the owner) also get each course inside the combo */
   try { for (const [combo, inc] of Object.entries(COMBOS)) { const us = await fs.query("users", [["access.`" + combo + "`", "EQUAL", true]], 300);
       for (const u of us) { const miss = inc.filter(k => !(u.access || {})[k]); if (!miss.length) continue; const acc = {}, pd = {}; miss.forEach(k => { acc[k] = true; pd[k] = ((u.paid || {})[combo]) || now; }); await fs.merge(`users/${u.id}`, { access: acc, paid: pd }); out.combo = (out.combo || 0) + 1; } } } catch (e) { out.errors.push("combo: " + String(e.message || e).slice(0, 120)); }
@@ -498,6 +513,10 @@ export default {
     /* WhatsApp webhook: remembers when a student messaged us, so our replies in the next 24 h are free */
     if (url.pathname === "/wa-subscribe") return json(await waSubscribe(env, url.searchParams.get("waba") || ""));
     /* owner test: sends the 3 approved templates ONLY to the owner's own number (no other number is ever accepted) */
+    if (url.pathname === "/wa-report") { const fs = makeFS(env); const L = { sent: "✓ Bheja gaya", delivered: "✓✓ Phone par pahunch gaya", read: "🔵 Padh liya", failed: "❌ Nahi gaya" };
+      const r = (await fs.query("waStatus", [], 300)).sort((a, b) => (b.ts || 0) - (a.ts || 0)).slice(0, 40);
+      const rows = r.map(x => `<tr><td>${new Date((x.ts || 0) + 330 * 60000).toISOString().slice(0, 16).replace("T", " ")}</td><td>…${String(x.to || "").replace(/[^0-9]/g, "")}</td><td>${L[x.status] || x.status}</td><td>${x.err ? String(x.err).replace(/[<>&]/g, "").slice(0, 90) : ""}</td></tr>`).join("");
+      return new Response(`<!doctype html><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><title>WhatsApp report</title><body style="font-family:system-ui;background:#04070c;color:#e8eef6;padding:14px"><h2>WhatsApp messages – last 40</h2><p style="color:#9fb6c8">Number ke aakhri 4 ank. ✓ bheja · ✓✓ pahunch gaya · 🔵 padh liya · ❌ nahi gaya</p><table style="border-collapse:collapse;width:100%;font-size:14px">${rows.replace(/<td>/g, '<td style="border-bottom:1px solid #223;padding:6px">')}</table></body>`, { headers: { "content-type": "text/html; charset=utf-8" } }); }
     if (url.pathname === "/wa-status") { const fs = makeFS(env); const r = (await fs.query("waStatus", [], 200)).sort((a, b) => (b.ts || 0) - (a.ts || 0)).slice(0, 15).map(x => ({ status: x.status, to: "…" + x.to, err: x.err || "", at: new Date((x.ts || 0) + 330 * 60000).toISOString().slice(11, 19) + " IST" })); return json(r); }
     if (url.pathname === "/wa-test") { const to = "919272527913", out = {};
       out.payment_confirmed = await sendWA(env, to, "payment_confirmed", ["Arsalan", "Tajweed Class", "TEST01M-TAJ"]);
