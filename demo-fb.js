@@ -1,7 +1,7 @@
 /* Quranic Science DEMO MODE: a full practice copy of the website that runs only in this browser.
    Nothing here touches the real student database. Open quranicscience.info/?demo=1 to start, ?demo=0 to leave. */
 (() => {
-  const DBK = "qs-demo-db2", UK = "qs-demo-users2", CK = "qs-demo-cur2";
+  const DBK = "qs-demo-db3", UK = "qs-demo-users3", CK = "qs-demo-cur3";
   const J = (k, d) => { try { return JSON.parse(localStorage.getItem(k)) || d; } catch (e) { return d; } };
   const S = (k, v) => localStorage.setItem(k, JSON.stringify(v));
   const clone = v => v === undefined ? v : JSON.parse(JSON.stringify(v));
@@ -66,7 +66,18 @@
         act2: { uid: "stu1", name: "Ayesha Khan", phone: "+91 9820012345", kind: "payment", section: "learn", sectionName: "Learn with Us", title: "Paid (auto): tajweed-class [tajweed-class]", status: "Paid", ts: now - 2 * 864e5 }
       },
       receipts: { pay_Demo001: { uid: "stu1", name: "Ayesha Khan", code: "AYE345E-TAJ", course: CK2, courseName: "Tajweed Class", amount: 2100, currency: "INR", paymentId: "pay_Demo001", batch: "Evening batch · 1 hour classes, timing shared in your batch", ts: now - 2 * 864e5 } },
-      config: { worker: { lastCron: now - 600e3, lastResult: "{\"demo\":true}" } }
+      config: { worker: { lastCron: now - 600e3, lastResult: "{\"demo\":true}" } },
+      doubts: {
+        dbt1: { uid: "stu1", name: "Ayesha Khan", code: "AYE345E", course: CK2, courseName: "Tajweed Class", batch: "E", q: "Ustad ji, ع aur ح ki awaaz mein farq kaise pehchanein? Mujhe dono ek jaise lagte hain.", ai: "", ts: now - 5 * 3600e3, status: "open" }
+      },
+      reviews: {
+        "stu1__tajweed-class__student__demo_c1": { by: "student", uid: "stu1", name: "Ayesha Khan", code: "AYE345E", course: CK2, batch: "E", key: "demo_c1", title: "Makharij: the throat letters", stars: 5, comment: "Bahut achha samjhaya, misaal se samajh aaya", ts: now - 20 * 3600e3 }
+      },
+      testimonials: {
+        "s7__tajweed-class__R1": { uid: "s7", name: "Maryam", course: CK2, courseName: "Tajweed Class", key: "R1", stars: 5, text: "Pehle hafte hi makharij saaf ho gaye. Ustad ji har galti pyaar se theek karte hain. JazakAllah!", show: true, ts: now - 2 * 864e5 },
+        "s8__ai-masterclass__R1": { uid: "s8", name: "Imran", course: "ai-masterclass", courseName: "AI Masterclass", key: "R1", stars: 5, text: "Main ne pehli baar ChatGPT se apni dukaan ke liye poster aur caption banaye. Bahut kaam ki class.", show: true, ts: now - 3 * 864e5 },
+        "s9__tajweed-class__R1": { uid: "s9", name: "Sana", course: CK2, courseName: "Tajweed Class", key: "R1", stars: 4, text: "Class time thoda kam lagta hai, lekin recording se sab dobara dekh leti hoon. Bahut achha tareeqa.", show: true, ts: now - 4 * 864e5 }
+      }
     };
     S(DBK, db);
     S(UK, { "quranicscience01@gmail.com": { uid: "owner1", email: "quranicscience01@gmail.com", pw: "demo1234", displayName: "Arsalan Ahmed Shaikh" },
@@ -75,14 +86,14 @@
       "zaid@demo.quranicscience.info": { uid: "stu2", email: "zaid@demo.quranicscience.info", pw: "demo1234", displayName: "Zaid Siddiqui" } });
   }
   const L = [];
-  const mk = r => { if (!r) return null; const u = { uid: r.uid, email: r.email, displayName: r.displayName || "", phoneNumber: null, photoURL: "", emailVerified: true, isAnonymous: false, providerData: [{ providerId: "password" }],
+  const mk = r => { if (!r) return null; const u = { uid: r.uid, email: r.email, displayName: r.displayName || "", phoneNumber: null, photoURL: "", emailVerified: true, isAnonymous: false, providerData: [{ providerId: /^naya/.test(r.email) ? "google.com" : "password" }],
     updateProfile: async p => { Object.assign(u, p); const us = J(UK, {}); Object.assign(us[r.email], p); S(UK, us); }, sendEmailVerification: async () => {}, getIdToken: async () => "demo", reload: async () => {} }; return u; };
   const auth = { currentUser: null,
     onAuthStateChanged: cb => { L.push(cb); setTimeout(() => cb(auth.currentUser), 30); return () => {}; },
     _set(r) { auth.currentUser = mk(r); S(CK, r ? r.email : null); L.forEach(cb => cb(auth.currentUser)); },
     createUserWithEmailAndPassword: async (em, pw) => { const us = J(UK, {}); if (us[em]) throw { code: "auth/email-already-in-use", message: "Email already in use" }; us[em] = { uid: "u" + Math.random().toString(36).slice(2, 10), email: em, pw }; S(UK, us); auth.currentUser = mk(us[em]); S(CK, em); setTimeout(() => L.forEach(cb => cb(auth.currentUser)), 600); return { user: auth.currentUser }; },
     signInWithEmailAndPassword: async (em, pw) => { const us = J(UK, {}); if (!us[em] || us[em].pw !== pw) throw { code: "auth/wrong-password", message: "Wrong password" }; auth._set(us[em]); return { user: auth.currentUser }; },
-    signOut: async () => auth._set(null), signInWithPopup: async () => { throw { code: "auth/demo", message: "Demo mode: upar ke DEMO button se Student / Teacher / Owner chunein." }; },
+    signOut: async () => auth._set(null), signInWithPopup: async () => { const us = J(UK, {}), n = Object.keys(us).filter(k => /^naya/.test(k)).length + 1, em = `naya${n}@demo.quranicscience.info`; us[em] = { uid: "new" + n + Math.random().toString(36).slice(2, 6), email: em, pw: "demo1234", displayName: "Naya Student " + n }; S(UK, us); auth._set(us[em]); return { user: auth.currentUser }; },
     sendPasswordResetEmail: async () => {}, signInAnonymously: async () => { throw { code: "x" }; }, signInWithPhoneNumber: async () => { throw { code: "x" }; }, useDeviceLanguage: () => {}, setPersistence: async () => {} };
   { const em = J(CK, null), us = J(UK, {}); if (em && us[em]) auth.currentUser = mk(us[em]); }
   const fb = { apps: [], initializeApp: () => { fb.apps.push({}); return {}; }, auth: () => auth, firestore: () => db, analytics: () => ({ logEvent: () => {} }), appCheck: () => ({ activate: () => {} }), messaging: () => ({ getToken: async () => "", onMessage: () => {} }) };
