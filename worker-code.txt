@@ -261,6 +261,12 @@ export async function botReply(env, fs, from, text, who, prev, now = Date.now())
   return `This is an automatic number, so a person may not see this. ${human}\n\n${BOT_MENU.student}`;
 }
 
+/* the teacher's answer reaches the student in the language the student asked in (free Google translate; original if it fails) */
+const scriptOf = t => /[\u0600-\u06ff]/.test(t) ? (/[ٹڈڑںےۓ]/.test(t) ? "ur" : "ar") : /[\u0900-\u097f]/.test(t) ? "hi" : "en";
+export async function toLangOf(text, like, fetchImpl = fetch) {
+  text = String(text || ""); const tl = scriptOf(String(like || "")); if (!text.trim() || scriptOf(text) === tl) return text;
+  try { const r = await fetchImpl(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=${tl}&dt=t&q=${encodeURIComponent(text.slice(0, 1500))}`); const j = await r.json(); const o = (j[0] || []).map(x => x[0]).join(""); return o.trim() ? o : text; } catch (e) { return text; }
+}
 /* ---------- reminders + certificates (cron) ---------- */
 /* class.date is "YYYY-MM-DD HH:MM" in India time (what the class form saves) */
 export const istMs = s => { const m = /^(\d{4})-(\d{2})-(\d{2})[ T](\d{2}):(\d{2})/.exec(String(s || "")); return m ? Date.UTC(+m[1], +m[2] - 1, +m[3], +m[4] - 5, +m[5] - 30) : NaN; };
@@ -359,7 +365,7 @@ export async function runCron(env, fs, now = Date.now(), fetchImpl = fetch) {
     const ds = await fs.query("doubts", [["status", "EQUAL", "answered"], ["notified", "EQUAL", false]], 100);
     for (const d of ds) {
       const u = d.uid ? await fs.get(`users/${d.uid}`) : null;
-      const r = u ? await notify(env, fs, Object.assign({ id: d.uid }, u), { title: "Your teacher answered ✓", body: `${d.courseName || "Your course"}: ${String(d.answer || "").slice(0, 120)}`, url: site + "/#learn", tag: "doubt-" + d.id, paid: false }, now, fetchImpl) : { via: "none" };
+      const r = u ? await notify(env, fs, Object.assign({ id: d.uid }, u), { title: "Your teacher answered ✓", body: `${d.courseName || "Your course"}: ${String(await toLangOf(d.answer, d.q, fetchImpl)).slice(0, 120)}`, url: site + "/#learn", tag: "doubt-" + d.id, paid: false }, now, fetchImpl) : { via: "none" };
       await fs.merge(`doubts/${d.id}`, { notified: true, notifiedVia: r.via });
       out.doubts = (out.doubts || 0) + 1;
     }
