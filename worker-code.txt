@@ -422,13 +422,15 @@ Any question? Reply 4 to talk to a person.`, fetchImpl);
 
 
 /* Makes sure our WhatsApp Business Account sends incoming messages to this app (subscribed_apps). Safe to run many times. */
-export async function waSubscribe(env, fetchImpl = fetch) {
+export async function waSubscribe(env, extra = "", fetchImpl = fetch) {
   if (!env.WA_TOKEN) return { skipped: true };
   const G = "https://graph.facebook.com/v21.0", H = { authorization: "Bearer " + env.WA_TOKEN };
   const out = { wabas: [], phone: null };
   try { const p = await (await fetchImpl(`${G}/${env.WA_PHONE_ID}?fields=display_phone_number,verified_name,status,code_verification_status,quality_rating,platform_type,name_status`, { headers: H })).json(); out.phone = p.error ? { error: p.error.message } : p; } catch (e) { out.phone = { error: e.message }; }
-  let ids = String(env.WA_WABA_ID || "").split(",").filter(Boolean);
+  let ids = (String(env.WA_WABA_ID || "") + "," + String(extra || "2313685696074815")).split(",").map(x => x.replace(/\D/g, "")).filter((x, i, a) => x && a.indexOf(x) === i);
+  out.debug = null;
   try { const d = await (await fetchImpl(`${G}/debug_token?input_token=${encodeURIComponent(env.WA_TOKEN)}`, { headers: H })).json();
+    out.debug = d.error ? d.error.message : ((d.data || {}).granular_scopes || []).map(g => g.scope + ":" + (g.target_ids || []).length).join(" ");
     for (const g of ((d.data || {}).granular_scopes || [])) if (/whatsapp_business_(management|messaging)/.test(g.scope)) for (const t of g.target_ids || []) if (!ids.includes(t)) ids.push(t);
   } catch (e) {}
   for (const id of ids) {
@@ -445,7 +447,7 @@ export default {
     const url = new URL(req.url);
     if (url.pathname === "/health") return json({ ok: true, razorpay: !!env.RAZORPAY_WEBHOOK_SECRET, firebase: !!env.FIREBASE_SA, whatsapp: !!(env.WA_TOKEN && env.WA_PHONE_ID), whatsappWebhook: !!env.WA_VERIFY_TOKEN, backup: !!env.BACKUP, paidReminders: env.WA_PAID_REMINDERS === "on", monthlyLimit: +(env.WA_MONTHLY_LIMIT || 200) });
     /* WhatsApp webhook: remembers when a student messaged us, so our replies in the next 24 h are free */
-    if (url.pathname === "/wa-subscribe") return json(await waSubscribe(env));
+    if (url.pathname === "/wa-subscribe") return json(await waSubscribe(env, url.searchParams.get("waba") || ""));
     if (url.pathname === "/whatsapp" && req.method === "GET") {
       const ok = url.searchParams.get("hub.mode") === "subscribe" && env.WA_VERIFY_TOKEN && url.searchParams.get("hub.verify_token") === env.WA_VERIFY_TOKEN;
       return new Response(ok ? url.searchParams.get("hub.challenge") : "forbidden", { status: ok ? 200 : 403 });
