@@ -361,16 +361,17 @@ Answer in Student doubts.`, url: site + "/#learn", tag: "tdoubt-" + d.id, paid: 
       await fs.merge(`doubts/${d.id}`, { teacherNotified: now });
     }
   } catch (e) { out.errors.push("teacher doubts: " + String(e.message || e).slice(0, 120)); }
-  /* 3c) class in 30 minutes: remind the teacher too (free only) */
+  /* 3c) class in 1 hour: remind the teacher to open Zoom and check / update the class link (free first, paid template if allowed) */
   try {
     for (const k of classes) {
       const t = istMs(k.date); if (isNaN(t) || (k.reminder && k.reminder.teacher)) continue;
-      const mins = (t - now) / 60000; if (mins < 24 || mins > 39) continue;
+      const mins = (t - now) / 60000; if (mins < 54 || mins > 69) continue;
+      const when = new Date(t + 330 * 60000).toISOString().slice(11, 16), ttl = (k.title && (k.title.en || k.title.ur)) || "Class " + (k.n || "");
       const ts = await fs.query("teachers", [["course", "EQUAL", k.course]], 10);
       for (const T of ts) {
         if (k.batch && k.batch !== "ALL" && T.batch && T.batch !== k.batch && T.batch !== "ALL") continue;
         const tu = (await fs.query("users", [["email", "EQUAL", T.id]], 1))[0] || {};
-        await notify(env, fs, Object.assign({ phone: T.phone }, tu), { title: "Your class starts in 30 minutes", body: `${names[k.course] || k.course}: ${(k.title && (k.title.en || k.title.ur)) || "Class " + (k.n || "")}. Tap Start class in your panel.`, url: k.zoom || site + "/#learn", tag: "tclass-" + k.id, paid: false }, now, fetchImpl);
+        await notify(env, fs, Object.assign({ phone: T.phone }, tu), { title: `Your class starts in 1 hour · ${when} IST`, body: `${names[k.course] || k.course}: ${ttl} at ${when} IST. Please open Zoom now and check the link. If the link changed, update it in Teacher panel → Edit.`, url: site + "/#learn", tag: "tclass-" + k.id, paid: env.WA_PAID_REMINDERS === "on", template: "class_reminder", params: [T.name || tu.name || "Teacher", names[k.course] || k.course, ttl + " (you are the teacher: open Zoom and check the link)", when + " IST", k.zoom || site + "/#learn"] }, now, fetchImpl);
       }
       await fs.merge(`classes/${k.id}`, { reminder: { teacher: now } });
     }
