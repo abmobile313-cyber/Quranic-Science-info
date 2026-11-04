@@ -1109,11 +1109,11 @@ setInterval(() => {
 })();
 </script>
 <style id="qs-hub-css">/* ===== Quranic Science learning app: premium 3D glass, maroon · gold · cyan ===== */
-#qhApp{--qm:#7a1424;--qm2:#a3283a;--qg:#e0a425;--qg2:#f2c75c;--qc:#1fb6e8;--qc2:#7fd8f7;--qbg:#0b0508;--qink:#fbf4ea;--qmut:#cdbfae;--qline:rgba(255,236,200,.16);--qsp:cubic-bezier(.2,.9,.25,1.15);
+#qhApp{--qm:#8e1b33;--qm2:#b4304a;--qg:#e3aa3c;--qg2:#f6d58a;--qc:#2cc4f2;--qc2:#8fe1fb;--qe:#34d399;--qr:#ff6b6b;--qbg:#04070c;--qs1:#0a1018;--qink:#f4efe6;--qmut:#a9b3bf;--qline:rgba(220,235,255,.12);--qsp:cubic-bezier(.2,.9,.25,1.15);
   position:fixed;inset:0;z-index:65;display:none;flex-direction:column;color:var(--qink);background:var(--qbg);font-family:Outfit,Manrope,system-ui,sans-serif;overflow:hidden;-webkit-tap-highlight-color:transparent}
 #qhApp.on{display:flex;animation:qhIn .45s var(--qsp) both}
 html.qh-open,html.qh-open body{overflow:hidden!important}
-html.qh-open .dock{display:none}
+html.qh-open .dock,html.qh-open #qsBnav,html.qh-open .qs-bnav{display:none!important}
 @keyframes qhIn{from{opacity:0;transform:scale(.97) translateY(14px)}to{opacity:1;transform:none}}
 #qhApp *{box-sizing:border-box}
 #qhApp button{font:inherit;color:inherit;cursor:pointer;border:0;background:none}
@@ -1122,20 +1122,23 @@ html.qh-open .dock{display:none}
 #qhApp p{margin:6px 0}
 /* moving coloured light behind the glass */
 .qh-bg{position:absolute;inset:0;pointer-events:none;overflow:hidden}
-.qh-bg i{position:absolute;border-radius:50%;filter:blur(60px);opacity:.55;animation:qhOrb 18s ease-in-out infinite alternate}
-.qh-bg .o1{width:70vmax;height:70vmax;left:-25vmax;top:-30vmax;background:radial-gradient(circle,var(--qm2),transparent 65%)}
-.qh-bg .o2{width:60vmax;height:60vmax;right:-25vmax;top:20vh;background:radial-gradient(circle,rgba(31,182,232,.55),transparent 65%);animation-delay:-6s}
-.qh-bg .o3{width:55vmax;height:55vmax;left:10vw;bottom:-30vmax;background:radial-gradient(circle,rgba(224,164,37,.5),transparent 65%);animation-delay:-11s}
+.qh-bg i{position:absolute;border-radius:50%;filter:blur(70px);opacity:.9;animation:qhOrb 18s ease-in-out infinite alternate}
+.qh-bg{background:radial-gradient(120% 80% at 50% -10%,#0c2233 0%,#05090f 55%,#030509 100%)}
+.qh-bg::after{content:"";position:absolute;inset:0;opacity:.06;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence baseFrequency='.85' numOctaves='2'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23n)'/%3E%3C/svg%3E")}
+.qh-bg .o1{width:70vmax;height:70vmax;left:-28vmax;top:-32vmax;background:radial-gradient(circle,rgba(44,196,242,.42),transparent 62%)}
+.qh-bg .o2{width:60vmax;height:60vmax;right:-28vmax;top:28vh;background:radial-gradient(circle,rgba(20,184,166,.28),transparent 62%);animation-delay:-6s}
+.qh-bg .o3{width:55vmax;height:55vmax;left:5vw;bottom:-32vmax;background:radial-gradient(circle,rgba(227,170,60,.30),transparent 62%);animation-delay:-11s}
 @keyframes qhOrb{to{transform:translate(6vmax,5vmax) scale(1.12)}}
 #qhApp.lite .qh-bg i{animation:none;filter:blur(40px)}
 /* glass: real blur only on header + nav, cards use cheap "fake glass" */
-.qh-top,.qh-nav{background:linear-gradient(180deg,rgba(255,255,255,.12),rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.18);border-top-color:rgba(255,255,255,.4);box-shadow:inset 0 1px 0 rgba(255,255,255,.3),0 12px 40px rgba(0,0,0,.4);-webkit-backdrop-filter:blur(18px) saturate(170%);backdrop-filter:blur(18px) saturate(170%)}
-#qhApp.lite .qh-top,#qhApp.lite .qh-nav{-webkit-backdrop-filter:none;backdrop-filter:none;background:rgba(30,12,16,.94)}
+.qh-top,.qh-nav{background:linear-gradient(180deg,rgba(255,255,255,.10),rgba(255,255,255,.035));border:1px solid rgba(255,255,255,.14);border-top-color:rgba(255,255,255,.34);box-shadow:inset 0 1px 0 rgba(255,255,255,.22),inset 0 -1px 0 rgba(0,0,0,.25),0 16px 44px rgba(0,0,0,.5);-webkit-backdrop-filter:blur(20px) saturate(180%);backdrop-filter:blur(20px) saturate(180%)}
+#qhApp.lite .qh-top,#qhApp.lite .qh-nav{-webkit-backdrop-filter:none;backdrop-filter:none;background:rgba(12,18,26,.95)}
 .qh-top{position:relative;z-index:2;display:flex;align-items:center;gap:10px;margin:calc(8px + env(safe-area-inset-top,0px)) 12px 0;padding:8px;border-radius:22px}
 .qh-brand{flex:1;display:flex;align-items:center;gap:9px;min-width:0}
 .qh-brand img{border-radius:50%;box-shadow:0 0 0 2px var(--qg),0 4px 14px rgba(224,164,37,.4)}
-.qh-brand b{font-family:Cinzel,serif;letter-spacing:.04em;background:linear-gradient(90deg,var(--qg2),#fff,var(--qc2));-webkit-background-clip:text;background-clip:text;color:transparent;white-space:nowrap}
-.qh-brand small{font-size:.7rem;padding:2px 8px;border-radius:99px;background:rgba(31,182,232,.18);color:var(--qc2);border:1px solid rgba(31,182,232,.35)}
+.qh-brand b{font-family:Cinzel,Outfit,serif;font-weight:700;letter-spacing:.04em;background:linear-gradient(90deg,var(--qg2),#fff,var(--qc2));-webkit-background-clip:text;background-clip:text;color:transparent;white-space:nowrap}
+.qh-brand small{font-size:.7rem;padding:2px 8px;border-radius:99px;background:rgba(44,196,242,.14);color:var(--qc2);border:1px solid rgba(44,196,242,.32)}
+#qhApp.tmode .qh-brand small{background:rgba(227,170,60,.16);color:var(--qg2);border-color:rgba(227,170,60,.4)}
 .qh-ib{width:40px;height:40px;display:grid;place-items:center;border-radius:14px;background:rgba(255,255,255,.08)!important;border:1px solid var(--qline)!important;transition:transform .2s}
 .qh-ib:active{transform:scale(.92)}.qh-ib svg{width:20px;height:20px}
 .qh-main{position:relative;z-index:1;flex:1;overflow-y:auto;overscroll-behavior:contain;padding:16px 14px calc(110px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;gap:14px;max-width:760px;width:100%;margin:0 auto;scrollbar-width:none}
@@ -1145,14 +1148,14 @@ html.qh-open .dock{display:none}
 .qh-nav{position:absolute;z-index:3;left:50%;transform:translateX(-50%);bottom:calc(12px + env(safe-area-inset-bottom,0px));width:min(520px,calc(100% - 24px));display:grid;grid-template-columns:repeat(5,1fr);padding:6px;border-radius:26px}
 .qh-nav button{position:relative;z-index:1;display:grid;justify-items:center;gap:2px;padding:7px 0 6px;font-size:.68rem;font-weight:600;color:var(--qmut);transition:color .25s,transform .2s}
 .qh-nav button svg{width:22px;height:22px;transition:transform .35s var(--qsp)}
-.qh-nav button.on{color:#fff}.qh-nav button.on svg{transform:translateY(-2px) scale(1.12);color:var(--qg2);filter:drop-shadow(0 4px 10px rgba(242,199,92,.55))}
+.qh-nav button.on{color:#fff}.qh-nav button.on svg{transform:translateY(-2px) scale(1.12);color:var(--qc2);filter:drop-shadow(0 4px 10px rgba(44,196,242,.6))}
 .qh-nav button:active{transform:scale(.92)}
-.qh-ind{position:absolute;top:6px;bottom:6px;left:6px;width:calc((100% - 12px)/5);border-radius:20px;background:linear-gradient(160deg,rgba(163,40,58,.75),rgba(122,20,36,.55));box-shadow:inset 0 1px 0 rgba(255,255,255,.35),0 6px 18px rgba(163,40,58,.45);transform:translateX(calc(var(--x,0)*100%));transition:transform .45s var(--qsp)}
+.qh-ind{position:absolute;top:6px;bottom:6px;left:6px;width:calc((100% - 12px)/5);border-radius:20px;background:linear-gradient(160deg,rgba(44,196,242,.30),rgba(44,196,242,.10));border:1px solid rgba(143,225,251,.35);box-shadow:inset 0 1px 0 rgba(255,255,255,.35),0 8px 22px rgba(44,196,242,.28);transform:translateX(calc(var(--x,0)*100%));transition:transform .45s var(--qsp)}
 /* cards */
-.qh-card,.qh-hero,.qh-cls,.qh-course,.qh-stats>div,.qh-test .qh-q,.qh-opt,.qh-room{position:relative;border-radius:24px;background:linear-gradient(155deg,rgba(255,255,255,.11),rgba(255,255,255,.035) 60%,rgba(122,20,36,.08));border:1px solid var(--qline);border-top-color:rgba(255,255,255,.3);box-shadow:inset 0 1px 0 rgba(255,255,255,.18),0 14px 34px -14px rgba(0,0,0,.65)}
+.qh-card,.qh-hero,.qh-cls,.qh-course,.qh-stats>*,.qh-test .qh-q,.qh-opt,.qh-room{position:relative;border-radius:24px;background:linear-gradient(160deg,rgba(255,255,255,.085),rgba(255,255,255,.025) 55%,rgba(255,255,255,.015));border:1px solid var(--qline);border-top-color:rgba(255,255,255,.24);box-shadow:inset 0 1px 0 rgba(255,255,255,.14),0 18px 40px -18px rgba(0,0,0,.8)}
 .qh-card{padding:16px;display:grid;gap:10px}
-.qh-hero{padding:20px;display:grid;gap:10px;overflow:hidden;background:linear-gradient(140deg,rgba(163,40,58,.55),rgba(60,10,20,.55) 50%,rgba(31,182,232,.22));transition:transform .25s ease-out;transform-style:preserve-3d}
-.qh-hero.live{box-shadow:0 0 0 1px rgba(255,90,90,.5),0 18px 50px -12px rgba(255,60,60,.45);animation:qhGlow 2.4s ease-in-out infinite}
+.qh-hero{padding:20px;display:grid;gap:10px;overflow:hidden;background:radial-gradient(120% 120% at 100% 0%,rgba(44,196,242,.30),transparent 55%),radial-gradient(90% 90% at 0% 100%,rgba(227,170,60,.22),transparent 60%),linear-gradient(160deg,#0f2232,#0a1520);border-color:rgba(143,225,251,.22);transition:transform .25s ease-out;transform-style:preserve-3d}
+.qh-hero.live{box-shadow:0 0 0 1px rgba(255,107,107,.55),0 18px 50px -12px rgba(255,107,107,.45);animation:qhGlow 2.4s ease-in-out infinite}
 @keyframes qhGlow{50%{box-shadow:0 0 0 1px rgba(255,90,90,.8),0 18px 60px -8px rgba(255,60,60,.6)}}
 .qh-shine{position:absolute;inset:0;pointer-events:none;background:radial-gradient(400px circle at var(--mx,30%) var(--my,0%),rgba(255,255,255,.18),transparent 45%)}
 .qh-hero h2{font-size:1.45rem;text-shadow:0 2px 12px rgba(0,0,0,.4)}
@@ -1178,31 +1181,31 @@ html.qh-open .dock{display:none}
 /* home */
 .qh-hello{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:4px 4px 0}
 .qh-hello small{color:var(--qmut)}
-.qh-flame{display:grid;justify-items:center;padding:8px 14px;border-radius:20px;background:linear-gradient(160deg,rgba(255,140,40,.22),rgba(122,20,36,.3))!important;border:1px solid rgba(255,170,80,.4)!important;min-width:84px}
+.qh-flame{display:grid;justify-items:center;padding:8px 14px;border-radius:20px;background:linear-gradient(160deg,rgba(255,160,60,.18),rgba(255,255,255,.04))!important;border:1px solid rgba(255,190,110,.35)!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.2),0 10px 26px -10px rgba(255,150,50,.5);min-width:84px}
 .qh-flame span{font-size:1.5rem;filter:grayscale(.8);transition:filter .3s}.qh-flame.lit span{filter:none;animation:qhFlame 1.6s ease-in-out infinite}
 .qh-flame b{font-size:1.3rem;line-height:1}.qh-flame small{font-size:.66rem;color:var(--qmut)}
 @keyframes qhFlame{50%{transform:scale(1.15) rotate(-4deg)}}
 .qh-goal{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:14px;background:rgba(0,0,0,.18)}
 .qh-goal i{width:26px;height:26px;display:grid;place-items:center;border-radius:50%;font-style:normal;font-weight:800;font-size:.8rem;background:rgba(255,255,255,.1);border:1px solid var(--qline)}
-.qh-goal.ok i{background:linear-gradient(180deg,#5be39a,#1f9d5c);border-color:transparent;color:#032}.qh-goal.ok span{text-decoration:line-through;opacity:.65}
+.qh-goal.ok i{background:linear-gradient(180deg,#6ee7b7,#10b981);border-color:transparent;color:#032}.qh-goal.ok span{text-decoration:line-through;opacity:.65}
 .qh-scroll{display:flex;gap:12px;overflow-x:auto;padding:10px 2px 6px;scroll-snap-type:x mandatory;scrollbar-width:none}.qh-scroll::-webkit-scrollbar{display:none}
 .qh-course{flex:0 0 160px;scroll-snap-align:start;display:grid;justify-items:center;gap:6px;padding:16px 10px;text-align:center;transition:transform .25s ease-out}
 .qh-course b{font-size:.88rem}.qh-course small{color:var(--qmut);font-size:.72rem}
-.qh-ring{--s:64px;width:var(--s);height:var(--s);border-radius:50%;display:grid;place-items:center;align-content:center;background:conic-gradient(var(--qg2) calc(var(--p)*1%),rgba(255,255,255,.1) 0);position:relative;box-shadow:0 0 24px rgba(242,199,92,.25);animation:qhRing 1.1s ease-out both}
-.qh-ring::before{content:"";position:absolute;inset:6px;border-radius:50%;background:radial-gradient(circle at 30% 25%,#3a1820,#12070a)}
+.qh-ring{--s:64px;width:var(--s);height:var(--s);border-radius:50%;display:grid;place-items:center;align-content:center;background:conic-gradient(from 200deg,var(--qc) 0,var(--qg2) calc(var(--p)*1%),rgba(255,255,255,.08) 0);position:relative;box-shadow:0 0 24px rgba(242,199,92,.25);animation:qhRing 1.1s ease-out both}
+.qh-ring::before{content:"";position:absolute;inset:6px;border-radius:50%;background:radial-gradient(circle at 30% 25%,#16283a,#070c13)}
 .qh-ring b,.qh-ring small{position:relative}.qh-ring b{font-size:calc(var(--s)*.24)}.qh-ring small{font-size:.66rem;color:var(--qmut)}
 @property --p{syntax:"<number>";inherits:false;initial-value:0}
 @keyframes qhRing{from{--p:0}}
 .qh-podium{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;align-items:end}
 .qh-podium>div{display:grid;justify-items:center;gap:2px;padding:12px 6px;border-radius:18px;background:rgba(0,0,0,.2);border:1px solid var(--qline)}
-.qh-podium .p1{order:2;padding-top:22px;background:linear-gradient(180deg,rgba(242,199,92,.25),rgba(0,0,0,.15));border-color:rgba(242,199,92,.5)}.qh-podium .p2{order:1}.qh-podium .p3{order:3}
+.qh-podium .p1{order:2;padding-top:22px;background:linear-gradient(180deg,rgba(246,213,138,.22),rgba(0,0,0,.15));border-color:rgba(246,213,138,.5)}.qh-podium .p2{order:1}.qh-podium .p3{order:3}
 .qh-podium span{font-size:1.6rem}.qh-podium b{font-size:.85rem}.qh-podium small{color:var(--qmut);font-size:.7rem}
 .qh-podium .me{box-shadow:0 0 0 2px var(--qc)}
-.qh-promo{grid-template-columns:1fr auto;align-items:center;background:linear-gradient(120deg,rgba(31,182,232,.18),rgba(122,20,36,.2))}
+.qh-promo{grid-template-columns:1fr auto;align-items:center;background:linear-gradient(120deg,rgba(44,196,242,.16),rgba(227,170,60,.10))}
 /* classes timeline */
 .qh-seg{display:flex;gap:6px;overflow-x:auto;padding:4px;border-radius:18px;background:rgba(0,0,0,.25);border:1px solid var(--qline);scrollbar-width:none}
 .qh-seg button{flex:0 0 auto;padding:8px 14px;border-radius:14px;font-size:.82rem;font-weight:600;color:var(--qmut)}
-.qh-seg button.on{background:linear-gradient(160deg,var(--qm2),var(--qm));color:#fff;box-shadow:inset 0 1px 0 rgba(255,255,255,.3)}
+.qh-seg button.on{background:linear-gradient(160deg,rgba(44,196,242,.35),rgba(44,196,242,.12));color:#fff;box-shadow:inset 0 1px 0 rgba(255,255,255,.3)}
 .qh-tl{display:grid;gap:12px;position:relative;padding-left:16px}
 .qh-tl::before{content:"";position:absolute;left:6px;top:14px;bottom:14px;width:2px;background:linear-gradient(var(--qg),var(--qc),transparent);opacity:.5}
 .qh-cls{display:flex;gap:10px;padding:14px}.qh-cls.live{border-color:rgba(255,90,90,.55)}
@@ -1217,7 +1220,7 @@ html.qh-open .dock{display:none}
 .qh-spark{width:100%;height:90px}.qh-draw{stroke-dasharray:1;stroke-dashoffset:1;animation:qhDraw 1.4s .2s ease-out forwards}
 @keyframes qhDraw{to{stroke-dashoffset:0}}
 .qh-weak{display:grid;grid-template-columns:1fr 90px auto;gap:10px;align-items:center;font-size:.86rem}
-.qh-weak i{height:8px;border-radius:9px;background:rgba(255,255,255,.08);position:relative;overflow:hidden}.qh-weak i::after{content:"";position:absolute;inset:0;width:var(--w);background:linear-gradient(90deg,var(--qg),var(--qm2));border-radius:9px}
+.qh-weak i{height:8px;border-radius:9px;background:rgba(255,255,255,.08);position:relative;overflow:hidden}.qh-weak i::after{content:"";position:absolute;inset:0;width:var(--w);background:linear-gradient(90deg,var(--qg2),var(--qr));border-radius:9px}
 .qh-weak small,.qh-hist small{color:var(--qmut)}
 .qh-hist{display:grid;grid-template-columns:1fr auto 60px;gap:8px;padding:8px 0;border-bottom:1px solid var(--qline);font-size:.88rem}.qh-hist small{text-align:right}
 #qhApp.intest .qh-nav{transform:translateX(-50%) translateY(140%);transition:transform .35s}
@@ -1244,20 +1247,20 @@ html.qh-open .dock{display:none}
 .qh-revq{padding:10px 12px;border-radius:14px;background:rgba(0,0,0,.2)}.qh-revq p{color:#9ff0c3}
 /* me */
 .qh-me{display:flex;gap:14px;align-items:center;padding:4px}
-.qh-av{width:66px;height:66px;border-radius:50%;display:grid;place-items:center;font-size:1.6rem;font-weight:800;overflow:hidden;background:linear-gradient(140deg,var(--qm2),var(--qc));box-shadow:0 0 0 3px var(--qg),0 10px 30px rgba(224,164,37,.35)}
+.qh-av{width:66px;height:66px;border-radius:50%;display:grid;place-items:center;font-size:1.6rem;font-weight:800;overflow:hidden;background:linear-gradient(140deg,#14b8a6,var(--qc));box-shadow:0 0 0 3px var(--qg),0 10px 30px rgba(224,164,37,.35)}
 .qh-av img{width:100%;height:100%;object-fit:cover}
 .qh-heat{display:grid;grid-auto-flow:column;grid-template-rows:repeat(7,1fr);gap:4px;overflow-x:auto}
 .qh-heat i{width:14px;height:14px;border-radius:4px;background:rgba(255,255,255,.07)}
-.qh-heat i.hol{background:rgba(31,182,232,.12)}.qh-heat i.on{background:linear-gradient(140deg,var(--qg2),var(--qm2));box-shadow:0 0 8px rgba(242,199,92,.45)}
+.qh-heat i.hol{background:rgba(44,196,242,.12)}.qh-heat i.on{background:linear-gradient(140deg,var(--qg2),var(--qc));box-shadow:0 0 8px rgba(246,213,138,.45)}
 .qh-badges{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:10px}
 .qh-badge{display:grid;justify-items:center;gap:3px;padding:12px 6px;border-radius:18px;text-align:center;background:rgba(0,0,0,.22);border:1px solid var(--qline);filter:grayscale(1);opacity:.5}
 .qh-badge span{font-size:1.7rem}.qh-badge b{font-size:.78rem}.qh-badge small{font-size:.64rem;color:var(--qmut)}
-.qh-badge.on{filter:none;opacity:1;background:linear-gradient(160deg,rgba(242,199,92,.22),rgba(122,20,36,.25));border-color:rgba(242,199,92,.5);box-shadow:inset 0 1px 0 rgba(255,255,255,.25),0 8px 20px -8px rgba(242,199,92,.5)}
+.qh-badge.on{filter:none;opacity:1;background:linear-gradient(160deg,rgba(246,213,138,.20),rgba(44,196,242,.10));border-color:rgba(242,199,92,.5);box-shadow:inset 0 1px 0 rgba(255,255,255,.25),0 8px 20px -8px rgba(242,199,92,.5)}
 .qh-badge.on span{animation:qhBadge 3s ease-in-out infinite}
 @keyframes qhBadge{50%{transform:translateY(-3px) rotate(4deg)}}
 .qh-li{padding:6px 0;border-bottom:1px solid var(--qline)}
 .qh-empty{justify-items:center;text-align:center;padding:30px 18px}.qh-emo{font-size:3rem;animation:qhBadge 3s infinite}
-.qh-load{display:flex;gap:8px;justify-content:center;padding:60px 0}.qh-load i{width:12px;height:12px;border-radius:50%;background:var(--qg2);animation:qhDots 1s infinite}.qh-load i:nth-child(2){animation-delay:.15s;background:var(--qc)}.qh-load i:nth-child(3){animation-delay:.3s;background:var(--qm2)}
+.qh-load{display:flex;gap:8px;justify-content:center;padding:60px 0}.qh-load i{width:12px;height:12px;border-radius:50%;background:var(--qg2);animation:qhDots 1s infinite}.qh-load i:nth-child(2){animation-delay:.15s;background:var(--qc)}.qh-load i:nth-child(3){animation-delay:.3s;background:#14b8a6}
 @keyframes qhDots{50%{transform:translateY(-10px);opacity:.5}}
 /* staggered reveal */
 #qhApp .rv{animation:qhRv .55s var(--qsp) both;animation-delay:calc(var(--i,0)*60ms)}
@@ -1266,20 +1269,63 @@ html.qh-open .dock{display:none}
 @keyframes qhFadeOut{to{opacity:0}}@keyframes qhFadeIn{from{opacity:0}}
 #qhApp.rm *,#qhApp.rm *::before{animation:none!important;transition:none!important}
 @media (prefers-reduced-motion:reduce){#qhApp *{animation-duration:.01ms!important;transition-duration:.01ms!important}}
-@media (prefers-contrast:more){#qhApp .qh-card,#qhApp .qh-cls,#qhApp .qh-btn{border-width:2px!important;background:#1b0b0f!important}}
+@media (prefers-contrast:more){#qhApp .qh-card,#qhApp .qh-cls,#qhApp .qh-btn{border-width:2px!important;background:#0b121b!important}}
 @media (min-width:900px){.qh-main{padding-top:24px}#qhApp h1{font-size:2.3rem}}
 /* entry on the website */
 .qh-open-btn{display:inline-flex;align-items:center;gap:6px;height:38px;padding:0 12px;border-radius:999px;font-weight:700;font-size:.82rem;color:#2a1300;background:linear-gradient(180deg,#ffe08a,#e0a425 60%,#b7790f);border:1px solid rgba(255,236,170,.8);box-shadow:inset 0 1px 0 rgba(255,255,255,.7),0 6px 18px -6px rgba(224,164,37,.8);cursor:pointer;animation:qhBtn 3s ease-in-out infinite}
 .qh-open-btn svg{width:18px;height:18px}
 @keyframes qhBtn{50%{box-shadow:inset 0 1px 0 rgba(255,255,255,.7),0 6px 24px -2px rgba(224,164,37,.95)}}
 @media (max-width:420px){.qh-open-btn span{display:none}.qh-open-btn{width:38px;padding:0;justify-content:center}}
-#qhBan{position:fixed;z-index:56;left:10px;right:10px;bottom:calc(80px + env(safe-area-inset-bottom,0px));display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:20px;color:#fbf4ea;background:linear-gradient(120deg,rgba(122,20,36,.92),rgba(20,30,40,.92));border:1px solid rgba(242,199,92,.45);box-shadow:0 14px 40px rgba(0,0,0,.45);animation:qhIn .5s both;max-width:520px;margin:0 auto}
+#qhBan{position:fixed;z-index:56;left:10px;right:10px;bottom:calc(80px + env(safe-area-inset-bottom,0px));display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:20px;color:#f4efe6;background:linear-gradient(120deg,rgba(12,34,51,.94),rgba(8,14,22,.94));border:1px solid rgba(246,213,138,.4);box-shadow:0 14px 40px rgba(0,0,0,.45);animation:qhIn .5s both;max-width:520px;margin:0 auto}
 #qhBan img{border-radius:12px}#qhBan div{flex:1;display:grid;line-height:1.25}#qhBan small{opacity:.8;font-size:.74rem}
 #qhBan a{padding:8px 16px;border-radius:12px;font-weight:800;color:#2a1300;background:linear-gradient(180deg,#ffe08a,#e0a425);text-decoration:none}
 #qhBan button{background:none;border:0;color:inherit;font-size:1.4rem;cursor:pointer;padding:0 4px}
 html.qh-open #qhBan{display:none}
 
 html.qs-play .enr2,html.qs-play a[href*="rzp.io"],html.qs-play a[href*="razorpay"],html.qs-play a[href*="/download/"],html.qs-play #qhBan{display:none!important}
+
+/* teacher app + namaz */
+.qh-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px}
+.qh-tile{display:grid;justify-items:start;gap:6px;padding:14px;border-radius:18px;text-align:start;background:linear-gradient(160deg,rgba(255,255,255,.08),rgba(255,255,255,.02))!important;border:1px solid var(--qline)!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.12);transition:transform .18s,border-color .2s}
+.qh-tile span{font-size:1.4rem;width:42px;height:42px;display:grid;place-items:center;border-radius:14px;background:linear-gradient(160deg,rgba(44,196,242,.22),rgba(227,170,60,.14));box-shadow:inset 0 1px 0 rgba(255,255,255,.2)}
+.qh-tile b{font-size:.86rem}.qh-tile:active{transform:scale(.96)}.qh-tile:hover{border-color:rgba(143,225,251,.4)!important}
+.qh-stats>button{display:grid;justify-items:center;align-content:center;gap:2px;padding:14px 6px}
+.qh-pray{background:radial-gradient(100% 120% at 100% 0%,rgba(20,184,166,.24),transparent 60%),linear-gradient(160deg,rgba(255,255,255,.07),rgba(255,255,255,.02))}
+.qh-ur{font-family:"Noto Nastaliq Urdu",serif;font-style:normal;font-size:.85em;color:var(--qg2)}
+.qh-cd.sm{font-size:1.05rem}
+.qh-prow{display:grid;grid-template-columns:repeat(6,1fr);gap:4px}
+.qh-prow div{display:grid;justify-items:center;gap:2px;padding:8px 2px;border-radius:12px;background:rgba(0,0,0,.22);font-size:.72rem}
+.qh-prow small{color:var(--qmut);font-size:.62rem}.qh-prow b{font-size:.74rem;white-space:nowrap}
+.qh-prow .on{background:linear-gradient(160deg,rgba(20,184,166,.35),rgba(44,196,242,.15));box-shadow:inset 0 0 0 1px rgba(143,225,251,.4)}
+.qh-prl{display:flex;justify-content:space-between;align-items:center;padding:12px 6px;border-bottom:1px solid var(--qline)}.qh-prl:last-child{border:0}
+.qh-prl.on{color:var(--qc2)}.qh-prl.on b{color:var(--qg2)}
+.qh-pulse.gold{background:radial-gradient(circle,rgba(20,184,166,.45),rgba(20,184,166,.05));border-color:#5eead4;animation:qhPulseG 2s infinite}
+.qh-pulse.gold span{font-family:"Noto Nastaliq Urdu",serif;letter-spacing:0;font-size:1.3rem}
+@keyframes qhPulseG{0%{box-shadow:0 0 0 0 rgba(94,234,212,.5)}100%{box-shadow:0 0 0 26px rgba(94,234,212,0)}}
+.qh-doubt.done{opacity:.8}.qh-qtext{font-size:.98rem;line-height:1.5}
+.qh-ta{width:100%;min-height:84px;padding:12px;border-radius:14px;font:inherit;color:var(--qink);background:rgba(0,0,0,.28);border:1px solid var(--qline);resize:vertical}
+.qh-ta:focus{outline:2px solid rgba(44,196,242,.55);border-color:transparent}
+#qhApp details summary{cursor:pointer}
+.qh-embed{padding:12px}
+.qh-embed .shd .chip,.qh-embed .xbtn,.qh-embed [data-close]{display:none}
+.qh-embed h2{font-size:1.2rem}.qh-embed .clist{max-height:none}
+.qh-embed table{font-size:.8rem}
+.qh-embed .tp-actions{display:flex;flex-wrap:wrap;gap:8px}
+.qh-toast{position:absolute;z-index:9;left:50%;top:calc(74px + env(safe-area-inset-top,0px));transform:translate(-50%,-20px);opacity:0;pointer-events:none;width:max-content;max-width:calc(100% - 32px);padding:11px 18px;border-radius:16px;font-weight:600;font-size:.9rem;text-align:center;color:var(--qink);background:rgba(12,22,32,.92);border:1px solid rgba(143,225,251,.35);box-shadow:0 16px 40px rgba(0,0,0,.5);transition:opacity .25s,transform .35s var(--qsp)}
+.qh-toast.show{opacity:1;transform:translate(-50%,0)}
+.qh-embed{overflow-x:hidden;color:var(--qink)}
+.qh-embed p,.qh-embed .cm,.qh-embed .hint{color:var(--qmut)!important}
+.qh-embed h2,.qh-embed h4{color:var(--qink)!important}
+.qh-embed .lg2{color:var(--qg2)!important}
+.qh-embed .btn,.qh-embed .mini{background:rgba(255,255,255,.08)!important;color:var(--qink)!important;border:1px solid var(--qline)!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.14)!important}
+.qh-embed .btn.pri{color:#2a1300!important;background:linear-gradient(180deg,#fbe3a4,#e3aa3c 55%,#b47c1c)!important;border-color:rgba(255,236,170,.8)!important}
+.qh-embed .crow{display:flex!important;flex-wrap:wrap;gap:10px;background:rgba(255,255,255,.04)!important;border:1px solid var(--qline)!important;color:var(--qink)!important}
+.qh-embed .crow>div{min-width:0;flex:1}
+.qh-embed .cact{width:100%;display:flex!important;flex-wrap:wrap;gap:6px}
+.qh-embed .cact .btn,.qh-embed .cact a{padding:7px 12px!important;min-height:34px!important;font-size:.8rem!important}
+.qh-embed .inp,.qh-embed select{background:rgba(0,0,0,.3)!important;color:var(--qink)!important;border:1px solid var(--qline)!important}
+.qh-embed .tbl,.qh-embed table{display:block;overflow-x:auto;color:var(--qink)}
+.qh-embed{grid-template-columns:minmax(0,1fr)}#qhPanel{min-width:0;max-width:100%}.qh-embed .tbl,.qh-embed .twrap,.qh-embed table{max-width:100%}
 </style>
 <script id="qs-hub">/* ===== Quranic Science Learning App ("My App"): a full-screen student app inside the website and the Android app.
    Same login, same Firebase data, so anything done in the app shows on the website and the other way round, instantly.
@@ -1294,7 +1340,7 @@ const FB = () => typeof AUTH !== "undefined" && AUTH.mode === "firebase" && AUTH
 const OWN = () => { try { return isOwner(); } catch (e) { return false; } };
 const E = s => { try { return esc(s); } catch (e) { return String(s == null ? "" : s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]); } };
 const T = s => { try { return tx3(s); } catch (e) { return typeof s === "string" ? s : (s && (s.en || s.ur)) || ""; } };
-const say = m => { try { toast(m); } catch (e) {} };
+const say = m => { const r = document.getElementById("qhApp"); if (r && r.classList.contains("on")) { let t = r.querySelector(".qh-toast"); if (!t) { t = document.createElement("div"); t.className = "qh-toast"; t.setAttribute("role", "status"); r.appendChild(t); } t.textContent = m; t.classList.remove("show"); void t.offsetWidth; t.classList.add("show"); clearTimeout(t._t); t._t = setTimeout(() => t.classList.remove("show"), 2800); return; } try { toast(m); } catch (e) {} };
 const snd = k => { try { play(k); } catch (e) {} };
 const IS_APP = /QSApp\//.test(navigator.userAgent) || (window.matchMedia && matchMedia("(display-mode: standalone)").matches);
 const LITE = (navigator.deviceMemory && navigator.deviceMemory <= 2) || (navigator.hardwareConcurrency && navigator.hardwareConcurrency <= 4 && /Android/.test(navigator.userAgent));
@@ -1396,6 +1442,13 @@ const TABS = [["home", "Home", '<path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6
   ["offline", "Offline", '<path d="M12 4v11m0 0l-4-4m4 4l4-4"/><path d="M5 19h14"/>'],
   ["me", "Me", '<circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/>']];
 const svg = p => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">${p}</svg>`;
+const TTABS = [["thome", "Home", TABS[0][2]], ["panel", "My class", '<rect x="3" y="4" width="18" height="13" rx="2"/><path d="M8 21h8M12 17v4"/>'],
+  ["doubts", "Doubts", '<path d="M4 5h16v11H9l-5 4z"/><path d="M10 9.5a2 2 0 1 1 2.5 1.9V12M12 14.2v.1"/>'],
+  ["namaz", "Namaz", '<path d="M12 3c-3 2-5 4.5-5 7.5V20h10v-9.5C17 7.5 15 5 12 3z"/><path d="M5 20h14M10 20v-4a2 2 0 0 1 4 0v4"/>'], ["me", "Me", TABS[4][2]]];
+const isT = () => { try { const u = (U() || {}).uid; return OWN() || !!(TEACH.me && u && (teacherVerified() || window.__qsTeachOK === u || TEACH.me.verified === u)); } catch (e) { return false; } };
+const hasT = () => { try { return OWN() || !!TEACH.me; } catch (e) { return false; } };
+let mode = "s";   /* s = student app, t = teacher app */
+const tabsNow = () => mode === "t" ? TTABS : TABS;
 let cur = "home", root = null, sel = 0, timer = null;
 
 function open(tab) {
@@ -1408,16 +1461,25 @@ function open(tab) {
         <div class="qh-brand"><img src="/icon-192.png" alt="" width="30" height="30"><b>Quranic Science</b><small>${IS_APP ? "App" : "Learning app"}</small></div>
         <button class="qh-ib" id="qhWeb" aria-label="Open website">${svg('<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3.5 3 14.5 0 18M12 3c-3 3.5-3 14.5 0 18"/>')}</button></header>
       <main class="qh-main" id="qhMain"></main>
-      <nav class="qh-nav" aria-label="App sections">${TABS.map(([id, l, p]) => `<button data-qt="${id}" aria-label="${l}">${svg(p)}<span>${l}</span></button>`).join("")}<i class="qh-ind" id="qhInd"></i></nav>`;
+      <nav class="qh-nav" aria-label="App sections" id="qhNav"></nav>`;
     document.body.appendChild(root);
     root.addEventListener("click", onClick);
     root.querySelector("#qhClose").onclick = close;
     root.querySelector("#qhWeb").onclick = () => { close(); try { location.hash = "#home"; } catch (e) {} say("You are on the website. Tap “My App” to come back."); };
     window.addEventListener("popstate", () => { if (root && root.classList.contains("on") && location.hash !== "#app") close(true); });
   }
+  const want = hasT() && !myCourses().length ? "t" : (mode === "t" && hasT() ? "t" : "s");
+  if (want !== mode || !root.querySelector("#qhNav button")) setMode(want, true);
   root.classList.add("on"); document.documentElement.classList.add("qh-open");
   if (location.hash !== "#app") try { history.pushState(null, "", "#app"); } catch (e) {}
+  if (mode === "t" && tab === "home") tab = "thome";
   markDay(); go(tab || cur); snd("open");
+}
+function setMode(m, quiet) {
+  mode = m; const nav = root.querySelector("#qhNav");
+  nav.innerHTML = tabsNow().map(([id, l, p]) => `<button data-qt="${id}" aria-label="${l}">${svg(p)}<span>${l}</span></button>`).join("") + `<i class="qh-ind" id="qhInd"></i>`;
+  root.classList.toggle("tmode", m === "t"); root.querySelector(".qh-brand small").textContent = m === "t" ? (OWN() ? "Owner" : "Teacher") : (IS_APP ? "Student" : "Student app");
+  cur = m === "t" ? "thome" : "home"; if (!quiet) go(cur);
 }
 function close(fromPop) {
   if (!root) return; root.classList.remove("on"); document.documentElement.classList.remove("qh-open"); clearInterval(timer);
@@ -1425,18 +1487,44 @@ function close(fromPop) {
 }
 function go(tab) {
   cur = tab; clearInterval(timer);
-  root.querySelectorAll("[data-qt]").forEach((b, i) => { const on = b.dataset.qt === tab; b.classList.toggle("on", on); b.setAttribute("aria-current", on ? "page" : "false"); if (on) root.querySelector("#qhInd").style.setProperty("--x", i); });
+  root.querySelectorAll("#qhNav [data-qt]").forEach((b, i) => { const on = b.dataset.qt === tab; b.classList.toggle("on", on); b.setAttribute("aria-current", on ? "page" : "false"); if (on) root.querySelector("#qhInd").style.setProperty("--x", i); });
   const main = root.querySelector("#qhMain");
   const render = async () => { main.innerHTML = `<div class="qh-load"><i></i><i></i><i></i></div>`; main.scrollTop = 0; try { main.innerHTML = await VIEWS[tab](); } catch (e) { main.innerHTML = `<div class="qh-card"><p>Could not load. Please check your internet and try again.</p></div>`; console.log(e); } after(main); };
   if (document.startViewTransition && !RM) document.startViewTransition(render); else render();
 }
 function after(main) {
   main.querySelectorAll("[data-count]").forEach(el => { const to = +el.dataset.count, t0 = performance.now(); if (RM) { el.textContent = to; return; } const f = t => { const p = Math.min(1, (t - t0) / 900); el.textContent = Math.round(to * (1 - Math.pow(1 - p, 3))); if (p < 1) requestAnimationFrame(f); }; requestAnimationFrame(f); });
-  const cd = main.querySelector("[data-cd]"); if (cd) { const tick = () => { const s = Math.max(0, +cd.dataset.cd - Date.now()); const h = Math.floor(s / 36e5), m = Math.floor(s % 36e5 / 6e4), x = Math.floor(s % 6e4 / 1e3); cd.textContent = s ? (h ? `${h}h ` : "") + `${String(m).padStart(2, "0")}m ${String(x).padStart(2, "0")}s` : "Live now"; }; tick(); timer = setInterval(tick, 1000); }
+  const cds = [...main.querySelectorAll("[data-cd]")]; if (cds.length) { const tick = () => cds.forEach(cd => { const s = Math.max(0, +cd.dataset.cd - Date.now()); const h = Math.floor(s / 36e5), m = Math.floor(s % 36e5 / 6e4), x = Math.floor(s % 6e4 / 1e3); cd.textContent = s ? (h ? `${h}h ` : "") + `${String(m).padStart(2, "0")}m ${String(x).padStart(2, "0")}s` : (cd.dataset.done || "Live now"); }); tick(); timer = setInterval(tick, 1000); }
   if (!LITE && !RM && matchMedia("(pointer:fine)").matches) main.querySelectorAll(".tilt").forEach(c => { c.onpointermove = e => { const r = c.getBoundingClientRect(), px = (e.clientX - r.left) / r.width - .5, py = (e.clientY - r.top) / r.height - .5; c.style.transform = `perspective(900px) rotateY(${px * 8}deg) rotateX(${-py * 8}deg)`; c.style.setProperty("--mx", (px + .5) * 100 + "%"); c.style.setProperty("--my", (py + .5) * 100 + "%"); }; c.onpointerleave = () => c.style.transform = ""; });
 }
 const ring = (pct, size = 64, lbl = "") => `<div class="qh-ring" style="--p:${Math.max(0, Math.min(100, pct))};--s:${size}px"><b><span data-count="${Math.round(pct)}">0</span>%</b>${lbl ? `<small>${E(lbl)}</small>` : ""}</div>`;
 const empty = (icon, h, p, btn) => `<div class="qh-card qh-empty"><div class="qh-emo">${icon}</div><h3>${h}</h3><p>${p}</p>${btn || ""}</div>`;
+
+
+/* ---------- namaz times (Aladhan, free) ---------- */
+const PR = [["Fajr", "فجر"], ["Sunrise", "طلوع"], ["Dhuhr", "ظہر"], ["Asr", "عصر"], ["Maghrib", "مغرب"], ["Isha", "عشاء"]];
+async function loc() {
+  const l = LSg("qs-loc", null); if (l && (l.lat || l.addr)) return l;
+  const u = U() || {}; if (u.city) return { city: u.city, addr: u.city };
+  try { const a = await (await fetch("https://ipapi.co/json/")).json(); if (a && a.latitude) { const o = { t: Date.now(), city: a.city || "", lat: a.latitude, lon: a.longitude }; LSs("qs-loc", o); return o; } } catch (e) {}
+  return { city: "Mumbai", lat: 19.076, lon: 72.8777 };
+}
+async function prayers() {
+  const day = ymd(Date.now()), c = LSg("qh-pr", null); if (c && c.day === day) return c;
+  const l = await loc(), sc = LSg("qs-school", 1), d = new Date(), ds = `${String(d.getDate()).padStart(2, "0")}-${String(d.getMonth() + 1).padStart(2, "0")}-${d.getFullYear()}`;
+  try { const u = l.addr && !l.lat ? `https://api.aladhan.com/v1/timingsByAddress/${ds}?address=${encodeURIComponent(l.addr)}&method=1&school=${sc}` : `https://api.aladhan.com/v1/timings/${ds}?latitude=${l.lat}&longitude=${l.lon}&method=1&school=${sc}`;
+    const j = (await (await fetch(u)).json()).data; const o = { day, city: l.city || "", t: {}, hijri: j.date && j.date.hijri ? `${j.date.hijri.day} ${j.date.hijri.month.en} ${j.date.hijri.year}` : "" };
+    PR.forEach(([k]) => o.t[k] = String(j.timings[k]).slice(0, 5)); LSs("qh-pr", o); return o; } catch (e) { return c; }
+}
+const at = hm => { const [h, m] = hm.split(":").map(Number), d = new Date(); d.setHours(h, m, 0, 0); return +d; };
+const fmt12 = hm => { const [h, m] = hm.split(":").map(Number); return `${(h % 12) || 12}:${String(m).padStart(2, "0")} ${h < 12 ? "AM" : "PM"}`; };
+function nextPr(p) { const now = Date.now(); for (const [k, ur] of PR) { if (k === "Sunrise") continue; const t = at(p.t[k]); if (t > now) return { k, ur, t }; } return { k: "Fajr", ur: "فجر", t: at(p.t.Fajr) + DAY }; }
+async function prayerCard(i) {
+  const p = await prayers(); if (!p) return "";
+  const n = nextPr(p);
+  return `<section class="qh-card qh-pray tilt rv" style="--i:${i}"><div class="qh-shine"></div><div class="qh-row sp"><div><small class="qh-mut">🕌 Next namaz${p.city ? " · " + E(p.city) : ""}</small><h3>${n.k} <span class="qh-ur">${n.ur}</span> <bdi dir="ltr">· ${fmt12(p.t[n.k])}</bdi></h3></div><div class="qh-cd sm" data-cd="${n.t}" data-done="Now">--</div></div>
+    <div class="qh-prow">${PR.map(([k]) => `<div class="${k === n.k ? "on" : ""}"><small>${k}</small><b>${fmt12(p.t[k]).replace(" ", "")}</b></div>`).join("")}</div>${p.hijri ? `<small class="qh-mut">📅 ${E(p.hijri)} AH</small>` : ""}</section>`;
+}
 
 /* ---------- views ---------- */
 async function nextClass() {
@@ -1463,6 +1551,7 @@ const VIEWS = {
         <div class="qh-cd" data-cd="${nx.t}">--</div>
         <div class="qh-row"><button class="qh-btn pri" data-room="${nx.x.i}|${E(kid(nx.k))}">${live ? "Join live class" : "Open live room"}</button><button class="qh-btn" data-cls="${nx.x.i}">All classes</button></div></section>`;
     } else h += `<section class="qh-card rv" style="--i:1"><h3>No class scheduled right now</h3><p class="qh-mut">Your teacher adds the next class here. You get a WhatsApp and app reminder 30 minutes before.</p></section>`;
+    h += await prayerCard(2);
     /* today's goals */
     const x0 = mc[0], cls0 = await classes(x0), a0 = await attendance(x0), p0 = prog(x0);
     const todayCls = cls0.find(k => tm(k) && ymd(tm(k)) === ymd(Date.now()));
@@ -1484,6 +1573,58 @@ const VIEWS = {
       ${L.list.some(r => r.uid === u.uid) ? `<p class="qh-ok">MashaAllah, you are on the list this week! 🎉</p>` : `<p class="qh-mut">Attend, answer and practise every day to see your name here next week.</p>`}</section>`;
     return h + promo();
   },
+  async namaz() {
+    const p = await prayers(); if (!p) return empty("🕌", "Namaz times", "Could not load namaz times. Please check your internet.", "");
+    const n = nextPr(p);
+    return `<section class="qh-room rv" style="--i:0"><small class="qh-mut">${E(p.city || "")} ${p.hijri ? "· " + E(p.hijri) + " AH" : ""}</small><div class="qh-pulse on gold"><span>${n.ur}</span></div><h2>${n.k} <bdi dir="ltr">at ${fmt12(p.t[n.k])}</bdi></h2><div class="qh-cd big" data-cd="${n.t}" data-done="Now">--</div></section>
+      <section class="qh-card rv" style="--i:1">${PR.map(([k, ur]) => `<div class="qh-prl ${k === n.k ? "on" : ""}"><span>${k} <i class="qh-ur">${ur}</i></span><b>${fmt12(p.t[k])}</b></div>`).join("")}</section>
+      <p class="qh-mut qh-c">Times by Aladhan (Karachi method). Change Hanafi / Shafi'i Asr in the website's Namaz section.</p>`;
+  },
+  async thome() {
+    const u = U(), T0 = TEACH.me || {}, own = OWN();
+    if (!isT()) return `<section class="qh-hello rv" style="--i:0"><div><small>Assalamu Alaikum</small><h1>${E((u.name || "Teacher").split(" ")[0])} 👋</h1></div></section>` + empty("🔐", "Verify your teacher code", "Enter the teacher code the owner sent you on WhatsApp, once. Then your class tools open here.", `<button class="qh-btn pri" data-tlogin="1">Enter teacher code</button>`);
+    const cs = own ? COURSES().map((c, i) => ({ c, i })) : COURSES().map((c, i) => ({ c, i })).filter(x => ckey(x.c) === T0.course);
+    let h = `<section class="qh-hello rv" style="--i:0"><div><small>Assalamu Alaikum · ${own ? "Owner" : "Teacher"}</small><h1>${E((u.name || "Teacher").split(" ")[0])} 👋</h1></div>${myCourses().length && !own ? `<button class="qh-btn sm" data-mode="s">Student view</button>` : ""}</section>`;
+    let next = null, nCls = 0, openD = 0, nStu = 0;
+    for (const x of cs) { let cls = []; try { cls = await fetchClasses(ckey(x.c), own ? null : (T0.batch === "ALL" ? null : T0.batch)) || []; } catch (e) {} nCls += cls.length;
+      cls.forEach(k => { const t = tm(k); if (t && t + 75 * 6e4 > Date.now() && (!next || t < next.t)) next = { x, k, t }; }); }
+    try { let q = AUTH.fb.db.collection("doubts"); q = own ? q.where("status", "==", "open") : q.where("course", "==", T0.course); openD = (await q.get()).docs.map(d => d.data()).filter(d => d.status === "open" && (own || !T0.batch || T0.batch === "ALL" || !d.batch || d.batch === T0.batch)).length; } catch (e) {}
+    try { if (!own) nStu = (await AUTH.fb.db.collection("users").where(`access.${T0.course}`, "==", true).get()).docs.filter(d => T0.batch === "ALL" || d.data().batch === T0.batch).length; } catch (e) {}
+    if (next) { const live = Date.now() >= next.t - 60 * 6e4;
+      h += `<section class="qh-hero tilt rv ${Date.now() >= next.t - 15 * 6e4 ? "live" : ""}" style="--i:1"><div class="qh-shine"></div><div class="qh-row"><span class="qh-chip ${live ? "red" : "cyan"}">${live ? "Starts soon" : "Your next class"}</span><span class="qh-chip ghost">${E(next.x.c.name)} · Class ${next.k.n || ""}</span></div>
+        <h2>${E(T(next.k.title))}</h2><p class="qh-when">${new Date(next.t).toLocaleString([], { weekday: "short", day: "numeric", month: "short", hour: "numeric", minute: "2-digit" })}</p><div class="qh-cd" data-cd="${next.t}">--</div>
+        <div class="qh-row">${zoomOf(next.k) ? `<button class="qh-btn pri" data-zoom="${E(zoomOf(next.k))}">🎥 Start class on Zoom</button>` : ""}<button class="qh-btn" data-edit="${next.x.i}|${E(next.k.id || "")}">✏️ Update link</button></div>
+        <p class="qh-mut">Open Zoom 1 hour before. If the link changed, update it here and every student gets the new one at once.</p></section>`; }
+    else h += `<section class="qh-card rv" style="--i:1"><h3>No upcoming class</h3><p class="qh-mut">Add your next class with the date, Zoom link and 3 questions. Students see it instantly.</p></section>`;
+    h += `<section class="qh-stats rv" style="--i:2">${own ? "" : `<div><b data-count="${nStu}">0</b><small>students</small></div>`}<div><b data-count="${nCls}">0</b><small>classes</small></div><button data-qt="doubts"><b data-count="${openD}">0</b><small>open doubts</small></button></section>`;
+    h += `<section class="qh-card rv" style="--i:3"><h3>Quick actions</h3><div class="qh-grid">
+      <button class="qh-tile" data-edit="${cs[0] ? cs[0].i : 0}|"><span>➕</span><b>Add a class</b></button>
+      <button class="qh-tile" data-qt="panel"><span>🗂️</span><b>Classes & attendance</b></button>
+      <button class="qh-tile" data-qt="doubts"><span>💬</span><b>Answer doubts</b></button>
+      <button class="qh-tile" data-qt="panel"><span>⭐</span><b>Rate students</b></button>
+      <button class="qh-tile" data-out="https://zoom.us/meeting/schedule"><span>📅</span><b>Schedule Zoom</b></button>
+      <button class="qh-tile" data-out="https://drive.google.com/drive/my-drive"><span>☁️</span><b>Upload recording</b></button></div></section>`;
+    h += await prayerCard(4);
+    return h;
+  },
+  async panel() {
+    if (!isT()) return empty("🔐", "Verify your teacher code", "Enter your teacher code once to manage your class.", `<button class="qh-btn pri" data-tlogin="1">Enter teacher code</button>`);
+    setTimeout(async () => { const box = root.querySelector("#qhPanel"); if (!box) return; try { if (!OWN()) { TEACH.ok = true; window.__qsTeachOK = U().uid; } await openTeacherPanel(box); } catch (e) { box.innerHTML = `<p class="qh-mut">Could not open. Please try again.</p>`; } }, 50);
+    return `<section class="qh-card qh-embed rv" style="--i:0"><div id="qhPanel"><div class="qh-load"><i></i><i></i><i></i></div></div></section>`;
+  },
+  async doubts() {
+    if (!isT()) return empty("🔐", "Verify your teacher code", "Enter your teacher code once to answer student doubts.", `<button class="qh-btn pri" data-tlogin="1">Enter teacher code</button>`);
+    const own = OWN(), T0 = TEACH.me || {}; let list = [];
+    try { let q = AUTH.fb.db.collection("doubts"); q = own ? q.orderBy("ts", "desc").limit(150) : q.where("course", "==", T0.course); list = (await q.get()).docs.map(d => Object.assign({ id: d.id }, d.data())); } catch (e) {}
+    if (!own && T0.batch && T0.batch !== "ALL") list = list.filter(d => !d.batch || d.batch === T0.batch);
+    list.sort((a, b) => (a.answer ? 1 : 0) - (b.answer ? 1 : 0) || b.ts - a.ts);
+    const op = list.filter(d => !d.answer).length;
+    let h = `<section class="qh-card rv" style="--i:0"><div class="qh-row sp"><h3>Student doubts</h3><span class="qh-chip ${op ? "red" : "green"}">${op} open</span></div><p class="qh-mut">Type your answer and send. The student gets a free app / WhatsApp alert.</p></section>`;
+    if (!list.length) return h + empty("💬", "No doubts yet", "When a student asks, it appears here.", "");
+    return h + list.slice(0, 60).map((d, j) => `<article class="qh-card qh-doubt rv ${d.answer ? "done" : ""}" style="--i:${Math.min(j + 1, 8)}"><div class="qh-row sp"><b>${E(d.name || "Student")} <small class="qh-mut">${E(d.code || "")}</small></b><small class="qh-mut">${new Date(d.ts).toLocaleString([], { day: "numeric", month: "short", hour: "numeric", minute: "2-digit" })}</small></div>
+      <p class="qh-qtext" dir="auto">❓ ${E(d.q)}</p>${d.ai ? `<details><summary class="qh-mut">AI's quick reply to the student</summary><p class="qh-mut" dir="auto">${E(d.ai)}</p></details>` : ""}
+      <textarea class="qh-ta" data-dans="${E(d.id)}" dir="auto" placeholder="Write your answer…">${E(d.answer || "")}</textarea><div class="qh-row sp"><small class="qh-mut">${d.answer ? "✓ Answered" : ""}</small><button class="qh-btn sm pri" data-dsend="${E(d.id)}">${d.answer ? "Update answer" : "Send answer"}</button></div></article>`).join("");
+  },
   async classes() {
     const mc = myCourses(); if (!mc.length) return empty("🎥", "No classes yet", "Join a course to see your live classes and recordings here.", `<button class="qh-btn pri" data-web="#learn">See courses</button>`);
     const x = mc[Math.min(sel, mc.length - 1)], cls = await classes(x), a = await attendance(x), p = prog(x);
@@ -1501,7 +1642,7 @@ const VIEWS = {
           ${(k.qs || []).length && (at || !t || Date.now() > t) ? `<button class="qh-btn sm" data-cls="${x.i}">${ok ? "✓ Questions" : "3 questions"}</button>` : ""}
           ${(k.qs || []).length ? `<button class="qh-btn sm ${saved ? "on" : ""}" data-save="${x.i}|${E(kid(k))}">${saved ? "✓ Saved" : "⤓ Offline"}</button>` : ""}</div></div></article>`;
     }).join("") + `</div>`;
-    return h + `<p class="qh-mut qh-c">Doubts, teacher stars and certificate are in <button class="qh-link" data-cls="${x.i}">full class page</button>.</p>`;
+    return h + `<section class="qh-card qh-promo rv" style="--i:20"><div><b>💬 Ask your teacher</b><p class="qh-mut">Stuck on something? Your teacher answers here, AI replies at once.</p></div><button class="qh-btn sm pri" data-qsdoubt="${x.i}">Ask a doubt</button></section>`;
   },
   async tests() {
     const mc = myCourses(); if (!mc.length) return empty("📝", "Practice tests", "Join a course to practise with tests made from your own classes.", `<button class="qh-btn pri" data-web="#learn">See courses</button>`);
@@ -1546,7 +1687,11 @@ const VIEWS = {
     h += `<section class="qh-card rv" style="--i:3"><div class="qh-row sp"><h3>Badges</h3><span class="qh-chip gold">${got.size}/${BADGES.length}</span></div><div class="qh-badges">${BADGES.map(([id, ic, n, d]) => `<div class="qh-badge ${got.has(id) ? "on" : ""}" title="${E(d)}"><span>${ic}</span><b>${n}</b><small>${d}</small></div>`).join("")}</div></section>`;
     const mc = myCourses();
     if (mc.length) h += `<section class="qh-card rv" style="--i:4"><h3>Certificates & receipts</h3>${mc.map(x => `<div class="qh-row sp qh-li"><span>${E(x.c.name)}</span><span><button class="qh-btn sm" data-cert="${x.i}">🎓 Certificate</button></span></div>`).join("")}<button class="qh-btn sm" data-acct="1">🧾 My receipts & account</button></section>`;
-    h += `<section class="qh-card rv" style="--i:5"><h3>Share & settings</h3><div class="qh-acts"><button class="qh-btn sm" data-share="1">📣 Share my progress</button><button class="qh-btn sm" data-web="#home">🌐 Website</button>${IS_APP ? "" : `<a class="qh-btn sm" href="/download/QuranicScience.apk">📲 Android app</a>`}</div></section>`;
+    h += `<section class="qh-card rv" style="--i:5"><h3>More on the website</h3><p class="qh-mut">Fees, new courses, videos and shop are on our website.</p><div class="qh-grid">
+      <button class="qh-tile" data-web="#learn"><span>🎓</span><b>Courses & fees</b></button><button class="qh-tile" data-web="#quran"><span>📖</span><b>Quran & science videos</b></button>
+      <button class="qh-tile" data-web="#home"><span>🌐</span><b>Website home</b></button><button class="qh-tile" data-qt="namaz"><span>🕌</span><b>Namaz times</b></button></div></section>`;
+    if (hasT()) h += `<section class="qh-card rv" style="--i:6"><div class="qh-row sp"><div><h3>${OWN() ? "Owner tools" : "Teacher tools"}</h3><p class="qh-mut">Switch between the student and teacher app.</p></div><button class="qh-btn sm pri" data-mode="${mode === "t" ? "s" : "t"}">${mode === "t" ? "Student view" : "Teacher app"}</button></div></section>`;
+    h += `<section class="qh-card rv" style="--i:7"><h3>Share & settings</h3><div class="qh-acts"><button class="qh-btn sm" data-share="1">📣 Share my progress</button><button class="qh-btn sm" data-web="#home">🌐 Website</button>${IS_APP ? "" : `<a class="qh-btn sm" href="/download/QuranicScience.apk">📲 Android app</a>`}</div></section>`;
     return h;
   }
 };
@@ -1644,10 +1789,16 @@ function readOffline(id) {
 async function onClick(e) {
   const b = e.target.closest("button,a"); if (!b || !root.contains(b)) return; const d = b.dataset;
   if (d.qt) { snd("tab"); go(d.qt); return; }
+  if (d.mode) { snd("toggle"); setMode(d.mode); return; }
+  if (d.tlogin) { try { openTeacherLogin(); } catch (er) {} return; }
+  if (d.dsend) { const ta = root.querySelector(`[data-dans="${d.dsend}"]`), v = (ta && ta.value || "").trim(); if (v.length < 2) { say("Please write the answer."); return; }
+    b.disabled = true; try { await AUTH.fb.db.collection("doubts").doc(d.dsend).update({ answer: v.slice(0, 3000), answeredBy: OWN() ? "Arsalan Ahmed Shaikh" : (U().name || "Teacher"), answeredAt: Date.now(), status: "answered", notified: false }); snd("save"); say("Answer sent ✓ The student gets an alert."); go("doubts"); } catch (er) { b.disabled = false; snd("error"); say("Could not send. Please check your internet."); } return; }
+  if (d.edit) { const [ci, id] = d.edit.split("|"), c = COURSES()[+ci], b0 = OWN() ? "ALL" : (TEACH.me || {}).batch; const cls = await fetchClasses(ckey(c), b0 === "ALL" ? null : b0) || []; const k = cls.find(z => z.id === id); try { editClass(c, (k && k.batch) || b0, k || null, k ? k.n : cls.length + 1, () => { Object.keys(CACHE).forEach(x => delete CACHE[x]); go(cur); }); } catch (er) { go("panel"); } return; }
   if (d.sel != null) { sel = +d.sel; go(cur); return; }
   if (d.cls != null) { const x = COURSES()[+d.cls]; if (x) { try { eduClasses2(+d.cls); } catch (er) { try { openClasses(+d.cls); } catch (e2) {} } } return; }
   if (d.room) { const [i, id] = d.room.split("|"); room(i, id); return; }
   if (d.zoom) { snd("success"); openUrl(d.zoom); return; }
+  if (d.out) { openUrl(d.out); return; }
   if (d.rec) { openUrl(d.dl ? dlUrl(d.rec) : d.rec); return; }
   if (d.test) { const [i, m] = d.test.split("|"); runTest(i, m); return; }
   if (d.save) { const [i, id] = d.save.split("|"); await saveOffline(i, id); go(cur); return; }
