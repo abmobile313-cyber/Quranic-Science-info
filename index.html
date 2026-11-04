@@ -583,6 +583,17 @@ service cloud.firestore {
       allow create, update: if request.auth != null && request.resource.data.uid == request.auth.uid;
       allow read: if request.auth != null && (resource.data.uid == request.auth.uid || isOwner() || isTeacher());
     }
+    match /reviews/{id} {
+      allow read: if request.auth != null && (resource.data.uid == request.auth.uid || isOwner() || (isTeacher() && resource.data.course == myTeacher().course));
+      allow create, update: if isOwner()
+        || (request.auth != null && id.matches(request.auth.uid + '__.*__(student|week)__.*') && request.resource.data.uid == request.auth.uid && request.resource.data.by in ['student', 'week'] && request.resource.data.stars is int && request.resource.data.stars >= 1 && request.resource.data.stars <= 5)
+        || (isTeacher() && id.matches('.*__teacher__.*') && request.resource.data.by == 'teacher' && request.resource.data.course == myTeacher().course && request.resource.data.tby == request.auth.token.email.lower() && request.resource.data.stars is int && request.resource.data.stars >= 1 && request.resource.data.stars <= 5);
+    }
+    match /testimonials/{id} {
+      allow read: if true;
+      allow create, update: if request.auth != null && id.matches(request.auth.uid + '__.*') && request.resource.data.uid == request.auth.uid && request.resource.data.stars is int && request.resource.data.stars >= 1 && request.resource.data.stars <= 5 && request.resource.data.text is string && request.resource.data.text.size() <= 600;
+      allow update, delete: if isOwner();
+    }
     match /config/{id} {
       allow read, write: if isOwner();
     }
@@ -725,6 +736,310 @@ async function check() {
 let since = 0, last = null;
 setInterval(() => { const id = typeof AUTH !== "undefined" && AUTH.user && AUTH.user.uid; if (id !== last) { last = id; since = Date.now(); } if (id && Date.now() - since > 9000) check(); }, 4000);
 window.qsWaPrompt = () => { const u = AUTH.user; if (u) show(u, roleOf(u)); };
+})();
+</script><script id="qs-rev">/* ===== Reviews: students rate their teacher after every class (daily, mandatory), teachers rate every student once a week
+   (mandatory, with a typed remark), students write a weekly course review the day before the weekly holiday (shown on the
+   website for new visitors), course-end totals for both sides, and the teacher's rating printed on the certificate. ===== */
+(() => {
+"use strict";
+const LSg = (k, d) => { try { const v = localStorage.getItem(k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } };
+const LSs = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} };
+const FB = () => typeof AUTH !== "undefined" && AUTH.mode === "firebase" && AUTH.fb && AUTH.fb.db;
+const U = () => (typeof AUTH !== "undefined" && AUTH.user) || null;
+const OWN = () => { try { return isOwner(); } catch (e) { return false; } };
+const E = s => { try { return esc(s); } catch (e) { return String(s == null ? "" : s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]); } };
+const T = s => { try { return tx3(s); } catch (e) { return typeof s === "string" ? s : (s && (s.en || s.ur)) || ""; } };
+const say = m => { try { toast(m); } catch (e) {} };
+const snd = k => { try { play(k); } catch (e) {} };
+const ED = () => { try { return EDU() || {}; } catch (e) { return {}; } };
+/* weekly holiday: 0 = Sunday … 6 = Saturday. Weekly course review is due the day before it. Owner can set learn.weeklyHoliday. */
+const HOLIDAY = () => { const h = +((DATA.learn || {}).weeklyHoliday ?? ED().weeklyHoliday ?? 0); return h >= 0 && h <= 6 ? h : 0; };
+const ymd = d => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+/* teacher week: Monday date of this week */
+const weekKey = (t = Date.now()) => { const d = new Date(t); d.setHours(0, 0, 0, 0); d.setDate(d.getDate() - ((d.getDay() + 6) % 7)); return "W" + ymd(d); };
+/* student weekly review key: the latest "day before the holiday" that is today or earlier */
+const dueKey = (t = Date.now()) => { const due = (HOLIDAY() + 6) % 7, d = new Date(t); d.setHours(0, 0, 0, 0); d.setDate(d.getDate() - ((d.getDay() - due + 7) % 7)); return "R" + ymd(d); };
+const avg = a => a.length ? Math.round(a.reduce((s, x) => s + (+x || 0), 0) / a.length * 10) / 10 : 0;
+const starTxt = v => "★★★★★".slice(0, Math.round(v)) + "☆☆☆☆☆".slice(0, 5 - Math.round(v));
+
+/* ---------- storage: Firestore "reviews" + "testimonials", or this phone in demo mode ---------- */
+async function saveRev(r) {
+  r.ts = Date.now(); const id = `${r.uid}__${r.course}__${r.by}__${r.key}`.replace(/[\/#\[\]?]/g, "-");
+  if (FB()) { await AUTH.fb.db.collection("reviews").doc(id).set(r); return; }
+  const all = LSg("qs-rev-demo", {}); all[id] = r; LSs("qs-rev-demo", all);
+}
+async function listRev(f) {
+  if (FB()) { try { let q = AUTH.fb.db.collection("reviews"); Object.keys(f).forEach(k => q = q.where(k, "==", f[k])); return (await q.get()).docs.map(d => d.data()); } catch (e) { return []; } }
+  return Object.values(LSg("qs-rev-demo", {})).filter(r => Object.keys(f).every(k => r[k] === f[k]));
+}
+async function saveTesti(r) {
+  r.ts = Date.now(); const id = `${r.uid}__${r.course}__${r.key}`;
+  if (FB()) { await AUTH.fb.db.collection("testimonials").doc(id).set(r); return; }
+  const all = LSg("qs-testi-demo", {}); all[id] = r; LSs("qs-testi-demo", all);
+}
+async function listTesti() {
+  if (FB()) {
+    const c = LSg("qs-testi-cache", null); if (c && Date.now() - c.at < 3 * 36e5) return c.list;
+    let list = [];
+    try { const d = await AUTH.fb.db.collection("voice").doc("reviews").get(); if (d.exists && (d.data().list || []).length) list = d.data().list; } catch (e) {}
+    if (!list.length) { try { list = (await AUTH.fb.db.collection("testimonials").where("show", "==", true).limit(12).get()).docs.map(d => d.data()); } catch (e) {} }
+    list = list.filter(x => x && x.show !== false && x.text).sort((a, b) => (b.ts || 0) - (a.ts || 0));
+    LSs("qs-testi-cache", { at: Date.now(), list }); return list;
+  }
+  return Object.values(LSg("qs-testi-demo", {})).filter(x => x.show).sort((a, b) => b.ts - a.ts);
+}
+
+/* ---------- look ---------- */
+document.head.insertAdjacentHTML("beforeend", `<style id="qs-rev-css">
+.qr-veil{position:fixed;inset:0;z-index:96;display:grid;place-items:center;padding:16px;background:rgba(10,8,6,.62);backdrop-filter:blur(6px)}
+.qr-veil .sheet{max-height:92vh;overflow:auto;width:min(620px,100%)}
+.qr-stars{display:flex;gap:6px;justify-content:center;margin:10px 0 4px}
+.qr-stars button{font-size:40px;line-height:1;background:none;border:0;cursor:pointer;color:#c9bfa9;padding:2px 4px;transition:transform .15s,color .15s}
+.qr-stars button.on{color:#e3a51b;transform:scale(1.08)}
+.qr-stars.sm button{font-size:28px}
+.qr-lbl{text-align:center;font-weight:700;min-height:1.4em;margin:0 0 8px}
+.qr-must{display:inline-block;font-size:12px;font-weight:700;background:#c0392b;color:#fff;border-radius:99px;padding:3px 10px;margin-left:6px;vertical-align:middle}
+.qr-st{border:1px solid rgba(128,128,128,.25);border-radius:18px;padding:12px;margin:10px 0}
+.qr-st h4{margin:0 0 4px}.qr-ans{font-size:13px;opacity:.85;margin:6px 0;white-space:pre-wrap;border-left:3px solid #e3a51b;padding:4px 8px}
+.qr-box{border-radius:22px;padding:14px 16px;margin:14px 0;display:grid;gap:8px}
+.qr-kp{display:flex;gap:10px;flex-wrap:wrap}.qr-kp>div{flex:1 1 180px;border-radius:16px;padding:10px 12px;background:rgba(227,165,27,.1)}
+.qr-kp b{font-size:22px;display:block}.qr-kp .s{color:#e3a51b;letter-spacing:2px}
+.qr-testi{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px;margin-top:12px}
+.qr-testi article{border-radius:20px;padding:14px 16px}.qr-testi .s{color:#e3a51b;letter-spacing:2px}
+.qr-testi p{margin:6px 0;font-size:14.5px}.qr-testi small{opacity:.7}
+.qr-cnt{font-size:12px;opacity:.7;text-align:right}
+</style>`);
+function stars(id, small) { return `<div class="qr-stars${small ? " sm" : ""}" data-qrs="${id}" role="radiogroup">${[1, 2, 3, 4, 5].map(n => `<button type="button" data-v="${n}" aria-label="${n} star${n > 1 ? "s" : ""}">★</button>`).join("")}</div>`; }
+const WORD = ["", "Needs a lot of improvement", "Below expectations", "Good", "Very good", "Excellent, Masha Allah"];
+function wireStars(root, onPick) {
+  root.querySelectorAll("[data-qrs]").forEach(g => g.querySelectorAll("button").forEach(b => b.onclick = () => {
+    const v = +b.dataset.v; g.dataset.val = v; g.querySelectorAll("button").forEach(x => x.classList.toggle("on", +x.dataset.v <= v)); snd("tap"); onPick && onPick(g.dataset.qrs, v);
+  }));
+}
+/* forced window: no close button, Esc and outside taps do nothing */
+function force(html) {
+  closeForce(); document.body.insertAdjacentHTML("beforeend", `<div class="qr-veil" id="qrVeil"><div class="sheet glass narrow" role="dialog" aria-modal="true">${html}</div></div>`);
+  document.body.style.overflow = "hidden"; snd("open"); return document.getElementById("qrVeil");
+}
+function closeForce() { const v = document.getElementById("qrVeil"); if (v) { v.remove(); if (!document.getElementById("sheet") && !document.getElementById("top2")) document.body.style.overflow = ""; } }
+document.addEventListener("keydown", e => { if (e.key === "Escape" && document.getElementById("qrVeil")) e.stopImmediatePropagation(); }, true);
+
+/* ---------- classes of a course for this student ---------- */
+async function classesOf(c, u) {
+  let cls = null; try { cls = await fetchClasses(ckey(c), u.batch); } catch (e) {}
+  if (!cls || !cls.length) cls = (c.classes || []).map((k, j) => Object.assign({ id: classKey(k), n: j + 1 }, k));
+  return cls;
+}
+
+/* ---------- 1) student: rate the teacher after every class (mandatory) ---------- */
+async function studentPending(i) {
+  const c = DATA.learn.courses[i], u = U(); if (!c || !u || OWN() || !unlocked(c)) return null;
+  const P = progOf(c), done = P.rv || {}, cls = await classesOf(c, u);
+  return cls.find(k => qPassed(P, k) && !done[k.id || classKey(k)]) || null;
+}
+function askStudent(i, k, then) {
+  const c = DATA.learn.courses[i], u = U(), id = k.id || classKey(k);
+  const v = force(`<div class="shd"><div><span class="chip"><span class="dot"></span>Daily review<span class="qr-must">Required</span></span><h2>How was today's class?</h2><p>${E(T(k.title) || "Your class")} · ${E(c.name)}. Rate your teacher for this class. Your next class opens after this.</p></div></div>
+    ${stars("t")}<p class="qr-lbl" id="qrW"></p>
+    <label class="lb">Anything your teacher should know? (optional)<textarea class="inp" id="qrC" maxlength="500" placeholder="e.g. Please go a little slower on the rules"></textarea></label>
+    <p lang="ur" dir="rtl" class="hint" style="margin:6px 0">آج کی کلاس کے لیے اپنے استاد کو ستارے دیں۔ یہ لازمی ہے۔</p>
+    <div class="acts" style="justify-content:center"><button class="btn pri" id="qrGo" disabled><span class="bl"></span><span>Submit review</span></button></div>`);
+  let val = 0; wireStars(v, (_, x) => { val = x; v.querySelector("#qrW").textContent = WORD[x]; v.querySelector("#qrGo").disabled = false; });
+  v.querySelector("#qrGo").onclick = async () => {
+    if (!val) return; const b = v.querySelector("#qrGo"); b.disabled = true;
+    const rec = { by: "student", uid: u.uid, name: u.name || "", code: u.code || "", course: ckey(c), batch: u.batch || "", key: id, title: T(k.title) || "", stars: val, comment: v.querySelector("#qrC").value.trim().slice(0, 500) };
+    try { await saveRev(rec); } catch (e) { b.disabled = false; snd("error"); say("Could not save. Please check your internet and try again."); return; }
+    const P = progOf(c); P.rv = Object.assign({}, P.rv, { [id]: val }); try { await saveProg(c, P); } catch (e) {}
+    closeForce(); snd("success"); say("JazakAllah! Review saved."); studentTotals(i); then && then();
+  };
+}
+
+/* ---------- 2) student: weekly course review the day before the holiday (mandatory, shown on the website) ---------- */
+function weeklyDue(c) {
+  const u = U(); if (!u || OWN() || !unlocked(c)) return null;
+  const key = dueKey(), P = progOf(c);
+  if ((P.wr || {})[key]) return null;
+  /* only once the student has passed at least one class */
+  if (!Object.keys(P.qz || {}).length) return null;
+  return key;
+}
+function askWeekly(i, key, then) {
+  const c = DATA.learn.courses[i], u = U(), first = String(u.name || "Student").trim().split(/\s+/)[0];
+  const v = force(`<div class="shd"><div><span class="chip"><span class="dot"></span>Weekly review<span class="qr-must">Required</span></span><h2>Your week in ${E(c.name)}</h2><p>It's weekly review day (the day before the weekly holiday). Tell us how this week's classes went: what you learned, what you liked and what we can improve.</p></div></div>
+    <div class="lb" style="text-align:center">Overall, this week's classes</div>${stars("w")}<p class="qr-lbl" id="qrW"></p>
+    <label class="lb">Your review (at least 20 letters)<textarea class="inp" id="qrT" maxlength="600" minlength="20" placeholder="e.g. This week I learned the makharij of the throat letters. My teacher explains with examples…"></textarea></label>
+    <p class="qr-cnt" id="qrN">0 / 20</p>
+    <label class="mopt" style="align-items:flex-start"><input type="checkbox" id="qrS" checked><span>Show my review on the Quranic Science website (only my first name “${E(first)}” and course are shown)</span></label>
+    <p lang="ur" dir="rtl" class="hint" style="margin:6px 0">ہر ہفتے چھٹی سے ایک دن پہلے اپنے کورس کے بارے میں رائے لکھیں۔ یہ لازمی ہے۔</p>
+    <div class="acts" style="justify-content:center"><button class="btn pri" id="qrGo" disabled><span class="bl"></span><span>Submit weekly review</span></button></div>`);
+  let val = 0; const ta = v.querySelector("#qrT"), go = v.querySelector("#qrGo"), ok = () => { const n = ta.value.trim().length; v.querySelector("#qrN").textContent = `${n} / 20`; go.disabled = !(val && n >= 20); };
+  wireStars(v, (_, x) => { val = x; v.querySelector("#qrW").textContent = WORD[x]; ok(); }); ta.oninput = ok;
+  go.onclick = async () => {
+    if (go.disabled) return; go.disabled = true; const show = v.querySelector("#qrS").checked, text = ta.value.trim().slice(0, 600);
+    const base = { uid: u.uid, course: ckey(c), courseName: c.name, batch: u.batch || "", key, stars: val };
+    try {
+      await saveRev(Object.assign({ by: "week", name: u.name || "", code: u.code || "", comment: text, title: "Weekly review" }, base));
+      await saveTesti(Object.assign({ name: first.slice(0, 24), text, show, photo: "" }, base));
+    } catch (e) { go.disabled = false; snd("error"); say("Could not save. Please check your internet and try again."); return; }
+    const P = progOf(c); P.wr = Object.assign({}, P.wr, { [key]: val }); try { await saveProg(c, P); } catch (e) {}
+    LSs("qs-testi-cache", null); closeForce(); snd("success"); say(show ? "JazakAllah! Your review is now on the website." : "JazakAllah! Review saved."); studentTotals(i); then && then();
+  };
+}
+
+/* ---------- student: run every check for one course, one window at a time ---------- */
+let sBusy = false;
+async function studentChecks(i, after) {
+  if (sBusy || document.getElementById("qrVeil")) return; sBusy = true;
+  try {
+    const c = DATA.learn.courses[i], k = await studentPending(i);
+    if (k) { sBusy = false; askStudent(i, k, () => studentChecks(i, after)); return; }
+    const w = weeklyDue(c);
+    if (w) { sBusy = false; askWeekly(i, w, () => studentChecks(i, after)); return; }
+  } catch (e) {}
+  sBusy = false; after && after();
+}
+
+/* ---------- totals for the student (inside "My classes") ---------- */
+async function studentTotals(i) {
+  const box = document.getElementById("clsBody"), c = DATA.learn.courses[i], u = U(); if (!box || !u || OWN() || !unlocked(c)) return;
+  const mine = (await listRev({ uid: u.uid })).filter(r => r.course === ckey(c)), gave = mine.filter(r => r.by === "student"), got = mine.filter(r => r.by === "teacher").sort((a, b) => b.ts - a.ts);
+  const done = !!box.querySelector(".certbox:not(.off)"), g1 = avg(gave.map(r => r.stars)), g2 = avg(got.map(r => r.stars));
+  const old = document.getElementById("qrTot"); if (old) old.remove();
+  const html = `<div class="qr-box glass" id="qrTot"><div class="lg2" style="margin:0">${done ? "Final course reviews" : "Reviews so far"}</div><div class="qr-kp">
+    <div><span>Your teacher's rating for you</span><b><span class="s">${got.length ? starTxt(g2) : "☆☆☆☆☆"}</span> ${got.length ? g2 + " / 5" : "—"}</b><small>${got.length} weekly review${got.length === 1 ? "" : "s"}${got[0] && got[0].comment ? ` · latest: “${E(got[0].comment.slice(0, 140))}”` : ""}</small></div>
+    <div><span>Your rating for your teacher</span><b><span class="s">${gave.length ? starTxt(g1) : "☆☆☆☆☆"}</span> ${gave.length ? g1 + " / 5" : "—"}</b><small>${gave.length} class review${gave.length === 1 ? "" : "s"}</small></div></div>
+    ${done ? `<p class="hint" style="margin:0">Your teacher's rating is printed on your certificate.</p>` : ""}</div>`;
+  const cert = box.querySelector(".certbox"); cert ? cert.insertAdjacentHTML("beforebegin", html) : box.insertAdjacentHTML("beforeend", html);
+}
+
+/* hook the classes room */
+if (typeof eduClasses2 === "function") {
+  const orig = eduClasses2;
+  eduClasses2 = async function (i) { const r = await orig.apply(this, arguments); setTimeout(() => { studentTotals(i); studentChecks(i); }, 350); return r; };
+  try { classesSheet = eduClasses2; } catch (e) {}
+}
+
+/* ---------- 3) teacher: rate every student once a week, with a typed remark (mandatory) ---------- */
+async function teacherData(c, batch) {
+  const ck = ckey(c); let studs = [];
+  if (FB()) { try { studs = (await AUTH.fb.db.collection("users").where(`access.${ck}`, "==", true).get()).docs.map(d => Object.assign({ id: d.id }, d.data())).filter(u => !batch || batch === "ALL" || u.batch === batch); } catch (e) {} }
+  else studs = LSg("qs-rev-demo-studs", []);
+  const revs = (await listRev({ course: ck })).filter(r => !batch || batch === "ALL" || !r.batch || r.batch === batch);
+  let cls = []; try { cls = (await fetchClasses(ck, batch === "ALL" ? null : batch)) || []; } catch (e) {}
+  return { ck, studs, revs, cls };
+}
+function lastAnswers(u, ck) {
+  const P = ((u.prog || {})[ck]) || {}, q = P.q || {}, keys = Object.keys(q).sort((a, b) => (q[b].t || 0) - (q[a].t || 0)), x = q[keys[0]];
+  if (!x || !x.a) return ""; const typed = (x.a || []).filter(a => typeof a === "string" && a.trim());
+  return typed.length ? typed.map((a, j) => `${j + 1}. ${a}`).join("\n") : "";
+}
+function askTeacher(c, D, todo, then) {
+  const wk = weekKey(), me = (TEACH.me || {});
+  const v = force(`<div class="shd"><div><span class="chip"><span class="dot"></span>Weekly student review<span class="qr-must">Required</span></span><h2>Rate your students for this week</h2><p>${E(c.name)} · ${todo.length} student${todo.length === 1 ? "" : "s"}. Give each student stars and type a short remark (at least 10 letters). Students see your stars and remark, and the stars go on their certificate.</p></div></div>
+    <div id="qrList">${todo.map(u => { const mine = D.revs.filter(r => r.uid === u.id && r.by === "student").sort((a, b) => b.ts - a.ts), ans = lastAnswers(u, D.ck);
+      return `<div class="qr-st" data-u="${E(u.id)}"><h4>${E(u.name || "Student")} <small style="opacity:.7">${E(u.code || "")}</small></h4>
+        ${mine[0] ? `<div class="hint" style="margin:0">Their last rating for you: <b style="color:#e3a51b">${starTxt(mine[0].stars)}</b>${mine[0].comment ? ` “${E(mine[0].comment.slice(0, 160))}”` : ""}</div>` : ""}
+        ${ans ? `<div class="qr-ans"><b>Their latest typed answers:</b>\n${E(ans)}</div>` : ""}
+        ${stars(u.id, 1)}<textarea class="inp" data-c="${E(u.id)}" maxlength="400" placeholder="Type your remark, e.g. Good effort, revise the madd rules"></textarea></div>`; }).join("")}</div>
+    <p class="qr-cnt" id="qrLeft"></p>
+    <div class="acts" style="justify-content:center"><button class="btn pri" id="qrGo" disabled><span class="bl"></span><span>Save weekly reviews</span></button></div>`);
+  const val = {}, go = v.querySelector("#qrGo"), ok = () => { const left = todo.filter(u => !(val[u.id] && (v.querySelector(`[data-c="${CSS.escape(u.id)}"]`).value.trim().length >= 10))).length; v.querySelector("#qrLeft").textContent = left ? `${left} student${left === 1 ? "" : "s"} left` : "All done"; go.disabled = !!left; };
+  wireStars(v, (id, x) => { val[id] = x; ok(); }); v.querySelectorAll("textarea[data-c]").forEach(t => t.oninput = ok); ok();
+  go.onclick = async () => {
+    if (go.disabled) return; go.disabled = true; go.querySelector("span:last-child").textContent = "Saving…";
+    try { for (const u of todo) await saveRev({ by: "teacher", uid: u.id, name: u.name || "", code: u.code || "", course: D.ck, batch: u.batch || "", key: wk, title: "Weekly teacher review", stars: val[u.id], comment: v.querySelector(`[data-c="${CSS.escape(u.id)}"]`).value.trim().slice(0, 400), teacher: me.code || "owner", tby: String(me.id || (U() || {}).email || "").toLowerCase() }); }
+    catch (e) { go.disabled = false; go.querySelector("span:last-child").textContent = "Save weekly reviews"; snd("error"); say("Could not save. Please check your internet and try again."); return; }
+    closeForce(); snd("success"); say("JazakAllah! Weekly reviews saved."); then && then();
+  };
+}
+async function teacherTotals(root, c, D) {
+  const box = root.querySelector("#tpBody"); if (!box) return; const old = box.querySelector("#qrTT"); if (old) old.remove();
+  const fromSt = D.revs.filter(r => r.by === "student"), weekly = D.revs.filter(r => r.by === "week"), toSt = D.revs.filter(r => r.by === "teacher");
+  const rows = D.studs.map(u => { const a = fromSt.filter(r => r.uid === u.id), b = toSt.filter(r => r.uid === u.id).sort((x, y) => y.ts - x.ts), w = weekly.filter(r => r.uid === u.id);
+    return `<tr><td>${E(u.name || "")}</td><td translate="no">${E(u.code || "")}</td><td>${a.length ? `<span style="color:#e3a51b">${starTxt(avg(a.map(r => r.stars)))}</span> ${avg(a.map(r => r.stars))} (${a.length})` : "—"}</td><td>${w.length ? avg(w.map(r => r.stars)) + " (" + w.length + ")" : "—"}</td><td>${b.length ? `<span style="color:#e3a51b">${starTxt(avg(b.map(r => r.stars)))}</span> ${avg(b.map(r => r.stars))}` : "—"}</td><td>${b[0] ? E((b[0].comment || "").slice(0, 80)) : ""}</td></tr>`; }).join("");
+  const last = fromSt.concat(weekly).filter(r => r.comment).sort((a, b) => b.ts - a.ts).slice(0, 6);
+  box.insertAdjacentHTML("beforeend", `<div class="qr-box glass" id="qrTT"><div class="lg2" style="margin:0">Reviews</div>
+    <div class="qr-kp"><div><span>Students' rating for the teacher</span><b><span class="s">${starTxt(avg(fromSt.map(r => r.stars)))}</span> ${fromSt.length ? avg(fromSt.map(r => r.stars)) + " / 5" : "—"}</b><small>${fromSt.length} class reviews</small></div>
+    <div><span>Weekly course reviews</span><b><span class="s">${starTxt(avg(weekly.map(r => r.stars)))}</span> ${weekly.length ? avg(weekly.map(r => r.stars)) + " / 5" : "—"}</b><small>${weekly.length} reviews</small></div>
+    <div><span>Teacher's rating for students</span><b><span class="s">${starTxt(avg(toSt.map(r => r.stars)))}</span> ${toSt.length ? avg(toSt.map(r => r.stars)) + " / 5" : "—"}</b><small>${toSt.length} weekly reviews</small></div></div>
+    ${last.length ? `<div class="hint" style="margin:0">${last.map(r => `<div>★${r.stars} · <b>${E(r.name || "")}</b>: “${E(r.comment.slice(0, 160))}”</div>`).join("")}</div>` : ""}
+    <div class="tblwrap"><table class="tbl"><thead><tr><th>Student</th><th>Code</th><th>Gave teacher</th><th>Weekly course</th><th>Teacher gave</th><th>Latest remark</th></tr></thead><tbody>${rows || `<tr><td colspan="6">No students yet.</td></tr>`}</tbody></table></div></div>`);
+}
+async function teacherAfter(root, okT) {
+  const own = OWN(), me = TEACH.me; if (!own && !(me && (okT || teacherVerified()))) return;
+  let tries = 0; while (tries++ < 40) { const b = root.querySelector("#tpBody"); if (b && !/Loading/.test(b.textContent.slice(0, 40))) break; await new Promise(r => setTimeout(r, 300)); }
+  const courses = own ? DATA.learn.courses : DATA.learn.courses.filter(c => ckey(c) === me.course), sc = root.querySelector("#tpC"), c = courses[sc ? +sc.value : 0]; if (!c) return;
+  const batch = own ? ((root.querySelector("#tpB") || {}).value || "M") : me.batch, D = await teacherData(c, batch);
+  teacherTotals(root, c, D);
+  if (own) return;
+  const started = D.cls.some(k => { const t = classTime(k); return t && t < Date.now(); }) || D.studs.some(u => Object.keys((((u.prog || {})[D.ck]) || {}).qz || {}).length);
+  if (!started) return;
+  const wk = weekKey(), todo = D.studs.filter(u => !D.revs.some(r => r.by === "teacher" && r.uid === u.id && r.key === wk));
+  if (todo.length && !document.getElementById("qrVeil")) askTeacher(c, D, todo, () => teacherAfter(root, true));
+}
+if (typeof openTeacherPanel === "function") {
+  const origT = openTeacherPanel;
+  openTeacherPanel = async function (inBox) {
+    const okT = OWN() || teacherVerified(), r = await origT.apply(this, arguments), root = inBox || document;
+    setTimeout(() => { teacherAfter(root, okT); ["#tpC", "#tpB"].forEach(s => { const el = root.querySelector(s); if (el && !el.dataset.qr) { el.dataset.qr = 1; el.addEventListener("change", () => setTimeout(() => teacherAfter(root, okT), 900)); } }); }, 600);
+    return r;
+  };
+}
+
+/* ---------- 4) certificate: the teacher's rating for the student ---------- */
+const CR = {};
+if (typeof openCertificate === "function" && typeof certData === "function" && typeof drawCertificate === "function") {
+  const oC = openCertificate, oD = certData, oDraw = drawCertificate;
+  openCertificate = async function (i, preview) {
+    const c = DATA.learn.courses[i], u = U();
+    if (c && u && !preview) { try { const r = (await listRev({ uid: u.uid })).filter(x => x.course === ckey(c) && x.by === "teacher"); CR[ckey(c)] = r.length ? { v: avg(r.map(x => x.stars)), n: r.length } : null; } catch (e) {} }
+    return oC.apply(this, arguments);
+  };
+  certData = function (i, preview) { const o = oD.apply(this, arguments), c = DATA.learn.courses[i]; o.rating = preview ? { v: 4.8, n: 8 } : CR[ckey(c)] || null; return o; };
+  drawCertificate = async function (cv, o) {
+    const r = await oDraw.apply(this, arguments);
+    if (o && o.rating && o.rating.v) { try {
+      const x = cv.getContext("2d"), cx = 330, y = 990, v = o.rating.v, gold = (o.theme && o.theme.b) || "#c9a24a";
+      x.save(); x.textAlign = "center"; x.textBaseline = "alphabetic"; x.direction = "ltr";
+      for (let k = 0; k < 5; k++) { const sx = cx - 96 + k * 48, fill = Math.max(0, Math.min(1, v - k));
+        x.font = '400 44px "Amiri", serif'; x.fillStyle = "#d9cfba"; x.fillText("★", sx, y);
+        if (fill > 0) { x.save(); x.beginPath(); x.rect(sx - 24, y - 50, 48 * fill, 64); x.clip(); x.fillStyle = gold; x.fillText("★", sx, y); x.restore(); } }
+      x.fillStyle = "#6b6256"; x.font = '600 21px "Manrope", sans-serif'; x.letterSpacing = "1px"; x.fillText(`TEACHER'S RATING ${v.toFixed(1)} / 5`, cx, y + 36); x.letterSpacing = "0px"; x.restore();
+    } catch (e) {} }
+    return r;
+  };
+}
+
+/* ---------- 5) website: "What our students say" for new visitors ---------- */
+let tBusy = false;
+async function renderTesti() {
+  if (tBusy) return; const host = document.querySelector("#crsT"); if (!host || document.getElementById("qrTesti")) return;
+  const sec = host.closest(".sec") || host.parentElement; if (!sec) return; tBusy = true;
+  try {
+    const list = await listTesti(); if (!list.length || document.getElementById("qrTesti")) { tBusy = false; return; }
+    const a = avg(list.map(x => x.stars)), show = list.slice(0, 9);
+    sec.insertAdjacentHTML("afterend", `<section class="sec rv in" id="qrTesti"><div class="sh"><span class="chip"><span class="dot"></span>Student reviews</span><h2>What our students say</h2>
+      <p><span style="color:#e3a51b;letter-spacing:2px">${starTxt(a)}</span> <b>${a} / 5</b> from ${list.length} weekly review${list.length === 1 ? "" : "s"} by our students. Updated every week.</p></div>
+      <div class="qr-testi">${show.map(x => `<article class="glass"><div class="s">${starTxt(x.stars)}</div><p>“${E(String(x.text).slice(0, 320))}”</p><small><b>${E(x.name || "Student")}</b> · ${E(x.courseName || "")}${x.ts ? " · " + new Date(x.ts).toLocaleDateString([], { day: "numeric", month: "short" }) : ""}</small>${OWN() && (x.id || x.uid) ? `<button class="mini" type="button" data-qrhide="${E(x.id || (x.uid + "__" + x.course + "__" + x.key))}" style="margin-left:8px">Hide</button>` : ""}</article>`).join("")}</div></section>`);
+    document.querySelectorAll("[data-qrhide]").forEach(b => b.onclick = async () => { if (b.dataset.sure !== "1") { b.dataset.sure = "1"; b.textContent = "Tap again to hide"; return; }
+      try { if (FB()) await AUTH.fb.db.collection("testimonials").doc(b.dataset.qrhide).set({ show: false }, { merge: true }); b.closest("article").remove(); LSs("qs-testi-cache", null); say("Hidden from the website (within an hour everywhere)"); } catch (e) { say("Could not hide. Publish the new Firestore rules first."); } });
+  } catch (e) {}
+  tBusy = false;
+}
+
+/* ---------- background checks after login ---------- */
+let lastUid = null, since = 0, lastRun = 0;
+setInterval(() => {
+  const u = U(), id = u && u.uid; if (id !== lastUid) { lastUid = id; since = Date.now(); lastRun = 0; }
+  renderTesti();
+  if (!id || OWN() || Date.now() - since < 12000 || Date.now() - lastRun < 10 * 6e4) return;
+  if (document.getElementById("top2v") || document.getElementById("qrVeil") || document.getElementById("sheet")) return;
+  lastRun = Date.now();
+  const idx = DATA.learn.courses.map((c, i) => unlocked(c) ? i : -1).filter(i => i >= 0);
+  (async () => { for (const i of idx) { await new Promise(res => studentChecks(i, res)); if (document.getElementById("qrVeil")) return; } })();
+}, 5000);
+
+window.qsReviews = { weekKey, dueKey, listRev, listTesti, studentChecks, teacherAfter, HOLIDAY };
 })();
 </script>
 </body>

@@ -7,6 +7,7 @@
  *    Cheapest first: free app alert → free WhatsApp reply (student wrote to us in last 24 h) → paid WhatsApp template.
  * 3) GET  /health     quick check that the worker and its settings are in place.
  * 4) Cron also: tells students when a teacher answered their doubt (free app alert), auto-replies on the bot number,
+ *    once an hour copies students' public weekly reviews into voice/reviews (one read per website visitor),
  *    and once a day (2 am India time) saves a backup of all student data in Cloudflare KV (binding BACKUP, last 14 days).
  *
  * Secrets (set in Cloudflare → Worker → Settings → Variables, type "Secret"; never in this file):
@@ -366,6 +367,15 @@ Any question? Reply 4 to talk to a person.`, fetchImpl);
       await env.BACKUP.put("backup-" + istNow.toISOString().slice(0, 10), JSON.stringify(dump), { expirationTtl: 14 * 86400 });
       out.backup = istNow.toISOString().slice(0, 10);
     } catch (e) { out.errors.push("backup: " + String(e.message || e).slice(0, 120)); }
+  }
+  /* 5) once an hour: students' weekly reviews → one public summary doc (voice/reviews), so each website visitor needs 1 read */
+  if (new Date(now).getUTCMinutes() < 15) {
+    try {
+      const all = (await fs.query("testimonials", [["show", "EQUAL", true]], 1000)).filter(x => x.text && x.stars).sort((a, b) => (b.ts || 0) - (a.ts || 0));
+      const list = all.slice(0, 30).map(x => ({ id: `${x.uid}__${x.course}__${x.key}`, name: String(x.name || "Student").slice(0, 24), courseName: String(x.courseName || "").slice(0, 60), text: String(x.text).slice(0, 600), stars: +x.stars || 5, ts: +x.ts || 0, show: true }));
+      const avg = all.length ? Math.round(all.reduce((t, x) => t + (+x.stars || 0), 0) / all.length * 10) / 10 : 0;
+      await fs.merge("voice/reviews", { list, avg, count: all.length, at: now }); out.reviews = all.length;
+    } catch (e) { out.errors.push("reviews: " + String(e.message || e).slice(0, 120)); }
   }
   await fs.merge("config/worker", Object.assign({ lastCron: now, lastResult: JSON.stringify(out).slice(0, 900) }, out.backup ? { lastBackup: out.backup } : {}));
   return out;
