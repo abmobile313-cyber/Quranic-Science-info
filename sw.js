@@ -1,5 +1,5 @@
-/* Quranic Science app: works offline after the first visit and always shows the newest website when online. */
-const C = "qs-app-v6", CORE = ["/", "/index.html", "/site.webmanifest", "/icon-192.png", "/logo.png", "/qs-pages.css"];
+/* Quranic Science app: opens instantly from the saved copy, updates itself in the background, works offline. */
+const C = "qs-app-v7", CORE = ["/", "/index.html", "/site.webmanifest", "/icon-192.png", "/logo.png", "/qs-pages.css"];
 self.addEventListener("install", e => { e.waitUntil(caches.open(C).then(c => c.addAll(CORE)).catch(() => {})); self.skipWaiting(); });
 self.addEventListener("activate", e => { e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => k !== C).map(k => caches.delete(k)))).then(() => self.clients.claim())); });
 self.addEventListener("fetch", e => {
@@ -8,8 +8,10 @@ self.addEventListener("fetch", e => {
   if (r.mode === "navigate" || u.pathname === "/" || u.pathname.endsWith(".html")) {
     /* every page (home, course pages, articles) is cached under its own address, so an article never replaces the home page offline */
     const key = u.pathname === "/" || u.pathname === "/index.html" ? "/" : u.pathname;
-    e.respondWith(fetch(r).then(res => { if (res.ok) { const cp = res.clone(); caches.open(C).then(c => c.put(key, cp)); } return res; })
-      .catch(() => caches.match(key).then(m => m || caches.match("/")).then(m => m || caches.match("/index.html"))));
+    /* fast: show the saved copy at once and quietly fetch the newest one for next time; first visit or no saved copy = network */
+    const net = fetch(r).then(res => { if (res.ok) { const cp = res.clone(); caches.open(C).then(c => c.put(key, cp)); } return res; });
+    e.waitUntil(net.then(() => {}, () => {}));
+    e.respondWith(caches.match(key).then(m => m || net.catch(() => caches.match("/").then(x => x || caches.match("/index.html")))));
     return;
   }
   e.respondWith(caches.match(r).then(m => m || fetch(r).then(res => { if (res.ok) { const cp = res.clone(); caches.open(C).then(c => c.put(r, cp)); } return res; })));
