@@ -203,10 +203,8 @@ Notes: `+cz.extra:""}`},AUTH={mode:"local",fb:null,user:null,ready:!1,pending:nu
     <div style="display:grid;gap:10px">
       ${t.google!==!1?`<button class="authbtn google" id="lgG" type="button">${UI.google}<span>Continue with Google (Gmail)</span></button>`:""}
       ${t.facebook&&a?`<button class="authbtn fb" id="lgF" type="button">${UI.fb}<span>Continue with Facebook</span></button>`:""}
-      <div class="or">or</div>
-      <div class="segs"><button type="button" data-seg="email" aria-pressed="true">Email & password</button><button type="button" data-seg="phone" aria-pressed="false">Mobile number</button></div>
-      <div id="lgBody"></div>
-      <p class="hint" style="text-align:center">By continuing you agree to our <a href="#privacy" data-tab="privacy">privacy policy</a>.</p></div>`);const s=$("#lgBody"),n=l=>{$$("[data-seg]").forEach(d=>d.setAttribute("aria-pressed",d.dataset.seg===l)),s.innerHTML=l==="phone"?phoneForm():emailForm(),wireLoginForms()};n("email"),$$("[data-seg]").forEach(l=>l.onclick=()=>{play("chip"),n(l.dataset.seg)});const i=async l=>{try{await AUTH.fb.auth.signInWithPopup(l),loggedIn()}catch(d){play("error"),toast(errMsg(d))}},r=$("#lgG");r&&(r.onclick=()=>{if(!a){play("soon"),toast("Google login is being switched on. Please use email & password or mobile number for now.");return}i(new firebase.auth.GoogleAuthProvider)});const o=$("#lgF");o&&(o.onclick=()=>{const l=new firebase.auth.FacebookAuthProvider;l.addScope("email"),i(l)})}const emailForm=()=>`<form id="lgE" style="display:grid;gap:10px"><div class="segs"><button type="button" data-em="in" aria-pressed="true">Sign in</button><button type="button" data-em="up" aria-pressed="false">Create account</button></div>
+      <p class="hint" style="text-align:center;margin:2px 0 0">After login we ask your WhatsApp number once, for class links, receipts and reminders.</p>
+      <p class="hint" style="text-align:center">By continuing you agree to our <a href="#privacy" data-tab="privacy">privacy policy</a>.</p></div>`);const i=async l=>{try{await AUTH.fb.auth.signInWithPopup(l),loggedIn()}catch(d){play("error"),toast(errMsg(d))}},r=$("#lgG");r&&(r.onclick=()=>{if(!a){play("soon"),toast("Login is being switched on. Please try again in a moment.");return}i(new firebase.auth.GoogleAuthProvider)});const o=$("#lgF");o&&(o.onclick=()=>{const l=new firebase.auth.FacebookAuthProvider;l.addScope("email"),i(l)})}const emailForm=()=>`<form id="lgE" style="display:grid;gap:10px"><div class="segs"><button type="button" data-em="in" aria-pressed="true">Sign in</button><button type="button" data-em="up" aria-pressed="false">Create account</button></div>
   <label class="lb" id="eNameL" hidden>Full name<input class="inp" id="eN" autocomplete="name"></label>
   <label class="lb" id="eMobL" hidden>Mobile number<input class="inp" id="eM" type="tel" autocomplete="tel" placeholder="+91 98765 43210"></label>
   <label class="lb">Email (Gmail or any)<input class="inp" id="eE" type="email" autocomplete="email" required></label>
@@ -1040,6 +1038,40 @@ setInterval(() => {
 }, 5000);
 
 window.qsReviews = { weekKey, dueKey, listRev, listTesti, studentChecks, teacherAfter, HOLIDAY };
+})();
+</script><script id="qs-phone">/* ===== After Google / Facebook login, a WhatsApp mobile number is required once (classes, receipts, reminders and the student code use it). ===== */
+(() => {
+"use strict";
+const okNum = v => { const d = String(v || "").replace(/\D/g, ""); return d.length >= 10 && d.length <= 15; };
+const fmt = v => { let d = String(v || "").replace(/[^\d+]/g, ""); if (!d.startsWith("+")) { d = d.replace(/^0+/, ""); if (d.length === 10) d = "91" + d; d = "+" + d; } return d; };
+let open = false;
+function ask(u) {
+  open = true;
+  document.body.insertAdjacentHTML("beforeend", `<div class="qr-veil" id="qpVeil" style="position:fixed;inset:0;z-index:97;display:grid;place-items:center;padding:16px;background:rgba(10,8,6,.62);backdrop-filter:blur(6px)"><div class="sheet glass narrow" role="dialog" aria-modal="true" style="width:min(520px,100%)">
+    <div class="shd"><div><span class="chip"><span class="dot"></span>One last step</span><h2>Your WhatsApp number</h2><p>Your class links, fee receipt, reminders and certificate come on this number. We never share it.</p></div></div>
+    <form id="qpF" style="display:grid;gap:12px">
+      <label class="lb">Full name<input class="inp" id="qpN" autocomplete="name" required value="${esc(u.name || "")}"></label>
+      <label class="lb">WhatsApp number with country code<input class="inp" id="qpP" type="tel" inputmode="tel" autocomplete="tel" required placeholder="+91 98765 43210"></label>
+      <p lang="ur" dir="rtl" class="hint" style="margin:0">اپنا واٹس ایپ نمبر لکھیں، کلاس اور فیس کی معلومات اسی پر آئیں گی۔</p>
+      <button class="btn pri" type="submit"><span class="bl"></span><span>Save and continue</span></button></form></div></div>`);
+  document.body.style.overflow = "hidden";
+  document.getElementById("qpF").onsubmit = async e => {
+    e.preventDefault(); const n = document.getElementById("qpN").value.trim(), p = document.getElementById("qpP").value;
+    if (n.length < 2) { try { play("error"); } catch (x) {} toast("Please write your full name"); return; }
+    if (!okNum(p)) { try { play("error"); } catch (x) {} toast("Please write a valid WhatsApp number, e.g. +91 98765 43210"); return; }
+    try { await saveProfile({ name: n, phone: fmt(p) }); } catch (x) {}
+    const v = document.getElementById("qpVeil"); if (v) v.remove(); open = false; if (!document.getElementById("sheet")) document.body.style.overflow = "";
+    try { play("success"); } catch (x) {} toast("JazakAllah! Number saved.");
+    if (AUTH.pending) { const f = AUTH.pending; AUTH.pending = null; try { f(); } catch (x) {} }
+  };
+}
+setInterval(() => {
+  const u = typeof AUTH !== "undefined" && AUTH.user; if (!u || !u.uid || open) return;
+  try { if (isOwner()) return; } catch (e) {}
+  if (u.phone && okNum(u.phone)) return;
+  if (document.getElementById("top2v") || document.getElementById("qrVeil")) return;
+  ask(u);
+}, 2500);
 })();
 </script>
 </body>
