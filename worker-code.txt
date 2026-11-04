@@ -159,6 +159,8 @@ export async function notify(env, fs, user, msg, now = Date.now(), fetchImpl = f
 
 /* ---------- payment → classes ---------- */
 /* course short forms, same as the website: student code ARS863M + TAJ = ARS863M-TAJ */
+/* combo courses: paying for the combo also opens each course inside it, so combo students join the same live batches */
+export const COMBOS = { "tajweed-arabic-combo": ["tajweed-class", "arabic-speaking-class"], "all-in-one-creator-course": ["ai-masterclass", "video-editing-course", "content-creation-zero-to-pro"] };
 export const SHORT = { "all-in-one-creator-course": "AIO", "tajweed-arabic-combo": "TAC", "ai-masterclass": "AIM", "video-editing-course": "VED", "content-creation-zero-to-pro": "CCP", "tajweed-class": "TAJ", "arabic-speaking-class": "ARB" };
 export const courseCode = (code, course) => code ? code + (SHORT[course] ? "-" + SHORT[course] : "") : "-";
 const slug = s => String(s || "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
@@ -183,7 +185,8 @@ export async function handlePayment(env, evt, fs, fetchImpl = fetch) {
   if (!user && info.email) { const all = await fs.query("users", [["email", "EQUAL", info.email]], 5); user = all[0] || null; }
   const rec = { id: info.id, amount: info.amount, currency: info.currency, email: info.email, phone: info.phone, link: info.linkUrl || info.linkId, course, uid: user ? user.id : "", ts: Date.now() };
   if (!course || !user) { await fs.merge(`payments/${info.id}`, Object.assign(rec, { status: "needs-owner", reason: !course ? "course link not recognised" : "no student with this mobile/email" })); return { pending: rec }; }
-  await fs.merge(`users/${user.id}`, { access: { [course]: true }, paid: { [course]: Date.now() }, paidNotified: { [course]: Date.now() } });
+  const inc = COMBOS[course] || [], acc = { [course]: true }, pd = { [course]: Date.now() }; inc.forEach(k => { acc[k] = true; pd[k] = Date.now(); });
+  await fs.merge(`users/${user.id}`, { access: acc, paid: pd, paidNotified: { [course]: Date.now() } });
   await fs.merge(`payments/${info.id}`, Object.assign(rec, { status: "applied" }));
   /* close the student's own "I have paid" requests for this course */
   for (const a of await fs.query("activities", [["uid", "EQUAL", user.id]], 50))
@@ -295,6 +298,13 @@ export async function buildLeaders(fs, now) {
 export async function runCron(env, fs, now = Date.now(), fetchImpl = fetch) {
   const out = { reminded: 0, certs: 0, via: {}, errors: [] }, site = env.SITE || "https://quranicscience.info";
   const cfg = (await fs.get("config/payLinks")) || {}, names = cfg.names || {};
+  /* 0a) combo students (paid online or ticked by the owner) also get each course inside the combo */
+  try { for (const [combo, inc] of Object.entries(COMBOS)) { const us = await fs.query("users", [["access.`" + combo + "`", "EQUAL", true]], 300);
+      for (const u of us) { const miss = inc.filter(k => !(u.access || {})[k]); if (!miss.length) continue; const acc = {}, pd = {}; miss.forEach(k => { acc[k] = true; pd[k] = ((u.paid || {})[combo]) || now; }); await fs.merge(`users/${u.id}`, { access: acc, paid: pd }); out.combo = (out.combo || 0) + 1; } } } catch (e) { out.errors.push("combo: " + String(e.message || e).slice(0, 120)); }
+  /* 0b) teacher name on every class, so students see "Your teacher: …" */
+  try { const ts = await fs.query("teachers", [], 100), byCode = {}; ts.forEach(t => { if (t.code) byCode[t.code] = t.name || ""; });
+    const recent = await fs.query("classes", [["date", "GREATER_THAN_OR_EQUAL", new Date(now - 30 * 864e5 + 330 * 60000).toISOString().slice(0, 10)]], 300);
+    for (const k of recent) { const nm = k.teacher && byCode[k.teacher]; if (nm && k.tname !== nm) await fs.merge(`classes/${k.id}`, { tname: nm }); } } catch (e) { out.errors.push("tname: " + String(e.message || e).slice(0, 120)); }
   /* 1) class reminders: about 30 minutes before (the 15-minute cron lands once in the 24–39 minute window), once per class */
   /* only classes dated between now and +2 hours (IST text dates sort correctly) */
   const ist = ms => new Date(ms + 330 * 60000).toISOString().slice(0, 16).replace("T", " ");
