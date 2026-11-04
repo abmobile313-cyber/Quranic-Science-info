@@ -459,6 +459,7 @@ export default {
     /* WhatsApp webhook: remembers when a student messaged us, so our replies in the next 24 h are free */
     if (url.pathname === "/wa-subscribe") return json(await waSubscribe(env, url.searchParams.get("waba") || ""));
     /* owner test: sends the 3 approved templates ONLY to the owner's own number (no other number is ever accepted) */
+    if (url.pathname === "/wa-status") { const fs = makeFS(env); const r = (await fs.query("waStatus", [], 200)).sort((a, b) => (b.ts || 0) - (a.ts || 0)).slice(0, 15).map(x => ({ status: x.status, to: "…" + x.to, err: x.err || "", at: new Date((x.ts || 0) + 330 * 60000).toISOString().slice(11, 19) + " IST" })); return json(r); }
     if (url.pathname === "/wa-test") { const to = "919272527913", out = {};
       out.payment_confirmed = await sendWA(env, to, "payment_confirmed", ["Arsalan", "Tajweed Class", "TEST01M-TAJ"]);
       out.class_reminder = await sendWA(env, to, "class_reminder", ["Arsalan", "Tajweed Class", "Makharij: the tongue letters", "7:00 PM IST", "https://quranicscience.info/#learn"]);
@@ -472,6 +473,10 @@ export default {
       const body = await req.text();
       if (env.WA_APP_SECRET && !(await verifyRazorpay(body, String(req.headers.get("x-hub-signature-256") || "").replace(/^sha256=/, ""), env.WA_APP_SECRET))) return json({ error: "bad signature" }, 401);
       try { const j = JSON.parse(body), fs = makeFS(env);
+        /* delivery reports (sent / delivered / read / failed + reason) for our own messages */
+        for (const e of j.entry || []) for (const c of e.changes || []) for (const st of (c.value && c.value.statuses) || []) {
+          await fs.merge(`waStatus/${String(st.id).replace(/[^\w-]/g, "").slice(-60)}`, { status: st.status, to: String(st.recipient_id || "").slice(-4), ts: Date.now(), err: (st.errors || []).map(x => `${x.code} ${x.title || ""} ${(x.error_data && x.error_data.details) || ""}`.trim()).join(" | ") });
+        }
         for (const e of j.entry || []) for (const c of e.changes || []) for (const m of (c.value && c.value.messages) || []) {
           const from = digits(m.from), prev = (await fs.get(`waInbox/${from}`)) || {}, now = Date.now();
           const text = m.type === "text" ? (m.text && m.text.body) || "" : m.type === "button" ? (m.button && m.button.text) || "" : m.type === "interactive" ? JSON.stringify(m.interactive || {}) : "";
