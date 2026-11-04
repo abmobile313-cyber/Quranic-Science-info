@@ -78,6 +78,7 @@ window.QS_INTRO_END=end;
 
 
 
+
 <title>Quranic Science | Arsalan Ahmed Shaikh</title>
 <meta name="description" content="Quranic Science by Arsalan Ahmed Shaikh: Quran and science videos with references, AI, Tajweed and Arabic courses, Flow Studio creative services, Al Aswad Dubai and ScentKart perfumes, and Bareerah Naturals Sunnah foods.">
 <meta name="keywords" content="Quranic Science, Arsalan Ahmed Shaikh, Quran and science, Islamic science Urdu, Tajweed class, Arabic class, AI masterclass, Flow Studio, Al Aswad Dubai perfume, ScentKart, Bareerah Naturals">
@@ -2201,7 +2202,7 @@ addEventListener("hashchange", () => { if (location.hash === "#app") open(); });
     if (credits(d) > 0) { try { await AUTH.fb.db.collection("users").doc(AUTH.user.uid).set({ pdfDl: { [id]: Date.now() } }, { merge: true }); } catch (e) {} try { toast("Download started"); } catch (e) {} fileOut(u); return; }
     var G = (DATA.general || {}), intl = false; try { intl = !!CUR.intl; } catch (e) {}
     var price = "₹" + PRICE; try { if (intl) price = money2(PRICE); } catch (e) {}
-    var link = intl ? (G.pdfPayLinkIntl || G.pdfPayLink) : G.pdfPayLink;
+    var link = intl ? (G.pdfPayLinkIntl || "https://rzp.io/rzp/jwEUYxpz") : (G.pdfPayLink || "https://rzp.io/rzp/RxrcTfu");
     close();
     openTop('<div class="shd"><div><span class="chip"><span class="dot"></span>Reference PDF</span><h2>Keep this PDF with you 🤍</h2><p>Every reference PDF is hours of research – each verse, tafsir note and scientific source checked one by one. Reading it here stays free for everyone.</p></div>' + xTop + '</div>' +
       '<div class="qs-pdf-msg"><p class="qs-pdf-t">' + H(title || "") + '</p><p>Your small gift of <b>' + H(price) + '</b> keeps this knowledge free to read for every student, and helps us make the next video. Think of it as your share in spreading <b>ilm</b>.</p><p class="qs-pdf-ur" dir="rtl" lang="ur">آپ کا یہ چھوٹا سا تعاون اس علم کو ہر طالب علم تک مفت پہنچانے اور اگلی ویڈیو بنانے میں مدد کرتا ہے۔ جزاک اللہ خیراً 🤲</p></div>' +

@@ -182,11 +182,12 @@ export const PAGES = {
   pl_TuP821lEMbtZAk: "video-editing-course", pl_TuPF7RHP8PBF2A: "video-editing-course",
   pl_TuP9AJkcY0CbZv: "content-creation-zero-to-pro", pl_TuPFzHjPINWWea: "content-creation-zero-to-pro",
   pl_TuP9zWDnFZG8GJ: "tajweed-class", pl_TuPGs7TDUIlODI: "tajweed-class",
-  pl_TuPArQv7aZiIsd: "arabic-speaking-class", pl_TuPHbNqlb1HmsA: "arabic-speaking-class"
+  pl_TuPArQv7aZiIsd: "arabic-speaking-class", pl_TuPHbNqlb1HmsA: "arabic-speaking-class",
+  pl_TwHKgPNdatBPDf: "ref-pdf", pl_TwHNgLO274GlET: "ref-pdf"
 };
 /* unique course prices (first-batch price on each Razorpay page); ₹5,999 and $75 are shared by several courses, so those wait for the owner */
 export const AMOUNTS_MULTI = { "INR:5999": ["tajweed-arabic-combo", "video-editing-course", "content-creation-zero-to-pro"], "USD:75": ["tajweed-arabic-combo", "video-editing-course", "content-creation-zero-to-pro", "arabic-speaking-class"] };
-export const AMOUNTS = { "INR:13999": "all-in-one-creator-course", "USD:175": "all-in-one-creator-course", "INR:1499": "ai-masterclass", "USD:19": "ai-masterclass", "INR:2100": "tajweed-class", "USD:26": "tajweed-class", "INR:6000": "arabic-speaking-class", "INR:50": "ref-pdf" };
+export const AMOUNTS = { "INR:13999": "all-in-one-creator-course", "USD:175": "all-in-one-creator-course", "INR:1499": "ai-masterclass", "USD:19": "ai-masterclass", "INR:2100": "tajweed-class", "USD:26": "tajweed-class", "INR:6000": "arabic-speaking-class", "INR:50": "ref-pdf", "USD:1": "ref-pdf" };
 const TITLE_KEYS = [[/all-in-one/i, "all-in-one-creator-course"], [/tajweed\s*\+\s*arabic|combo/i, "tajweed-arabic-combo"], [/ai masterclass/i, "ai-masterclass"], [/video editing/i, "video-editing-course"], [/content creation/i, "content-creation-zero-to-pro"], [/reference pdf|pdf download/i, "ref-pdf"], [/tajweed/i, "tajweed-class"], [/arabic speaking/i, "arabic-speaking-class"]];
 export async function handlePayment(env, evt, fs, fetchImpl = fetch) {
   const info = paymentInfo(evt);
