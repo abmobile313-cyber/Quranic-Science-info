@@ -227,7 +227,7 @@ export async function handlePayment(env, evt, fs, fetchImpl = fetch) {
   /* payment receipt (slip) with the founder's signature: the student opens/saves it at SITE/#receipt=<payment id>; the same link goes in the WhatsApp message */
   const bl = { M: "Morning batch", E: "Evening batch" }[user.batch] || "";
   await fs.merge(`receipts/${info.id}`, { uid: user.id, name: user.name || "", code: user.code ? courseCode(user.code, course) : "", course, courseName, amount: info.amount, currency: info.currency, paymentId: info.id, batch: bl ? bl + " · 1 hour classes, timing shared in your batch" : "", ts: Date.now() });
-  const sent = await notify(env, fs, Object.assign({ phone: info.phone }, user), { title: "Payment received ✓", body: `Assalamu Alaikum ${user.name || ""}, your fee for ${courseName} is received. Your classes are open now. Your receipt: ${(env.SITE || "https://quranicscience.info")}/#receipt=${info.id}`, url: (env.SITE || "https://quranicscience.info") + "/#learn", tag: "pay", paid: true, template: "payment_confirmed", params: [user.name || "Student", courseName, courseCode(user.code, course)] }, Date.now(), fetchImpl);
+  const sent = await notify(env, fs, Object.assign({ phone: info.phone }, user), { title: "Payment received ✓", body: `Assalamu Alaikum ${user.name || ""}, ${info.notes.apology ? "we are very sorry this message reached you late – our system was being updated. " : ""}your fee for ${courseName} is received. Your classes are open now. Your receipt: ${(env.SITE || "https://quranicscience.info")}/#receipt=${info.id}\n📱 Your Quranic Science app is ready: download it from ${(env.SITE || "https://quranicscience.info")} (Android app), log in with Google and enter your student code ${user.code || ""}.`, url: (env.SITE || "https://quranicscience.info") + "/#learn", tag: "pay", paid: true, template: "payment_confirmed", params: [user.name || "Student", courseName, `${courseCode(user.code, course)} · Your app is ready – log in with code ${user.code || ""}${info.notes.apology ? " · Sorry for the late message, our system was being updated" : ""}`] }, Date.now(), fetchImpl);
   return { applied: { uid: user.id, course }, sent };
 }
 
@@ -340,7 +340,7 @@ export async function runCron(env, fs, now = Date.now(), fetchImpl = fetch) {
     for (const [pid, a] of Object.entries(ap)) {
       if (!a || typeof a !== "object" || a.done || !a.uid || !a.course) continue;
       const u = await fs.get(`users/${a.uid}`); if (!u) { await fs.merge("config/approvals", { [pid]: { done: now, result: "no user" } }); continue; }
-      const evt = { payload: { payment: { entity: { id: pid, amount: Math.round((+a.amount || 0) * 100), currency: a.currency || "INR", email: (u.email || "").toLowerCase(), contact: u.waPhone || u.phone || "", notes: { course: a.course } } } } };
+      const evt = { payload: { payment: { entity: { id: pid, amount: Math.round((+a.amount || 0) * 100), currency: a.currency || "INR", email: (u.email || "").toLowerCase(), contact: u.waPhone || u.phone || "", notes: { course: a.course, apology: a.apology ? "1" : "" } } } } };
       const r = await handlePayment(env, evt, fs, fetchImpl).catch(e => ({ error: String(e.message || e).slice(0, 100) }));
       await fs.merge("config/approvals", { [pid]: { done: now, result: JSON.stringify(r).slice(0, 200) } }); out.approved = (out.approved || 0) + 1;
     } } catch (e) { out.errors.push("approvals: " + String(e.message || e).slice(0, 120)); }
