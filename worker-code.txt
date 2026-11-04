@@ -458,6 +458,12 @@ export default {
     if (url.pathname === "/health") return json({ ok: true, razorpay: !!env.RAZORPAY_WEBHOOK_SECRET, firebase: !!env.FIREBASE_SA, whatsapp: !!(env.WA_TOKEN && env.WA_PHONE_ID), whatsappWebhook: !!env.WA_VERIFY_TOKEN, backup: !!env.BACKUP, paidReminders: env.WA_PAID_REMINDERS === "on", monthlyLimit: +(env.WA_MONTHLY_LIMIT || 200) });
     /* WhatsApp webhook: remembers when a student messaged us, so our replies in the next 24 h are free */
     if (url.pathname === "/wa-subscribe") return json(await waSubscribe(env, url.searchParams.get("waba") || ""));
+    /* owner test: sends the 3 approved templates ONLY to the owner's own number (no other number is ever accepted) */
+    if (url.pathname === "/wa-test") { const to = "919272527913", out = {};
+      out.payment_confirmed = await sendWA(env, to, "payment_confirmed", ["Arsalan", "Tajweed Class", "TEST01M-TAJ"]);
+      out.class_reminder = await sendWA(env, to, "class_reminder", ["Arsalan", "Tajweed Class", "Makharij: the tongue letters", "7:00 PM IST", "https://quranicscience.info/#learn"]);
+      out.certificate_ready = await sendWA(env, to, "certificate_ready", ["Arsalan", "Tajweed Class", "https://quranicscience.info/#verify=TEST"]);
+      return json(out); }
     if (url.pathname === "/whatsapp" && req.method === "GET") {
       const ok = url.searchParams.get("hub.mode") === "subscribe" && env.WA_VERIFY_TOKEN && url.searchParams.get("hub.verify_token") === env.WA_VERIFY_TOKEN;
       return new Response(ok ? url.searchParams.get("hub.challenge") : "forbidden", { status: ok ? 200 : 403 });
