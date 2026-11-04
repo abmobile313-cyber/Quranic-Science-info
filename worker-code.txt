@@ -169,22 +169,43 @@ export function paymentInfo(evt) {
   return {
     id: pay.id || link.id || "", amount: (pay.amount || link.amount_paid || link.amount || 0) / 100, currency: pay.currency || link.currency || "INR",
     email: (pay.email || link.customer?.email || "").toLowerCase(), phone: pay.contact || link.customer?.contact || "",
-    linkUrl: link.short_url || "", linkId: link.id || pay.notes?.payment_link_id || "", notes: Object.assign({}, link.notes || {}, pay.notes || {})
+    linkUrl: link.short_url || "", linkId: link.id || pay.notes?.payment_link_id || "", notes: Object.assign({}, (Array.isArray(link.notes) ? {} : link.notes) || {}, (Array.isArray(pay.notes) ? {} : pay.notes) || {}),
+    /* Razorpay Payment Pages (pages.razorpay.com/pl_…) send payment.captured / order.paid: find the page id anywhere in the event */
+    pageId: ((JSON.stringify(p).match(/pl_[A-Za-z0-9]{10,20}/) || [])[0]) || "", desc: String(pay.description || p.order?.entity?.receipt || "")
   };
 }
+/* our Razorpay Payment Pages → course key (INR page and International page for each course) */
+export const PAGES = {
+  pl_TuP2eZlp3WYU6o: "all-in-one-creator-course", pl_TuPC9A8YW9uhyT: "all-in-one-creator-course",
+  pl_TuP4rnC13jD1Aq: "tajweed-arabic-combo", pl_TuPDJrWHwCKSqx: "tajweed-arabic-combo",
+  pl_TuP6Z8VqrMfKa2: "ai-masterclass", pl_TuPEE5erpYClRV: "ai-masterclass",
+  pl_TuP821lEMbtZAk: "video-editing-course", pl_TuPF7RHP8PBF2A: "video-editing-course",
+  pl_TuP9AJkcY0CbZv: "content-creation-zero-to-pro", pl_TuPFzHjPINWWea: "content-creation-zero-to-pro",
+  pl_TuP9zWDnFZG8GJ: "tajweed-class", pl_TuPGs7TDUIlODI: "tajweed-class",
+  pl_TuPArQv7aZiIsd: "arabic-speaking-class", pl_TuPHbNqlb1HmsA: "arabic-speaking-class"
+};
+const TITLE_KEYS = [[/all-in-one/i, "all-in-one-creator-course"], [/tajweed\s*\+\s*arabic|combo/i, "tajweed-arabic-combo"], [/ai masterclass/i, "ai-masterclass"], [/video editing/i, "video-editing-course"], [/content creation/i, "content-creation-zero-to-pro"], [/reference pdf|pdf download/i, "ref-pdf"], [/tajweed/i, "tajweed-class"], [/arabic speaking/i, "arabic-speaking-class"]];
 export async function handlePayment(env, evt, fs, fetchImpl = fetch) {
   const info = paymentInfo(evt);
   if (!info.id) return { ignored: "no payment id" };
   const done = await fs.get(`payments/${info.id}`); if (done && done.status === "applied") return { duplicate: true };
   /* which course: owner dashboard keeps config/payLinks = { "<rzp short url or id>": "<course key>" } */
   const cfg = (await fs.get("config/payLinks")) || {}, map = cfg.links || {};
-  const course = info.notes.course ? slug(info.notes.course) : map[info.linkUrl] || map[info.linkId] || "";
+  const pages = Object.assign({}, PAGES, cfg.pages || {});
+  const course = info.notes.course ? slug(info.notes.course) : map[info.linkUrl] || map[info.linkId] || pages[info.pageId] || (TITLE_KEYS.find(([r]) => r.test(info.desc)) || [])[1] || "";
   /* which student: same mobile (last 10 digits) or same email */
   let user = null;
   if (info.phone) { const all = await fs.query("users", [["phoneLast10", "EQUAL", last10(info.phone)]], 5); user = all[0] || null; }
   if (!user && info.email) { const all = await fs.query("users", [["email", "EQUAL", info.email]], 5); user = all[0] || null; }
-  const rec = { id: info.id, amount: info.amount, currency: info.currency, email: info.email, phone: info.phone, link: info.linkUrl || info.linkId, course, uid: user ? user.id : "", ts: Date.now() };
+  const rec = { id: info.id, amount: info.amount, currency: info.currency, email: info.email, phone: info.phone, link: info.linkUrl || info.linkId || info.pageId, page: info.pageId, desc: info.desc.slice(0, 120), event: evt.event || "", course, uid: user ? user.id : "", ts: Date.now() };
   if (!course || !user) { await fs.merge(`payments/${info.id}`, Object.assign(rec, { status: "needs-owner", reason: !course ? "course link not recognised" : "no student with this mobile/email" })); return { pending: rec }; }
+  /* reference PDF download (₹50 / international): one paid download credit, kept in the protected "paid" map */
+  if (course === "ref-pdf") {
+    await fs.merge(`users/${user.id}`, { paid: { ["refpdf_" + info.id]: Date.now() } });
+    await fs.merge(`payments/${info.id}`, Object.assign(rec, { status: "applied" }));
+    await notify(env, fs, Object.assign({ phone: info.phone }, user), { title: "PDF download unlocked ✓", body: "Your payment is received. Go back to the website and tap Download on the PDF.", url: (env.SITE || "https://quranicscience.info") + "/#quran", tag: "pdf", paid: false }, Date.now(), fetchImpl).catch(() => {});
+    return { applied: { uid: user.id, course } };
+  }
   const inc = COMBOS[course] || [], acc = { [course]: true }, pd = { [course]: Date.now() }; inc.forEach(k => { acc[k] = true; pd[k] = Date.now(); });
   await fs.merge(`users/${user.id}`, { access: acc, paid: pd, paidNotified: { [course]: Date.now() } });
   await fs.merge(`payments/${info.id}`, Object.assign(rec, { status: "applied" }));
@@ -508,7 +529,7 @@ export default {
       const body = await req.text();
       if (!(await verifyRazorpay(body, req.headers.get("x-razorpay-signature"), env.RAZORPAY_WEBHOOK_SECRET))) return json({ error: "bad signature" }, 401);
       const evt = JSON.parse(body);
-      if (evt.event !== "payment_link.paid") return json({ ignored: evt.event });
+      if (!["payment_link.paid", "payment.captured", "order.paid"].includes(evt.event)) return json({ ignored: evt.event });
       try { return json(await handlePayment(env, evt, makeFS(env))); } catch (e) { return json({ error: String(e.message || e) }, 500); }
     }
     return json({ ok: true, service: "quranic-science-automation" });
