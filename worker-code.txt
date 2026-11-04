@@ -316,9 +316,17 @@ export async function runCron(env, fs, now = Date.now(), fetchImpl = fetch) {
     const when = new Date(t + 330 * 60000).toISOString().slice(11, 16);
     const title = (k.title && (k.title.en || k.title.ur)) || "Class " + (k.n || "");
     let n = 0;
+    /* same rule as the website and app: the Zoom link goes only to students who passed the 3 questions of every earlier class
+       (teacher "Unlock" counts as passed); others get a reminder to answer the questions first, without the link */
+    let prevs = []; try { prevs = (await fs.query("classes", [["course", "EQUAL", k.course]], 300)).filter(c => c.id !== k.id && istMs(c.date) < t); } catch (e) {}
     for (const u of studs) {
       if (k.batch && k.batch !== "ALL" && u.batch && u.batch !== k.batch) continue;
-      const r = await notify(env, fs, u, { title: `Class in 30 minutes · ${when} IST`, body: `${names[k.course] || k.course}: ${title}. 1 hour class, first 15 minutes Q&A. Tap to join.`, url: k.zoom || site + "/#learn", tag: "class-" + k.id, paid: env.WA_PAID_REMINDERS === "on", template: "class_reminder", params: [u.name || "Student", names[k.course] || k.course, title, when + " IST", k.zoom || site + "/#learn"] }, now, fetchImpl);
+      const qz = (((u.prog || {})[k.course]) || {}).qz || {};
+      const locked = prevs.some(c => (!c.batch || c.batch === "ALL" || !u.batch || c.batch === u.batch) && !(qz[c.id] && qz[c.id].ok));
+      const link = locked ? site + "/#learn" : (k.zoom || site + "/#learn");
+      const body = locked ? `${names[k.course] || k.course}: ${title}. First answer the 3 questions of your previous class in My classes – then the Join button opens.` : `${names[k.course] || k.course}: ${title}. 1 hour class, first 15 minutes Q&A. Tap to join.`;
+      const r = await notify(env, fs, u, { title: `Class in 30 minutes · ${when} IST`, body, url: link, tag: "class-" + k.id, paid: env.WA_PAID_REMINDERS === "on", template: "class_reminder", params: [u.name || "Student", names[k.course] || k.course, locked ? title + " (answer the 3 questions of your previous class first)" : title, when + " IST", link] }, now, fetchImpl);
+      if (locked) out.lockedReminders = (out.lockedReminders || 0) + 1;
       out.via[r.via] = (out.via[r.via] || 0) + 1; if (r.via !== "none" && r.via !== "failed" && r.via !== "limit-reached") n++; else if (r.via === "failed") out.errors.push(`${u.id}: ${r.error}`);
     }
     await fs.merge(`classes/${k.id}`, { reminder: { sent: true, at: now, count: n } });
