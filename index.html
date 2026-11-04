@@ -1349,6 +1349,10 @@ html.qh-open #qsGuide{display:none!important}
 html.qh-app #qhClose{visibility:hidden}
 .qh-splash{flex:1;display:grid;place-items:center;align-content:center;gap:26px;min-height:70vh}
 .qh-demo{display:grid;justify-items:center;gap:8px;margin-top:8px;padding:12px 14px;border-radius:16px;border:1px dashed rgba(143,225,251,.35);font-size:.85rem;color:var(--qmut)}
+.qh-tour{position:absolute;inset:0;z-index:20}
+.qh-spot{position:absolute;border-radius:22px;box-shadow:0 0 0 9999px rgba(2,5,9,.72),0 0 0 2px var(--qg2),0 0 30px rgba(246,213,138,.5);transition:all .45s var(--qsp);pointer-events:none}
+.qh-tip{position:absolute;padding:16px;border-radius:20px;background:linear-gradient(160deg,#10263a,#0a1520);border:1px solid rgba(246,213,138,.45);box-shadow:0 20px 50px rgba(0,0,0,.6);display:grid;gap:8px;transition:all .45s var(--qsp)}
+.qh-tip small{color:var(--qg2);font-weight:700}.qh-tip p{margin:0!important;font-size:.98rem;line-height:1.45}
 </style>
 <script id="qs-hub">/* ===== Quranic Science Learning App ("My App"): a full-screen student app inside the website and the Android app.
    Same login, same Firebase data, so anything done in the app shows on the website and the other way round, instantly.
@@ -1504,6 +1508,37 @@ function open(tab) {
   if (location.hash !== "#app") try { history.pushState(null, "", "#app"); } catch (e) {}
   if (mode === "t" && tab === "home") tab = "thome";
   markDay(); go(tab || cur); snd("open"); greet();
+}
+/* guided tour for the sample logins: a spotlight moves over each part of the app with one short line */
+const TOURS = {
+  s: [["home", ".qh-hero", "Your next class with a live countdown. “Open live room” joins the Zoom class (wudu is asked first)."],
+      ["home", ".qh-pray", "Namaz times for your city, with the next namaz countdown."],
+      ["classes", '#qhNav [data-qt="classes"]', "All classes: live, recordings, the 3 questions after class and “Ask a doubt” to your teacher."],
+      ["tests", '#qhNav [data-qt="tests"]', "Practice tests made from your classes, with score, trend and weak topics."],
+      ["offline", '#qhNav [data-qt="offline"]', "Save lessons and questions to use without internet."],
+      ["me", '#qhNav [data-qt="me"]', "Your streak, badges, certificate and receipts."]],
+  t: [["thome", ".qh-hero", "The teacher’s next class: start it on Zoom, or update the link and every student gets it at once."],
+      ["thome", ".qh-stats", "Students, classes and open doubts at a glance."],
+      ["panel", '#qhNav [data-qt="panel"]', "Add a class with Zoom link and 3 questions, mark attendance and give students stars."],
+      ["doubts", '#qhNav [data-qt="doubts"]', "Students’ doubts: type the answer and send. The student gets an alert."],
+      ["namaz", '#qhNav [data-qt="namaz"]', "Namaz times with countdown."]]
+};
+function tour(kind) {
+  const steps = TOURS[kind === "t" ? "t" : "s"]; if (!root || !steps) return; let n = 0;
+  const ov = document.createElement("div"); ov.className = "qh-tour"; ov.innerHTML = `<div class="qh-spot"></div><div class="qh-tip"><small></small><p></p><div class="qh-row sp"><button class="qh-btn sm ghost" data-tq="x">Skip</button><button class="qh-btn sm pri" data-tq="n">Next</button></div></div>`;
+  root.appendChild(ov);
+  const show = async () => {
+    if (n >= steps.length) { ov.querySelector(".qh-spot").style.cssText = "opacity:0"; const tip = ov.querySelector(".qh-tip"); tip.style.cssText = "left:16px;right:16px;top:30%";
+      tip.innerHTML = `<p><b>That’s the ${kind === "t" ? "teacher" : "student"} app ✓</b></p><p class="qh-mut">Now see the ${kind === "t" ? "student" : "teacher"} side too.</p><div class="qh-row sp"><button class="qh-btn sm ghost" data-tq="x">Close</button><button class="qh-btn sm pri" data-demotry="${kind === "t" ? "s" : "t"}">${kind === "t" ? "👨‍🎓 Sample student" : "👨‍🏫 Sample teacher"}</button></div>`; return; }
+    const [tab, sel, txt] = steps[n]; if (cur !== tab) { go(tab); await new Promise(r => setTimeout(r, 1300)); }
+    const el = root.querySelector(sel), sp = ov.querySelector(".qh-spot"), tip = ov.querySelector(".qh-tip");
+    tip.querySelector("small").textContent = `${n + 1} / ${steps.length}`; tip.querySelector("p").textContent = txt;
+    if (el) { el.scrollIntoView({ block: "center", behavior: "instant" }); const r = el.getBoundingClientRect(), R = root.getBoundingClientRect();
+      sp.style.cssText = `left:${r.left - R.left - 6}px;top:${r.top - R.top - 6}px;width:${r.width + 12}px;height:${r.height + 12}px`;
+      const below = r.top + r.height / 2 < R.height / 2; tip.style.cssText = below ? `left:16px;right:16px;top:${Math.min(R.height - 200, r.bottom - R.top + 16)}px` : `left:16px;right:16px;bottom:${Math.min(R.height - 140, R.bottom - r.top + 16)}px`; }
+  };
+  ov.addEventListener("click", e => { const b = e.target.closest("[data-tq]"); if (!b) return; e.stopPropagation(); if (b.dataset.tq === "x") { ov.remove(); go(kind === "t" ? "thome" : "home"); return; } n++; snd("tap"); show(); });
+  show();
 }
 function greet() {
   let done = false; try { done = !!sessionStorage.getItem("qh-hi"); sessionStorage.setItem("qh-hi", "1"); } catch (e) {}
@@ -1749,7 +1784,7 @@ const VIEWS = {
       <button class="qh-tile" data-web="#learn"><span>🎓</span><b>Courses & fees</b></button><button class="qh-tile" data-web="#quran"><span>📖</span><b>Quran & science videos</b></button>
       <button class="qh-tile" data-web="#home"><span>🌐</span><b>Website home</b></button><button class="qh-tile" data-qt="namaz"><span>🕌</span><b>Namaz times</b></button></div></section>`;
     if (hasT()) h += `<section class="qh-card rv" style="--i:6"><div class="qh-row sp"><div><h3>${OWN() ? "Owner tools" : "Teacher tools"}</h3><p class="qh-mut">Switch between the student and teacher app.</p></div><button class="qh-btn sm pri" data-mode="${mode === "t" ? "s" : "t"}">${mode === "t" ? "Student view" : "Teacher app"}</button></div></section>`;
-    if (window.QS_DEMO) h += `<section class="qh-card rv" style="--i:7"><div class="qh-row sp"><div><h3>Sample login</h3><p class="qh-mut">You are trying the app with sample data.</p></div><button class="qh-btn sm pri" data-demoexit="1">Exit sample</button></div></section>`;
+    if (window.QS_DEMO) h += `<section class="qh-card rv" style="--i:7"><h3>Sample login</h3><p class="qh-mut">You are trying the app with sample data. See the other side too:</p><div class="qh-acts"><button class="qh-btn sm" data-demotry="s">👨‍🎓 Sample student</button><button class="qh-btn sm" data-demotry="t">👨‍🏫 Sample teacher</button><button class="qh-btn sm" data-tourgo="1">▶ Tour again</button><button class="qh-btn sm pri" data-demoexit="1">Exit sample</button></div></section>`;
     h += `<section class="qh-card rv" style="--i:7"><h3>Share & settings</h3><div class="qh-acts"><button class="qh-btn sm" data-share="1">📣 Share my progress</button><button class="qh-btn sm" data-web="#home">🌐 Website</button>${IS_APP ? "" : `<a class="qh-btn sm" href="/download/QuranicScience.apk">📲 Android app</a>`}</div></section>`;
     return h;
   }
@@ -1878,6 +1913,7 @@ async function onClick(e) {
   if (d.del) { const o = LSg("qh-off", {}); delete o[d.del]; LSs("qh-off", o); go("offline"); return; }
   if (d.web) { if (IS_APP) { webOut(d.web); return; } close(); setTimeout(() => { try { location.hash = d.web; } catch (er) {} }, 60); return; }
   if (d.demotry) { try { sessionStorage.setItem("qs-demo", "1"); } catch (er) {} LSs("qh-demo-pick", d.demotry); location.href = "/?demo=1"; return; }
+  if (d.tourgo) { tour(mode === "t" ? "t" : "s"); return; }
   if (d.demoexit) { try { sessionStorage.removeItem("qs-demo"); } catch (er) {} LSs("qh-demo-pick", ""); location.href = "/?demo=0"; return; }
   if (d.cert != null) { try { openCertificate(+d.cert, false); } catch (er) { try { eduClasses2(+d.cert); } catch (e2) {} } return; }
   if (d.acct) { try { openAccount(); } catch (er) {} return; }
@@ -1909,6 +1945,7 @@ function dockBtn() {
   const acct = document.getElementById("dAcct"); dock.insertBefore(b, acct || null);
 }
 window.qsHub = open;
+if (window.QS_DEMO) window.QS_DEMO_OFF_WA = true;   /* sample login: no "send Hi on WhatsApp" popup over the tour */
 /* Google Play build (user agent has "QSPlay"): no payment buttons inside the app, fees are paid on the website only */
 if (/QSPlay/.test(navigator.userAgent)) document.documentElement.classList.add("qs-play");
 let lastU = null, autoDone = false;
@@ -1917,13 +1954,21 @@ setInterval(() => {
   const ready = typeof AUTH !== "undefined" && (AUTH.ready || u);
   if (!document.getElementById("qhBtn")) addButton();
   if (id !== lastU) { const was = lastU; lastU = id; Object.keys(CACHE).forEach(k => delete CACHE[k]); addButton();
+    if (root) root.querySelectorAll(".qh-tour").forEach(x => x.remove());
     if (root && root.classList.contains("on") && (u || IS_APP) && (was || IS_APP)) { mode = "s"; open("home"); } }
   if (location.hash === "#app" && (u || IS_APP) && !(root && root.classList.contains("on"))) open();
   /* inside the Android app: everyone lands in the app screens (login screen when logged out); the website opens only when they ask */
   if (IS_APP && ready && !autoDone) { autoDone = true; open("home"); }
   if (IS_APP && root && !root.classList.contains("on") && !document.getElementById("veil") && !document.getElementById("top2v")) open("home");   /* the app never shows the website */
   /* sample (demo) login chosen on the welcome screen */
-  const pick = LSg("qh-demo-pick", ""); if (pick && window.QS_DEMO && !u && document.getElementById("qsDemoB")) { LSs("qh-demo-pick", ""); try { document.getElementById("qsDemoB").click(); setTimeout(() => { const b = document.querySelector(`[data-demo="${pick === "t" ? "teacher" : "student"}"]`); if (b) b.click(); }, 300); LSs("qh-role", pick); } catch (e) {} }
+  const pick = LSg("qh-demo-pick", ""); if (pick && window.QS_DEMO && document.getElementById("qsDemoB")) { LSs("qh-demo-pick", ""); LSs("qh-role", pick); LSs("qh-tour", pick); try { document.getElementById("qsDemoB").click(); setTimeout(() => { const b = document.querySelector(`[data-demo="${pick === "t" ? "teacher" : "student"}"]`); if (b) b.click(); }, 300); } catch (e) {} }
+  /* sample login: fill and send the code by itself, then start the tour */
+  if (window.QS_DEMO && root && root.classList.contains("guest") && u) {
+    const tb = root.querySelector("[data-tlogin]"), cb = root.querySelector("[data-code]");
+    if (tb && !document.getElementById("top2v") && !tb.dataset.auto) { tb.dataset.auto = 1; tb.click(); setTimeout(() => { const f = document.querySelector("#tlF button[type=submit]"); if (f) f.click(); }, 1500); }
+    else if (cb && !cb.dataset.auto) { cb.dataset.auto = 1; cb.click(); }
+  }
+  if (root && root.classList.contains("on") && !root.classList.contains("guest") && u && LSg("qh-tour", "") && (LSg("qh-tour", "") === "t") === (mode === "t") && !document.getElementById("top2v") && !document.getElementById("qrVeil") && !root.querySelector(".qh-tour")) { const t = LSg("qh-tour", ""); LSs("qh-tour", ""); setTimeout(() => tour(t), 800); }
   /* teacher just verified the code, or student unlocked: move from the gate into the app */
   if (IS_APP && root && root.classList.contains("guest") && u && gateOK() && document.querySelector("#sheet #tpBody")) { try { closeSheet(); } catch (e) {} }   /* teacher code accepted: skip the website panel, go to the teacher app */
   if (root && root.classList.contains("on") && root.classList.contains("guest") && u && gateOK() && !document.getElementById("top2v")) open("home");
