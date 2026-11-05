@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Shop Admin</title>
+<meta name="robots" content="noindex,nofollow">
+<meta name="theme-color" content="#0a0709">
+<link rel="icon" href="/favicon-96.png">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600&family=Manrope:wght@400;500;600;700&display=swap">
+<style>
+/* Same look as the Command Center: dark control desk, brand tabs on top, orders → quotes → products. */
+:root{--ink:#0a0709;--panel:rgba(30,18,22,.6);--line:rgba(227,170,60,.18);--text:#f4ece4;--muted:#a8958d;--gold:#e3aa3c;--cyan:#2cc4f2;--good:#58d68d;--bad:#ff6b6b;color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:var(--ink);color:var(--text);font:15px/1.5 "Manrope",system-ui,sans-serif;padding:env(safe-area-inset-top,0px) max(14px,env(safe-area-inset-right,0px)) 30px max(14px,env(safe-area-inset-left,0px))}
+body::before{content:"";position:fixed;inset:-20vh -20vw auto auto;width:70vw;height:70vw;border-radius:50%;background:radial-gradient(circle,rgba(122,31,51,.5),transparent 65%);filter:blur(40px);z-index:-1}
+.wrap{max-width:1180px;margin:0 auto}
+h1,h2{font-family:"Fraunces",Georgia,serif;margin:0}
+.top{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;padding:16px 0}
+.tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+.tabs button,.btn{font:600 .85rem "Manrope",sans-serif;color:var(--text);background:rgba(255,255,255,.05);border:1px solid var(--line);border-radius:999px;padding:9px 15px;cursor:pointer;text-decoration:none;display:inline-flex;gap:6px;align-items:center}
+.tabs button[aria-pressed="true"],.btn.gold{background:linear-gradient(120deg,#c98d2a,var(--gold));color:#1a0f02;border:0}
+.box{background:var(--panel);border:1px solid var(--line);border-radius:20px;padding:16px;margin-bottom:16px;backdrop-filter:blur(18px)}
+.box h2{font-size:1.15rem;margin-bottom:10px;display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.row{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr) auto;gap:12px;padding:12px 0;border-top:1px solid rgba(255,255,255,.07);align-items:start}
+.row:first-of-type{border-top:0}
+.row b{display:block}.row small,.muted{color:var(--muted);font-size:.82rem}
+.pill{font-size:.72rem;padding:3px 9px;border-radius:999px;background:rgba(255,255,255,.08);white-space:nowrap}
+.pill.paid,.pill.delivered,.pill.shipped{background:rgba(88,214,141,.15);color:var(--good)}
+.pill.awaiting_payment,.pill.requested,.pill.check_payment{background:rgba(255,107,107,.14);color:var(--bad)}
+input,select,textarea{font:inherit;font-size:.88rem;color:var(--text);background:rgba(255,255,255,.05);border:1px solid var(--line);border-radius:10px;padding:8px 10px;width:100%}
+.ctl{display:grid;gap:6px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.items{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:10px}
+.item{border:1px solid var(--line);border-radius:14px;padding:12px;display:grid;gap:6px}
+.item.off{opacity:.5}
+.login{max-width:420px;margin:15vh auto;text-align:center}
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#1d1216;border:1px solid var(--line);padding:10px 16px;border-radius:999px;z-index:9}
+@media (max-width:760px){.row{grid-template-columns:1fr}.grid2{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<div class="login box" id="loginV" hidden><h1>Shop Admin</h1><p class="muted">Orders, quotes and products for all brands. Owner login only.</p><button class="btn gold" id="loginB" type="button">Sign in with Google</button></div>
+<div id="app" hidden>
+  <div class="top"><div><h1>Shop Admin</h1><div class="muted" id="sub">Loading…</div></div><div style="display:flex;gap:8px;flex-wrap:wrap"><a class="btn" href="/hub.html">← Command Center</a><button class="btn" id="ref" type="button">↻ Refresh</button></div></div>
+  <div class="tabs" id="tabs"></div>
+  <div class="box"><h2>Orders <span class="muted" id="oCount"></span></h2><div id="orders"></div></div>
+  <div class="box"><h2>Quote requests <span class="muted" id="qCount"></span></h2><div id="quotes"></div></div>
+  <div class="box"><h2>Products & services <button class="btn gold" id="newItem" type="button">+ Add</button></h2>
+    <form id="itemF" class="box" hidden style="background:rgba(0,0,0,.25)">
+      <input type="hidden" id="iId">
+      <div class="grid2"><label class="ctl">Name<input id="iName" required></label><label class="ctl">Type<select id="iKind"><option value="product">Product (fixed price, add to cart)</option><option value="service">Service (fixed price)</option><option value="quote">Quote only (customer asks for price)</option></select></label></div>
+      <div class="grid2"><label class="ctl">Price ₹ (selling)<input id="iPrice" type="number" min="0" step="1"></label><label class="ctl">MRP ₹ (crossed out, optional)<input id="iMrp" type="number" min="0" step="1"></label></div>
+      <div class="grid2"><label class="ctl">Category<input id="iCat" placeholder="e.g. Attar, Video, Honey"></label><label class="ctl">Size / unit<input id="iSize" placeholder="e.g. 12 ml, 500 g, per reel"></label></div>
+      <label class="ctl">Short description<textarea id="iDesc" rows="2"></textarea></label>
+      <label class="ctl">Photo link (https://…)<input id="iImg" placeholder="Paste an image link (Google Drive share links work too)"></label>
+      <div class="grid2"><label class="ctl">Badge (optional)<input id="iTag" placeholder="Bestseller, New"></label><label class="ctl">Stock (empty = unlimited)<input id="iStock" type="number" min="0"></label></div>
+      <div style="display:flex;gap:8px;margin-top:8px"><button class="btn gold" type="submit">Save</button><button class="btn" type="button" id="iCancel">Cancel</button></div>
+    </form>
+    <div class="items" id="items"></div>
+  </div>
+  <div class="box"><h2>Delivery charge</h2><form id="shipF" class="grid2"><label class="ctl">Delivery ₹ per order<input id="sShip" type="number" min="0"></label><label class="ctl">Free delivery above ₹<input id="sFree" type="number" min="0"></label><button class="btn gold" type="submit" style="width:max-content">Save</button></form>
+    <p class="muted" id="rzp"></p></div>
+</div>
+</div>
+<div class="toast" id="toast" hidden></div>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script>
+const API="https://quranic-science-automation.quranicscience01.workers.dev/shop/admin";
+const BRANDS={flowstudio:{name:"Flow Studio",site:"https://pixelflowstudio.agency"},scentkart:{name:"ScentKart",site:"https://scentkart.store"},alaswad:{name:"Al Aswad Dubai",site:"https://quranicscience.info/alaswad"},bareerah:{name:"Bareerah Naturals",site:"https://quranicscience.info/bareerah"}};
+const STEPS={awaiting_payment:"Awaiting payment",paid:"Paid",processing:"Preparing / in progress",shipped:"Shipped",delivered:"Delivered",cancelled:"Cancelled",check_payment:"Check payment"};
+firebase.initializeApp({apiKey:"AIzaSyCCoqjw2BzgWcal6OVBqONYOB7x--WP12g",authDomain:"quranicscience-682ff.firebaseapp.com",projectId:"quranicscience-682ff",appId:"1:573259128290:web:ac11b77238e1bd7354edbb"});
+const auth=firebase.auth(),$=id=>document.getElementById(id);
+const H=s=>String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const rs=v=>"₹"+(+v||0).toLocaleString("en-IN");
+const when=t=>t?new Date(t).toLocaleString("en-IN",{day:"numeric",month:"short",hour:"2-digit",minute:"2-digit"}):"";
+const wa=(ph,msg)=>`https://wa.me/${String(ph||"").replace(/\D/g,"").replace(/^(\d{10})$/,"91$1")}?text=${encodeURIComponent(msg)}`;
+function toast(t){const e=$("toast");e.textContent=t;e.hidden=false;clearTimeout(toast.t);toast.t=setTimeout(()=>e.hidden=true,2500)}
+let brand=(()=>{try{return localStorage.getItem("sa-brand")||"flowstudio"}catch(e){return"flowstudio"}})(),D={};
+$("loginB").onclick=()=>auth.signInWithPopup(new firebase.auth.GoogleAuthProvider()).catch(()=>auth.signInWithRedirect(new firebase.auth.GoogleAuthProvider()));
+auth.onAuthStateChanged(u=>{const ok=u&&u.email==="quranicscience01@gmail.com";$("loginV").hidden=ok;$("app").hidden=!ok;if(ok){tabs();load()}});
+async function call(method,body){const t=await auth.currentUser.getIdToken();const r=await fetch(API+(method==="GET"?"?brand="+brand:""),{method,headers:{authorization:"Bearer "+t,"content-type":"application/json"},body:body?JSON.stringify(body):undefined});const j=await r.json();if(!r.ok||j.error)throw new Error(j.error||r.status);return j}
+function tabs(){$("tabs").innerHTML=Object.entries(BRANDS).map(([k,b])=>`<button type="button" data-b="${k}" aria-pressed="${k===brand}">${b.name}</button>`).join("");}
+$("tabs").onclick=e=>{const b=e.target.closest("[data-b]");if(!b)return;brand=b.dataset.b;try{localStorage.setItem("sa-brand",brand)}catch(x){}tabs();load()};
+$("ref").onclick=load;
+async function load(){
+  $("sub").textContent="Loading "+BRANDS[brand].name+"…";
+  try{D=await call("GET");}catch(e){$("sub").textContent="Could not load: "+e.message;return}
+  $("sub").textContent=BRANDS[brand].name+" · "+BRANDS[brand].site.replace("https://","");
+  const site=BRANDS[brand].site;
+  $("oCount").textContent=D.orders.length+" total";
+  $("orders").innerHTML=D.orders.length?D.orders.map(o=>{const c=o.customer||{},a=c.address||{},link=`${site}/#track=${o.id}.${o.key}`;
+    return `<div class="row"><div><b>${H(o.id)} · ${rs(o.total)} <span class="pill ${o.status}">${STEPS[o.status]||o.status}</span></b>
+      <small>${(o.items||[]).map(l=>H(l.name)+" ×"+l.qty).join(", ")}</small><br><small>${when(o.ts)}${o.payId?" · Razorpay "+H(o.payId):""}${o.note?" · Note: "+H(o.note):""}</small></div>
+      <div><b>${H(c.name)}</b><small>${H(c.phone)} ${c.email?"· "+H(c.email):""}<br>${H([a.line1,a.line2,a.city,a.pin,a.state].filter(Boolean).join(", "))}</small></div>
+      <div class="ctl" style="min-width:210px"><select data-st="${o.id}">${Object.entries(STEPS).map(([k,v])=>`<option value="${k}" ${k===o.status?"selected":""}>${v}</option>`).join("")}</select>
+        <input data-car="${o.id}" placeholder="Courier (e.g. Delhivery)" value="${H(o.tracking?.carrier||"")}"><input data-no="${o.id}" placeholder="Tracking no." value="${H(o.tracking?.no||"")}"><input data-url="${o.id}" placeholder="Courier tracking link" value="${H(o.tracking?.url||"")}">
+        <button class="btn gold" type="button" data-save="${o.id}">Update</button>
+        <a class="btn" target="_blank" rel="noopener" href="${wa(c.phone,`Assalamu Alaikum ${c.name}, update on your ${BRANDS[brand].name} order ${o.id}: ${STEPS[o.status]||o.status}.\nTrack here: ${link}`)}">WhatsApp customer</a></div></div>`}).join(""):`<p class="muted">No orders yet.</p>`;
+  $("qCount").textContent=D.quotes.length+" total";
+  $("quotes").innerHTML=D.quotes.length?D.quotes.map(q=>{const c=q.customer||{},link=`${site}/#quote=${q.id}.${q.key}`;
+    return `<div class="row"><div><b>${H(q.service)} <span class="pill ${q.status}">${H(q.status)}</span></b><small>${H(q.brief)}</small><br><small>${H(q.budget)} · ${H(q.deadline)} · ${when(q.ts)}</small></div>
+      <div><b>${H(c.name)}</b><small>${H(c.phone)} ${c.email?"· "+H(c.email):""}</small></div>
+      <div class="ctl" style="min-width:210px"><input type="number" min="0" data-qp="${q.id}" placeholder="Your price ₹" value="${q.price||""}"><textarea rows="2" data-qn="${q.id}" placeholder="What is included, delivery time">${H(q.ownerNote||"")}</textarea>
+        <button class="btn gold" type="button" data-qsave="${q.id}">Send price</button>
+        <a class="btn" target="_blank" rel="noopener" href="${wa(c.phone,`Assalamu Alaikum ${c.name}, your ${BRANDS[brand].name} quote for ${q.service} is ready${q.price?": ₹"+q.price:""}.\nSee details and pay here: ${link}`)}">WhatsApp customer</a></div></div>`}).join(""):`<p class="muted">No quote requests yet.</p>`;
+  $("items").innerHTML=D.items.length?D.items.map(i=>`<div class="item ${i.active===false?"off":""}"><b>${H(i.name)}</b><small class="muted">${H(i.kind)} · ${i.price?rs(i.price):"quote"}${i.size?" · "+H(i.size):""}${i.cat?" · "+H(i.cat):""}${i.stock>=0?" · stock "+i.stock:""}</small>
+    <div style="display:flex;gap:6px;flex-wrap:wrap"><button class="btn" type="button" data-edit="${i.id}">Edit</button><button class="btn" type="button" data-hide="${i.id}" data-act="${i.active===false}">${i.active===false?"Show":"Hide"}</button></div></div>`).join(""):`<p class="muted">No products yet. Tap “+ Add”.</p>`;
+  const cfg=(D.config||{})[brand]||{};$("sShip").value=cfg.ship||0;$("sFree").value=cfg.freeShipAbove||"";
+  $("rzp").textContent=D.rzpKey?"✅ Razorpay online payment is ON for the shops.":"⚠️ Razorpay key not added yet, so customers place the order and pay on WhatsApp.";
+}
+document.addEventListener("click",async e=>{
+  const t=e.target;
+  try{
+    if(t.dataset.save){const id=t.dataset.save,q=s=>document.querySelector(`[data-${s}="${id}"]`).value;await call("POST",{action:"orderStatus",id,status:q("st"),tracking:{carrier:q("car"),no:q("no"),url:q("url")}});toast("Order updated ✓");load()}
+    if(t.dataset.qsave){const id=t.dataset.qsave;await call("POST",{action:"quotePrice",id,price:document.querySelector(`[data-qp="${id}"]`).value,note:document.querySelector(`[data-qn="${id}"]`).value});toast("Price saved ✓ – now tap WhatsApp customer");load()}
+    if(t.dataset.hide){await call("POST",{action:"hideItem",id:t.dataset.hide,active:t.dataset.act==="true"});load()}
+    if(t.dataset.edit){const i=D.items.find(x=>x.id===t.dataset.edit);fill(i)}
+  }catch(x){toast("Error: "+x.message)}
+});
+function fill(i={}){$("itemF").hidden=false;$("iId").value=i.id||"";$("iName").value=i.name||"";$("iKind").value=i.kind||"product";$("iPrice").value=i.price||"";$("iMrp").value=i.mrp||"";$("iCat").value=i.cat||"";$("iSize").value=i.size||"";$("iDesc").value=i.desc||"";$("iImg").value=i.img||"";$("iTag").value=i.tag||"";$("iStock").value=i.stock>=0?i.stock:"";$("iName").focus()}
+$("newItem").onclick=()=>fill();$("iCancel").onclick=()=>$("itemF").hidden=true;
+function img(u){const m=/drive\.google\.com\/(?:file\/d\/|open\?id=)([\w-]{20,})/.exec(u||"");return m?`https://lh3.googleusercontent.com/d/${m[1]}=w1000`:u}
+$("itemF").onsubmit=async e=>{e.preventDefault();try{await call("POST",{action:"saveItem",item:{id:$("iId").value||undefined,brand,name:$("iName").value,kind:$("iKind").value,price:$("iPrice").value,mrp:$("iMrp").value,cat:$("iCat").value,size:$("iSize").value,desc:$("iDesc").value,img:img($("iImg").value),tag:$("iTag").value,stock:$("iStock").value}});$("itemF").hidden=true;toast("Saved ✓");load()}catch(x){toast("Error: "+x.message)}};
+$("shipF").onsubmit=async e=>{e.preventDefault();try{await call("POST",{action:"config",brand,ship:$("sShip").value,freeShipAbove:$("sFree").value});toast("Saved ✓")}catch(x){toast("Error: "+x.message)}};
+</script>
+</body>
+</html>

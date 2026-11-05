@@ -5,6 +5,8 @@
  *                     at once (users/{uid}.access[course] = true) and a WhatsApp confirmation goes out.
  * 2) Cron (every 15 min) reminder 30 minutes before each class (classes are 1 hour), and "certificate ready" messages.
  *    Cheapest first: free app alert → free WhatsApp reply (student wrote to us in last 24 h) → paid WhatsApp template.
+ * 5) /shop/*   one shop engine for Flow Studio, ScentKart, Al Aswad Dubai, Bareerah (items, guest orders, tracking, quotes, owner admin).
+ *    Plain variable RAZORPAY_KEY_ID (public key id) turns on Razorpay Checkout for the shops.
  * 3) GET  /health     quick check that the worker and its settings are in place.
  *    GET  /owner-feed owner Command Center data (hub.html); needs the owner's Google login token.
  * 4) Cron also: tells students when a teacher answered their doubt (free app alert), auto-replies on the bot number,
@@ -206,6 +208,7 @@ const TITLE_KEYS = [[/all-in-one/i, "all-in-one-creator-course"], [/tajweed\s*\+
 export async function handlePayment(env, evt, fs, fetchImpl = fetch) {
   const info = paymentInfo(evt);
   if (!info.id) return { ignored: "no payment id" };
+  if (info.notes.shop_order) return shopPaid(env, fs, info, fetchImpl);
   const done = await fs.get(`payments/${info.id}`); if (done && done.status === "applied") return { duplicate: true };
   /* which course: owner dashboard keeps config/payLinks = { "<rzp short url or id>": "<course key>" } */
   const cfg = (await fs.get("config/payLinks")) || {}, map = cfg.links || {};
@@ -573,6 +576,110 @@ export async function waSubscribe(env, extra = "", fetchImpl = fetch) {
   return out;
 }
 
+/* ---------- SHOP: one engine for Flow Studio, ScentKart, Al Aswad Dubai, Bareerah Naturals ----------
+   Guest checkout (no login): every order/quote gets a private key; the customer tracks it with id+key.
+   Prices always come from Firestore (shopItems), never from the browser. Payment: Razorpay Checkout with
+   notes.shop_order; the signed webhook marks the order paid only when the amount matches. */
+export const SHOP_BRANDS = { flowstudio: "Flow Studio", scentkart: "ScentKart", alaswad: "Al Aswad Dubai", bareerah: "Bareerah Naturals" };
+export const ORDER_STEPS = ["awaiting_payment", "paid", "processing", "shipped", "delivered"];
+const rid = (n = 10) => [...crypto.getRandomValues(new Uint8Array(n))].map(b => "abcdefghijkmnpqrstuvwxyz23456789"[b % 32]).join("");
+const clip = (v, n = 200) => String(v == null ? "" : v).trim().slice(0, n);
+export function cleanCustomer(c = {}) {
+  const a = c.address || {};
+  return { name: clip(c.name, 80), phone: clip(String(c.phone || "").replace(/[^\d+]/g, ""), 16), email: clip(c.email, 120).toLowerCase(),
+    address: { line1: clip(a.line1, 160), line2: clip(a.line2, 160), city: clip(a.city, 60), state: clip(a.state, 60), pin: clip(a.pin, 12), country: clip(a.country || "India", 40) } };
+}
+export async function shopOrder(env, fs, body, now = Date.now()) {
+  const brand = String(body.brand || ""); if (!SHOP_BRANDS[brand]) return { error: "unknown shop" };
+  const cust = cleanCustomer(body.customer); if (!cust.name || cust.phone.replace(/\D/g, "").length < 10) return { error: "Please give your name and a valid mobile number." };
+  const cfg = ((await fs.get("config/shop")) || {})[brand] || {};
+  let lines = [];
+  if (body.quoteId) {
+    const q = await fs.get(`quotes/${body.quoteId}`);
+    if (!q || q.key !== body.quoteKey || q.brand !== brand || q.status !== "quoted" || !(+q.price > 0)) return { error: "This quote is not ready for payment yet." };
+    lines = [{ id: "quote:" + q.id, name: `${q.service || "Project"} (quote ${q.id.slice(0, 6)})`, price: +q.price, qty: 1 }];
+  } else {
+    const want = (Array.isArray(body.items) ? body.items : []).slice(0, 40);
+    for (const w of want) {
+      const it = await fs.get(`shopItems/${String(w.id || "").replace(/[^\w-]/g, "")}`);
+      const qty = Math.max(1, Math.min(50, Math.floor(+w.qty || 1)));
+      if (!it || it.brand !== brand || it.active === false || !(+it.price > 0)) return { error: `"${clip(w.name || w.id, 60)}" is not available right now.` };
+      lines.push({ id: it.id, name: it.name + (w.variant ? " – " + clip(w.variant, 40) : ""), price: +it.price, qty });
+    }
+  }
+  if (!lines.length) return { error: "Your cart is empty." };
+  const sub = lines.reduce((t, l) => t + l.price * l.qty, 0), ship = sub >= (+cfg.freeShipAbove || Infinity) ? 0 : (+cfg.ship || 0), total = Math.round((sub + ship) * 100) / 100;
+  const id = (brand.slice(0, 2).toUpperCase()) + new Date(now + 330 * 60000).toISOString().slice(2, 10).replace(/-/g, "") + "-" + rid(5).toUpperCase(), key = rid(16);
+  await fs.merge(`orders/${id}`, { brand, key, items: lines, subtotal: sub, ship, total, currency: "INR", customer: cust, note: clip(body.note, 500), quoteId: body.quoteId || "", status: "awaiting_payment", timeline: [{ s: "awaiting_payment", ts: now }], ts: now });
+  return { id, key, total, currency: "INR", rzpKey: env.RAZORPAY_KEY_ID || "", brandName: SHOP_BRANDS[brand], customer: cust };
+}
+export async function shopPaid(env, fs, info, fetchImpl = fetch) {
+  const id = String(info.notes.shop_order || ""), o = await fs.get(`orders/${id}`);
+  if (!o) return { shop: "no order " + id };
+  if (o.status !== "awaiting_payment") return { shop: "already " + o.status };
+  const ok = Math.abs((+info.amount || 0) - (+o.total || 0)) < 1 && info.currency === (o.currency || "INR");
+  const now = Date.now(), tl = (o.timeline || []).concat([{ s: ok ? "paid" : "check_payment", ts: now, note: ok ? "" : `paid ${info.currency} ${info.amount}, order total ${o.total}` }]);
+  await fs.merge(`orders/${id}`, { status: ok ? "paid" : "check_payment", payId: info.id, paidAmount: info.amount, timeline: tl });
+  if (o.quoteId) await fs.merge(`quotes/${o.quoteId}`, { status: ok ? "paid" : "check_payment", orderId: id }).catch(() => {});
+  await ownerAlert(env, fs, { kind: ok ? "pay" : "needs", title: ok ? `🛒 ${SHOP_BRANDS[o.brand]} order paid – ₹${o.total}` : `⚠️ ${SHOP_BRANDS[o.brand]} payment amount mismatch`, body: `${o.customer?.name || ""} · ${id} · ${(o.items || []).map(l => l.name + " ×" + l.qty).join(", ").slice(0, 140)}` }, now, fetchImpl).catch(() => {});
+  return { shop: ok ? "paid" : "mismatch", id };
+}
+export function shopPublicOrder(o) {
+  return { id: o.id, brand: o.brand, brandName: SHOP_BRANDS[o.brand], items: o.items, subtotal: o.subtotal, ship: o.ship, total: o.total, currency: o.currency, status: o.status,
+    timeline: o.timeline || [], tracking: o.tracking || null, customer: { name: o.customer?.name, city: o.customer?.address?.city }, ts: o.ts };
+}
+async function verifyOwner(req, env) {
+  const tok = (req.headers.get("authorization") || "").replace(/^Bearer\s+/i, ""); if (!tok) return false;
+  const who = await fetch(`https://identitytoolkit.googleapis.com/v1/accounts:lookup?key=${env.FIREBASE_WEB_KEY || "AIzaSyCCoqjw2BzgWcal6OVBqONYOB7x--WP12g"}`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ idToken: tok }) }).then(r => r.json()).catch(() => ({}));
+  const me = (who.users || [])[0] || {};
+  return !!me.emailVerified && ownerEmails(env).includes(String(me.email || "").toLowerCase());
+}
+export async function shopRoute(req, env, url) {
+  const cors = { "access-control-allow-origin": "*", "access-control-allow-headers": "authorization,content-type", "access-control-allow-methods": "GET,POST,OPTIONS", "content-type": "application/json", "cache-control": "no-store" };
+  const out = (o, s = 200) => new Response(JSON.stringify(o), { status: s, headers: cors });
+  if (req.method === "OPTIONS") return new Response(null, { headers: cors });
+  const fs = makeFS(env), p = url.pathname, q = url.searchParams, body = req.method === "POST" ? await req.json().catch(() => ({})) : {};
+  try {
+    if (p === "/shop/items") { const b = q.get("brand"); const items = (await fs.query("shopItems", [["brand", "EQUAL", b]], 300)).filter(i => i.active !== false).sort((a, c) => (a.sort || 0) - (c.sort || 0));
+      const cfg = ((await fs.get("config/shop")) || {})[b] || {}; return out({ items, ship: +cfg.ship || 0, freeShipAbove: +cfg.freeShipAbove || 0, rzpKey: env.RAZORPAY_KEY_ID || "" }); }
+    if (p === "/shop/order" && req.method === "POST") { const r = await shopOrder(env, fs, body); return out(r, r.error ? 400 : 200); }
+    if (p === "/shop/track") { const o = await fs.get(`orders/${q.get("id")}`); if (!o || o.key !== q.get("key")) return out({ error: "Order not found. Check the order number." }, 404); return out(shopPublicOrder(o)); }
+    if (p === "/shop/quote" && req.method === "POST") {
+      const brand = String(body.brand || ""); if (!SHOP_BRANDS[brand]) return out({ error: "unknown shop" }, 400);
+      const cust = cleanCustomer(body.customer); if (!cust.name || cust.phone.replace(/\D/g, "").length < 10) return out({ error: "Please give your name and a valid mobile number." }, 400);
+      const now = Date.now(), id = "Q" + new Date(now + 330 * 60000).toISOString().slice(2, 10).replace(/-/g, "") + "-" + rid(5).toUpperCase(), key = rid(16);
+      const rec = { brand, key, customer: cust, service: clip(body.service, 80), brief: clip(body.brief, 1500), budget: clip(body.budget, 40), deadline: clip(body.deadline, 40), status: "requested", ts: now };
+      await fs.merge(`quotes/${id}`, rec);
+      await ownerAlert(env, fs, { kind: "info", title: `📝 ${SHOP_BRANDS[brand]} quote request`, body: `${cust.name} · ${rec.service} · ${rec.budget || "budget not given"}` }, now).catch(() => {});
+      return out({ id, key });
+    }
+    if (p === "/shop/quote") { const r = await fs.get(`quotes/${q.get("id")}`); if (!r || r.key !== q.get("key")) return out({ error: "Quote not found." }, 404);
+      return out({ id: r.id, brand: r.brand, service: r.service, brief: r.brief, budget: r.budget, deadline: r.deadline, status: r.status, price: r.price || 0, ownerNote: r.ownerNote || "", orderId: r.orderId || "", ts: r.ts }); }
+    if (p.startsWith("/shop/admin")) {
+      if (!(await verifyOwner(req, env))) return out({ error: "owner only" }, 401);
+      if (req.method === "GET") { const b = q.get("brand");
+        const [items, orders, quotes, cfg] = await Promise.all([fs.query("shopItems", b ? [["brand", "EQUAL", b]] : [], 500), fs.query("orders", b ? [["brand", "EQUAL", b]] : [], 500), fs.query("quotes", b ? [["brand", "EQUAL", b]] : [], 300), fs.get("config/shop")]);
+        return out({ items: items.sort((a, c) => (a.sort || 0) - (c.sort || 0)), orders: orders.sort((a, c) => (c.ts || 0) - (a.ts || 0)), quotes: quotes.sort((a, c) => (c.ts || 0) - (a.ts || 0)), config: cfg || {}, rzpKey: !!env.RAZORPAY_KEY_ID }); }
+      const a = body.action, now = Date.now();
+      if (a === "saveItem") { const it = body.item || {}; if (!SHOP_BRANDS[it.brand] || !clip(it.name)) return out({ error: "brand and name needed" }, 400);
+        const id = it.id || (it.brand + "__" + clip(it.name, 60).toLowerCase().replace(/[^a-z0-9]+/g, "-") + "-" + rid(3));
+        const rec = { brand: it.brand, name: clip(it.name, 100), price: Math.max(0, +it.price || 0), mrp: Math.max(0, +it.mrp || 0), kind: ["product", "service", "quote"].includes(it.kind) ? it.kind : "product",
+          cat: clip(it.cat, 40), desc: clip(it.desc, 600), img: clip(it.img, 500), size: clip(it.size, 40), tag: clip(it.tag, 30), stock: it.stock === "" || it.stock == null ? -1 : Math.floor(+it.stock), active: it.active !== false, sort: +it.sort || 0, upd: now };
+        await fs.merge(`shopItems/${id}`, rec); return out({ ok: true, id }); }
+      if (a === "hideItem") { await fs.merge(`shopItems/${clip(body.id, 120)}`, { active: !!body.active, upd: now }); return out({ ok: true }); }
+      if (a === "orderStatus") { const o = await fs.get(`orders/${clip(body.id, 40)}`); if (!o) return out({ error: "no order" }, 404);
+        const s = clip(body.status, 30), tl = (o.timeline || []).concat([{ s, ts: now, note: clip(body.note, 200) }]), upd = { status: s, timeline: tl };
+        if (body.tracking) upd.tracking = { carrier: clip(body.tracking.carrier, 40), no: clip(body.tracking.no, 60), url: clip(body.tracking.url, 300) };
+        await fs.merge(`orders/${o.id}`, upd); return out({ ok: true }); }
+      if (a === "quotePrice") { const r = await fs.get(`quotes/${clip(body.id, 40)}`); if (!r) return out({ error: "no quote" }, 404);
+        await fs.merge(`quotes/${r.id}`, { price: Math.max(0, +body.price || 0), ownerNote: clip(body.note, 800), status: +body.price > 0 ? "quoted" : r.status, quotedAt: now }); return out({ ok: true }); }
+      if (a === "config") { const b = clip(body.brand, 20); if (!SHOP_BRANDS[b]) return out({ error: "brand" }, 400); await fs.merge("config/shop", { [b]: { ship: Math.max(0, +body.ship || 0), freeShipAbove: Math.max(0, +body.freeShipAbove || 0) } }); return out({ ok: true }); }
+      return out({ error: "unknown action" }, 400);
+    }
+    return out({ error: "not found" }, 404);
+  } catch (e) { return out({ error: String(e.message || e).slice(0, 200) }, 500); }
+}
+
 export async function ownerFeed(env) {
   const fs = makeFS(env), now = Date.now(), d7 = now - 7 * 864e5, d30 = now - 30 * 864e5, d1 = now - 864e5;
   const safe = p => p.catch(() => []);
@@ -614,6 +721,7 @@ export default {
       if (!me.emailVerified || !ownerEmails(env).includes(String(me.email || "").toLowerCase())) return new Response(JSON.stringify({ error: "owner only" }), { status: 401, headers: cors });
       return new Response(JSON.stringify(await ownerFeed(env)), { headers: cors });
     }
+    if (url.pathname.startsWith("/shop/")) return shopRoute(req, env, url);
     if (url.pathname === "/wa-subscribe") return json(await waSubscribe(env, url.searchParams.get("waba") || ""));
     /* owner test: sends the 3 approved templates ONLY to the owner's own number (no other number is ever accepted) */
     if (url.pathname === "/wa-report") { const fs = makeFS(env); const L = { sent: "✓ Bheja gaya", delivered: "✓✓ Phone par pahunch gaya", read: "🔵 Padh liya", failed: "❌ Nahi gaya" };
