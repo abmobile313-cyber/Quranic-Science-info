@@ -89,12 +89,13 @@ function calcPress(k){const ops='+−×÷';
   else if(k==='.'){const last=CALC.e.split(/[+−×÷()]/).pop();if(last.includes('.'))return;CALC.e+=k}
   else CALC.e+=k;
   if(k!=='='&&k!=='→₹'&&k!=='→$')calcLive();calcShow()}
-function calcHTML(modal){const K=[['C','⌫','%','÷'],['7','8','9','×'],['4','5','6','−'],['1','2','3','+'],['→₹','0','.','='],['→$','(',')','']];
+function calcHTML(modal){const keys=[['C','fn'],['⌫','fn'],['%','fn'],['÷','op'],['7',''],['8',''],['9',''],['×','op'],['4',''],['5',''],['6',''],['−','op'],['1',''],['2',''],['3',''],['+','op'],['0','z'],['.',''],['=','eq']];
   return`<div class="glass-calc${modal?' modal':''}"><div class="cdisp"><div class="cres">${esc(CALC.r)}</div><div class="cexp">${esc(CALC.e||'0')}</div></div>
-   <div class="ckeys">${K.flat().map(k=>k===''?'<span></span>':`<button data-a="cb" data-k="${k}" class="ck ${/[÷×−+]/.test(k)?'op':k==='='?'eq':/C|⌫|%|→|\(|\)/.test(k)?'fn':''}">${k}</button>`).join('')}</div>
+   <div class="cutil"><button data-a="cb" data-k="→₹" class="cu">$ → ₹</button><button data-a="cb" data-k="→$" class="cu">₹ → $</button><button data-a="cb" data-k="(" class="cu">(</button><button data-a="cb" data-k=")" class="cu">)</button></div>
+   <div class="ckeys">${keys.map(([k,c])=>`<button data-a="cb" data-k="${k}" class="ck ${c}">${k}</button>`).join('')}</div>
    ${CALC.hist.length?`<details class="chist"><summary>${T('History','History')}</summary>${CALC.hist.map(h=>`<div>${esc(h)}</div>`).join('')}</details>`:''}</div>`}
 function calcCard(){return`<div class="card calcwrap"><div class="row sp"><h2 style="margin:0">🧮 ${T('Calculator','Calculator')}</h2><span class="muted sm">$↔₹ ${S.rate||88}</span></div>${calcHTML(false)}</div>`}
 AX.cb=el=>calcPress(el.dataset.k);
-AX.calcopen=()=>{if(document.getElementById('calcov'))return AX.calcclose();const o=document.createElement('div');o.id='calcov';o.innerHTML=`<div class="calcsheet">${calcHTML(true)}<button class="btn ghost full" data-a="calcclose" style="margin-top:8px">${T('Band karein','Close')}</button></div>`;o.addEventListener('click',e=>{if(e.target===o)AX.calcclose()});document.body.appendChild(o)};
+AX.calcopen=()=>{if(document.getElementById('calcov'))return AX.calcclose();const o=document.createElement('div');o.id='calcov';o.innerHTML=`<div class="calcsheet"><div class="chead"><b>🧮 ${T('Calculator','Calculator')}</b><span class="muted sm">$↔₹ ${S.rate||88}</span><button class="cx" data-a="calcclose" aria-label="Close">✕</button></div>${calcHTML(true)}</div>`;o.addEventListener('click',e=>{if(e.target===o)AX.calcclose()});document.body.appendChild(o)};
 AX.calcclose=()=>{const o=document.getElementById('calcov');if(o)o.remove()};
 (function(){const mk=()=>{if(document.getElementById('calcfab'))return;const b=document.createElement('button');b.id='calcfab';b.setAttribute('data-a','calcopen');b.setAttribute('aria-label','Calculator');b.textContent='🧮';document.body.appendChild(b)};if(document.body)mk();else document.addEventListener('DOMContentLoaded',mk)})();

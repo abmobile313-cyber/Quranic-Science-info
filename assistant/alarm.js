@@ -55,3 +55,12 @@ function almWeb(e){if(almNat())return;almStopRing();const o=document.createEleme
   document.body.appendChild(o);try{const a=new Audio('voice/'+(typeof VL==='function'?VL():'ur')+'/alert.mp3');a.loop=true;a.play().catch(()=>{});ALW.au=a}catch(x){}if(navigator.vibrate)navigator.vibrate([500,300,500,300,500]);
   document.getElementById('almdm').onclick=()=>{almStopRing();almDua(e)};
   document.getElementById('almsn').onclick=()=>{almStopRing();almDua(e);clearTimeout(ALW.tmr);ALW.tmr=setTimeout(()=>almWeb(e),e.snooze*60000)}}
+
+/* ---------- compact card for the Home screen: next alarms + quick add ---------- */
+function almNext(x){const now=new Date();for(let i=0;i<8;i++){const d=new Date(now.getFullYear(),now.getMonth(),now.getDate()+i);if(!almOn(x,d)||!hm(x.t))continue;const at=atTime(x.t,d);if(at>now)return at}return null}
+function almHomeCard(){const L=ALM.filter(x=>x.on!==false).map(x=>({x,at:almNext(x)})).filter(o=>o.at).sort((a,b)=>a.at-b.at).slice(0,3);
+  const rows=L.map(({x,at})=>{const k=ALK[x.kind]||ALK.other;return`<div class="row sp" style="padding:6px 0;border-bottom:1px solid var(--stroke)"><span>${k.i} <b>${esc(x.label||k.n())}</b></span><span class="muted sm">${t12(x.t)} • ${esc(almWhen(x))}</span></div>`}).join('');
+  return`<div class="card"><div class="row sp"><h2 style="margin:0">⏰ ${T('Alarm','Alarm','الارم','अलार्म')}</h2><button class="btn s ghost" data-a="almall">${T('Sab alarm','All alarms')} ›</button></div>
+   ${rows||`<p class="muted sm" style="margin:6px 0">${T('Abhi koi alarm nahi. Neeche se ek tap mein banayein — waqt par ringtone bajti hai, Snooze/Dismiss par dua padhi jaati hai.','No alarms yet. Add one below — the ringtone plays at the time and the dua is recited on Snooze/Dismiss.')}</p>`}
+   <div class="row wrap mt">${Object.entries(ALK).map(([k,v])=>`<button class="btn s ghost" data-a="almadd" data-k="${k}">${v.i} ${v.n()}</button>`).join('')}</div></div>`}
+AX.almall=()=>{DM.t='alarm';go('deen','duas')};
