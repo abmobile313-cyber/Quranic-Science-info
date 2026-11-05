@@ -197,7 +197,7 @@ auth.onAuthStateChanged(u=>{
   const ok=u&&OWNERS.includes(String(u.email||"").toLowerCase());
   $("loginView").hidden=!!ok;$("app").hidden=!ok;
   if(u&&!ok)$("loginErr").textContent="This account ("+u.email+") is not the owner account.";
-  if(ok){$("who").textContent=(u.displayName||"Arsalan").split(" ")[0];load();clearInterval(load.t);load.t=setInterval(load,60000)}
+  if(ok){$("who").textContent="Arsalan";load();clearInterval(load.t);load.t=setInterval(load,60000)}
 });
 
 /* ---------- business data ---------- */
