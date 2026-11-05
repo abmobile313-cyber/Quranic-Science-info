@@ -249,6 +249,16 @@ export async function whoIs(fs, from, text) {
   const paid = user ? Object.keys(user.access || {}).filter(k => user.access[k]) : [];
   return { user, teacher, paid, role: teacher ? "teacher" : paid.length ? "student" : "visitor" };
 }
+/* student code, open courses, fee receipts and app note – sent right in the chat (free reply) */
+async function detailsOf(fs, u, paid, site, nm) {
+  const rc = (await fs.query("receipts", [["uid", "EQUAL", u.id]], 20)).sort((a, b) => (b.ts || 0) - (a.ts || 0));
+  const cur = (c, a) => (String(c).toUpperCase() === "INR" ? "₹" : String(c).toUpperCase() === "USD" ? "$" : (c || "") + " ") + (+a || 0).toLocaleString("en-IN");
+  if (!paid.length && !rc.length && !u.code) return "";
+  return "\n\n🎓 *Your details*" + (u.code ? `\nStudent code: *${u.code}*` : "") +
+    (paid.length ? `\nOpen courses:\n${paid.map(k => "• " + nm(k)).join("\n")}\nBatch: ${({ M: "Morning", E: "Evening" })[u.batch] || "-"}` : "") +
+    (rc.length ? `\n🧾 Fee receipt${rc.length > 1 ? "s" : ""}:\n${rc.slice(0, 5).map(r => `• ${r.courseName || nm(r.course)} – ${cur(r.currency, r.amount)}: ${site}/#receipt=${r.paymentId || r.id}`).join("\n")}` : "") +
+    (paid.length && u.code ? `\n📱 Your Quranic Science app is ready: download it from ${site}, log in with Google and enter your code ${u.code}.` : "");
+}
 const fmtIST = ms => { const d = new Date(ms + 330 * 60000); return d.toISOString().slice(0, 10) + " " + d.toISOString().slice(11, 16) + " IST"; };
 async function nextClass(fs, courses, batch, now) {
   const ist = ms => new Date(ms + 330 * 60000).toISOString().slice(0, 16).replace("T", " ");
@@ -265,10 +275,30 @@ export async function botReply(env, fs, from, text, who, prev, now = Date.now())
   const u = who.user || {}, name = (u.name || prev.name || "").split(" ")[0], t = String(text || "").trim().toLowerCase();
   const human = `To talk to us, message +${main}: https://wa.me/${main}\nبات کرنے کے لیے اس نمبر پر میسج کریں۔`;
   const first = !prev.welcomed || prev.role !== who.role;
+  /* TEMPORARY (until paid WhatsApp templates work): on "Hi" / first message, give the student code, open courses and fee receipts right here in the chat (free reply).
+     Turn off by setting config/flags.botReceipts = false. */
+  let info = "";
+  try {
+    const fl = (await fs.get("config/flags")) || {};
+    if (fl.botReceipts !== false && u.id && (first || /^(0|hi|hello|salam|assalam|menu|start|code|receipt)\b/.test(t))) info = await detailsOf(fs, u, who.paid, site, nm);
+  } catch (e) {}
+  /* not recognised by this WhatsApp number: the person can send "mobile number + name" they used on the website */
+  if (!u.id) {
+    const num = (String(text || "").match(/(?:\+?\d[\d\s-]{8,16}\d)/) || [""])[0].replace(/\D/g, ""), words = String(text || "").replace(/[\d+\-]/g, " ").trim().toLowerCase().split(/\s+/).filter(w => w.length > 1);
+    if (num.length >= 10 && words.length) {
+      const found = (await fs.query("users", [["phoneLast10", "EQUAL", num.slice(-10)]], 5)).find(x => { const nn = String(x.name || "").toLowerCase(); return words.some(w => nn.split(/\s+/).includes(w)); });
+      if (found) {
+        await fs.merge(`users/${found.id}`, { waPhone: digits(from), waOk: now });
+        const paid2 = Object.keys(found.access || {}).filter(k => found.access[k]);
+        return `Assalamu Alaikum ${(found.name || "").split(" ")[0]}! ✅ We found your Quranic Science account and linked this WhatsApp number to it.${await detailsOf(fs, found, paid2, site, nm)}\n\n${paid2.length ? BOT_MENU.student : BOT_MENU.visitor}`;
+      }
+      return `Sorry, we could not find an account with this mobile number and name.\nPlease log in at ${site}, complete your profile with this mobile number, then send your number and name here again (example: 9876543210 Ahmed).\n\n${BOT_MENU.visitor}`;
+    }
+  }
   if (first || /^(0|hi|hello|salam|assalam|menu|start)\b/.test(t) || /hi qs/.test(t)) {
-    if (who.role === "teacher") return `Assalamu Alaikum ${name || "Ustad"}! ✅ Teacher alerts are ON for Quranic Science.\nYou will get here: new student doubts and a reminder 30 minutes before your class.\n\n${BOT_MENU.teacher}\nٹیچر الرٹس شروع ہو گئے ہیں۔`;
-    if (who.role === "student") return `Assalamu Alaikum ${name}! ✅ WhatsApp alerts are ON.\nYou will get here: class reminders (30 min before), fee receipt, your teacher's answers and your certificate.${u.code ? "\nYour student code: " + u.code : ""}\n\n${BOT_MENU.student}\nآپ کے الرٹس شروع ہو گئے ہیں۔`;
-    return `Assalamu Alaikum${name ? " " + name : ""}! Welcome to Quranic Science 🌙\nLive Zoom courses with recordings: Tajweed, Arabic Speaking, AI Masterclass, Video Editing, Content Creation and more.\nFirst batch: enrolment till 30 November, classes from 1 December. Only 100 seats per batch.\n\n${BOT_MENU.visitor}\nخوش آمدید! نمبر لکھ کر جواب دیں۔`;
+    if (who.role === "teacher") return `Assalamu Alaikum ${name || "Ustad"}! ✅ Teacher alerts are ON for Quranic Science.\nYou will get here: new student doubts and a reminder 30 minutes before your class.${who.teacher && who.teacher.code ? `\nYour teacher code: *${who.teacher.code}*\n📱 Your teacher app is ready: download it from ${site}, log in with the same email and enter your teacher code.` : ""}\n\n${BOT_MENU.teacher}\nٹیچر الرٹس شروع ہو گئے ہیں۔`;
+    if (who.role === "student") return `Assalamu Alaikum ${name}! ✅ WhatsApp alerts are ON.\nYou will get here: class reminders (30 min before), fee receipt, your teacher's answers and your certificate.${info || (u.code ? "\nYour student code: " + u.code : "")}\n\n🌐 Language: send *EN* English · *UR* اردو · *HI* हिन्दी · *AR* العربية\n\n${BOT_MENU.student}\nآپ کے الرٹس شروع ہو گئے ہیں۔`;
+    return `Assalamu Alaikum${name ? " " + name : ""}! Welcome to Quranic Science 🌙\nLive Zoom courses with recordings: Tajweed, Arabic Speaking, AI Masterclass, Video Editing, Content Creation and more.\nFirst batch: enrolment till 30 November, classes from 1 December. Only 100 seats per batch.${info || (u.id ? "" : "\n\n✅ Already logged in on our website or paid the fee? Send your mobile number and name (example: 9876543210 Ahmed) – we will send your student code and receipt here.")}\n\n🌐 Language: send *EN* English · *UR* اردو · *HI* हिन्दी · *AR* العربية\n\n${BOT_MENU.visitor}\nخوش آمدید! نمبر لکھ کر جواب دیں۔`;
   }
   const n = (/^\d/.exec(t) || [""])[0];
   if (who.role === "visitor") {
@@ -287,12 +317,22 @@ export async function botReply(env, fs, from, text, who, prev, now = Date.now())
   }
   /* student */
   if (n === "1" || /class|zoom/.test(t)) { const b = await nextClass(fs, who.paid, u.batch, now); return b ? `📅 Your next class: ${nm(b.k.course)} – ${(b.k.title && (b.k.title.en || b.k.title.ur)) || "Class " + (b.k.n || "")}\n${fmtIST(istMs(b.k.date))}\nJoin from My classes: ${site}/#learn\nYou will also get a reminder here 30 minutes before.` : `Your next class date is not announced yet. You will get a message here as soon as it is.`; }
+  if (info && /receipt|code/.test(t)) return `Assalamu Alaikum ${name}!${info}\n\n${BOT_MENU.student}`;
   if (n === "2" || /fee|course|paid|payment/.test(t)) return `✅ Your open courses:\n${who.paid.map(k => "• " + nm(k)).join("\n")}${u.code ? "\nStudent code: " + u.code : ""}\nBatch: ${({ M: "Morning", E: "Evening" })[u.batch] || "-"}\nReceipts and classes: ${site}/#learn`;
   if (n === "3" || /certif/.test(t)) { const c = (await fs.query("certificates", [["uid", "EQUAL", u.id]], 10))[0]; return c ? `🎓 Your certificate: ${site}/#verify=${c.id}` : `Your certificate opens after you finish all classes, the 3 questions after each class and the weekly tests. Keep going! 💪`; }
   if (n === "4") return human;
   return `This is an automatic number, so a person may not see this. ${human}\n\n${BOT_MENU.student}`;
 }
 
+/* translate a bot reply line by line; lines with links stay as they are (free Google translate, original if it fails) */
+export async function translateLines(text, tl, fetchImpl = fetch) {
+  const lines = String(text).split("\n"); const out = [];
+  for (const ln of lines) {
+    if (!ln.trim() || /https?:\/\//.test(ln) || /[\u0600-\u06ff\u0900-\u097f]/.test(ln) && !/[a-z]{3}/i.test(ln)) { out.push(ln); continue; }
+    try { const r = await fetchImpl(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=${tl}&dt=t&q=${encodeURIComponent(ln.replace(/\*/g, ""))}`); const j = await r.json(); const o = (j[0] || []).map(x => x[0]).join(""); out.push(o.trim() ? o : ln); } catch (e) { out.push(ln); }
+  }
+  return out.join("\n");
+}
 /* the teacher's answer reaches the student in the language the student asked in (free Google translate; original if it fails) */
 const scriptOf = t => /[\u0600-\u06ff]/.test(t) ? (/[ٹڈڑںےۓ]/.test(t) ? "ur" : "ar") : /[\u0900-\u097f]/.test(t) ? "hi" : "en";
 export async function toLangOf(text, like, fetchImpl = fetch) {
@@ -543,7 +583,14 @@ export default {
           const rec = { ts: now, name: ((c.value.contacts || [])[0] || {}).profile?.name || prev.name || "", role: who.role, uid: who.user ? who.user.id : (prev.uid || "") };
           await fs.merge(`waInbox/${from}`, rec);
           if (who.user) await fs.merge(`users/${who.user.id}`, { waPhone: from, waOk: now, waRole: who.role });
-          const reply = await botReply(env, fs, from, text, who, prev, now).catch(() => "");
+          /* language choice: EN / UR / HI / AR – every bot reply then comes in that language */
+          const lc = (/^\s*(en|english|ur|urdu|اردو|hi|hindi|हिन्दी|हिंदी|ar|arabic|عربي|العربية)\s*$/i.exec(text) || [])[1];
+          const LG = { en: "en", english: "en", ur: "ur", urdu: "ur", "اردو": "ur", hi: "hi", hindi: "hi", "हिन्दी": "hi", "हिंदी": "hi", ar: "ar", arabic: "ar", "عربي": "ar", "العربية": "ar" };
+          const lang = lc ? LG[lc.toLowerCase()] || LG[lc] : (prev.lang || "");
+          if (lc) await fs.merge(`waInbox/${from}`, { lang });
+          let reply = await botReply(env, fs, from, lc ? "menu" : text, who, Object.assign({}, prev, lc ? { welcomed: true, role: who.role } : {}), now).catch(() => "");
+          if (lc && reply) reply = "✅ Language saved.\n\n" + reply;
+          if (reply && lang && lang !== "en") reply = await translateLines(reply, lang);
           if (reply) { const r = await sendWAText(env, from, reply); if (r.ok) await fs.merge(`waInbox/${from}`, { welcomed: true, replied: now }); }
         }
       } catch (e) {}
