@@ -143,7 +143,7 @@ const VO={a:null,blobs:{},
   async blob(id){const k=S.lang+'/'+id;if(this.blobs[k])return this.blobs[k];const r=await fetch(this.url(id));if(!r.ok)throw new Error('clip');const b=await r.blob();if(b.size<2000)throw new Error('clip');return this.blobs[k]=URL.createObjectURL(b)},
   async say(id){if(!id||typeof id!=='string')return;if(!S.voice&&!id.startsWith('dua_'))return;
     try{this.stop();let u;try{u=await this.blob(id)}catch(e){if(id==='alert')return;u=await this.blob('alert')}
-      const au=new Audio(u);this.a=au;await au.play()}catch(e){}},
+      const au=new Audio(u);this.a=au;let rep=id==='dua_wake'?2:0;au.onended=()=>{if(rep-->0&&this.a===au){setTimeout(()=>{if(this.a===au)au.play().catch(()=>{})},900)}};await au.play()}catch(e){}},
   warm(){if(!navigator.onLine)return;let i=0;const next=()=>{if(i>=this.IDS.length)return;this.blob(this.IDS[i++]).catch(()=>{}).finally(()=>setTimeout(next,150))};next()},
   stop(){try{if(this.a){this.a.pause();this.a=null}}catch(e){}}};
 

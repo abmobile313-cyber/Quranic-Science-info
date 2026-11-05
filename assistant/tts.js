@@ -5,12 +5,15 @@ const ttsNative=()=>!!(window.AndroidPA&&typeof AndroidPA.speak==='function');
 /* honorific signs are spoken out in full, so the voice does not skip them */
 const TTS_MAP=[[/ﷺ/g,' صلی اللہ علیہ وسلم '],[/ؐ/g,' صلی اللہ علیہ وسلم '],[/ؓ/g,' رضی اللہ عنہ '],[/ؒ/g,' رحمۃ اللہ علیہ '],[/ؑ/g,' علیہ السلام '],[/[ؔ-ؚـ]/g,''],[/[«»"“”\[\]\(\)\*#_|\uFD3E\uFD3F]/g,' '],[/\s+/g,' ']];
 const ttsClean=t=>TTS_MAP.reduce((s,[r,x])=>s.replace(r,x),String(t||'')).trim();
-function ttsVoice(lang){const vs=(window.speechSynthesis&&speechSynthesis.getVoices())||[];const f=p=>vs.find(v=>v.lang&&v.lang.toLowerCase().startsWith(p));return lang==='en'?(f('en-in')||f('en')):lang==='ar'?(f('ar')||null):(f('ur')||f('hi')||null)}
-TTS.prep=function(cb){if(!ttsNative()){cb();return}if(this.info){cb();return}window.ttsReady=l=>{TTS.info=l||'none';cb()};try{AndroidPA.ttsPrep()}catch(e){this.info='none';cb()}};
+const ttsPitch=()=>S.ttsPitch||((S.ttsG||'m')==='m'?0.8:1);
+function ttsCfgSync(){try{if(ttsNative()&&AndroidPA.ttsCfg)AndroidPA.ttsCfg(ttsPitch(),S.ttsVoice||'')}catch(e){}}
+function ttsVoice(lang){const vs=(window.speechSynthesis&&speechSynthesis.getVoices())||[];const f=p=>vs.find(v=>v.lang&&v.lang.toLowerCase().startsWith(p));const male=p=>{if((S.ttsG||'m')!=='m')return null;const ml=vs.filter(v=>v.lang&&v.lang.toLowerCase().startsWith(p)&&/asad|male|madhur|hemant|prabhat|ravi|rishi|salman|omar|hamed/i.test(v.name)&&!/female/i.test(v.name));return ml[0]||null};
+  return lang==='en'?(f('en-in')||f('en')):lang==='ar'?(male('ar')||f('ar')||null):(male('ur')||f('ur')||male('hi')||f('hi')||null)}
+TTS.prep=function(cb){if(!ttsNative()){cb();return}ttsCfgSync();if(this.info){cb();return}window.ttsReady=l=>{TTS.info=l||'none';cb()};try{AndroidPA.ttsPrep()}catch(e){this.info='none';cb()}};
 TTS.say=function(text,done){const t=ttsClean(text);if(!t){done();return}const rate=S.ttsRate||0.95;
   if(ttsNative()){const id='t'+Date.now()+Math.random().toString(36).slice(2,5);this.cid=id;this.cb=done;try{AndroidPA.speak(t,this.lang,rate,id)}catch(e){this.cb=null;done()}return}
   if(!window.speechSynthesis||typeof SpeechSynthesisUtterance==='undefined'){toast(T('Is device me awaaz (TTS) support nahi','No text-to-speech on this device'));this.stop();return}
-  const u=new SpeechSynthesisUtterance(t);const v=ttsVoice(this.lang);if(v){u.voice=v;u.lang=v.lang}else u.lang=this.lang==='en'?'en-IN':this.lang==='ar'?'ar-SA':'ur-PK';u.rate=rate;let fin=false;const f=()=>{if(fin)return;fin=true;done()};u.onend=f;u.onerror=f;speechSynthesis.speak(u)};
+  const u=new SpeechSynthesisUtterance(t);const v=ttsVoice(this.lang);if(v){u.voice=v;u.lang=v.lang}else u.lang=this.lang==='en'?'en-IN':this.lang==='ar'?'ar-SA':'ur-PK';u.rate=rate;u.pitch=ttsPitch();let fin=false;const f=()=>{if(fin)return;fin=true;done()};u.onend=f;u.onerror=f;speechSynthesis.speak(u)};
 window.ttsDone=(id,err)=>{if(TTS.cid!==id)return;const c=TTS.cb;TTS.cb=null;if(err){TTS.errs++;if(TTS.errs>2){TTS.stop();toast(T('Awaaz nahi chali — phone ki Text-to-speech settings dekhein','Voice failed — check phone text-to-speech settings'),4500);return}}else TTS.errs=0;if(c)c()};
 TTS.run=function(items,o={}){this.stop();items=items.filter(x=>ttsClean(x.t));if(!items.length){toast(T('Padhne ke liye text nahi mila','Nothing to read'));return}
   this.lang=o.lang||'ur';this.prep(()=>{if(ttsNative()&&this.info==='none'&&this.lang!=='ar'){ttsHelp();return}
@@ -25,9 +28,17 @@ function ttsSetForm(){const v=S.hsVoice||'tts',r=S.ttsRate||0.95;
   dlg(`<div class="row sp"><h2 class="h2" style="margin:0">🔊 ${T('Awaaz ki settings','Voice settings','آواز کی سیٹنگز','आवाज़ की सेटिंग्स')}</h2><button class="btn s ghost" data-a="closedlg">✕</button></div>
   <label>${T('Hayatus Sahaba ki awaaz','Hayatus Sahaba voice','حیاۃ الصحابہ کی آواز','हयातुस्सहाबा की आवाज़')}</label><div class="fch" style="padding:4px 0"><button data-a="ttsv" data-v="tts" class="${v==='tts'?'on':''}">📱 ${T('Phone ki Urdu awaaz (behtar)','Phone Urdu voice (better)')}</button><button data-a="ttsv" data-v="ai" class="${v==='ai'?'on':''}">🤖 ${T('Purani AI awaaz','Old AI narration')}</button></div>
   <label>${T('Raftaar','Speed','رفتار','रफ़्तार')}</label><div class="fch" style="padding:4px 0">${[[0.75,'0.75x'],[0.95,'1x'],[1.15,'1.15x'],[1.35,'1.35x']].map(x=>`<button data-a="ttsr" data-v="${x[0]}" class="${Math.abs(r-x[0])<.01?'on':''}">${x[1]}</button>`).join('')}</div>
+  <label>${T('Awaaz: Mard ya Aurat','Voice: Male or Female','آواز: مرد یا عورت','आवाज़: मर्द या औरत')}</label><div class="fch" style="padding:4px 0"><button data-a="ttsg" data-v="m" class="${(S.ttsG||'m')==='m'?'on':''}">🧔 ${T('Mard (default)','Male (default)')}</button><button data-a="ttsg" data-v="f" class="${S.ttsG==='f'?'on':''}">👩 ${T('Aurat','Female')}</button></div>
+  <label>${T('Awaaz ka bhaari-pan (pitch)','Voice depth (pitch)')}</label><div class="fch" style="padding:4px 0">${[[0.65,T('Bahut bhaari','Very deep')],[0.8,T('Bhaari','Deep')],[0.9,T('Halka','Medium')],[1,T('Normal','Normal')]].map(x=>`<button data-a="ttsp" data-v="${x[0]}" class="${Math.abs(ttsPitch()-x[0])<.01?'on':''}">${x[1]}</button>`).join('')}</div>
+  <div id="ttsvl" class="mt"></div>
   <div class="row wrap mt"><button class="btn s" data-a="ttstest">▶ ${T('Test','Test')}</button><button class="btn s ghost" data-a="ttsopen">⚙ ${T('Phone ki awaaz settings (Urdu voice download)','Phone voice settings (download Urdu voice)')}</button></div>
   <p class="muted sm">${T('Awaaz ka maiyaar aap ke phone ki Google Urdu voice par hai. Behtar voice ke liye Speech Services by Google update rakhein.','Quality depends on the Google Urdu voice installed on your phone.')}</p>`)}
-AX.ttsset=()=>ttsSetForm();
+function ttsVoiceList(){const box=$('#ttsvl');if(!box||!ttsNative()||!AndroidPA.ttsVoices)return;TTS.prep(()=>{let vs=[];try{vs=JSON.parse(AndroidPA.ttsVoices()||'[]')}catch(e){}if(!vs.length){box.innerHTML='';return}
+  box.innerHTML=`<label>${T('Phone mein maujood Urdu/Hindi awaazein (jo mard jaisi lage chunein)','Urdu/Hindi voices on this phone (pick one that sounds male)')}</label><div class="fch" style="padding:4px 0"><button data-a="ttsvn" data-v="" class="${!S.ttsVoice?'on':''}">${T('Default','Default')}</button>${vs.map((v,i)=>`<button data-a="ttsvn" data-v="${esc(v.n)}" class="${S.ttsVoice===v.n?'on':''}">${T('Awaaz','Voice')} ${i+1}${v.net?' ☁':''}</button>`).join('')}</div><p class="muted sm">${T('Har awaaz par dabakar Test suniye; jo pasand aaye wahi rakhein.','Tap a voice, then Test; keep the one you like.')}</p>`})}
+AX.ttsset=()=>{ttsSetForm();ttsVoiceList()};
+AX.ttsg=el=>{S.ttsG=el.dataset.v;S.ttsPitch=0;saveS();ttsCfgSync();TTS.stop();ttsSetForm();ttsVoiceList()};
+AX.ttsp=el=>{S.ttsPitch=+el.dataset.v;saveS();ttsCfgSync();TTS.stop();ttsSetForm();ttsVoiceList()};
+AX.ttsvn=el=>{S.ttsVoice=el.dataset.v;saveS();ttsCfgSync();TTS.stop();ttsSetForm();ttsVoiceList();setTimeout(()=>AX.ttstest(),150)};
 AX.ttsv=el=>{S.hsVoice=el.dataset.v;saveS();TTS.stop();ttsSetForm()};
 AX.ttsr=el=>{S.ttsRate=+el.dataset.v;saveS();ttsSetForm()};
 AX.ttstest=()=>TTS.run([{t:'بسم اللہ الرحمٰن الرحیم۔ حضرت ابوبکر صدیق رضی اللہ عنہ نے فرمایا، اللہ کے رسول ﷺ پر درود بھیجیں۔'}],{lang:'ur'});

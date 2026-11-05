@@ -13,6 +13,7 @@ const TRC=()=>S.lang==='ur'?'urdu':'trx';
 function loadQ(){if(QD)return Promise.resolve(QD);return QDP||(QDP=Promise.all([fetch('q-indopak.json').then(r=>r.json()),fetch('taqi.json').then(r=>r.json()),(S.lang==='ur'||S.lang==='ro')?null:fetch(S.lang==='hi'?'tr-hi.json':'tr-en.json').then(r=>r.json())]).then(([ar,t,tr])=>(QD={ar,ur:tr||(S.lang==='ro'?t.ro:t.ur),ro:t.ro})).catch(e=>{QDP=null;throw e}))}
 let QS=Object.assign({view:'list',tab:'surah',s:1,a:1,mode:'t',bm:[],last:null,rec:'Alafasy_128kbps',q:''},store.get('quran4',{}));
 const saveQS=()=>store.set('quran4',QS);
+if(!QS.m26){QS.pg=true;QS.m26=1;saveQS()}
 const MODES=[['q',()=>T('Sirf Quran','Quran only')],['t',()=>T('Tarjuma','Translation')],['w',()=>T('Qawaid','Tajweed')],['a',()=>T('Teeno','All 3')]];
 
 /* ---------- audio ---------- */
@@ -75,11 +76,11 @@ async function renderReader(el){
   const head=`<div class="sban"><div class="sb-in"><span class="sb-n">${s}</span><b class="sb-a">سُورَةُ ${SN[s-1][1]}</b><span class="sb-e">${snm(s-1)} • ${ar.length} ${T('ayaat','ayahs')}</span></div></div>`;
   const PG=null;
   const lo=0,hi=ar.length,firstPg=true;
-  const AYN=(a)=>`<span class="ayno" data-a="qno" data-ay="${s}:${a}">${toArDigits(a)}</span>`;
+  const AYN=(a)=>`<span class="ayno" data-a="qno" data-ay="${s}:${a}">${toArDigits(a)}</span>${rkEndNo(s,a)?`<span class="rk" style="font-size:.7em;margin:0 .25em;border:1.5px solid #b45b5b;border-radius:.5em;padding:.1em .3em;color:#b45b5b">ع${toArDigits(rkEndNo(s,a))}</span>`:''}`;const RKB=a=>{const n=rkStartNo(s,a);return n?`<div class="rukb"><span>${T('Ruku','Ruku')} ${n}</span></div>`:''};
   let body='';
   if(mode==='q'){body=`<div class="mush">${firstPg?bism:''}<div class="q-ar">${ar.map((t,i)=>i<lo||i>=hi?'':`<span class="ay${bmHas(s,i+1)?' bm':''}${RD.qHas(s,i+1)?' rd':''}" data-a="qay" data-ay="${s}:${i+1}">${t}${AYN(i+1)}</span> `).join('')}</div></div>`}
-  else{body=`<div class="card">${firstPg?bism:''}${ar.map((t,i)=>{if(i<lo||i>=hi)return'';const a=i+1;const arab=(tj&&!tjErr&&tj[i])?`<div class="q-ar q-tj one">${tjColr(tj[i]||t)}${AYN(a)}</div>`:`<div class="q-ar one">${t}${AYN(a)}</div>`;
-    return`<div class="q-blk${bmHas(s,a)?' bm':''}${RD.qHas(s,a)?' rd':''}" data-a="qay" data-ay="${s}:${a}">${mode==='w'?arab:arab+`<div class="${TRC()}">${esc(ur[i])}</div>`}</div>`}).join('')}</div>`}
+  else{body=`<div class="card">${firstPg?bism:''}${ar.map((t,i)=>{if(i<lo||i>=hi)return'';const a=i+1;const rkb=RKB(a);const arab=(tj&&!tjErr&&tj[i])?`<div class="q-ar q-tj one">${tjColr(tj[i]||t)}${AYN(a)}</div>`:`<div class="q-ar one">${t}${AYN(a)}</div>`;
+    return rkb+`<div class="q-blk${bmHas(s,a)?' bm':''}${RD.qHas(s,a)?' rd':''}" data-a="qay" data-ay="${s}:${a}">${mode==='w'?arab:arab+`<div class="${TRC()}">${esc(ur[i])}</div>`}</div>`}).join('')}</div>`}
   const legend=(mode==='w'||mode==='a')?`${tjErr?`<div class="warnbox">${T('Tajweed rang abhi load nahi hue (internet?). Sada text dikha raha hoon.','Tajweed colours could not load. Showing plain text.')}</div>`:''}<details><summary>${T('Tajweed ke rang','Tajweed colours')}</summary><div class="grid2">${LEG.map(([c,n])=>`<div class="sm"><b class="tj tj-${c}" style="font-size:18px">●</b> ${n}</div>`).join('')}</div>${tjErr?`<p class="warnbox">${T('Rang abhi load nahi hue (internet). Saada Quran dikha raha hoon.','Colours could not load (internet). Showing plain text.')}</p>`:`<p class="muted sm">${T('Qawaid mode mein Uthmani rasm-ul-khat istemal hota hai (tajweed rang ke liye).','Tajweed mode uses Uthmani script for colour coding.')}</p>`}</details>`:'';
   el.innerHTML=`<div class="q-top"><div class="row"><button class="btn ghost s" data-a="qback">←</button><b class="grow" style="min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${snm(s-1)} <span class="muted sm">${SN[s-1][1]}</span></b>${fsBar()}<button class="btn s ghost" data-a="qpg" data-v="1" title="Book pages">📖</button><button class="btn s ghost" data-a="qbmpos" title="Bookmark">🔖</button><button class="btn s gold" data-a="qplays">▶</button></div>
     <details class="rdopt"><summary>⚙ ${T('Dikhane ka tareeqa','Display options','دکھانے کا طریقہ','दिखाने का तरीका')}: ${(MODES.find(m=>m[0]===mode)||MODES[1])[1]()}</summary><div class="fch" style="padding:8px 0 0"><button data-a="qpg" data-v="0" class="${QS.pg?'':'on'}">📜 ${T('Scroll','Scroll','اسکرول','स्क्रोल')}</button><button data-a="qpg" data-v="1" class="${QS.pg?'on':''}">📖 ${T('Kitaab (page)','Book (pages)','کتاب (صفحہ)','किताब (पेज)')}</button></div><div class="fch" style="padding:8px 0 0">${MODES.map(m=>`<button data-a="qmode" data-v="${m[0]}" class="${mode===m[0]?'on':''}">${m[1]()}</button>`).join('')}</div></details></div>`+head+legend+body+
@@ -135,14 +136,45 @@ function qpgOf(s,a){const P=qpgBuild(),i=QPF.off[s-1]+a-1;let lo=0,hi=P.length-1
 function qpgFollow(s,n){if(!QS.pg||QS.view!=='reader')return;const g=qpgOf(s,n);if(g!==QS.gp){QS.gp=g;QPA.left=QS.rep===0?9e9:(QS.rep||1);saveQS();renderMushaf($('#sub'))}}
 function qpgRepeat(qa){if(!QS.pg||QS.view!=='reader')return false;const pg=qpgBuild()[QS.gp];if(pg&&qa.s===pg.s1&&qa.n===pg.a1){if(QS.rep===0||QPA.left>1){QPA.left--;qa.play(pg.s0,pg.a0);return true}QPA.left=QS.rep||1}return false}
 const SPD=[1,1.25,1.5,0.75],REP=[1,2,3,5,0];
+/* ====== RUKU (556) + true 15-line page layout ====== */
+const RKS=[1,8,15,28,37,47,54,67,69,79,90,94,104,111,120,129,137,149,155,160,171,175,184,190,196,204,218,224,229,236,239,243,250,256,261,265,268,274,281,289,291,294,303,314,324,335,348,357,365,374,385,395,403,414,423,437,442,449,465,474,483,494,504,508,516,519,527,536,544,553,564,570,581,585,590,594,598,606,609,620,628,635,646,656,665,670,675,681,689,696,704,713,720,726,736,747,756,763,770,778,785,790,800,810,820,831,840,845,850,860,872,880,884,890,900,911,919,930,934,940,944,955,965,980,986,994,1002,1008,1013,1019,1027,1039,1048,1054,1063,1081,1084,1096,1102,1106,1112,1117,1126,1136,1143,1161,1171,1180,1189,1198,1205,1209,1219,1225,1230,1236,1242,1252,1260,1265,1273,1278,1295,1302,1308,1316,1325,1335,1346,1354,1358,1365,1375,1385,1395,1405,1418,1425,1435,1447,1457,1468,1474,1482,1498,1509,1523,1534,1542,1557,1569,1583,1597,1603,1617,1626,1632,1639,1646,1654,1665,1676,1690,1701,1708,1715,1726,1734,1739,1745,1751,1757,1763,1772,1778,1785,1792,1803,1818,1828,1847,1863,1882,1902,1911,1923,1927,1936,1942,1952,1962,1967,1972,1978,1985,1991,2002,2012,2021,2030,2040,2052,2060,2070,2082,2090,2100,2107,2114,2123,2130,2141,2153,2158,2163,2172,2185,2190,2194,2200,2211,2223,2242,2251,2266,2291,2301,2316,2333,2349,2373,2403,2425,2438,2453,2464,2477,2484,2494,2513,2525,2534,2559,2577,2596,2606,2618,2621,2629,2634,2644,2653,2660,2668,2674,2696,2706,2724,2751,2766,2792,2802,2812,2818,2826,2832,2842,2849,2853,2856,2865,2876,2890,2900,2916,2933,2942,2966,2985,3002,3037,3055,3073,3092,3108,3124,3160,3174,3191,3204,3218,3226,3242,3253,3266,3274,3281,3295,3303,3313,3328,3341,3354,3363,3371,3385,3392,3404,3410,3420,3429,3437,3450,3463,3470,3481,3489,3504,3515,3526,3534,3542,3554,3561,3568,3574,3586,3592,3602,3607,3616,3628,3637,3643,3652,3661,3668,3675,3687,3698,3706,3718,3738,3756,3773,3789,3810,3863,3902,3927,3971,3985,3997,4011,4035,4059,4068,4080,4090,4100,4111,4122,4129,4134,4143,4154,4161,4171,4184,4194,4202,4212,4219,4227,4237,4244,4251,4263,4273,4282,4292,4302,4316,4326,4341,4351,4361,4371,4382,4393,4415,4444,4457,4474,4485,4495,4500,4511,4521,4531,4537,4546,4557,4565,4574,4584,4594,4601,4610,4613,4623,4631,4646,4660,4676,4699,4722,4736,4764,4785,4810,4817,4847,4869,4887,4902,4927,4947,4980,5018,5054,5076,5086,5095,5101,5105,5111,5118,5127,5137,5144,5151,5157,5164,5173,5178,5186,5189,5197,5200,5210,5218,5225,5230,5237,5242,5256,5272,5305,5324,5361,5376,5411,5420,5440,5448,5467,5476,5495,5496,5527,5552,5582,5592,5614,5623,5663,5673,5703,5713,5739,5759,5801,5830,5849,5885,5910,5932,5949,5968,5994,6024,6044,6059,6080,6091,6099,6107,6126,6131,6139,6147,6158,6169,6177,6180,6189,6194,6198,6205,6208,6214,6217,6222,6226,6231];
+let RKM=null;
+function rkBuild(){if(RKM)return RKM;qpgBuild();const st={},en={},loc={};let cnt={};RKS.forEach((ab,k)=>{const nx=(RKS[k+1]||6237)-1;const f=a=>{let s=1;while(s<114&&QPF.off[s]<a)s++;return[s,a-QPF.off[s-1]]};const[s0,a0]=f(ab),[s1,a1]=f(nx);cnt[s0]=(cnt[s0]||0)+1;st[s0+':'+a0]=k+1;en[s1+':'+a1]=k+1;loc[k+1]=cnt[s0]});return RKM={st,en,loc}}
+const rkEndNo=(s,a)=>{const m=rkBuild();const k=m.en[s+':'+a];return k?m.loc[k]:0};
+const rkStartNo=(s,a)=>{const m=rkBuild();const k=m.st[s+':'+a];return k&&!(s===1&&a===1)?m.loc[k]:0};
+const toAr=n=>typeof toArDigits==='function'?toArDigits(n):String(n);
+async function mpBuild(pg){
+  try{if(document.fonts&&document.fonts.load)await document.fonts.load('24px IndoPak')}catch(e){}
+  const cx=mpBuild.cx||(mpBuild.cx=document.createElement('canvas').getContext('2d'));cx.font='24px IndoPak, Naskh, serif';
+  const W=t=>cx.measureText(t).width,gap=W('\u00a0')*.9;
+  const segs=[];let cur=null,hdrLines=0;
+  for(let i=pg.i0;i<=pg.i1;i++){const[s,a]=QPF.flat[i];
+    if(a===1){cur={hdr:s,items:[]};segs.push(cur);hdrLines+=(s!==1&&s!==9)?2:1}
+    else if(!cur){cur={hdr:0,items:[]};segs.push(cur)}
+    const ws=QD.ar[s-1][a-1].split(/\s+/).filter(Boolean);const ay=s+':'+a;
+    ws.forEach(w=>cur.items.push({h:`<span class="mw ay${bmHas(s,a)?' bm':''}${RD.qHas(s,a)?' rd':''}" data-a="qay" data-ay="${ay}">${w}</span>`,w:W(w)+gap}));
+    const rk=rkEndNo(s,a),rs=rkStartNo(s,a);
+    cur.items.push({h:`<span class="mw ayn" data-ay="${ay}"><span class="ayno" data-a="qno" data-ay="${ay}">${toAr(a)}</span>${rk?`<span class="rk" title="Ruku">ع<small>${toAr(rk)}</small></span>`:''}</span>`,w:W('0')*2.2+gap+(rk?W('ع')*1.4:0),glue:1})}
+  const L=Math.max(segs.length,15-hdrLines);const tot=segs.map(sg=>sg.items.reduce((x,y)=>x+y.w,0));const T0=tot.reduce((x,y)=>x+y,0)||1;
+  let nl=tot.map(t=>Math.max(1,Math.round(L*t/T0)));let sum=nl.reduce((x,y)=>x+y,0);
+  while(sum>L){let m=0;nl.forEach((n,i)=>{if(n>nl[m])m=i});if(nl[m]<=1)break;nl[m]--;sum--}
+  while(sum<L){let m=0;tot.forEach((t,i)=>{if(t/nl[i]>tot[m]/nl[m])m=i});nl[m]++;sum++}
+  let html='',lines=0;
+  segs.forEach((sg,si)=>{
+    if(sg.hdr){const s=sg.hdr;html+=`<div class="msb"><span>${s}</span><b>سُورَةُ ${SN[s-1][1]}</b><span>${QD.ar[s-1].length}</span></div>${s!==1&&s!==9?'<div class="mbism">بِسۡمِ اللّٰهِ الرَّحۡمٰنِ الرَّحِيۡمِ</div>':''}`}
+    const n=nl[si],target=tot[si]/n;let li=0,acc=0,row=[];const flush=(last)=>{if(!row.length)return;const w=row.reduce((x,y)=>x+y.w,0);html+=`<div class="ml${last&&w<target*.72?' short':''}" data-w="${Math.round(w)}">${row.map(x=>x.h).join('')}</div>`;lines++;row=[];acc=0};
+    sg.items.forEach((it,k)=>{
+      const lineEndTarget=target*(li+1);const cum=(sg._c=(sg._c||0)+it.w);
+      row.push(it);
+      const nxt=sg.items[k+1];
+      if(li<n-1&&nxt&&!nxt.glue){const over=(cum+(nxt.w))-lineEndTarget;if(cum>=lineEndTarget||(over>0&&Math.abs(over)>Math.abs(cum-lineEndTarget))){flush(false);li++}}
+    });flush(true)});
+  return html}
+function mpFit(){const box=document.querySelector('.mus-in');if(!box)return;const cw=box.clientWidth-22;let mx=0;box.querySelectorAll('.ml').forEach(l=>{mx=Math.max(mx,+l.dataset.w||0)});if(!mx||cw<=0)return;const fs=Math.max(12,Math.min(30,24*cw/(mx*1.015)));box.style.setProperty('--mfs',fs.toFixed(1)+'px')}
+window.addEventListener('resize',()=>{try{mpFit()}catch(e){}});
 async function renderMushaf(el){if(!el)return;const P=qpgBuild();QS.gp=Math.max(0,Math.min(QS.gp||0,P.length-1));const pg=P[QS.gp];
   QS.pos={s:pg.s0,a:pg.a0};store.set('quran4',QS);
-  const bisH='<div class="mbism">بِسۡمِ اللّٰهِ الرَّحۡمٰنِ الرَّحِيۡمِ</div>';let body='',open=false;
-  for(let i=pg.i0;i<=pg.i1;i++){const[s,a]=QPF.flat[i];
-    if(a===1){if(open)body+='</div>';body+=`<div class="msb"><span>${s}</span><b>سُورَةُ ${SN[s-1][1]}</b><span>${QD.ar[s-1].length}</span></div>${s!==1&&s!==9?bisH:''}`;open=false}
-    if(!open){body+='<div class="q-ar mfull">';open=true}
-    body+=`<span class="ay${bmHas(s,a)?' bm':''}${RD.qHas(s,a)?' rd':''}" data-a="qay" data-ay="${s}:${a}">${QD.ar[s-1][a-1]}<span class="ayno" data-a="qno" data-ay="${s}:${a}">${toArDigits(a)}</span></span> `}
-  if(open)body+='</div>';
+  const body=await mpBuild(pg);
   const tr=[];for(let i=pg.i0;i<=pg.i1;i++){const[s,a]=QPF.flat[i];tr.push(`<div class="mtr" data-ay="${s}:${a}"><b>${snm(s-1)} ${a}</b><div class="${TRC()}">${esc(QD.ur[s-1][a-1]||'')}</div></div>`)}
   const sn=pg.s0===pg.s1?SN[pg.s0-1][1]:SN[pg.s0-1][1]+' – '+SN[pg.s1-1][1];
   const bmOn=QS.bm.some(x=>x.s===pg.s0&&x.a===pg.a0);
@@ -153,6 +185,7 @@ async function renderMushaf(el){if(!el)return;const P=qpgBuild();QS.gp=Math.max(
    <div class="mus mflip" id="mus"><div class="mhd"><span>${snm(pg.s0-1)}</span><b>${pg.n}</b><span>${T('Para','Juz','پارہ','पारा')} ${pg.j}</span></div><div class="mus-in">${body}</div><div class="mft"><span>${sn}</span><button class="mbk${bmOn?' on':''}" data-a="qbmpos" aria-label="Bookmark">🔖</button></div></div>
    <details class="mtrd"><summary>${T('Is safhe ka tarjuma','Translation of this page','اس صفحے کا ترجمہ','इस पेज का अनुवाद')}</summary>${tr.join('')}</details>
    <div class="mpbar"><button data-a="mpspd"><b>${spd}x</b><small>${T('Raftaar','Speed','رفتار','रफ़्तार')}</small></button><button data-a="pgp" ${QS.gp<=0?'disabled':''}>◀<small>${T('Pichla','Prev','پچھلا','पिछला')}</small></button><button class="mpl" data-a="mppl" id="mpgP">${playing?'⏸':'▶'}<small>${T('Suno','Play','سنیں','सुनें')}</small></button><button data-a="pgn" ${QS.gp>=P.length-1?'disabled':''}>▶<small>${T('Agla','Next','اگلا','अगला')}</small></button><button data-a="mprep"><b>${rep===0?'∞':rep}</b><small>${T('Dohrana','Repeat','دہرائیں','दोहराएँ')}</small></button></div>`;
+  mpFit();setTimeout(mpFit,120);
   const gi=$('#mpgn');gi.onchange=()=>{const n=Math.max(3,Math.min(P.length+2,+gi.value||pg.n));QS.gp=n-3;QPA.left=1;saveQS();renderMushaf(el)};
   const qi=$('#qsearch');qi.oninput=debounce(()=>{QS.q=qi.value;saveQS();doQSearch()},250);if(QS.q&&!$('#mpsbox').hidden)doQSearch();
   if(QS.mpS){$('#mpsbox').hidden=false;doQSearch()}
