@@ -79,6 +79,7 @@ window.QS_INTRO_END=end;
 
 
 
+
 <title>Quranic Science | Arsalan Ahmed Shaikh</title>
 <meta name="description" content="Quranic Science by Arsalan Ahmed Shaikh: Quran and science videos with references, AI, Tajweed and Arabic courses, Flow Studio creative services, Al Aswad Dubai and ScentKart perfumes, and Bareerah Naturals Sunnah foods.">
 <meta name="keywords" content="Quranic Science, Arsalan Ahmed Shaikh, Quran and science, Islamic science Urdu, Tajweed class, Arabic class, AI masterclass, Flow Studio, Al Aswad Dubai perfume, ScentKart, Bareerah Naturals">
@@ -2221,7 +2222,7 @@ addEventListener("hashchange", () => { if (location.hash === "#app") open(); });
     var a = e.target.closest && e.target.closest('a[href*="drive.google.com"]'); if (!a) return;
     var href = a.getAttribute("href") || "", pdfs = [];
     try { pdfs = (JSON.stringify(DATA).match(/"pdfLink":"([^"]+)"/g) || []).map(function (x) { return x.slice(11, -1); }); } catch (er) {}
-    if (pdfs.indexOf(href) < 0) return;
+    if (pdfs.indexOf(href) < 0 && !/pdf/i.test(a.textContent || "")) return;
     e.preventDefault(); e.stopImmediatePropagation();
     var card = a.closest("article"), title = card ? ((card.querySelector("h3,h4") || {}).textContent || "") : "";
     var open = function () { window.qsSecureOpen(href, title || "Reference PDF", { pdf: true }); };
