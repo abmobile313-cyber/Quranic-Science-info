@@ -34,8 +34,8 @@ function nextPrayer(){if(!TM)return null;const now=new Date();let prev=null;
   for(const k of PRAY){const d=azanTime(k)||tdate(TM.t[k]);if(d>now){return{k,at:d,prev:prev||(TM_TMR&&tdate(TM.t.Isha,-1))||new Date(now-4*36e5)}}prev=d}
   const f=(TM_TMR||TM).t.Fajr;return{k:'Fajr',at:tdate(f,1),prev:tdate(TM.t.Isha),tomorrow:true}}
 /* azan = masjid azan time if set, else calculated prayer start. jamaat = masjid jamaat time if set, else azan/start + offset */
-const azanTime=(k,d=new Date())=>{const m=S.masjid&&S.masjid.az&&S.masjid.az[k];if(m&&hm(m))return atTime(m,d);if(!TM)return null;return atTime(TM.t[k],d)};
-const jamTime=(k,d=new Date())=>{const m=S.masjid&&S.masjid.jm&&S.masjid.jm[k];if(m&&hm(m))return atTime(m,d);const x=azanTime(k,d);if(!x)return null;x.setMinutes(x.getMinutes()+(S.jam[k]||0));return x};
+const azanTime=(k,d=new Date())=>{if(k==='Dhuhr'&&d.getDay()===5&&S.masjid&&hm(S.masjid.jz))return atTime(S.masjid.jz,d);const m=S.masjid&&S.masjid.az&&S.masjid.az[k];if(m&&hm(m))return atTime(m,d);if(!TM)return null;return atTime(TM.t[k],d)};
+const jamTime=(k,d=new Date())=>{if(k==='Dhuhr'&&d.getDay()===5&&S.masjid&&hm(S.masjid.ju))return atTime(S.masjid.ju,d);const m=S.masjid&&S.masjid.jm&&S.masjid.jm[k];if(m&&hm(m))return atTime(m,d);const x=azanTime(k,d);if(!x)return null;x.setMinutes(x.getMinutes()+(S.jam[k]||0));return x};
 const hhmmOf=d=>d?pad(d.getHours())+':'+pad(d.getMinutes()):'';
 
 /* ---------- hazri ---------- */
@@ -48,6 +48,9 @@ function hzStats(days){let j=0,a=0,q=0,tot=0;for(let i=0;i<days;i++){const h=HZ[
 /* ---------- sadqa / tilawat / azkar / mamool ---------- */
 const sdList=(d=dkey())=>{const v=SD[d];return Array.isArray(v)?v:(v&&v.done?[{amt:0,t:0}]:[])};
 const sdDone=(d=dkey())=>sdList(d).length>0;
+const sadqaSug=(d=dkey())=>S.sadqaAmt>0?Math.round(S.sadqaAmt):Math.round((typeof revSources==='function'?revSources().filter(x=>x.d===d).reduce((a,x)=>a+x.amt,0):0)*S.sadqaPct/100);
+function sadqaBody(d=dkey()){const a=sadqaSug(d),how=S.sadqaAmt>0?T('roz ka tay sadqa','fixed daily amount'):T(`kamai ka ${S.sadqaPct}%`,`${S.sadqaPct}% of earnings`);
+  return a>0?T(`Aaj ka sadqa ₹${a} (${how}). Nikaalna na bhoolein.`,`Today's sadaqah ₹${a} (${how}). Do not forget.`,`آج کا صدقہ ₹${a} (${how})۔ نکالنا نہ بھولیں۔`,`आज का सदक़ा ₹${a} (${how})। निकालना न भूलें।`):T(`Aaj ka sadqa nikaalna na bhoolein (${how}).`,`Do not forget today's sadaqah (${how}).`,`آج کا صدقہ نکالنا نہ بھولیں (${how})۔`,`आज का सदक़ा निकालना न भूलें (${how})।`)}
 function sdAdd(amt,note,date=dkey()){const l=sdList(date).filter(x=>x.t);l.push({amt:+amt||0,note:note||'',t:Date.now()});SD[date]=l;store.set('sadqa',SD);if(+amt>0&&typeof finAdd==='function')finAdd({type:'out',amt:+amt,cat:'Sadqa',biz:'personal',note:note||'Sadqa',date})}
 const tlToday=()=>TL.days[dkey()]||0;
 function tlAdd(n,date=dkey()){TL.days[date]=Math.max(0,(TL.days[date]||0)+n);store.set('tilawat',TL)}
@@ -72,6 +75,8 @@ function mkQ(kind,o={}){const n=VN(S);
     case 'azkar':return{kind,key:'az-'+dkey()+o.w,w:o.w,title:o.w==='m'?T('Subah ke azkar (100-100)','Morning azkar (100 each)'):T('Shaam ke azkar (100-100)','Evening azkar (100 each)'),
       voice:(o.w==='m'?'azkar_m':'azkar_e'),
       btns:[['go',T('Azkar kholo','Open azkar')],['z',T('Baad mein','Later')]]};
+    case 'gasht':return{kind,key:'gs-'+dkey()+o.w,w:o.w,title:T(`Kya aaj ka gasht (${GK.find(g=>g[0]===o.w)[1]()}) ho gaya?`,`Did you do today's gasht (${GK.find(g=>g[0]===o.w)[1]()})?`),voice:'gasht',
+      btns:[['y',T('✅ Ho gaya','✅ Done')],['n',T('❌ Nahi hua','❌ Not done')],['z',T('Baad mein','Later')]]};
     case 'mamool':return{kind,key:'mm-'+dkey(),title:T('Aaj ka deeni mamool (ta\'leem / dhai ghante)?','Today\'s deeni routine (taleem / 2.5 hrs)?'),
       voice:'taleem',
       btns:[['y',T('✅ Ho gaya','✅ Done')],['go',T('Kholo','Open')],['z',T('Baad mein','Later')]]};
@@ -90,11 +95,12 @@ function answerQ(id,b){const i=PQ.findIndex(x=>x.id===id);if(i<0)return;const q=
   else if(q.kind==='sadqa'){if(b==='y'){after='sadqa';sfx('success')}else{done=true;toast(T('Koshish karein, chhota sa bhi sadqa kaafi hai','Try to give, even a little counts'))}}
   else if(q.kind==='tilawat'){if(b==='y'){tlAdd(Math.max(0,S.tilTarget-tlToday()));sfx('success');toast(T('Mashaallah! Target poora ✅','Target done ✅'))}else if(b==='p')after='tl';else if(b==='q'){after='quran'}}
   else if(q.kind==='azkar'){if(b==='go')after='azkar'}
+  else if(q.kind==='gasht'){if(b==='y'){const dk=dkey();GS[dk]=GS[dk]||{};GS[dk][q.w]=1;saveGS();sfx('success');toast(T('Mashaallah! Gasht likh liya ✅','Gasht recorded ✅'))}else if(b==='n')toast(T('Koi baat nahi, agle hafte insha-Allah','No problem, next week insha-Allah'))}
   else if(q.kind==='mamool'){if(b==='y'){mmSet('talim',1);sfx('success')}else if(b==='go')after='mamool'}
   PQ.splice(i,1);savePQ();closeDlg();if(typeof refreshHome==='function')refreshHome();
   if(after==='sadqa')askSadqaAmt();else if(after==='tl')askTilAmt();else if(after==='quran'&&typeof go==='function')go('deen','quran');else if(after==='azkar'&&typeof go==='function')go('deen','azkar');else if(after==='mamool'&&typeof go==='function')go('deen','khabar');
   if(typeof rerender==='function')rerender()}
-function askSadqaAmt(){form(T('Sadqa likh lein','Log sadaqah'),[{k:'amt',l:T('Kitna (₹)? Khali chhod sakte hain','Amount (₹)? optional'),t:'number',m:'decimal'},{k:'note',l:T('Kis ko / note','To whom / note'),p:T('Masjid, madarsa, ghareeb…','Masjid, madrasa, needy…')}],o=>{sdAdd(o.amt,o.note);toast(T('Jazakallah! Sadqa likh liya ✅','Sadaqah recorded ✅'));if(typeof rerender==='function')rerender()})}
+function askSadqaAmt(){form(T('Sadqa likh lein','Log sadaqah'),[{k:'amt',l:T('Kitna (₹)? Khali chhod sakte hain','Amount (₹)? optional'),t:'number',m:'decimal',v:sadqaSug()||''},{k:'note',l:T('Kis ko / note','To whom / note'),p:T('Masjid, madarsa, ghareeb…','Masjid, madrasa, needy…')}],o=>{sdAdd(o.amt,o.note);toast(T('Jazakallah! Sadqa likh liya ✅','Sadaqah recorded ✅'));if(typeof rerender==='function')rerender()})}
 function askTilAmt(){form(T('Kitni ayaat parhi?','Ayahs recited?'),[{k:'n',l:T('Ayaat ki tadaad','Number of ayahs'),t:'number',m:'numeric',v:10}],o=>{tlAdd(+o.n||0);toast(T('Likh liya ✅','Recorded ✅'));if(typeof rerender==='function')rerender()})}
 
 /* ---------- scheduler ---------- */
@@ -105,12 +111,13 @@ function dayEvents(){
   const E=(key,at,win,run,late)=>{if(at)ev.push({key:d+'|'+key,at,win,run,late})};
   if(TM&&!TM.stale){
     PRAY.forEach(p=>{const t=TM.t[p];
-      if(S.azan)E('azan-'+p,azanTime(p),15*60000,()=>{const jt=t12(hhmmOf(jamTime(p)));notify(T(`${pname(p)} ka waqt ho gaya`,`${pname(p)} time`,`${pname(p)} کا وقت ہو گیا`,`${pname(p)} का वक़्त हो गया`),T(`Jamaat ${jt} par.`,`Jamaat at ${jt}.`,`جماعت ${jt} پر۔`,`जमात ${jt} पर।`)+(S.masjid.name?' · '+S.masjid.name:''),{k:'alert',tab:'deen',sub:'namaz',tag:'azan-'+p,voice:'az_'+p})});
+      if(S.waqtNotif!==false){const st=atTime(t),az=azanTime(p),same=S.azan&&az&&st&&Math.abs(az-st)<60000;if(st&&!same)E('wq-'+p,st,15*60000,()=>notify(T(`${pname(p)} ka waqt shuru`,`${pname(p)} time has begun`,`${pname(p)} کا وقت شروع`,`${pname(p)} का वक़्त शुरू`),T('Namaz ka waqt shuru ho gaya.','Prayer time has begun.','نماز کا وقت شروع ہو گیا۔','नमाज़ का वक़्त शुरू हो गया।'),{k:'alert',tab:'deen',sub:'namaz',tag:'wq-'+p,voice:(p==='Dhuhr'&&isFriD()?'juma':'az_'+p)}))}
+      if(S.azan)E('azan-'+p,azanTime(p),15*60000,()=>{const jt=t12(hhmmOf(jamTime(p)));notify(T(`${pname(p)} ka waqt ho gaya`,`${pname(p)} time`,`${pname(p)} کا وقت ہو گیا`,`${pname(p)} का वक़्त हो गया`),T(`Jamaat ${jt} par.`,`Jamaat at ${jt}.`,`جماعت ${jt} پر۔`,`जमात ${jt} पर।`)+(S.masjid.name?' · '+S.masjid.name:''),{k:'alert',tab:'deen',sub:'namaz',tag:'azan-'+p,voice:(p==='Dhuhr'&&isFriD()?'juma':'az_'+p)})});
       if(S.masjid.pre){const pj=jamTime(p);if(pj){pj.setMinutes(pj.getMinutes()-10);E('pre-'+p,pj,10*60000,()=>notify(T(`${pname(p)} ki jamaat 10 min mein`,`${pname(p)} jamaat in 10 min`,`${pname(p)} کی جماعت 10 منٹ میں`,`${pname(p)} की जमात 10 मिनट में`),S.masjid.name||'',{k:'info',tab:'deen',sub:'namaz',tag:'pre-'+p,silent:true}))}}
       const aq=jamTime(p);if(aq){aq.setMinutes(aq.getMinutes()+S.askAfter);
         E('ask-'+p,aq,Infinity,(late)=>{if(!hzToday()[p])addQ(mkQ('hazri',{p}),{silent:late>45*60000})})}});}
   const dl=(k,hhmm,fn)=>E(k,atTime(hhmm),20*60000,fn);
-  dl('sdn',S.sadqaNotif,()=>{if(!sdDone())notify(T('Sadqa ka waqt','Time for sadaqah'),T('Aaj ka sadqa nikaalna na bhoolein.','Do not forget today\'s sadaqah.'),{k:'alert',tab:'kaam',sub:'paisa',voice:'sadqa_remind'})});
+  dl('sdn',S.sadqaNotif,()=>{if(!sdDone())notify(T('Sadqa ka waqt','Time for sadaqah'),sadqaBody(),{k:'alert',tab:'kaam',sub:'paisa',voice:'sadqa_remind'})});
   E('sda',atTime(S.sadqaAsk),Infinity,(late)=>{if(!sdDone())addQ(mkQ('sadqa'),{silent:late>60*60000})});
   dl('tln',S.tilNotif,()=>{if(tlToday()<S.tilTarget)notify(T('Tilawat ka waqt','Time for recitation'),T(`Aaj ka target ${S.tilTarget} ayaat.`,`Today's target ${S.tilTarget} ayahs.`,`آج کا ہدف ${S.tilTarget} آیات۔`,`आज का लक्ष्य ${S.tilTarget} आयात।`),{k:'alert',tab:'deen',sub:'quran',voice:'tilawat_remind'})});
   E('tla',atTime(S.tilAsk),Infinity,(late)=>{if(tlToday()<S.tilTarget)addQ(mkQ('tilawat'),{silent:late>60*60000})});
@@ -118,6 +125,16 @@ function dayEvents(){
   dl('aze',S.azE,()=>{if(azGet('k3e')<100||azGet('iste')<100||azGet('dure')<100)addQ(mkQ('azkar',{w:'e'}))});
   E('mm',atTime(S.mamool),Infinity,(late)=>{if(!mmToday().talim)addQ(mkQ('mamool'),{silent:late>60*60000})});
   if(dow===5)dl('juma',(TM&&TM.t.Dhuhr)?pad(Math.max(0,(hm(TM.t.Dhuhr)||[12])[0]-3))+':00':'09:00',()=>notify(T('Juma Mubarak! 🌙','Jumuah Mubarak! 🌙'),T('Ghusl, saaf libaas, Surah Kahf, durood ki kasrat, jaldi masjid.','Ghusl, clean clothes, Surah Kahf, much durood, go early.'),{k:'alert',tab:'deen',sub:'quran',voice:'juma'}));
+  if(typeof mkEvents==='function')mkEvents(new Date(),TM).forEach(e=>E(e.k,e.at,10*60000,()=>notify(e.title,e.body,{k:e.silent?'info':'alert',tab:'deen',sub:'namaz',voice:e.voice,silent:!!e.silent})));
+  if(typeof jumaEvents==='function')jumaEvents(new Date(),p=>azanTime(p),p=>jamTime(p)).forEach(e=>E(e.k,e.at,20*60000,()=>notify(e.title,e.body,{k:'alert',tab:e.tab,sub:e.sub,voice:e.voice})));
+  if(typeof duaEvents==='function')duaEvents(new Date()).forEach(e=>E(e.k,e.at,20*60000,()=>notify(e.title,e.body,{k:'alert',tab:e.tab,sub:e.sub,voice:e.voice})));
+  if(typeof gashtEvents==='function')gashtEvents(new Date(),p=>azanTime(p),p=>jamTime(p)).forEach(e=>e.ask?E(e.k,e.at,Infinity,(late)=>{const dk=dkey();if(!(GS[dk]&&GS[dk][e.ask]))addQ(mkQ('gasht',{w:e.ask}),{silent:late>60*60000})}):E(e.k,e.at,20*60000,()=>notify(e.title,e.body,{k:'alert',tab:e.tab,sub:e.sub,voice:e.voice})));
+  if(typeof cevEvents==='function')cevEvents(new Date()).forEach(e=>E(e.k,e.at,20*60000,()=>notify(e.title,e.body,{k:'alert',tab:e.tab,sub:e.sub,voice:e.voice})));
+  if(typeof wkEvents==='function')wkEvents(new Date()).forEach(e=>E(e.k,e.at,20*60000,()=>notify(e.title,e.body,{k:'alert',tab:e.tab,sub:e.sub,voice:e.voice})));
+  if(typeof almEvents==='function')almEvents(new Date()).forEach(e=>E(e.k,e.at,10*60000,()=>{if(typeof almWeb==='function')almWeb(e)}));
+  if(typeof pexEvents==='function')pexEvents(new Date()).forEach(e=>E(e.k,e.at,6*3600000,()=>notify(e.title,e.body,{k:'alert',tab:e.tab,sub:e.sub,voice:e.voice})));
+  if(typeof tipEvents==='function')tipEvents(new Date()).forEach(e=>E(e.k,e.at,6*3600000,()=>notify(e.title,e.body,{k:'alert',tab:e.tab,sub:e.sub,voice:e.voice})));
+  if(typeof reportEvents==='function')reportEvents(new Date()).forEach(e=>E(e.k,e.at,6*3600000,()=>notify(e.title,e.body,{k:'alert',tab:e.tab,sub:e.sub,voice:e.voice})));
   const J=S.job;if(J.on&&(J.days||[1,2,3,4,5,6]).includes(dow)){
     dl('jl',J.login,()=>notify(T('Job ka waqt! ⏰','Job login time! ⏰'),T('Login karne ka waqt ho gaya.','Time to log in.'),{k:'alert',tab:'kaam',sub:'waqt',voice:'job_login'}));
     dl('jb',J.brk,()=>notify(T('Break ka waqt ☕','Break time ☕'),T('Thoda aaram karein, namaz/khana.','Take a rest, prayer/lunch.'),{k:'alert',voice:'break_start'}));

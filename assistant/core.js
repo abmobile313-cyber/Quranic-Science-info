@@ -41,20 +41,25 @@ const IDB={db:null,open(){return this.db||(this.db=new Promise((res,rej)=>{try{c
 
 /* ---------- settings ---------- */
 const DEF_S={name:'Arsalan',lang:'ur',theme:'dark',city:'Mumbai',country:'India',lat:null,lng:null,method:1,school:1,
-  jam:{Fajr:25,Dhuhr:15,Asr:15,Maghrib:5,Isha:15},askAfter:10,azan:true,
+  jam:{Fajr:25,Dhuhr:15,Asr:15,Maghrib:5,Isha:15},askAfter:10,azan:true,waqtNotif:true,autoLoc:true,hsVoice:'tts',ttsRate:0.95,setupDone:false,lock:{on:false,hash:'',salt:'',rc:'',len:4,mode:'all',after:1,bio:true,tries:0},
   voice:true,sfx:true,notif:false,
-  masjid:{name:'',az:{},jm:{},pre:false},
-  sadqaNotif:'10:00',sadqaAsk:'21:00',sadqaPct:2.5,
+  masjid:{name:'',az:{},jm:{},pre:false,jz:'',ju:''},
+  sadqaNotif:'10:00',sadqaAsk:'21:00',sadqaPct:2.5,sadqaAmt:0,
   tilNotif:'06:00',tilAsk:'21:30',tilTarget:20,
   azM:'06:30',azE:'17:30',
   job:{on:false,login:'09:30',brk:'13:00',brkEnd:'13:45',leave:'18:00'},
   review:'22:00',mamool:'21:00',rate:88,fbOn:false,qs:32,
+  dua:{wakeOn:true,wake:'05:00',sleepOn:true,sleep:'22:30',mealOn:true,b:'08:30',l:'13:30',d:'20:30',after:20,dailyOn:true,daily:'19:00'},
+  gasht:{on:false,own:{d:2,p:'Asr'},nbr:{d:4,p:'Asr'}},
+  favs:[],favAct:0,
+  mk:{on:true,rise:15,zawal:10,set:20},
   feeds:{}};
 let S=Object.assign({},DEF_S,store.get('settings',{}));
 if(!['ur','ro','hi','en'].includes(S.lang))S.lang='ur';
-S.masjid=Object.assign({name:'',az:{},jm:{},pre:false},S.masjid||{});S.masjid.az=S.masjid.az||{};S.masjid.jm=S.masjid.jm||{};
-S.jam=Object.assign({},DEF_S.jam,S.jam||{});S.job=Object.assign({},DEF_S.job,S.job||{});S.feeds=S.feeds||{};
+S.masjid=Object.assign({name:'',az:{},jm:{},pre:false,jz:'',ju:''},S.masjid||{});S.masjid.az=S.masjid.az||{};S.masjid.jm=S.masjid.jm||{};
+S.jam=Object.assign({},DEF_S.jam,S.jam||{});S.job=Object.assign({},DEF_S.job,S.job||{});S.feeds=S.feeds||{};S.dua=Object.assign({},DEF_S.dua,S.dua||{});S.lock=Object.assign({},DEF_S.lock,S.lock||{});S.gasht=Object.assign({},DEF_S.gasht,S.gasht||{});S.gasht.own=Object.assign({},DEF_S.gasht.own,S.gasht.own||{});S.gasht.nbr=Object.assign({},DEF_S.gasht.nbr,S.gasht.nbr||{});S.favs=Array.isArray(S.favs)?S.favs:[];S.mk=Object.assign({},DEF_S.mk,S.mk||{});
 const saveS=()=>store.set('settings',S);
+if(!S.dua.m26){S.dua.wakeOn=S.dua.sleepOn=S.dua.mealOn=S.dua.dailyOn=true;S.dua.m26=1;saveS()}
 
 /* ---------- language: T(roman, english, urdu?, hindi?) — Urdu (Nastaliq) / Hindi / English ---------- */
 const LANGS=[['ur','اردو'],['ro','Roman Urdu'],['hi','हिन्दी'],['en','English']];
@@ -64,10 +69,12 @@ const I18N=(typeof window!=='undefined'&&window.I18N_DATA)||{};
 const T=(r,e,u,h)=>{const l=S.lang;if(l==='ro')return r;if(l==='en')return e!=null?e:r;
   if(l==='ur'){if(u)return u;const x=I18N[r];return x&&x[0]?x[0]:r}
   if(h)return h;const x=I18N[r];return x&&x[1]?x[1]:r};
-const PN={Fajr:['فجر','फ़ज्र','Fajr'],Sunrise:['طلوعِ آفتاب','सूर्योदय','Sunrise'],Dhuhr:['ظہر','ज़ुहर','Dhuhr'],Asr:['عصر','अस्र','Asr'],Maghrib:['مغرب','मग़रिब','Maghrib'],Isha:['عشاء','इशा','Isha']};
+const PN={Fajr:['فجر','फ़ज्र','Fajr'],Sunrise:['طلوعِ آفتاب','सूर्योदय','Sunrise'],Dhuhr:['ظہر','ज़ुहर','Dhuhr'],Asr:['عصر','अस्र','Asr'],Maghrib:['مغرب','मग़रिब','Maghrib'],Isha:['عشاء','इशा','Isha'],Jumma:['جمعہ','जुमा','Jumma']};
 const nm=()=>S.name==='Arsalan'?(S.lang==='ur'?'ارسلان':S.lang==='hi'?'अरसलान':'Arsalan'):S.name;
 const dn=s=>T(s,s); /* display-translate known default data strings */
-const pname=k=>(PN[k]||[k,k,k])[S.lang==='ur'?0:S.lang==='hi'?1:2];
+var PN_D=null;/* set while planning another day */
+const isFriD=d=>(d||PN_D||new Date()).getDay()===5;
+const pname=(k,d)=>{if(k==='Dhuhr'&&isFriD(d))k='Jumma';return(PN[k]||[k,k,k])[S.lang==='ur'?0:S.lang==='hi'?1:2]};
 function applyLang(){const h=document.documentElement;h.lang=S.lang;h.dir=S.lang==='ur'?'rtl':'ltr';h.dataset.lang=S.lang;
   const a=$('#spSub'),b=$('#spTap');if(a)a.textContent=T('Namaz • Quran • Kaarobar • Kaam • Noor','Prayer • Quran • Business • Work • Noor');if(b)b.textContent=T('Tap karein — shuru','Tap to begin')}
 const PRAY=['Fajr','Dhuhr','Asr','Maghrib','Isha'];
@@ -130,11 +137,11 @@ const sfx=n=>AU.play(n);
 
 /* ---------- VOICE: recorded ElevenLabs clips (no TTS anywhere) ---------- */
 const VO={a:null,blobs:{},
-  IDS:['az_Fajr','az_Dhuhr','az_Asr','az_Maghrib','az_Isha','hz_Fajr','hz_Dhuhr','hz_Asr','hz_Maghrib','hz_Isha','sadqa_ask','sadqa_remind','tilawat_ask','tilawat_remind','azkar_m','azkar_e','taleem','juma','job_login','break_start','break_end','leave','review','task','reminder','call','biz','class_1h','class_10m','timer_nudge','timer_start','test','voice_on','alert'],
-  url(id,l){return 'voice/'+(l||VL())+'/'+id+'.mp3'},
+  IDS:['az_Fajr','az_Dhuhr','az_Asr','az_Maghrib','az_Isha','hz_Fajr','hz_Dhuhr','hz_Asr','hz_Maghrib','hz_Isha','sadqa_ask','sadqa_remind','tilawat_ask','tilawat_remind','azkar_m','azkar_e','taleem','juma','job_login','break_start','break_end','leave','review','task','reminder','call','biz','class_1h','class_10m','timer_nudge','timer_start','test','voice_on','gasht','makruh','alert'],
+  url(id,l){if(String(id).startsWith('dua_'))return 'dua/'+id+'.mp3';return 'voice/'+(l||VL())+'/'+id+'.mp3'},
   /* clips are fetched as blobs (works offline through the service worker cache) */
   async blob(id){const k=S.lang+'/'+id;if(this.blobs[k])return this.blobs[k];const r=await fetch(this.url(id));if(!r.ok)throw new Error('clip');const b=await r.blob();if(b.size<2000)throw new Error('clip');return this.blobs[k]=URL.createObjectURL(b)},
-  async say(id){if(!S.voice||!id||typeof id!=='string')return;
+  async say(id){if(!id||typeof id!=='string')return;if(!S.voice&&!id.startsWith('dua_'))return;
     try{this.stop();let u;try{u=await this.blob(id)}catch(e){if(id==='alert')return;u=await this.blob('alert')}
       const au=new Audio(u);this.a=au;await au.play()}catch(e){}},
   warm(){if(!navigator.onLine)return;let i=0;const next=()=>{if(i>=this.IDS.length)return;this.blob(this.IDS[i++]).catch(()=>{}).finally(()=>setTimeout(next,150))};next()},
@@ -153,7 +160,7 @@ async function notify(title,body,o={}){
   /* o: tag, tab, sub, voice (string/obj, default title+body), silent, q (pending question id) */
   const rec={id:uid(),t:Date.now(),title,body:body||'',tab:o.tab||null,sub:o.sub||null,r:false,k:o.k||'info'};
   NLOG.unshift(rec);NLOG=NLOG.slice(0,150);store.set('nlog',NLOG);updBell();
-  if(!document.hidden){toast('🔔 '+title+(body?' — '+body.slice(0,60):''),3600);sfx(o.k==='alert'?'chime':'ding')}
+  if(!document.hidden&&!(typeof LCK!=='undefined'&&LCK.locked)){toast('🔔 '+title+(body?' — '+body.slice(0,60):''),3600);sfx(o.k==='alert'?'chime':'ding')}
   if(S.notif&&'Notification' in window&&Notification.permission==='granted'){
     try{const opt={body:body||'',icon:'icon-192.png',badge:'badge-96.png',tag:o.tag||rec.id,renotify:true,data:{tab:o.tab,sub:o.sub,q:o.q||'',n:pendingN()},actions:o.actions||[]};
       const reg=navigator.serviceWorker&&await navigator.serviceWorker.getRegistration();

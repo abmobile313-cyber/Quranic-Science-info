@@ -5,17 +5,18 @@ window.__nativeOpen=function(tab,sub){try{if(typeof go==='function')go(tab||'hom
 function natItems(){
   const out=[],now=Date.now();
   const add=(at,title,body,voice,o)=>{if(at&&at.getTime()>now+3000)out.push(Object.assign({at:at.getTime(),title:title||'',body:body||'',voice:voice||'alert',tab:'home',sub:''},o||{}))};
-  for(let i=0;i<4;i++){
-    const base=addDays(new Date(),i),tm=(i===1&&TM_TMR)?TM_TMR:TM,dow=base.getDay(),td=i===0;
+  for(let i=0;i<6;i++){
+    const base=addDays(new Date(),i),tm=(i===1&&TM_TMR)?TM_TMR:TM,dow=base.getDay(),td=i===0;PN_D=base;const fri=dow===5,vz=p=>(p==='Dhuhr'&&fri)?'juma':'az_'+p;
     const at=h=>atTime(h,base);
-    const az=p=>{if(!tm)return null;const m=S.masjid&&S.masjid.az&&S.masjid.az[p];return(m&&hm(m))?at(m):at(tm.t[p])};
-    const jm=p=>{const m=S.masjid&&S.masjid.jm&&S.masjid.jm[p];if(m&&hm(m))return at(m);const x=az(p);if(!x)return null;x.setMinutes(x.getMinutes()+(S.jam[p]||0));return x};
+    const az=p=>{if(!tm)return null;if(p==='Dhuhr'&&fri&&S.masjid&&hm(S.masjid.jz))return at(S.masjid.jz);const m=S.masjid&&S.masjid.az&&S.masjid.az[p];return(m&&hm(m))?at(m):at(tm.t[p])};
+    const jm=p=>{if(p==='Dhuhr'&&fri&&S.masjid&&hm(S.masjid.ju))return at(S.masjid.ju);const m=S.masjid&&S.masjid.jm&&S.masjid.jm[p];if(m&&hm(m))return at(m);const x=az(p);if(!x)return null;x.setMinutes(x.getMinutes()+(S.jam[p]||0));return x};
     if(tm)PRAY.forEach(p=>{
+      if(S.waqtNotif!==false){const st=at(tm.t[p]),a0=az(p),same=S.azan&&a0&&st&&Math.abs(a0-st)<60000;if(st&&!same)add(st,T(`${pname(p)} ka waqt shuru`,`${pname(p)} time has begun`,`${pname(p)} کا وقت شروع`,`${pname(p)} का वक़्त शुरू`),T('Namaz ka waqt shuru ho gaya.','Prayer time has begun.','نماز کا وقت شروع ہو گیا۔','नमाज़ का वक़्त शुरू हो गया।'),vz(p),{tab:'deen',sub:'namaz'})}
       if(S.azan){const j=jm(p),jt=j?t12(hhmmOf(j)):'';
-        add(az(p),T(`${pname(p)} ka waqt ho gaya`,`${pname(p)} time`,`${pname(p)} کا وقت ہو گیا`,`${pname(p)} का वक़्त हो गया`),T(`Jamaat ${jt} par.`,`Jamaat at ${jt}.`,`جماعت ${jt} پر۔`,`जमात ${jt} पर।`)+(S.masjid.name?' · '+S.masjid.name:''),'az_'+p,{tab:'deen',sub:'namaz'})}
+        add(az(p),T(`${pname(p)} ka waqt ho gaya`,`${pname(p)} time`,`${pname(p)} کا وقت ہو گیا`,`${pname(p)} का वक़्त हो गया`),T(`Jamaat ${jt} par.`,`Jamaat at ${jt}.`,`جماعت ${jt} پر۔`,`जमात ${jt} पर।`)+(S.masjid.name?' · '+S.masjid.name:''),vz(p),{tab:'deen',sub:'namaz'})}
       if(S.masjid.pre){const pj=jm(p);if(pj){pj.setMinutes(pj.getMinutes()-10);add(pj,T(`${pname(p)} ki jamaat 10 min mein`,`${pname(p)} jamaat in 10 min`,`${pname(p)} کی جماعت 10 منٹ میں`,`${pname(p)} की जमात 10 मिनट में`),S.masjid.name||'','silent',{tab:'deen',sub:'namaz'})}}
-      const aq=jm(p);if(aq&&!(td&&hzToday()[p])){aq.setMinutes(aq.getMinutes()+S.askAfter);add(aq,mkQ('hazri',{p}).title,'','hz_'+p)}});
-    if(!(td&&sdDone()))add(at(S.sadqaNotif),T('Sadqa ka waqt','Time for sadaqah'),T('Aaj ka sadqa nikaalna na bhoolein.','Do not forget today\'s sadaqah.'),'sadqa_remind',{tab:'kaam',sub:'paisa'});
+      const aq=jm(p);if(aq&&!(td&&hzToday()[p])){aq.setMinutes(aq.getMinutes()+S.askAfter);add(aq,mkQ('hazri',{p}).title,'',(p==='Dhuhr'&&fri)?'alert':'hz_'+p)}});
+    if(!(td&&sdDone()))add(at(S.sadqaNotif),T('Sadqa ka waqt','Time for sadaqah'),sadqaBody(dkey(base)),'sadqa_remind',{tab:'kaam',sub:'paisa'});
     if(!(td&&sdDone()))add(at(S.sadqaAsk),mkQ('sadqa').title,'','sadqa_ask');
     if(!(td&&tlToday()>=S.tilTarget)){
       add(at(S.tilNotif),T('Tilawat ka waqt','Time for recitation'),T(`Aaj ka target ${S.tilTarget} ayaat.`,`Today's target ${S.tilTarget} ayahs.`,`آج کا ہدف ${S.tilTarget} آیات۔`,`आज का लक्ष्य ${S.tilTarget} आयात।`),'tilawat_remind',{tab:'deen',sub:'quran'});
@@ -29,11 +30,21 @@ function natItems(){
       add(at(J.brk),T('Break ka waqt ☕','Break time ☕'),T('Thoda aaram karein, namaz/khana.','Take a rest, prayer/lunch.'),'break_start');
       add(at(J.brkEnd),T('Break khatam ▶️','Break over ▶️'),T('Wapas kaam par.','Back to work.'),'break_end');
       add(at(J.leave),T('Chhutti ka waqt 🏁','Leave time 🏁'),T('Aaj ka kaam samet lein.','Wrap up for the day.'),'leave')}
+    if(typeof mkEvents==='function')mkEvents(base,tm).forEach(e=>add(e.at,e.title,e.body,e.silent?'silent':e.voice,{tab:'deen',sub:'namaz'}));
+    if(typeof jumaEvents==='function')jumaEvents(base,az,jm).forEach(e=>add(e.at,e.title,e.body,e.voice,{tab:e.tab,sub:e.sub}));
+    if(typeof duaEvents==='function')duaEvents(base).forEach(e=>add(e.at,e.title,e.body,e.voice,{tab:e.tab,sub:e.sub}));
+    if(typeof gashtEvents==='function')gashtEvents(base,az,jm).forEach(e=>add(e.at,e.title,e.body||'',e.voice,{tab:e.tab,sub:e.sub}));
+    if(typeof wkEvents==='function')wkEvents(base).forEach(e=>add(e.at,e.title,e.body,e.voice,{tab:e.tab,sub:e.sub}));
+    if(typeof cevEvents==='function')cevEvents(base).forEach(e=>add(e.at,e.title,e.body,e.voice,{tab:e.tab,sub:e.sub}));
+    if(typeof almEvents==='function')almEvents(base).forEach(e=>add(e.at,e.title,e.body,'alert',{tab:e.tab,sub:e.sub,alarm:1,aid:e.aid,snooze:e.snooze,duaRaw:e.duaRaw,duaText:e.duaText,duaLang:e.duaLang}));
+    if(typeof pexEvents==='function')pexEvents(base).forEach(e=>add(e.at,e.title,e.body,e.voice,{tab:e.tab,sub:e.sub}));
+    if(typeof tipEvents==='function')tipEvents(base).forEach(e=>add(e.at,e.title,e.body,e.voice,{tab:e.tab,sub:e.sub}));
+    if(typeof reportEvents==='function')reportEvents(base).forEach(e=>add(e.at,e.title,e.body,e.voice,{tab:e.tab,sub:e.sub}));
     add(at(S.review),T('Aaj ka hisaab 🌙','Daily review 🌙'),'','review');
   }
   try{if(typeof TASKS!=='undefined')TASKS.forEach(t=>{if(!t.done&&t.due)add(new Date(t.due),T('Kaam ka waqt','Task due'),t.title,'task',{tab:'kaam',sub:'tasks'})});
     if(typeof ALERTS!=='undefined')ALERTS.forEach(a=>{if(a.at)add(new Date(a.at),T('Yaad-dahani','Reminder'),a.title,'reminder',{tab:'kaam',sub:'tasks'})})}catch(e){}
-  out.sort((a,b)=>a.at-b.at);return out.slice(0,180)}
+  PN_D=null;out.sort((a,b)=>a.at-b.at);return out.slice(0,380)}
 let _natLast='';
 function nativeSync(){
   if(!NAT)return;
