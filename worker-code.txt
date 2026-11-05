@@ -6,6 +6,7 @@
  * 2) Cron (every 15 min) reminder 30 minutes before each class (classes are 1 hour), and "certificate ready" messages.
  *    Cheapest first: free app alert → free WhatsApp reply (student wrote to us in last 24 h) → paid WhatsApp template.
  * 3) GET  /health     quick check that the worker and its settings are in place.
+ *    GET  /owner-feed owner Command Center data (hub.html); needs the owner's Google login token.
  * 4) Cron also: tells students when a teacher answered their doubt (free app alert), auto-replies on the bot number,
  *    once an hour copies students' public weekly reviews into voice/reviews (one read per website visitor),
  *    and once a day (2 am India time) saves a backup of all student data in Cloudflare KV (binding BACKUP, last 14 days).
@@ -157,6 +158,19 @@ export async function notify(env, fs, user, msg, now = Date.now(), fetchImpl = f
   return { via: "failed", error: r.error || r.status };
 }
 
+/* ---------- owner Command Center: free alerts to the owner's phone + a feed shown in /hub.html ---------- */
+export const OWNER_EMAILS = ["quranicscience01@gmail.com"];
+const ownerEmails = env => String(env.OWNER_EMAILS || OWNER_EMAILS.join(",")).split(",").map(x => x.trim().toLowerCase()).filter(Boolean);
+export async function ownerAlert(env, fs, msg, now = Date.now(), fetchImpl = fetch) {
+  const via = [];
+  try { await fs.add("ownerFeed", { title: msg.title, body: msg.body, kind: msg.kind || "info", ts: now }); } catch (e) {}
+  for (const em of ownerEmails(env)) {
+    let us = []; try { us = await fs.query("users", [["email", "EQUAL", em]], 3); } catch (e) {}
+    for (const u of us) via.push((await notify(env, fs, u, Object.assign({ url: (env.SITE || "https://quranicscience.info") + "/hub.html", tag: "owner-" + (msg.kind || "info"), paid: false }, msg), now, fetchImpl).catch(() => ({ via: "error" }))).via);
+  }
+  return via;
+}
+
 /* ---------- payment → classes ---------- */
 /* course short forms, same as the website: student code ARS863M + TAJ = ARS863M-TAJ */
 /* combo courses: paying for the combo also opens each course inside it, so combo students join the same live batches */
@@ -209,12 +223,15 @@ export async function handlePayment(env, evt, fs, fetchImpl = fetch) {
     const cands = AMOUNTS_MULTI[`${info.currency}:${Math.round(info.amount)}`] || [];
     if (cands.includes(user.lastEnroll.course)) course = user.lastEnroll.course;
   }
-  if (!course || !user) { await fs.merge(`payments/${info.id}`, Object.assign(rec, { status: "needs-owner", reason: !course ? "course link not recognised" : "no student with this mobile/email" })); return { pending: rec }; }
+  if (!course || !user) { await fs.merge(`payments/${info.id}`, Object.assign(rec, { status: "needs-owner", reason: !course ? "course link not recognised" : "no student with this mobile/email" }));
+    await ownerAlert(env, fs, { kind: "needs", title: "⚠️ Payment needs you", body: `${info.currency} ${info.amount} – ${!course ? "course not recognised" : "no student account with this mobile/email"} (${info.email || info.phone || info.id}). Open the Command Center to approve.` }, Date.now(), fetchImpl).catch(() => {});
+    return { pending: rec }; }
   /* reference PDF download (₹50 / international): one paid download credit, kept in the protected "paid" map */
   if (course === "ref-pdf") {
     await fs.merge(`users/${user.id}`, { paid: { ["refpdf_" + info.id]: Date.now() } });
     await fs.merge(`payments/${info.id}`, Object.assign(rec, { status: "applied" }));
     await notify(env, fs, Object.assign({ phone: info.phone }, user), { title: "PDF download unlocked ✓", body: "Your payment is received. Go back to the website and tap Download on the PDF.", url: (env.SITE || "https://quranicscience.info") + "/#quran", tag: "pdf", paid: false }, Date.now(), fetchImpl).catch(() => {});
+    await ownerAlert(env, fs, { kind: "pay", title: `💰 PDF sold – ${info.currency} ${info.amount}`, body: `${user.name || "A student"} bought a reference PDF download.` }, Date.now(), fetchImpl).catch(() => {});
     return { applied: { uid: user.id, course } };
   }
   const inc = COMBOS[course] || [], acc = { [course]: true }, pd = { [course]: Date.now() }; inc.forEach(k => { acc[k] = true; pd[k] = Date.now(); });
@@ -229,6 +246,7 @@ export async function handlePayment(env, evt, fs, fetchImpl = fetch) {
   const bl = { M: "Morning batch", E: "Evening batch" }[user.batch] || "";
   await fs.merge(`receipts/${info.id}`, { uid: user.id, name: user.name || "", code: user.code ? courseCode(user.code, course) : "", course, courseName, amount: info.amount, currency: info.currency, paymentId: info.id, batch: bl ? bl + " · 1 hour classes, timing shared in your batch" : "", ts: Date.now() });
   const sent = await notify(env, fs, Object.assign({ phone: info.phone }, user), { title: "Payment received ✓", body: `Assalamu Alaikum ${user.name || ""}, ${info.notes.apology ? "we are very sorry this message reached you late – our system was being updated. " : ""}your fee for ${courseName} is received. Your classes are open now. Your receipt: ${(env.SITE || "https://quranicscience.info")}/#receipt=${info.id}\n📱 Your Quranic Science app is ready: download it from ${(env.SITE || "https://quranicscience.info")} (Android app), log in with Google and enter your student code ${user.code || ""}.`, url: (env.SITE || "https://quranicscience.info") + "/#learn", tag: "pay", paid: true, template: "payment_confirmed", params: [user.name || "Student", courseName, `${courseCode(user.code, course)} · Your app is ready – log in with code ${user.code || ""}${info.notes.apology ? " · Sorry for the late message, our system was being updated" : ""}`] }, Date.now(), fetchImpl);
+  await ownerAlert(env, fs, { kind: "pay", title: `💰 New payment – ${info.currency} ${info.amount}`, body: `${user.name || "A student"} paid for ${courseName}. Classes opened automatically.` }, Date.now(), fetchImpl).catch(() => {});
   return { applied: { uid: user.id, course }, sent };
 }
 
@@ -521,6 +539,14 @@ Any question? Reply 4 to talk to a person.`, fetchImpl);
       await fs.merge("voice/reviews", { list, avg, count: all.length, at: now }); out.reviews = all.length;
     } catch (e) { out.errors.push("reviews: " + String(e.message || e).slice(0, 120)); }
   }
+  /* owner alert: new student sign-ups since the last run (free app/web alert) */
+  try { const w = (await fs.get("config/ownerWatch")) || {}, last = w.lastUser || now - 15 * 60000;
+    const fresh = (await fs.query("users", [["joinedAt", "GREATER_THAN", last]], 50)).sort((a, b) => (a.joinedAt || 0) - (b.joinedAt || 0));
+    if (fresh.length === 1) await ownerAlert(env, fs, { kind: "signup", title: "🎓 New student signed up", body: `${fresh[0].name || "Someone"}${fresh[0].country ? " (" + fresh[0].country + ")" : ""} just made an account.` }, now, fetchImpl);
+    else if (fresh.length > 1) await ownerAlert(env, fs, { kind: "signup", title: `🎓 ${fresh.length} new students signed up`, body: fresh.slice(0, 5).map(u => u.name || "Someone").join(", ") + (fresh.length > 5 ? "…" : "") }, now, fetchImpl);
+    await fs.merge("config/ownerWatch", { lastUser: fresh.length ? fresh[fresh.length - 1].joinedAt : Math.max(last, now - 15 * 60000) });
+    out.newUsers = fresh.length;
+  } catch (e) { out.errors.push("ownerWatch: " + String(e.message || e).slice(0, 120)); }
   await fs.merge("config/worker", Object.assign({ lastCron: now, lastResult: JSON.stringify(out).slice(0, 900) }, out.backup ? { lastBackup: out.backup } : {}));
   return out;
 }
@@ -547,11 +573,47 @@ export async function waSubscribe(env, extra = "", fetchImpl = fetch) {
   return out;
 }
 
+export async function ownerFeed(env) {
+  const fs = makeFS(env), now = Date.now(), d7 = now - 7 * 864e5, d30 = now - 30 * 864e5, d1 = now - 864e5;
+  const safe = p => p.catch(() => []);
+  const [users, pays, doubts, inbox, wst, feed, worker, names] = await Promise.all([
+    safe(fs.query("users", [], 2000)), safe(fs.query("payments", [], 500)), safe(fs.query("doubts", [["status", "EQUAL", "open"]], 200)),
+    safe(fs.query("waInbox", [], 500)), safe(fs.query("waStatus", [], 300)), safe(fs.query("ownerFeed", [], 300)), fs.get("config/worker").catch(() => null), fs.get("config/payLinks").catch(() => null)]);
+  const nm = Object.assign({}, (names || {}).names || {}), cname = k => nm[k] || String(k || "").replace(/-/g, " ");
+  const applied = pays.filter(p => p.status === "applied"), sum = (arr, cur) => Math.round(arr.filter(p => p.currency === cur).reduce((t, p) => t + (+p.amount || 0), 0) * 100) / 100;
+  const students = users.filter(u => Object.values(u.access || {}).some(Boolean));
+  const ph4 = p => "…" + String(p || "").replace(/\D/g, "").slice(-4);
+  return {
+    at: now,
+    stats: { users: users.length, students: students.length, signups7: users.filter(u => (u.joinedAt || 0) > d7).length,
+      inr: sum(applied, "INR"), usd: sum(applied, "USD"), inr30: sum(applied.filter(p => (p.ts || 0) > d30), "INR"), usd30: sum(applied.filter(p => (p.ts || 0) > d30), "USD"),
+      payments30: applied.filter(p => (p.ts || 0) > d30).length, openDoubts: doubts.length, waIn7: inbox.filter(x => (x.ts || 0) > d7).length,
+      waFailed24: wst.filter(x => x.status === "failed" && (x.ts || 0) > d1).length, needs: pays.filter(p => p.status === "needs-owner").length },
+    payments: pays.sort((a, b) => (b.ts || 0) - (a.ts || 0)).slice(0, 20).map(p => { const u = users.find(x => x.id === p.uid) || {}; return { id: p.id, name: u.name || "", course: p.course === "ref-pdf" ? "Reference PDF" : cname(p.course), amount: p.amount, currency: p.currency, status: p.status, reason: p.reason || "", ts: p.ts }; }),
+    signups: users.sort((a, b) => (b.joinedAt || 0) - (a.joinedAt || 0)).slice(0, 15).map(u => ({ name: u.name || "", country: u.country || "", batch: u.batch || "", code: u.code || "", courses: Object.keys(u.access || {}).filter(k => (u.access || {})[k]).map(cname), ts: u.joinedAt || 0 })),
+    doubts: doubts.sort((a, b) => (b.ts || 0) - (a.ts || 0)).slice(0, 10).map(d => ({ course: cname(d.course), text: String(d.q || d.text || d.question || "").slice(0, 160), name: d.name || "", ts: d.ts || 0 })),
+    whatsapp: inbox.sort((a, b) => (b.ts || 0) - (a.ts || 0)).slice(0, 15).map(x => ({ who: ph4(x.id), role: x.role || "visitor", lang: x.lang || "", ts: x.ts || 0 })),
+    waFails: wst.filter(x => x.status === "failed").sort((a, b) => (b.ts || 0) - (a.ts || 0)).slice(0, 8).map(x => ({ to: ph4(x.to), err: String(x.err || "").slice(0, 90), ts: x.ts || 0 })),
+    feed: feed.sort((a, b) => (b.ts || 0) - (a.ts || 0)).slice(0, 30).map(f => ({ title: f.title, body: f.body, kind: f.kind, ts: f.ts })),
+    worker: { lastCron: (worker || {}).lastCron || 0, ok: !!env.FIREBASE_SA && !!env.RAZORPAY_WEBHOOK_SECRET, whatsapp: !!(env.WA_TOKEN && env.WA_PHONE_ID) }
+  };
+}
+
 export default {
   async fetch(req, env) {
     const url = new URL(req.url);
     if (url.pathname === "/health") return json({ ok: true, razorpay: !!env.RAZORPAY_WEBHOOK_SECRET, firebase: !!env.FIREBASE_SA, whatsapp: !!(env.WA_TOKEN && env.WA_PHONE_ID), whatsappWebhook: !!env.WA_VERIFY_TOKEN, backup: !!env.BACKUP, paidReminders: env.WA_PAID_REMINDERS === "on", monthlyLimit: +(env.WA_MONTHLY_LIMIT || 200) });
     /* WhatsApp webhook: remembers when a student messaged us, so our replies in the next 24 h are free */
+    /* owner Command Center data (hub.html). Only the owner's verified Google login can read it. */
+    if (url.pathname === "/owner-feed") {
+      const cors = { "access-control-allow-origin": "*", "access-control-allow-headers": "authorization,content-type", "access-control-allow-methods": "GET,OPTIONS", "content-type": "application/json", "cache-control": "no-store" };
+      if (req.method === "OPTIONS") return new Response(null, { headers: cors });
+      const tok = (req.headers.get("authorization") || "").replace(/^Bearer\s+/i, "");
+      const who = tok ? await fetch(`https://identitytoolkit.googleapis.com/v1/accounts:lookup?key=${env.FIREBASE_WEB_KEY || "AIzaSyCCoqjw2BzgWcal6OVBqONYOB7x--WP12g"}`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ idToken: tok }) }).then(r => r.json()).catch(() => ({})) : {};
+      const me = (who.users || [])[0] || {};
+      if (!me.emailVerified || !ownerEmails(env).includes(String(me.email || "").toLowerCase())) return new Response(JSON.stringify({ error: "owner only" }), { status: 401, headers: cors });
+      return new Response(JSON.stringify(await ownerFeed(env)), { headers: cors });
+    }
     if (url.pathname === "/wa-subscribe") return json(await waSubscribe(env, url.searchParams.get("waba") || ""));
     /* owner test: sends the 3 approved templates ONLY to the owner's own number (no other number is ever accepted) */
     if (url.pathname === "/wa-report") { const fs = makeFS(env); const L = { sent: "✓ Bheja gaya", delivered: "✓✓ Phone par pahunch gaya", read: "🔵 Padh liya", failed: "❌ Nahi gaya" };
