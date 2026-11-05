@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="ur" dir="rtl" data-lang="ur" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Arsalan PA</title>
+<meta name="theme-color" content="#04090d">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png">
+<meta name="application-name" content="Arsalan PA">
+<meta name="apple-mobile-web-app-title" content="Arsalan PA">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="preload" href="inter-400.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="outfit-700.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="indopak.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="mehr.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs><linearGradient id="rg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffd98a"/><stop offset=".5" stop-color="#e0b24a"/><stop offset="1" stop-color="#19c6f0"/></linearGradient></defs></svg>
+<div class="bg"><i class="g1"></i><i class="g2"></i><i class="g3"></i><div class="specks"></div></div>
+
+<div id="splash"><div>
+  <div class="eyebrow sp-eye"></div>
+  <h1 class="sp-title">Arsalan<br>PA</h1>
+  <div class="sp-sub" id="spSub"></div>
+  <div class="sp-bar"><i></i></div>
+  <div class="sp-tap" id="spTap" hidden></div>
+</div></div>
+
+<header>
+  <div>
+    <div class="eyebrow" id="hEye"></div>
+    <h1 id="hTitle">Arsalan</h1>
+  </div>
+  <div class="hbtns">
+    <button class="ib" id="bLang" aria-label="Language"><svg class="ic" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3.5 3 14.5 0 18M12 3c-3 3.5-3 14.5 0 18"/></svg></button>
+    <button class="ib" id="bSnd" aria-label="Sound"></button>
+    <button class="ib" id="bTheme" aria-label="Theme"></button>
+    <button class="ib" id="bBell" aria-label="Notifications"><svg class="ic" viewBox="0 0 24 24"><path d="M6 9a6 6 0 0 1 12 0c0 6 2 7 2 7H4s2-1 2-7"/><path d="M10 20a2 2 0 0 0 4 0"/></svg><span class="n" id="bellN" hidden>0</span></button>
+  </div>
+</header>
+
+<main><div id="view" class="page"></div></main>
+
+<button class="fab" id="fab" aria-label="Noor AI"><span>✨</span></button>
+
+<div class="mp" id="mp" hidden>
+  <button class="ib" id="mpV" aria-label="Prev"><svg class="ic" viewBox="0 0 24 24"><path d="M6 5v14M20 5 9 12l11 7z"/></svg></button>
+  <button class="ib" id="mpP" aria-label="Play"></button>
+  <button class="ib" id="mpN" aria-label="Next"><svg class="ic" viewBox="0 0 24 24"><path d="M18 5v14M4 5l11 7L4 19z"/></svg></button>
+  <div class="tx"><b id="mpT">—</b><button class="lnk" id="mpR" style="padding:0">—</button></div>
+  <button class="ib" id="mpTv" aria-label="Translation voice" style="font-size:18px">🗣</button>
+  <button class="ib" id="mpX" aria-label="Close"><svg class="ic" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+</div>
+
+<nav class="dock" id="dock"></nav>
+<div id="toast" role="status"></div>
+<dialog id="dlg"></dialog>
+
+<!-- Quranic Science website command (given by the website chat) -->
+<div id="qs-command"></div>
+<script src="https://quranicscience.info/qs-command.js" defer></script>
+
+<script src="i18n.js"></script>
+<script src="core.js"></script>
+<script src="sched.js"></script>
+<script src="daily.js"></script>
+<script src="quran.js"></script>
+<script src="deen.js"></script>
+<script src="biz.js"></script>
+<script src="work.js"></script>
+<script src="kutub.js"></script>
+<script src="report.js"></script>
+<script src="ai.js"></script>
+<script src="native.js"></script>
+<script src="main.js"></script>
+</body>
+</html>
