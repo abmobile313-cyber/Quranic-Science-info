@@ -1,0 +1,303 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Al Aswad Dubai</title>
+<meta name="description" content="Al Aswad Dubai – premium parfum. Being “Rich” isn’t enough. Shop Muznah, pay securely, track your order worldwide.">
+<meta name="theme-color" content="#07070a">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;0,6..96,600;0,6..96,800;1,6..96,400&family=Jost:wght@300;400;500;600&display=swap">
+<style>
+/* Onyx and gold. Black glass, gold metal, ivory paper. Everything sits in real depth. */
+:root{
+  --onyx:#07070a;--onyx2:#0f0f14;--onyx3:#17171e;--ivory:#f3ede2;--muted:#9a9488;--line:rgba(236,210,155,.14);
+  --gold:#c9a463;--gold-hi:#ecd29b;--gold-lo:#8a6a32;--gold-deep:#4a3612;
+  --serif:"Bodoni Moda",Didot,"Times New Roman",serif;--sans:"Jost","Segoe UI",system-ui,sans-serif;
+  --shp-accent:#c9a463;--shp-accent-ink:#1a1206;--shp-bg:#0c0c11;--shp-ink:#f3ede2;--shp-card:#15151c;--shp-line:rgba(236,210,155,.14);--shp-muted:#9a9488;
+  color-scheme:dark}
+*{box-sizing:border-box}[hidden]{display:none!important}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--onyx);color:var(--ivory);font:300 16px/1.65 var(--sans);overflow-x:hidden;-webkit-font-smoothing:antialiased}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:31;background:var(--onyx)}
+.wrap{max-width:1220px;margin:0 auto;padding-left:max(18px,env(safe-area-inset-left,0px));padding-right:max(18px,env(safe-area-inset-right,0px))}
+a{color:inherit}
+h1,h2,h3{font-family:var(--serif);font-weight:400;line-height:1;margin:0;text-wrap:balance;letter-spacing:-.01em}
+.eyebrow{font:500 .7rem var(--sans);letter-spacing:.34em;text-transform:uppercase;color:var(--gold);margin:0 0 14px}
+
+/* 3D gold lettering: metal face + stacked dark-gold extrusion + cast shadow */
+.gold3d{color:var(--gold-hi);text-shadow:0 1px 0 #d9b877,0 2px 0 #c9a463,0 3px 0 #b08b4b,0 4px 0 #8a6a32,0 5px 0 #6b5024,0 6px 0 #4a3612,0 7px 2px rgba(0,0,0,.5),0 14px 26px rgba(0,0,0,.7),0 0 50px rgba(201,164,99,.18)}
+.ivory3d{color:var(--ivory);text-shadow:0 1px 0 #d8d1c4,0 2px 0 #bdb6a8,0 3px 0 #9d968a,0 4px 0 #77716a,0 5px 1px rgba(0,0,0,.5),0 12px 24px rgba(0,0,0,.7)}
+em.it{font-style:italic}
+
+/* gold bar buttons */
+.g3{--d:5px;position:relative;display:inline-flex;align-items:center;justify-content:center;gap:10px;padding:14px 26px;border:0;border-radius:4px;cursor:pointer;white-space:nowrap;
+  font:600 .78rem/1 var(--sans);letter-spacing:.22em;text-transform:uppercase;text-decoration:none;color:#1a1206;
+  background:linear-gradient(180deg,#f6e2b3 0%,#e2c07f 22%,#c9a463 50%,#a8823f 78%,#d8b674 100%);
+  box-shadow:0 var(--d) 0 #5a4216,0 calc(var(--d) + 14px) 26px -10px rgba(0,0,0,.8),inset 0 1px 0 rgba(255,255,255,.7),inset 0 -1px 0 rgba(0,0,0,.25);
+  text-shadow:0 1px 0 rgba(255,240,210,.6);transition:transform .12s,box-shadow .12s}
+.g3:hover{transform:translateY(-2px);box-shadow:0 calc(var(--d) + 2px) 0 #5a4216,0 calc(var(--d) + 20px) 30px -10px rgba(0,0,0,.8),inset 0 1px 0 rgba(255,255,255,.7)}
+.g3:active{transform:translateY(var(--d));box-shadow:0 0 0 #5a4216,0 4px 10px -6px rgba(0,0,0,.8),inset 0 1px 0 rgba(255,255,255,.5)}
+.g3:focus-visible{outline:1px solid var(--gold-hi);outline-offset:6px}
+.g3.onyx{color:var(--gold-hi);background:linear-gradient(180deg,#26262f,#101015);text-shadow:0 1px 0 #000;box-shadow:0 var(--d) 0 #000,0 calc(var(--d) + 14px) 26px -10px rgba(0,0,0,.9),inset 0 1px 0 rgba(236,210,155,.25),inset 0 0 0 1px rgba(236,210,155,.18)}
+.g3.sm{padding:11px 16px;font-size:.7rem;--d:4px}
+.g3[disabled]{opacity:.5;cursor:not-allowed}
+
+/* backdrop: smoke and a single gold light */
+.smoke{position:fixed;inset:0;z-index:-1;pointer-events:none;overflow:hidden}
+.smoke i{position:absolute;border-radius:50%;filter:blur(100px)}
+.smoke i:nth-child(1){width:50vw;height:50vw;right:-10vw;top:-10vw;background:#3a2a10;opacity:.45}
+.smoke i:nth-child(2){width:40vw;height:40vw;left:-12vw;top:50vh;background:#1b1b26;opacity:.7}
+.smoke::after{content:"";position:absolute;inset:0;background:radial-gradient(1px 1px at 20% 30%,rgba(236,210,155,.5),transparent),radial-gradient(1px 1px at 70% 60%,rgba(236,210,155,.4),transparent),radial-gradient(1px 1px at 40% 80%,rgba(236,210,155,.35),transparent),radial-gradient(1px 1px at 85% 20%,rgba(236,210,155,.4),transparent);background-size:400px 400px}
+
+/* header */
+header{position:sticky;top:env(safe-area-inset-top,0px);z-index:30;padding-block:12px;background:linear-gradient(var(--onyx),rgba(7,7,10,.85) 70%,transparent)}
+.nav{display:flex;align-items:center;justify-content:space-between;gap:14px;padding-block:6px;border-bottom:1px solid var(--line)}
+.mark{display:flex;align-items:center;gap:12px;text-decoration:none}
+.mark i{width:36px;height:36px;display:grid;place-items:center;border:1px solid var(--gold);transform:rotate(45deg);box-shadow:0 0 0 3px var(--onyx),0 0 0 4px rgba(201,164,99,.35),0 6px 14px rgba(0,0,0,.6)}
+.mark i b{transform:rotate(-45deg);font:600 .95rem var(--serif);color:var(--gold-hi)}
+.mark span{font:600 1rem var(--serif);letter-spacing:.32em;text-transform:uppercase}
+.mark small{display:block;font:400 .58rem var(--sans);letter-spacing:.5em;color:var(--gold)}
+.nav nav{display:flex;gap:26px}
+.nav nav a{text-decoration:none;font-size:.75rem;letter-spacing:.24em;text-transform:uppercase;color:var(--muted)}
+.nav nav a:hover,.nav nav a:focus-visible{color:var(--gold-hi);outline:none}
+.acts{display:flex;gap:10px;align-items:center}
+.bag{position:relative}
+.bag .shp-badge{position:absolute;top:-9px;right:-9px;background:var(--ivory);color:#111}
+
+/* hero */
+.hero{display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:center;min-height:min(90vh,860px);padding-block:30px 60px}
+.hero h1{font-size:clamp(3.2rem,8vw,7.4rem);font-weight:400}
+.hero h1 .gold3d{display:block;font-style:italic}
+.lede{max-width:44ch;color:#c9c2b4;font-size:1.1rem;margin:26px 0 32px}
+.cta{display:flex;gap:16px;flex-wrap:wrap}
+.facts{display:flex;gap:34px;flex-wrap:wrap;margin-top:40px;padding-top:22px;border-top:1px solid var(--line)}
+.facts b{display:block;font:400 1.6rem var(--serif);color:var(--gold-hi)}
+.facts span{font-size:.72rem;letter-spacing:.2em;text-transform:uppercase;color:var(--muted)}
+
+/* signature: black glass flacon, gold collar and cap, built from glass slices that turn in space */
+.stage{position:relative;height:min(640px,78vw);min-height:420px;perspective:1200px;display:grid;place-items:center}
+.halo{position:absolute;width:70%;max-width:460px;aspect-ratio:1;border-radius:50%;background:radial-gradient(closest-side,rgba(201,164,99,.28),rgba(201,164,99,.06) 60%,transparent);filter:blur(4px)}
+.arch{position:absolute;width:62%;max-width:380px;aspect-ratio:3/4;border:1px solid rgba(201,164,99,.35);border-radius:50% 50% 0 0/38% 38% 0 0;box-shadow:inset 0 0 60px rgba(201,164,99,.08)}
+.dais{position:absolute;bottom:8%;width:56%;max-width:330px;height:46px;transform-style:preserve-3d;transform:rotateX(72deg)}
+.dais::before{content:"";position:absolute;inset:0;border-radius:50%;background:radial-gradient(closest-side,#2a2a33,#0b0b0f);box-shadow:0 0 0 1px rgba(201,164,99,.4),0 0 40px rgba(201,164,99,.15)}
+.flacon{position:relative;width:min(200px,40vw);aspect-ratio:1/1.12;transform-style:preserve-3d;animation:turn 16s linear infinite;margin-bottom:16%}
+.stage:hover .flacon{animation-play-state:paused}
+@keyframes turn{from{transform:rotateX(-10deg) rotateY(0)}to{transform:rotateX(-10deg) rotateY(360deg)}}
+.sl{position:absolute;inset:0;border-radius:14px;background:linear-gradient(180deg,#1c1c24,#050507);border:1px solid rgba(236,210,155,.18)}
+.sl.face{background:linear-gradient(112deg,rgba(255,255,255,.22),rgba(255,255,255,.03) 26%,transparent 44%),linear-gradient(180deg,#22222b,#050507 70%);box-shadow:inset 0 0 0 1px rgba(236,210,155,.4),inset 0 -30px 40px rgba(0,0,0,.6)}
+.plate{position:absolute;left:18%;right:18%;top:30%;bottom:30%;display:grid;place-items:center;text-align:center;border:1px solid var(--gold);background:linear-gradient(180deg,rgba(201,164,99,.12),rgba(201,164,99,.02))}
+.plate b{font:600 clamp(.8rem,2.6vw,1.15rem)/1 var(--serif);letter-spacing:.24em;color:var(--gold-hi);text-shadow:0 1px 0 #6b5024,0 2px 3px #000}
+.plate small{display:block;font:400 .46rem var(--sans);letter-spacing:.4em;color:var(--gold);margin-top:6px}
+.collar{position:absolute;left:50%;top:-12%;width:30%;height:13%;transform:translateX(-50%);transform-style:preserve-3d}
+.capg{position:absolute;left:50%;top:-44%;width:46%;height:33%;transform:translateX(-50%);transform-style:preserve-3d}
+.collar i,.capg i{position:absolute;inset:0;border-radius:3px}
+.collar i{background:linear-gradient(90deg,#3a2a10,#c9a463 30%,#f6e2b3 48%,#a8823f 64%,#2a1f0b)}
+.capg i{background:linear-gradient(90deg,#1d150a,#8a6a32 22%,#ecd29b 46%,#c9a463 58%,#5a4216 80%,#1d150a)}
+.capg i.top{transform:rotateX(90deg) translateZ(var(--hz))!important;background:radial-gradient(circle,#f6e2b3,#8a6a32)}
+.tagf{position:absolute;padding:12px 16px;border:1px solid var(--line);background:rgba(15,15,20,.7);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);box-shadow:0 20px 40px -20px #000,inset 0 1px 0 rgba(236,210,155,.15);font-size:.78rem;animation:float 7s ease-in-out infinite;z-index:2}
+.tagf b{display:block;font:400 1.05rem var(--serif);color:var(--gold-hi)}
+.tagf span{color:var(--muted);letter-spacing:.14em;text-transform:uppercase;font-size:.62rem}
+.t1{left:2%;top:20%}.t2{right:0;top:52%;animation-delay:-3s}
+@keyframes float{50%{transform:translateY(-14px)}}
+
+/* sections */
+section{padding-block:90px}
+.sh{display:flex;justify-content:space-between;align-items:end;gap:24px;flex-wrap:wrap;margin-bottom:40px}
+.sh h2{font-size:clamp(2.4rem,5.4vw,4.4rem)}
+.sh p{max-width:42ch;color:var(--muted);margin:0}
+.rule{display:flex;align-items:center;gap:14px;color:var(--gold);margin-bottom:16px}
+.rule::before,.rule::after{content:"";height:1px;flex:1;background:linear-gradient(90deg,transparent,var(--gold),transparent)}
+
+/* the collection: black velvet trays that tilt */
+.coll{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:28px;perspective:1500px}
+.tray{position:relative;padding:16px 16px 20px;display:flex;flex-direction:column;gap:12px;background:linear-gradient(170deg,#18181f,#0b0b0f);border:1px solid var(--line);
+  box-shadow:inset 0 1px 0 rgba(236,210,155,.12),0 8px 0 -2px #030304,0 46px 70px -40px #000;transform-style:preserve-3d;transition:transform .45s cubic-bezier(.2,.8,.2,1)}
+.tray .media{position:relative;aspect-ratio:4/5;max-width:100%;overflow:hidden;transform:translateZ(46px);background:radial-gradient(circle at 50% 70%,rgba(201,164,99,.22),transparent 60%),linear-gradient(180deg,#14141a,#060608);box-shadow:inset 0 0 0 1px var(--line),0 24px 34px -20px #000}
+.tray .media img{width:100%;height:100%;object-fit:cover}
+.minif{position:absolute;left:50%;bottom:20%;width:40%;aspect-ratio:1/1.12;transform:translateX(-50%);border-radius:8px;background:linear-gradient(112deg,rgba(255,255,255,.2),transparent 40%),linear-gradient(180deg,#24242d,#040405);box-shadow:inset 0 0 0 1px rgba(236,210,155,.4),0 30px 30px -16px #000}
+.minif::before{content:"";position:absolute;left:50%;top:-34%;width:44%;height:30%;transform:translateX(-50%);border-radius:2px;background:linear-gradient(90deg,#1d150a,#ecd29b 46%,#5a4216)}
+.minif::after{content:attr(data-n);position:absolute;inset:32% 14%;display:grid;place-items:center;border:1px solid var(--gold);font:600 .58rem var(--serif);letter-spacing:.2em;color:var(--gold-hi)}
+.tray .badge{position:absolute;top:26px;right:26px;transform:translateZ(70px);font:600 .6rem var(--sans);letter-spacing:.2em;text-transform:uppercase;padding:6px 10px;color:#1a1206;background:linear-gradient(180deg,#f6e2b3,#c9a463);box-shadow:0 3px 0 #5a4216}
+.tray .no{font:400 .7rem var(--sans);letter-spacing:.3em;color:var(--gold);transform:translateZ(20px)}
+.tray h3{font-size:1.9rem;transform:translateZ(30px)}
+.tray p{margin:0;color:var(--muted);font-size:.9rem;transform:translateZ(16px)}
+.sizes{display:flex;gap:8px;flex-wrap:wrap;transform:translateZ(24px)}
+.sz{padding:8px 14px;border:1px solid var(--line);background:#101015;color:var(--ivory);font:500 .78rem var(--sans);letter-spacing:.08em;cursor:pointer;box-shadow:0 3px 0 #000}
+.sz[aria-pressed="true"]{border-color:var(--gold);color:var(--gold-hi);transform:translateY(2px);box-shadow:0 1px 0 #000,inset 0 0 0 1px var(--gold)}
+.tray .row{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-top:auto;transform:translateZ(34px)}
+.price{font:400 1.6rem var(--serif);color:var(--gold-hi)}
+.price s{font:300 .85rem var(--sans);color:var(--muted);margin-left:8px}
+.empty{grid-column:1/-1;text-align:center;color:var(--muted);padding:30px}
+.coll:has(> .tray:only-child){grid-template-columns:minmax(0,440px);justify-content:center}
+
+/* house */
+.house{display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center}
+.house h2{font-size:clamp(2.4rem,5vw,4.2rem)}
+.house p{color:#c9c2b4;max-width:48ch}
+.pillars{display:grid;gap:18px}
+.pillar{display:grid;grid-template-columns:64px 1fr;gap:18px;align-items:start;padding:22px;border:1px solid var(--line);background:linear-gradient(170deg,#15151b,#0a0a0d);box-shadow:inset 0 1px 0 rgba(236,210,155,.1),0 6px 0 -1px #030304,0 30px 40px -30px #000}
+.pillar .n{font:400 2.6rem/1 var(--serif);color:var(--gold-hi);text-shadow:0 1px 0 #b08b4b,0 2px 0 #8a6a32,0 3px 0 #6b5024,0 8px 14px #000}
+.pillar b{display:block;font:400 1.35rem var(--serif);margin-bottom:4px}
+.pillar span{color:var(--muted);font-size:.92rem}
+
+/* concierge band */
+.band{border-block:1px solid var(--line);background:linear-gradient(180deg,#0d0d12,#07070a)}
+.steps{display:grid;grid-template-columns:repeat(4,1fr);gap:22px}
+.step{padding-top:18px;border-top:1px solid var(--gold)}
+.step i{font:italic 400 1rem var(--serif);color:var(--gold)}
+.step b{display:block;font:400 1.3rem var(--serif);margin:6px 0}
+.step p{margin:0;color:var(--muted);font-size:.9rem}
+.cbar{display:flex;flex-wrap:wrap;gap:16px;justify-content:space-between;align-items:center;margin-top:40px;padding:26px;border:1px solid var(--line);background:#0c0c11;box-shadow:inset 0 1px 0 rgba(236,210,155,.1),0 30px 50px -30px #000}
+.cbar b{font:400 1.5rem var(--serif)}
+.cbar p{margin:4px 0 0;color:var(--muted);font-size:.9rem}
+
+.contact{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.contact div{padding:22px;border:1px solid var(--line);background:#0c0c11}
+.contact span{display:block;font-size:.66rem;letter-spacing:.3em;text-transform:uppercase;color:var(--gold);margin-bottom:6px}
+.contact b{font:400 1.25rem var(--serif);user-select:all;word-break:break-word}
+footer{padding-block:50px calc(60px + env(safe-area-inset-bottom,0px));display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap;color:var(--muted);font-size:.8rem;letter-spacing:.08em}
+footer .big{width:100%;text-align:center;font:400 clamp(3.6rem,16vw,13rem)/.9 var(--serif);letter-spacing:.06em;color:#0f0f14;
+  text-shadow:0 1px 0 #1a170f,0 2px 0 #241f13,0 3px 0 #2e2717,0 4px 0 #3a301a,0 5px 0 #4a3612,0 24px 40px #000;-webkit-text-stroke:1px rgba(201,164,99,.35)}
+
+.rv{opacity:0;transform:translateY(30px);transition:opacity 1s,transform 1s cubic-bezier(.2,.8,.2,1)}
+.rv.in{opacity:1;transform:none}
+
+@media (max-width:980px){.steps{grid-template-columns:1fr 1fr}.house{grid-template-columns:1fr;gap:30px}}
+@media (max-width:860px){
+  .hero{grid-template-columns:1fr;min-height:0;padding-block:10px 40px}
+  .stage{order:-1;height:380px;min-height:0}
+  .flacon{width:min(140px,34vw)}
+  .nav nav{display:none}
+  .contact{grid-template-columns:1fr}
+}
+@media (max-width:520px){.steps{grid-template-columns:1fr}.mark span{letter-spacing:.2em;font-size:.85rem}.acts .wa{display:none}.t2{display:none}.facts{gap:22px}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important;scroll-behavior:auto!important}.rv{opacity:1;transform:none}}
+</style>
+</head>
+<body>
+<div class="smoke" aria-hidden="true"><i></i><i></i></div>
+
+<header><div class="wrap"><div class="nav">
+  <a class="mark" href="#top"><i><b>A</b></i><span>Al Aswad<small>DUBAI</small></span></a>
+  <nav aria-label="Sections"><a href="#collection">Collection</a><a href="#house">The house</a><a href="#concierge">Concierge</a><a href="#" data-shop-orders>Track order</a></nav>
+  <div class="acts">
+    <a class="g3 onyx sm wa" href="https://wa.me/919272527913?text=Al%20Aswad%20Dubai%20%E2%80%93%20I%20would%20like%20to%20enquire" target="_blank" rel="noopener">Concierge</a>
+    <button class="g3 sm bag" type="button" data-shop-cart aria-label="Bag">Bag<span class="shp-badge" data-shp-count hidden>0</span></button>
+  </div>
+</div></div></header>
+
+<main id="top">
+<div class="wrap hero">
+  <div>
+    <p class="eyebrow">Al Aswad Dubai · Parfum</p>
+    <h1><span class="ivory3d">Being “Rich”</span><span class="gold3d">isn’t enough.</span></h1>
+    <p class="lede">A fragrance should arrive before you do, and stay after you leave. Al Aswad Dubai makes perfume for people who are already noticed, and want to be remembered.</p>
+    <div class="cta"><a class="g3" href="#collection">Discover Muznah</a><button class="g3 onyx" type="button" data-shop-orders>Track my order</button></div>
+    <div class="facts"><div><b>Nº 01</b><span>Muznah</span></div><div><b>100 · 50 ml</b><span>Two sizes</span></div><div><b>Worldwide</b><span>Delivery</span></div></div>
+  </div>
+  <div class="stage" id="stage" aria-hidden="true">
+    <div class="halo"></div><div class="arch"></div><div class="dais"></div>
+    <div class="flacon" id="flacon"></div>
+    <div class="tagf t1"><span>Signature</span><b>Muznah</b></div>
+    <div class="tagf t2"><span>Concentration</span><b>Parfum</b></div>
+  </div>
+</div>
+
+<section id="collection"><div class="wrap">
+  <div class="sh rv"><div><p class="eyebrow">The collection</p><h2 class="ivory3d">Few bottles. <em class="it gold3d">One at a time.</em></h2></div>
+    <p>Choose your size, add it to your bag and pay securely. Prefer a personal touch? Our concierge arranges every order on WhatsApp.</p></div>
+  <div class="coll" id="coll"><p class="empty">Opening the collection…</p></div>
+</div></section>
+
+<section id="house"><div class="wrap house">
+  <div class="rv">
+    <p class="eyebrow">The house</p>
+    <h2><span class="ivory3d">Wealth is seen.</span> <em class="it gold3d">Taste is felt.</em></h2>
+    <p>Al Aswad means “the black”: the colour of evening wear, of oud, of things that never need to explain themselves. Every bottle we make is built around one idea: presence.</p>
+  </div>
+  <div class="pillars">
+    <div class="pillar rv"><span class="n">I</span><div><b>Presence</b><span>A trail, not a cloud. Composed to be noticed as you pass, and remembered after you have gone.</span></div></div>
+    <div class="pillar rv"><span class="n">II</span><div><b>Rarity</b><span>Small batches, released to our private list first, before any public launch.</span></div></div>
+    <div class="pillar rv"><span class="n">III</span><div><b>Worldwide</b><span>Delivered in India and abroad, with a tracking link for every order.</span></div></div>
+  </div>
+</div></section>
+
+<section class="band" id="concierge"><div class="wrap">
+  <div class="sh rv"><div><p class="eyebrow">Concierge</p><h2 class="ivory3d">From our hands <em class="it gold3d">to yours.</em></h2></div></div>
+  <div class="steps">
+    <div class="step rv"><i>i.</i><b>Choose</b><p>Pick Muznah in 100 ml or 50 ml and add it to your bag.</p></div>
+    <div class="step rv"><i>ii.</i><b>Your details</b><p>Name, phone and delivery address, saved for your next order.</p></div>
+    <div class="step rv"><i>iii.</i><b>Pay securely</b><p>Card, UPI or bank, or arrange payment with our concierge.</p></div>
+    <div class="step rv"><i>iv.</i><b>Follow it home</b><p>Watch your order move from packed to delivered.</p></div>
+  </div>
+  <div class="cbar rv"><div><b>Already ordered?</b><p>Your orders and tracking links are kept on this device.</p></div><button class="g3" type="button" data-shop-orders>My orders &amp; tracking</button></div>
+</div></section>
+
+<section id="contact"><div class="wrap">
+  <div class="rule rv"><span class="eyebrow" style="margin:0">Private list</span></div>
+  <div class="contact rv">
+    <div><span>WhatsApp</span><b id="num">+91 92725 27913</b><p style="margin:12px 0 0"><button class="g3 onyx sm" type="button" id="copyBtn">Copy number</button></p></div>
+    <div><span>Email</span><b>alaswaddubaiperfume@gmail.com</b></div>
+    <div><span>Instagram</span><b>@alaswaddubaiperfume</b><p style="margin:12px 0 0"><a class="g3 onyx sm" href="https://instagram.com/alaswaddubaiperfume" target="_blank" rel="noopener">Open Instagram</a></p></div>
+  </div>
+</div></section>
+</main>
+
+<div class="wrap"><footer>
+  <div class="big" aria-hidden="true">AL ASWAD</div>
+  <span>Al Aswad Dubai · Being “Rich” Isn’t Enough</span><span>© <span id="yr"></span> Al Aswad Dubai · <a href="#" data-shop-orders>Track order</a></span>
+</footer></div>
+
+<script src="https://quranicscience.info/shop-engine.js"></script>
+<script>
+const WA="919272527913";
+const H=s=>String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const money=v=>"$"+(+v||0).toLocaleString("en-US",{maximumFractionDigits:2});
+/* products with the same name and different sizes (e.g. Muznah 100 ml / Muznah 50 ml) are shown as one tray with size buttons */
+let groups=[];
+function group(items){const m=new Map();items.forEach(it=>{const base=(it.name||"").replace(/\s*[-–·]?\s*\d+\s*ml\b/i,"").trim()||it.name;if(!m.has(base))m.set(base,[]);m.get(base).push(it)});
+  return [...m].map(([name,v])=>({name,v:v.sort((a,b)=>(parseInt(b.size||b.name.match(/\d+\s*ml/i)?.[0])||0)-(parseInt(a.size||a.name.match(/\d+\s*ml/i)?.[0])||0))}))}
+const szOf=it=>it.size||(it.name.match(/\d+\s*ml/i)||[""])[0]||"One size";
+function draw(){
+  const el=document.getElementById("coll");
+  el.innerHTML=groups.length?groups.map((g,gi)=>{const it=g.v[g.sel||0],live=!it.demo&&+it.price>0;
+    const wa=`https://wa.me/${WA}?text=${encodeURIComponent("Al Aswad Dubai – I would like to reserve "+g.name+" "+szOf(it))}`;
+    const buy=live?(it.stock===0?`<button class="g3 sm" disabled>Sold out</button>`:`<button class="g3 sm" type="button" data-shop-add="${H(it.id)}">Add to bag</button>`):`<a class="g3 sm" href="${wa}" target="_blank" rel="noopener">Reserve</a>`;
+    return `<article class="tray rv in"><div class="media">${it.img?`<img src="${H(it.img)}" alt="${H(it.name)}" loading="lazy">`:`<span class="minif" data-n="${H(g.name.toUpperCase().slice(0,10))}"></span>`}</div>
+      ${it.tag||it.demo?`<span class="badge">${H(it.tag||"Arriving soon")}</span>`:""}<span class="no">Nº ${String(gi+1).padStart(2,"0")}${it.cat?" · "+H(it.cat):""}</span>
+      <h3>${H(g.name)}</h3>${it.desc?`<p>${H(it.desc)}</p>`:""}
+      ${g.v.length>1?`<div class="sizes" role="group" aria-label="Size">${g.v.map((x,i)=>`<button class="sz" type="button" data-g="${gi}" data-i="${i}" aria-pressed="${i===(g.sel||0)}">${H(szOf(x))}</button>`).join("")}</div>`:`<div class="sizes"><span class="sz" aria-pressed="true">${H(szOf(it))}</span></div>`}
+      <div class="row"><span class="price">${live?money(it.price)+(+it.mrp>+it.price?`<s>${money(it.mrp)}</s>`:""):"By reservation"}</span>${buy}</div></article>`}).join("")
+    :`<p class="empty">The collection opens soon. <a href="https://wa.me/${WA}" target="_blank" rel="noopener">Join the private list</a>.</p>`;
+  tilt();
+}
+document.getElementById("coll").addEventListener("click",e=>{const b=e.target.closest("button.sz");if(!b)return;groups[+b.dataset.g].sel=+b.dataset.i;draw()});
+document.addEventListener("shop:items",e=>{groups=group(e.detail||[]);draw()});
+
+/* the flacon: 16 black-glass slices with the gold plate on the front, gold collar and cap */
+(function(){const f=document.getElementById("flacon");let h="";const N=16;
+  for(let i=0;i<N;i++){const z=(i-(N-1)/2)*3.4;h+=`<div class="sl${i===N-1||i===0?" face":""}" style="transform:translateZ(${z}px)${i===0?" rotateY(180deg)":""}">${i===N-1?'<div class="plate"><div><b>MUZNAH</b><small>AL ASWAD · DUBAI</small></div></div>':""}</div>`}
+  const box=(top)=>[0,90,180,270].map(r=>`<i style="transform:rotateY(${r}deg) translateZ(var(--hz))"></i>`).join("")+(top?'<i class="top"></i>':"");
+  h+=`<div class="collar" style="--hz:11px">${box()}</div><div class="capg" style="--hz:23px">${box(1)}</div>`;f.innerHTML=h})();
+
+const fine=matchMedia("(pointer:fine)").matches&&!matchMedia("(prefers-reduced-motion:reduce)").matches;
+function tilt(){if(!fine)return;document.querySelectorAll(".tray").forEach(c=>{c.onpointermove=e=>{const r=c.getBoundingClientRect(),x=(e.clientX-r.left)/r.width-.5,y=(e.clientY-r.top)/r.height-.5;c.style.transform=`rotateY(${x*12}deg) rotateX(${-y*10}deg) translateY(-6px)`};c.onpointerleave=()=>c.style.transform=""})}
+if(fine){const st=document.getElementById("stage");st.addEventListener("pointermove",e=>{const r=st.getBoundingClientRect();st.style.perspectiveOrigin=`${(e.clientX-r.left)/r.width*100}% ${(e.clientY-r.top)/r.height*100}%`})}
+const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add("in");io.unobserve(e.target)}}),{threshold:.12});
+document.querySelectorAll(".rv").forEach(el=>io.observe(el));
+document.getElementById("yr").textContent=new Date().getFullYear();
+document.getElementById("copyBtn").addEventListener("click",async e=>{try{await navigator.clipboard.writeText("+919272527913");e.target.textContent="Copied"}
+  catch(_){const r=document.createRange();r.selectNodeContents(document.getElementById("num"));const s=getSelection();s.removeAllRanges();s.addRange(r);e.target.textContent="Selected"}});
+
+Shop.init({brand:"alaswad",name:"Al Aswad Dubai",whatsapp:WA,color:"#c9a463",currency:"USD",fab:false,
+  fallbackItems:[
+    {id:"m100",name:"Muznah 100 ml",size:"100 ml",cat:"Parfum",desc:"The house signature. Deep, rich and made to be remembered.",kind:"product"},
+    {id:"m50",name:"Muznah 50 ml",size:"50 ml",cat:"Parfum",desc:"The house signature. Deep, rich and made to be remembered.",kind:"product"}]});
+if("serviceWorker" in navigator)navigator.serviceWorker.register("sw.js").catch(()=>{});
+</script>
+</body>
+</html>
