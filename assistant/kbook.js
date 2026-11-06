@@ -69,3 +69,9 @@ function renderKV(el){const id=KVW.id,det='https://archive.org/details/'+encodeU
    <div class="muted sm c">${T('Agar page khali dikhe to "Browser mein kholein" dabayein.','If the page stays blank, tap "Open in browser".')}</div>`;window.scrollTo({top:0})}
 AX.kview=el=>{const b=(typeof MKB!=='undefined'?MKB.concat(MK.cu):[]).find(x=>x.id===el.dataset.v);if(!b)return;KVW.id=kvIdOf(b);KVW.n=b.n;KVW.u=b.u||'';if(!KVW.id)return;rerender()};
 AX.kvback=()=>{KVW.id=null;rerender()};
+/* Tablighi nisab books listed right under the hadith books (open inside the app) */
+try{const _rh=renderHadith;renderHadith=async function(el){if(KVW.id){renderKV(el);return}await _rh(el);if(HD.v!=='home')return;
+  const h=[...el.querySelectorAll('.card h2')].find(x=>/Hadees ki kitabein|Hadith books/.test(x.textContent));const card=h&&h.closest('.card');
+  const L=[['fa1','Fazail-e-Amaal','فضائلِ اعمال','Maulana Muhammad Zakariyya Kandhlawi (rah.)'],['fa2','Fazail-e-Sadaqaat','فضائلِ صدقات','Maulana Muhammad Zakariyya Kandhlawi (rah.)'],['mu','Muntakhab Ahadees','منتخب احادیث','Maulana Muhammad Yusuf Kandhlawi (rah.)']];
+  const html=`<div class="card"><h2>📗 ${T('Tablighi nisab ki kitabein','Tablighi books')}</h2>${L.map(b=>`<div class="sr" data-a="${b[0]==='fa1'?'pbopen':'kview'}" data-v="${b[0]}"><div class="no"><b>📖</b></div><div class="nm"><b>${b[1]}</b><div class="muted sm">${b[3]}</div></div><div class="an" style="font-family:Mehr,Naskh,serif">${b[2]}</div></div>`).join('')}<p class="muted sm" style="margin-top:6px">${T('Fazail-e-Amaal app ke andar offline (asli chhapi hui shakl). Sadaqaat aur Muntakhab ke asli scan pages (internet chahiye).','Original Urdu pages inside the app (needs internet).')}</p></div>`;
+  if(card)card.insertAdjacentHTML('afterend',html);else el.insertAdjacentHTML('beforeend',html)}}catch(e){}

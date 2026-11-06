@@ -623,3 +623,19 @@ html[data-mq=dark] .mus-in .rk{color:#ff9a9a;border-color:#b45b5b;background:rgb
 html[data-mq=dark] .mush{background:linear-gradient(160deg,#0f1d19,#0a1411);color:#efe6cc;border-color:#8b7a33;box-shadow:inset 0 0 0 5px #0d1916,inset 0 0 0 6.5px #a8862c,inset 0 0 0 9px #0d1916}
 html[data-mq=dark] .mush .q-ar,html[data-mq=dark] .mush .bism,html[data-mq=dark] .mush .bismi{color:#f3ead2}
 html[data-mq=dark] .mush .ayno{color:#f0c96a;border-color:#a8862c}
+/* v3.2 clean mushaf: roomy lines with ruled separators (like a printed 15-line Indo-Pak Quran) */
+.mus-in{padding:4px 8px 6px!important;border:2px solid #9aa24a!important;outline:3px double #b6bf6a;outline-offset:3px;margin:6px 4px}
+.mus-in .ml{line-height:2.75!important;min-height:2.75em!important;border-bottom:1px solid rgba(154,162,74,.55);padding:0 2px;letter-spacing:0;font-kerning:normal;text-rendering:optimizeLegibility}
+.mus-in .ml:last-child{border-bottom:0}
+.mus-in .mw{padding:0 .02em}
+.mus .q-ar{line-height:2.75!important}
+html[data-mq=dark] .mus-in{border-color:#6f7a2a!important;outline-color:#8a9440}
+html[data-mq=dark] .mus-in .ml{border-bottom-color:rgba(154,162,74,.35)}
+html[data-mq=dark] .mus{background:#000!important}
+html[data-mq=dark] .mus .q-ar,html[data-mq=dark] .mus-in .ml{color:#fff!important}
+.q-ar{line-height:2.6}
+html[data-qf=mu] .q-ar{line-height:2.7}
+
+.mus{margin:8px -6px 10px!important;padding:6px 4px 6px!important}
+.pbcv{background:#fff;box-shadow:0 6px 20px rgba(0,0,0,.35)}
+.pbcv.dk{filter:invert(.93) hue-rotate(180deg);background:#fff}

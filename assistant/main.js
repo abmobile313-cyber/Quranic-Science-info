@@ -215,7 +215,7 @@ document.addEventListener('DOMContentLoaded',boot);
 const NAV={stack:[],cur:null,skip:false,
   snap(){return JSON.stringify({t:curTab,s:curSub[curTab]||'',bv:{h:BV.hub,a:BV.all,r:BV.rep,f:BV.filter},qv:QS.view,qs:QS.s,hv:HD.v,hb:HD.b,ku:KU.v,rv:RV.hub,kv:(typeof KVWW!=='undefined'?KVW.id:null)})},
   note(){if(this.skip)return;const s=this.snap();if(s===this.cur)return;if(this.cur)this.stack.push(this.cur);if(this.stack.length>40)this.stack.shift();this.cur=s},
-  async restore(s){const o=JSON.parse(s);this.skip=true;curTab=o.t;if(o.s)curSub[o.t]=o.s;BV.hub=o.bv.h;BV.all=o.bv.a;BV.rep=o.bv.r;BV.filter=o.bv.f;QS.view=o.qv;QS.s=o.qs;HD.v=o.hv;HD.b=o.hb;KU.v=o.ku;RV.hub=o.rv;if(typeof KVW!=='undefined')KVW.id=o.kv||null;
+  async restore(s){const o=JSON.parse(s);this.skip=true;curTab=o.t;if(o.s)curSub[o.t]=o.s;BV.hub=o.bv.h;BV.all=o.bv.a;BV.rep=o.bv.r;BV.filter=o.bv.f;QS.view=o.qv;QS.s=o.qs;HD.v=o.hv;HD.b=o.hb;KU.v=o.ku;RV.hub=o.rv;if(typeof KVW!=='undefined')KVW.id=o.kv||null;if(typeof PB!=='undefined')PB.id=o.pb||null;
     store.set('tab',curTab);layoutDock();try{await rerender(true)}catch(e){}window.scrollTo(0,0);this.cur=s;this.skip=false},
   back(){if(typeof LCK!=='undefined'&&LCK.locked)return true;const d=$('#dlg');if(d&&d.open){closeDlg();return true}
     if(QA&&0)return false;

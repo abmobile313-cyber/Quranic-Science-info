@@ -13,7 +13,8 @@ function natItems(){
     if(tm)PRAY.forEach(p=>{
       if(S.waqtNotif!==false){const st=at(tm.t[p]),a0=az(p),same=S.azan&&a0&&st&&Math.abs(a0-st)<60000;if(st&&!same)add(st,T(`${pname(p)} ka waqt shuru`,`${pname(p)} time has begun`,`${pname(p)} کا وقت شروع`,`${pname(p)} का वक़्त शुरू`),T('Namaz ka waqt shuru ho gaya.','Prayer time has begun.','نماز کا وقت شروع ہو گیا۔','नमाज़ का वक़्त शुरू हो गया।'),vz(p),{tab:'deen',sub:'namaz'})}
       if(S.azan){const j=jm(p),jt=j?t12(hhmmOf(j)):'';
-        add(az(p),T(`${pname(p)} ka waqt ho gaya`,`${pname(p)} time`,`${pname(p)} کا وقت ہو گیا`,`${pname(p)} का वक़्त हो गया`),T(`Jamaat ${jt} par.`,`Jamaat at ${jt}.`,`جماعت ${jt} پر۔`,`जमात ${jt} पर।`)+(S.masjid.name?' · '+S.masjid.name:''),vz(p),{tab:'deen',sub:'namaz'})}
+        add(az(p),T(`${nm()}, ${pname(p)} ki azaan ka waqt ho chuka hai 🕌`,`${nm()}, it's time for ${pname(p)} adhan 🕌`,`${nm()}، ${pname(p)} کی اذان کا وقت ہو چکا ہے 🕌`,`${nm()}, ${pname(p)} की अज़ान का वक़्त हो चुका है 🕌`),T(`Jamaat ${jt} par.`,`Jamaat at ${jt}.`,`جماعت ${jt} پر۔`,`जमात ${jt} पर।`)+(S.masjid.name?' · '+S.masjid.name:''),vz(p),{tab:'deen',sub:'namaz'})}
+      if(S.jm5!==false){const j5=jm(p);if(j5){j5.setMinutes(j5.getMinutes()-5);const fr=p==='Dhuhr'&&fri;add(j5,T(`${nm()}, ${fr?'Juma':pname(p)} ki namaz ka waqt ho chuka hai`,`${nm()}, it's time for ${fr?'Jumuah':pname(p)} prayer`,`${nm()}، ${fr?'جمعہ':pname(p)} کی نماز کا وقت ہو چکا ہے`,`${nm()}, ${fr?'जुमा':pname(p)} की नमाज़ का वक़्त हो चुका है`),T('Jamaat khadi hone mein 5 minute baqi hain.','The jamaat stands in 5 minutes.','جماعت کھڑی ہونے میں 5 منٹ باقی ہیں۔','जमात खड़ी होने में 5 मिनट बाक़ी हैं।')+(S.masjid.name?' · '+S.masjid.name:''),'jm5_'+(fr?'Juma':p),{tab:'deen',sub:'namaz'})}}
       if(S.masjid.pre){const pj=jm(p);if(pj){pj.setMinutes(pj.getMinutes()-10);add(pj,T(`${pname(p)} ki jamaat 10 min mein`,`${pname(p)} jamaat in 10 min`,`${pname(p)} کی جماعت 10 منٹ میں`,`${pname(p)} की जमात 10 मिनट में`),S.masjid.name||'','silent',{tab:'deen',sub:'namaz'})}}
       const aq=jm(p);if(aq&&!(td&&hzToday()[p])){aq.setMinutes(aq.getMinutes()+S.askAfter);add(aq,mkQ('hazri',{p}).title,'',(p==='Dhuhr'&&fri)?'alert':'hz_'+p)}});
     if(!(td&&sdDone()))add(at(S.sadqaNotif),T('Sadqa ka waqt','Time for sadaqah'),sadqaBody(dkey(base)),'sadqa_remind',{tab:'kaam',sub:'paisa'});
@@ -39,7 +40,7 @@ function natItems(){
     if(typeof dutyEvents==='function')dutyEvents(base).forEach(e=>add(e.at,e.title,e.body,e.voice,{tab:e.tab,sub:e.sub}));
     if(typeof salEvents==='function')salEvents(base).forEach(e=>add(e.at,e.title,e.body,e.voice,{tab:e.tab,sub:e.sub}));
     if(typeof cevEvents==='function')cevEvents(base).forEach(e=>add(e.at,e.title,e.body,e.voice,{tab:e.tab,sub:e.sub}));
-    if(typeof almEvents==='function')almEvents(base).forEach(e=>add(e.at,e.title,e.body,'alert',{tab:e.tab,sub:e.sub,alarm:1,aid:e.aid,snooze:e.snooze,duaRaw:e.duaRaw,duaText:e.duaText,duaLang:e.duaLang}));
+    if(typeof almEvents==='function')almEvents(base).forEach(e=>{let at=e.at;if(e.vn&&at){add(at,e.title,e.body,e.vn,{tab:e.tab,sub:e.sub});at=new Date(+at+8000)}add(at,e.title,e.body,'alert',{tab:e.tab,sub:e.sub,alarm:1,aid:e.aid,snooze:e.snooze,duaRaw:e.duaRaw,duaText:e.duaText,duaLang:e.duaLang})});
     if(typeof pexEvents==='function')pexEvents(base).forEach(e=>add(e.at,e.title,e.body,e.voice,{tab:e.tab,sub:e.sub}));
     if(typeof tipEvents==='function')tipEvents(base).forEach(e=>add(e.at,e.title,e.body,e.voice,{tab:e.tab,sub:e.sub}));
     if(typeof reportEvents==='function')reportEvents(base).forEach(e=>add(e.at,e.title,e.body,e.voice,{tab:e.tab,sub:e.sub}));
