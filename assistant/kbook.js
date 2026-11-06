@@ -57,3 +57,15 @@ AX.kbbm=el=>{const k=el.dataset.k,i=KB.bm.indexOf(k);if(i>=0)KB.bm.splice(i,1);e
 AX.kbcopy=async el=>{const o=kbItemOf(el.dataset.k);if(!o)return;try{await navigator.clipboard.writeText((o.h[1]||'')+'\n'+(o.h[2]||''));toast(T('Copy ho gaya ✅','Copied ✅'))}catch(e){}};
 AX.kbsay=el=>{if(TTS.on){const same=el.dataset.on;TTS.stop();if(same)return}const o=kbItemOf(el.dataset.k);if(!o)return;const ar=el.dataset.w==='ar';const txt=ar?o.h[1]:o.h[2];if(!txt)return;
   TTS.run([{t:txt}],{lang:ar?'ar':(o.D.tl==='ur'?'ur':'en'),onStart:()=>{el.dataset.on='1';el.textContent='⏸'},onEnd:()=>{el.dataset.on='';el.textContent=ar?'▶':'🗣'}})};
+
+/* ---------- Scanned-book viewer (archive.org embed) — for Fazail-e-Amaal, Fazail-e-Sadaqaat, Muntakhab Ahadees ---------- */
+const KVW={id:null,n:'',u:''};
+function kvIdOf(b){if(b.av)return b.av;const m=/archive\.org\/(?:details|embed|stream)\/([^\/?#]+)/.exec(b.l||'');return m?m[1]:''}
+function renderKV(el){const id=KVW.id,det='https://archive.org/details/'+encodeURIComponent(id),on=navigator.onLine!==false;
+  el.innerHTML=`<div class="card hero"><div class="row sp"><button class="btn ghost s" data-a="kvback">← ${T('Maktaba','Library')}</button><a class="btn s ghost" target="_blank" rel="noopener" href="${det}">🌐 ${T('Browser mein kholein','Open in browser')}</a></div>
+   <h2 style="margin:8px 0 0">${esc(KVW.n)}</h2>${KVW.u?`<div class="urdu" style="font-size:18px">${esc(KVW.u)}</div>`:''}
+   <p class="muted sm" style="margin:6px 0 0">${T('Asli scanned Urdu pages — pinch se zoom, ◀ ▶ se page badlein, 🔍 se lafz dhoondhein. Internet chahiye. (Roman Urdu matn is kitab ka mojood nahi.)','Original scanned Urdu pages — pinch to zoom, ◀ ▶ to turn pages, 🔍 to search. Needs internet. (No Roman Urdu text exists for this book.)')}</p></div>
+   ${on?`<div class="card" style="padding:6px"><iframe src="https://archive.org/embed/${encodeURIComponent(id)}" title="${esc(KVW.n)}" loading="lazy" allowfullscreen style="width:100%;height:calc(100vh - 250px);min-height:460px;border:0;border-radius:16px;background:#fff"></iframe></div>`:`<div class="warnbox">${T('Internet nahi hai — kitab online khulti hai. Internet chalu karke dobara aayein.','You are offline — this book opens online. Reconnect and try again.')}</div>`}
+   <div class="muted sm c">${T('Agar page khali dikhe to "Browser mein kholein" dabayein.','If the page stays blank, tap "Open in browser".')}</div>`;window.scrollTo({top:0})}
+AX.kview=el=>{const b=(typeof MKB!=='undefined'?MKB.concat(MK.cu):[]).find(x=>x.id===el.dataset.v);if(!b)return;KVW.id=kvIdOf(b);KVW.n=b.n;KVW.u=b.u||'';if(!KVW.id)return;rerender()};
+AX.kvback=()=>{KVW.id=null;rerender()};

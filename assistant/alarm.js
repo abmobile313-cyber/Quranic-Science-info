@@ -68,10 +68,10 @@ function almHomeCard(){const L=ALM.filter(x=>x.on!==false).map(x=>({x,at:almNext
 AX.almall=()=>{DM.t='alarm';go('deen','duas')};
 
 /* ---------- Office / work time: choose notification or ringing alarm for each time; reminders & tasks can ring too ---------- */
-const jm=k=>{const m=S.job&&S.job.m&&S.job.m[k];return m===undefined?'n':m};
+const jobMode=k=>{const m=S.job&&S.job.m&&S.job.m[k];return m===undefined?'n':m};
 const JROWS=()=>[['login','💼',T('Office / job shuru','Start / login')],['brk','☕',T('Break shuru','Break start')],['brkEnd','▶️',T('Break khatam','Break over')],['leave','🏁',T('Chhutti / office khatam','Leave / finish')]];
 function almEvents(base){const out=almEventsBase(base),J=S.job,dk=dkey(base);
-  if(J&&J.on&&(J.days||[1,2,3,4,5,6]).includes(base.getDay()))JROWS().forEach(([k,i,n])=>{if(jm(k)!=='a'||!hm(J[k]))return;
+  if(J&&J.on&&(J.days||[1,2,3,4,5,6]).includes(base.getDay()))JROWS().forEach(([k,i,n])=>{if(jobMode(k)!=='a'||!hm(J[k]))return;
     out.push({k:'jobalm_'+k,at:atTime(J[k],base),voice:'alert',title:`${i} ${n}`,body:t12(J[k]),tab:'kaam',sub:'waqt',alarm:1,aid:'job_'+k,snooze:10,duaRaw:'',duaText:'',duaLang:'ar'})});
   const hh=d=>pad(d.getHours())+':'+pad(d.getMinutes());
   try{(typeof ALERTS!=='undefined'?ALERTS:[]).forEach(a=>{if(!a.ring||!a.at||a.done)return;const d=new Date(a.at);if(dkey(d)!==dk)return;
@@ -82,7 +82,7 @@ function almEvents(base){const out=almEventsBase(base),J=S.job,dk=dkey(base);
 const JDN=()=>[[1,T('Peer','Mon')],[2,T('Mangal','Tue')],[3,T('Budh','Wed')],[4,T('Jumerat','Thu')],[5,T('Jumma','Fri')],[6,T('Hafta','Sat')],[0,T('Itwaar','Sun')]];
 function officeCard(){const J=S.job,days=J.days||[1,2,3,4,5,6];
   const body=J.on?`<div style="display:flex;flex-wrap:wrap;gap:6px;padding:8px 0">${JDN().map(([d,n])=>`<button class="btn s ${days.includes(d)?'':'ghost'}" data-a="jobday" data-d="${d}">${n}</button>`).join('')}</div>`+
-   JROWS().map(([k,i,n])=>`<div style="padding:9px 0;border-bottom:1px solid var(--stroke)"><div style="margin-bottom:6px"><b>${i} ${n}</b></div><div style="display:flex;gap:8px"><input type="time" value="${esc(J[k]||'')}" data-a="jobt" data-chg="1" data-k="${k}" style="flex:1;min-width:0;direction:ltr"><select data-a="jobm" data-k="${k}" style="flex:1.5;min-width:0"><option value="n"${jm(k)==='n'?' selected':''}>🔔 ${T('Notification','Notification')}</option><option value="a"${jm(k)==='a'?' selected':''}>⏰ ${T('Alarm (bajta hai)','Alarm (rings)')}</option><option value=""${jm(k)===''?' selected':''}>🚫 ${T('Band','Off')}</option></select></div></div>`).join('')+
+   JROWS().map(([k,i,n])=>`<div style="padding:9px 0;border-bottom:1px solid var(--stroke)"><div style="margin-bottom:6px"><b>${i} ${n}</b></div><div style="display:flex;gap:8px"><input type="time" value="${esc(J[k]||'')}" data-a="jobt" data-chg="1" data-k="${k}" style="flex:1;min-width:0;direction:ltr"><select data-a="jobm" data-k="${k}" style="flex:1.5;min-width:0"><option value="n"${jobMode(k)==='n'?' selected':''}>🔔 ${T('Notification','Notification')}</option><option value="a"${jobMode(k)==='a'?' selected':''}>⏰ ${T('Alarm (bajta hai)','Alarm (rings)')}</option><option value=""${jobMode(k)===''?' selected':''}>🚫 ${T('Band','Off')}</option></select></div></div>`).join('')+
    `<p class="muted sm" style="margin-top:8px">${T('🔔 Notification = awaaz ke saath khabar. ⏰ Alarm = ringtone bajti hai, Snooze/Dismiss ke saath (APK mein band app/screen off par bhi).','🔔 Notification = a spoken heads-up. ⏰ Alarm = rings with Snooze/Dismiss (in the APK even with the app closed/screen off).')}</p>`:
    `<p class="muted sm">${T('On karein, phir office/job ke waqt, break aur chhutti ka time chunein — har ek ke liye notification ya alarm.','Turn on, then set your office/job start, break and leave times — each as a notification or an alarm.')}</p>`;
   return`<div class="card hero"><div class="row sp"><h2 style="margin:0">💼 ${T('Office / Kaam ka waqt','Office / work time')}</h2><input type="checkbox" class="sw" data-a="jobon" ${J.on?'checked':''}></div>${body}</div>`}
