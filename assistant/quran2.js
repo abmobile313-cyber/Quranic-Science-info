@@ -58,3 +58,11 @@ async function qFlip(dir,go){const old=$('#mus');let ghost=null;if(old&&!matchMe
 A.pgn=()=>{const P=qpgBuild();if(QS.gp<P.length-1){qFlip(1,async()=>{QS.gp++;QPA.left=QS.rep===0?9e9:(QS.rep||1);saveQS();sfx('page');await renderMushaf($('#sub'))})}};
 A.pgp=()=>{if(QS.gp>0){qFlip(-1,async()=>{QS.gp--;QPA.left=QS.rep===0?9e9:(QS.rep||1);saveQS();sfx('page');await renderMushaf($('#sub'))})}};
 const _rm=renderMushaf;renderMushaf=async function(el){await _rm(el);qInjectReader(el)};
+/* finger-follow page drag: the page tilts with your finger, then turns (or springs back) */
+(function(){let x0=null,y0=0,drag=false;
+  document.addEventListener('touchstart',e=>{const m=e.target.closest&&e.target.closest('#mus');if(!m||!QS.pg)return;const t=e.touches[0];x0=t.clientX;y0=t.clientY;drag=false},{passive:true});
+  document.addEventListener('touchmove',e=>{if(x0==null)return;const m=$('#mus');if(!m)return;const t=e.touches[0],dx=t.clientX-x0,dy=t.clientY-y0;
+    if(!drag&&Math.abs(dx)>12&&Math.abs(dx)>Math.abs(dy)*1.3)drag=true;if(!drag)return;
+    const w=m.offsetWidth||360,p=Math.max(-1,Math.min(1,dx/w));m.style.transition='none';m.style.transformOrigin=dx>0?'right center':'left center';
+    m.style.transform=`perspective(1600px) rotateY(${dx>0?-p*55:-p*55}deg)`;m.style.boxShadow=`${dx>0?-1:1}*0px 0 0 transparent`},{passive:true});
+  document.addEventListener('touchend',()=>{if(x0==null)return;x0=null;const m=$('#mus');if(m&&drag){m.style.transition='transform .25s ease';m.style.transform='';setTimeout(()=>{if(m){m.style.transition='';m.style.transformOrigin=''}},260)}drag=false},{passive:true});})();

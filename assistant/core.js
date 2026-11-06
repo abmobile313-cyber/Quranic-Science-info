@@ -142,7 +142,7 @@ const sfx=n=>AU.play(n);
 
 /* ---------- VOICE: recorded ElevenLabs clips (no TTS anywhere) ---------- */
 const VO={a:null,blobs:{},
-  IDS:['az_Fajr','az_Dhuhr','az_Asr','az_Maghrib','az_Isha','hz_Fajr','hz_Dhuhr','hz_Asr','hz_Maghrib','hz_Isha','sadqa_ask','sadqa_remind','tilawat_ask','tilawat_remind','azkar_m','azkar_e','taleem','juma','job_login','break_start','break_end','leave','review','task','reminder','call','biz','class_1h','class_10m','timer_nudge','timer_start','test','voice_on','gasht','makruh','alert','dty_in','dty_out','sal_start','sal_late','open_salam','noor_ji','noor_ok','noor_na','ot_done'],
+  IDS:['az_Fajr','az_Dhuhr','az_Asr','az_Maghrib','az_Isha','hz_Fajr','hz_Dhuhr','hz_Asr','hz_Maghrib','hz_Isha','sadqa_ask','sadqa_remind','tilawat_ask','tilawat_remind','azkar_m','azkar_e','taleem','juma','job_login','break_start','break_end','leave','review','task','reminder','call','biz','class_1h','class_10m','timer_nudge','timer_start','test','voice_on','gasht','makruh','alert','dty_in','dty_out','sal_start','sal_late','open_salam','noor_ji','noor_ok','noor_na','ot_done','jm5_Fajr','jm5_Dhuhr','jm5_Asr','jm5_Maghrib','jm5_Isha','jm5_Juma'],
   url(id,l){if(String(id).startsWith('dua_'))return 'dua/'+id+'.mp3';return 'voice/'+(l||VL())+'/'+id+'.mp3'},
   /* clips are fetched as blobs (works offline through the service worker cache) */
   async blob(id){const k=S.lang+'/'+id;if(this.blobs[k])return this.blobs[k];const r=await fetch(this.url(id));if(!r.ok)throw new Error('clip');const b=await r.blob();if(b.size<2000)throw new Error('clip');return this.blobs[k]=URL.createObjectURL(b)},

@@ -129,7 +129,7 @@ function qpgBuild(){if(QPG)return QPG;const off=[0];for(let s=1;s<=114;s++)off.p
   for(let s=1;s<=114;s++)QD.ar[s-1].forEach((t,i)=>{flat[off[s-1]+i]=[s,i+1,t.length+8]});
   QPF={off,flat};const idx=(s,a)=>off[s-1]+a-1;const st=JUZ.map(j=>idx(j[0],j[1]));st.push(tot);QPG=[];
   for(let j=0;j<30;j++){const lo=st[j],hi=st[j+1],pre=[0];for(let i=lo;i<hi;i++)pre.push(pre[pre.length-1]+flat[i][2]);const T0=pre[pre.length-1];let begin=lo;
-    for(let k=0;k<20;k++){let end;if(k===19)end=hi-1;else{const target=T0*(k+1)/20;let e=begin;while(e<hi-1&&pre[e-lo+1]<target)e++;if(e>begin&&Math.abs(pre[e-lo]-target)<Math.abs(pre[e-lo+1]-target))e--;end=Math.max(begin,Math.min(e,hi-1-(19-k)))}
+    let B0=0;for(let k=0;k<20;k++){let end;if(j===0&&k<2){end=k===0?idx(1,7):idx(2,5);if(k===1)B0=pre[end-lo+1]}else if(k===19)end=hi-1;else{const target=j===0?B0+(T0-B0)*(k-1)/18:T0*(k+1)/20;let e=begin;while(e<hi-1&&pre[e-lo+1]<target)e++;if(e>begin&&Math.abs(pre[e-lo]-target)<Math.abs(pre[e-lo+1]-target))e--;end=Math.max(begin,Math.min(e,hi-1-(19-k)))}
       const a=flat[begin],b=flat[end];QPG.push({j:j+1,k,i0:begin,i1:end,s0:a[0],a0:a[1],s1:b[0],a1:b[1],n:QPG.length+3});begin=end+1}}
   return QPG}
 function qpgOf(s,a){const P=qpgBuild(),i=QPF.off[s-1]+a-1;let lo=0,hi=P.length-1;while(lo<hi){const m=(lo+hi)>>1;if(P[m].i1<i)lo=m+1;else hi=m}return lo}
