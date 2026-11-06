@@ -1,4 +1,4 @@
-const V = 'pa-v30';
+const V = 'pa-v31';
 const SHELL = ['./','./index.html','./style.css','./manifest.webmanifest','./icon-192.png','./icon-512.png','./icon-maskable-512.png','./badge-96.png','./i18n.js','./deva-400.woff2','./deva-600.woff2','./deva-700.woff2','./logos/qs.webp','./logos/fs.webp','./logos/aa.webp','./logos/sk.webp','./logos/bn.webp',
   './core.js','./sched.js','./daily.js','./quran.js','./deen.js','./biz.js','./work.js','./kutub.js','./books.js','./dawat.js','./kbook.js','./extras.js','./tips.js','./alarm.js','./pdf.js','./duty.js','./deliver.js','./salary.js','./tour.js','./money.js','./ai.js','./tts.js','./lock.js','./native.js','./report.js','./main.js',
   './inter-400.woff2','./inter-600.woff2','./inter-700.woff2','./outfit-600.woff2','./outfit-700.woff2','./mono-500.woff2',
