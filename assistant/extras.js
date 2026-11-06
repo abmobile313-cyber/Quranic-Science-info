@@ -202,3 +202,8 @@ AX.sfmark=el=>{const k=el.dataset.k,tk=store.get(sfKey(),{});tk[k]=tk[k]?0:1;sto
   const _rn=renderNamaz;renderNamaz=function(el){_rn(el);el.insertAdjacentHTML('afterbegin',mkBanner());el.insertAdjacentHTML('beforeend',favListCard()+nearCard()+qiblaCard());if(QB.on&&QB.h!=null)qiblaDraw()};
   const _rq=renderQuran;renderQuran=async function(el){await _rq(el);if(QS.view!=='reader'){const r=resumeCard();if(r&&QS.pos)el.insertAdjacentHTML('afterbegin',`<div class="card tap" data-a="resq"><div class="row sp"><div><div class="eyebrow">${T('JAHAN CHHODA THA','CONTINUE')}</div><b>${snm(QS.pos.s-1)} • ${T('Ayat','Ayah')} ${QS.pos.a}</b></div><span class="chip gold">▶ ${T('Jari rakhein','Resume')}</span></div></div>`)}};
 })();
+
+/* nearby masjid set by Arsalan: Deolali Camp Markaj */
+(function(){try{if(S.mkj1)return;favMigrate();const M=S.masjid||{};const L={id:'markaj_deolali',name:'Deolali Camp Markaj',lat:19.9038,lng:73.8305,url:'https://maps.app.goo.gl/1nsTr93GYBrpcMDR8',az:Object.assign({},M.az||{}),jm:Object.assign({},M.jm||{}),jz:M.jz||'',ju:M.ju||''};
+  let i=S.favs.findIndex(f=>f.id===L.id);if(i<0){S.favs.unshift(L);i=0}S.favAct=i;S.masjid.name=L.name;
+  if(S.lat==null){S.lat=19.9038;S.lng=73.8305;S.city='Deolali Camp, Nashik'}S.mkj1=1;saveS()}catch(e){}})();
