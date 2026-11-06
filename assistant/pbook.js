@@ -5,7 +5,20 @@ const PBK=[{id:'fa1',t:'Fazail-e-Amaal',u:'فضائلِ اعمال',src:'books/p
   ['نماز کی فضیلت (فصل اول)','Namaz ki fazilat',366],['نماز چھوڑنے پر وعید (فصل دوم)','Namaz chhorne par waeed',391],['جماعت کے فضائل','Jamaat ke fazail',415],['جماعت چھوڑنے پر عتاب','Jamaat chhorne par itab',428],['خشوع و خضوع کا بیان','Khushu o khuzu',433],
   ['فضائلِ ذکر','Fazail-e-Zikr',474],['ذکر — باب اول','Zikr baab 1',477],['ذکر — باب دوم (کلمہ طیبہ)','Zikr baab 2',550],['ذکر — باب سوم (تسبیحات)','Zikr baab 3',626],
   ['فضائلِ تبلیغ','Fazail-e-Tabligh',711],['فضائلِ رمضان','Fazail-e-Ramazan',753],['رمضان کی فضیلت (فصل اول)','Ramazan ki fazilat',755],['شبِ قدر کا بیان','Shab-e-Qadr',795],['اعتکاف کا بیان','Etikaf',815],
-  ['مسلمانوں کی موجودہ پستی کا واحد علاج','Musalmanon ki pasti ka ilaj',831],['تبلیغ کے آداب','Tabligh ke adaab',859],['مصادر و مآخذ','Masadir',880]]}];
+  ['مسلمانوں کی موجودہ پستی کا واحد علاج','Musalmanon ki pasti ka ilaj',831],['تبلیغ کے آداب','Tabligh ke adaab',859],['مصادر و مآخذ','Masadir',880]]},
+ {id:'fa2',t:'Fazail-e-Sadaqaat',u:'فضائلِ صدقات',src:'books/dl/fazail-sadaqat.pdf',dl:'https://archive.org/download/fazail-e-sadaqat/'+encodeURIComponent('فضائلِ صدقات — Fazail e Sadaqat-_text.pdf'),mb:26,cx:.02,cy:.02,ia:'fazail-e-sadaqat',toc:[]},
+ {id:'mu',t:'Muntakhab Ahadees',u:'منتخب احادیث',src:'books/dl/muntakhab-ahadees.pdf',dl:'https://archive.org/download/muntakhab_ahadees_urdu/'+encodeURIComponent('Muntakhab Ahadees by Maulana Muhammad Yousuf Kandhlavi.pdf'),mb:21,cx:.02,cy:.02,ia:'muntakhab_ahadees_urdu',toc:[]}];
+const PBDL={};
+window.bkDlP=(id,p,got,st)=>{PBDL[id]={p,got,st};const bar=document.getElementById('pbdlb');if(bar&&PB.id===id){if(st==='ok'){toast(T('Kitab download ho gayi ✅ — ab internet ke bina bhi khulegi','Downloaded ✅ — works offline now'));PB.doc=null;rerender();return}if(st==='err'){rerender();return}bar.style.width=Math.max(2,p)+'%';const t=document.getElementById('pbdlt');if(t)t.textContent=(p>=0?p+'% • ':'')+(got/1048576).toFixed(1)+' MB'}};
+const pbHave=b=>!b.dl||(window.AndroidPA&&AndroidPA.bookHas&&AndroidPA.bookHas(b.src.replace(/^books\/dl\//,'books/dl/')));
+function pbDlCard(b){const d=PBDL[b.id];const busy=d&&d.st!=='err'&&d.st!=='ok'&&d.p!==-1;
+  if(!window.AndroidPA||!AndroidPA.bookDl)return`<div class="card c"><h2>${b.u}</h2><p class="muted">${T('Website par yeh kitab archive.org ke viewer mein khulti hai.','On the website this book opens in the archive.org viewer.')}</p><button class="btn gold" data-a="pbia" data-v="${b.id}">📖 ${T('Kholein','Open')}</button></div>`;
+  return`<div class="card c"><div style="font:700 26px/1.6 Mehr,Naskh,serif">${b.u}</div><p class="muted">${T(`Pehli baar ek dafa download karni hogi (${b.mb} MB). Uske baad internet ke bina bhi app mein page-by-page khulegi — Fazail-e-Amaal ki tarah.`,`Download once (${b.mb} MB), then read offline page by page.`)}</p>
+   ${busy?`<div style="height:12px;border-radius:8px;background:rgba(255,255,255,.12);overflow:hidden;margin:10px 0"><div id="pbdlb" style="height:100%;width:${Math.max(2,d.p||2)}%;background:linear-gradient(90deg,#e0b24a,#06b6d4);transition:width .3s"></div></div><div class="muted sm" id="pbdlt">${T('Download ho rahi hai…','Downloading…')}</div>`
+   :`${d&&d.st==='err'?`<div class="warnbox">${T('Download ruk gaya — internet check karke dobara dabayein.','Download failed — check internet and retry.')}</div>`:''}<button class="btn gold" data-a="pbdl" data-v="${b.id}">⬇️ ${T('Download karein','Download')} (${b.mb} MB)</button>`}
+   <div class="mt"><button class="btn s ghost" data-a="pbia" data-v="${b.id}">🌐 ${T('Bina download online dekhein','View online')}</button></div></div>`}
+AX.pbdl=el=>{const b=PBK.find(x=>x.id===el.dataset.v);if(!b)return;PBDL[b.id]={p:0,got:0};try{AndroidPA.bookDl(b.id,b.dl,b.src)}catch(e){toast('Error')}rerender()};
+AX.pbia=el=>{const b=PBK.find(x=>x.id===el.dataset.v);if(!b||typeof KVW==='undefined')return;PB.id=null;KVW.id=b.ia;KVW.n=b.t;KVW.u=b.u;rerender()};
 const PB={id:null,doc:null,docId:null,v:'read',busy:false};
 let PBS=store.get('pb_st',{pos:{},rd:{},bm:{},z:1,dk:1});const savePBS=()=>store.set('pb_st',PBS);
 const pbDef=()=>PBK.find(b=>b.id===PB.id);
@@ -14,12 +27,12 @@ async function pbDoc(){const b=pbDef();if(PB.doc&&PB.docId===b.id)return PB.doc;
   PB.doc=await L.getDocument({data:new Uint8Array(buf),disableFontFace:false,isEvalSupported:false}).promise;PB.docId=b.id;return PB.doc}
 const pbPg=()=>PBS.pos[PB.id]||1;
 function pbOpen(id){PB.id=id;PB.v='read';rerender()}
-async function pbDraw(){const cv=$('#pbcv');if(!cv)return;const doc=await pbDoc();const n=Math.max(1,Math.min(pbPg(),doc.numPages));const page=await doc.getPage(n);
-  const box=$('#pbbox');const cssW=((box?box.clientWidth:360)-12)*(PBS.z||1);const v0=page.getViewport({scale:1});const CX=.075,CY=.045;const sc=cssW/(v0.width*(1-2*CX)),dpr=Math.min(3,window.devicePixelRatio||1);const vp=page.getViewport({scale:sc*dpr});
+async function pbDraw(){const cv=$('#pbcv');if(!cv)return;const b=pbDef();const doc=await pbDoc();const n=Math.max(1,Math.min(pbPg(),doc.numPages));const page=await doc.getPage(n);
+  const box=$('#pbbox');const cssW=((box?box.clientWidth:360)-12)*(PBS.z||1);const v0=page.getViewport({scale:1});const CX=b.cx!=null?b.cx:.075,CY=b.cy!=null?b.cy:.045;const sc=cssW/(v0.width*(1-2*CX)),dpr=Math.min(3,window.devicePixelRatio||1);const vp=page.getViewport({scale:sc*dpr});
   const off=document.createElement('canvas');off.width=vp.width;off.height=vp.height;await page.render({canvasContext:off.getContext('2d'),viewport:vp}).promise;
   const sx=Math.round(off.width*CX),sy=Math.round(off.height*CY),w=off.width-2*sx,h=off.height-2*sy;cv.width=w;cv.height=h;cv.style.width=cssW+'px';cv.getContext('2d').drawImage(off,sx,sy,w,h,0,0,w,h);const l=$('#pbload');if(l)l.remove();
   if(n<doc.numPages)doc.getPage(n+1).catch(()=>{})}
-function renderPB(el){const b=pbDef();const n=pbPg(),k=PB.id+':'+n,rd=!!(PBS.rd[PB.id]||{})[n],bm=(PBS.bm[PB.id]||[]).includes(n);
+function renderPB(el){const b=pbDef();if(b&&b.dl&&!pbHave(b)){el.innerHTML=`<div class="card"><button class="btn ghost s" data-a="pbback">← ${T('Kitabein','Books')}</button></div>`+pbDlCard(b);return}const n=pbPg(),k=PB.id+':'+n,rd=!!(PBS.rd[PB.id]||{})[n],bm=(PBS.bm[PB.id]||[]).includes(n);
   const top=`<div class="card hero"><div class="row sp"><button class="btn ghost s" data-a="pbback">← ${T('Kitabein','Books')}</button><b style="font-family:Mehr,Naskh,serif;font-size:20px">${b.u}</b></div>
    <div class="fch" style="padding:8px 0 0">${[['read','📖 '+T('Padhein','Read')],['toc','🗂 '+T('Fehrist','Contents')],['marks','🔖 '+T('Bookmark','Marks')]].map(x=>`<button data-a="pbv" data-v="${x[0]}" class="${PB.v===x[0]?'on':''}">${x[1]}</button>`).join('')}</div></div>`;
   if(PB.v==='toc'){el.innerHTML=top+`<div class="card flat">${b.toc.map(t=>`<div class="sr" data-a="pbgo" data-p="${t[2]}"><div class="no"><b>${t[2]}</b></div><div class="nm"><b class="urdu" style="font-size:17px">${t[0]}</b><div class="muted sm">${t[1]} • ${T('Safha','Page')} ${t[2]}</div></div></div>`).join('')}</div>`;return}

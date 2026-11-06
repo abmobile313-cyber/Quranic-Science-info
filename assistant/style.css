@@ -727,3 +727,14 @@ body.ofcbg::before{content:'';position:fixed;inset:0;z-index:-1;background:radia
 .ofbr8{position:relative;height:200px;display:grid;place-items:center}
 .ofbrc{width:110px;height:110px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#bff7d9,#2fbf78 55%,#1f7a3a);box-shadow:0 0 40px rgba(47,191,120,.55)}
 .ofbrt{position:absolute;font:800 18px var(--f-head);color:#fff;text-shadow:0 2px 6px rgba(0,0,0,.5)}
+/* v3.8: glossy glass 3D tiles (theme matched: navy glass + gold/cyan glow) */
+.dock button img.dk3{width:36px;height:36px;padding:5px;border-radius:12px;background:linear-gradient(150deg,rgba(255,255,255,.28),rgba(255,255,255,.04) 55%,rgba(25,198,240,.10));box-shadow:inset 0 1px 1px rgba(255,255,255,.55),inset 0 -3px 6px rgba(0,0,0,.25),0 4px 10px rgba(0,0,0,.35);border:1px solid rgba(255,255,255,.18)}
+.dock button[data-v=home] img.dk3{background-color:rgba(26,140,255,.25)}
+.dock button[data-v=biz] img.dk3{background-color:rgba(224,178,74,.25)}
+.dock button[data-v=deen] img.dk3{background-color:rgba(16,185,129,.25)}
+.dock button[data-v=kaam] img.dk3{background-color:rgba(244,114,182,.22)}
+.dock button[data-v=office] img.dk3{background-color:rgba(124,58,237,.28)}
+.dock button[data-v=more] img.dk3{background-color:rgba(25,198,240,.22)}
+.dock button.on img.dk3,.dock button[aria-current] img.dk3{box-shadow:inset 0 1px 1px rgba(255,255,255,.7),inset 0 -3px 6px rgba(0,0,0,.2),0 0 0 1.5px var(--gold),0 6px 16px rgba(224,178,74,.45)}
+.ib img.ui3{width:30px;height:30px;padding:3px;border-radius:10px;background:linear-gradient(150deg,rgba(255,255,255,.26),rgba(255,255,255,.04));box-shadow:inset 0 1px 1px rgba(255,255,255,.5),0 3px 8px rgba(0,0,0,.3)}
+:root[data-theme=light] .dock button img.dk3,:root[data-theme=light] .ib img.ui3{background-image:linear-gradient(150deg,rgba(255,255,255,.95),rgba(255,255,255,.55));border-color:rgba(168,122,20,.25);box-shadow:inset 0 -3px 6px rgba(168,122,20,.12),0 4px 10px rgba(80,60,20,.18)}
