@@ -1,0 +1,274 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Bareerah Naturals</title>
+<meta name="description" content="Bareerah Naturals – pure Sunnah foods: raw honey, kalonji, miswak, zaitoon, olive oil and anjeer. Order online and track your parcel.">
+<meta name="theme-color" content="#f4ecdc">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,700;0,9..144,900;1,9..144,500&family=Outfit:wght@400;500;600;700&display=swap">
+<style>
+/* Sun-warmed pantry: cream paper, raw honey amber, olive leaf. Solid, edible-looking depth. */
+:root{
+  --paper:#f4ecdc;--paper2:#ebdfc6;--card:#fbf6ec;--ink:#2a2a17;--muted:#6f6a52;--line:rgba(60,55,25,.14);
+  --olive:#4f5d2a;--olive-d:#2f3816;--honey:#e09a1d;--honey-d:#9a5f07;--honey-l:#f6c45a;--date:#6b3a1f;
+  --serif:"Fraunces",Georgia,serif;--sans:"Outfit","Segoe UI",system-ui,sans-serif;
+  --shp-accent:#e09a1d;--shp-accent-ink:#2a1802;--shp-bg:#fbf6ec;--shp-ink:#2a2a17;--shp-card:#f1e7d3;--shp-line:rgba(60,55,25,.16);--shp-muted:#6f6a52;
+  color-scheme:light}
+*{box-sizing:border-box}[hidden]{display:none!important}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--paper);color:var(--ink);font:400 16px/1.6 var(--sans);overflow-x:hidden;-webkit-font-smoothing:antialiased}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:31;background:var(--paper)}
+.wrap{max-width:1200px;margin:0 auto;padding-left:max(18px,env(safe-area-inset-left,0px));padding-right:max(18px,env(safe-area-inset-right,0px))}
+a{color:inherit}
+h1,h2,h3{font-family:var(--serif);line-height:1;margin:0;text-wrap:balance;letter-spacing:-.02em}
+.eyebrow{font:600 .72rem var(--sans);letter-spacing:.22em;text-transform:uppercase;color:var(--olive);margin:0 0 12px}
+
+/* 3D type */
+.olive3d{color:var(--olive);text-shadow:0 1px 0 #44511f,0 2px 0 #3c4819,0 3px 0 #343f14,0 4px 0 #2c3610,0 5px 0 #242c0b,0 6px 1px rgba(0,0,0,.15),0 14px 22px rgba(60,50,10,.25)}
+.honey3d{color:var(--honey);text-shadow:0 1px 0 #d18d14,0 2px 0 #c2800f,0 3px 0 #b0710b,0 4px 0 #9a5f07,0 5px 0 #814f05,0 6px 1px rgba(0,0,0,.15),0 14px 24px rgba(154,95,7,.3)}
+
+/* chunky 3D buttons */
+.b3{--d:6px;--c:var(--honey);--cd:var(--honey-d);--ci:#2a1802;position:relative;display:inline-flex;align-items:center;justify-content:center;gap:9px;padding:14px 24px;border-radius:999px;border:0;cursor:pointer;white-space:nowrap;
+  font:700 .95rem/1 var(--sans);color:var(--ci);text-decoration:none;background:linear-gradient(180deg,color-mix(in srgb,var(--c) 60%,#fff),var(--c) 60%);
+  box-shadow:0 var(--d) 0 var(--cd),0 calc(var(--d) + 12px) 22px -10px rgba(80,50,0,.45),inset 0 2px 0 rgba(255,255,255,.6);transition:transform .12s,box-shadow .12s}
+.b3:hover{transform:translateY(-2px);box-shadow:0 calc(var(--d) + 2px) 0 var(--cd),0 calc(var(--d) + 16px) 26px -10px rgba(80,50,0,.45),inset 0 2px 0 rgba(255,255,255,.6)}
+.b3:active{transform:translateY(var(--d));box-shadow:0 0 0 var(--cd),0 4px 10px -6px rgba(80,50,0,.5),inset 0 2px 0 rgba(255,255,255,.5)}
+.b3:focus-visible{outline:2px solid var(--olive);outline-offset:5px}
+.b3.olive{--c:var(--olive);--cd:var(--olive-d);--ci:#f7f1df;background:linear-gradient(180deg,#6b7a3c,#4f5d2a 60%)}
+.b3.cream{--c:#fbf6ec;--cd:#cbbd9c;--ci:var(--ink);background:linear-gradient(180deg,#fff,#f3ead7)}
+.b3.sm{padding:10px 16px;font-size:.84rem;--d:4px}
+.b3[disabled]{opacity:.55;cursor:not-allowed}
+
+/* paper grain */
+.grain{position:fixed;inset:0;z-index:-1;pointer-events:none;background:radial-gradient(circle at 85% 10%,rgba(224,154,29,.18),transparent 40%),radial-gradient(circle at 5% 70%,rgba(79,93,42,.12),transparent 40%)}
+
+header{position:sticky;top:env(safe-area-inset-top,0px);z-index:30;padding-block:12px}
+.nav{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:8px 8px 8px 16px;border-radius:999px;background:rgba(251,246,236,.85);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border:1px solid var(--line);box-shadow:0 5px 0 -1px #e2d4b4,0 20px 30px -24px rgba(60,50,10,.5)}
+.logo{display:flex;align-items:center;gap:10px;font:700 1.2rem var(--serif);text-decoration:none}
+.logo i{width:34px;height:34px;border-radius:50% 50% 50% 8px;transform:rotate(-45deg);background:linear-gradient(135deg,#7d8c47,var(--olive));box-shadow:0 3px 0 var(--olive-d),inset 0 1px 0 rgba(255,255,255,.4)}
+.nav nav{display:flex;gap:2px}
+.nav nav a{padding:8px 13px;border-radius:999px;text-decoration:none;font-size:.9rem;color:var(--muted);font-weight:500}
+.nav nav a:hover,.nav nav a:focus-visible{background:var(--paper2);color:var(--ink);outline:none}
+.acts{display:flex;gap:8px}
+.cartb{position:relative}.cartb .shp-badge{position:absolute;top:-8px;right:-6px;background:var(--olive);color:#fff}
+
+/* hero */
+.hero{display:grid;grid-template-columns:1.05fr .95fr;gap:30px;align-items:center;padding-block:40px 70px;min-height:min(86vh,820px)}
+.hero h1{font-size:clamp(3rem,7.4vw,6.2rem);font-weight:900}
+.hero h1 span{display:block}
+.lede{max-width:46ch;color:var(--muted);font-size:1.1rem;margin:24px 0 28px}
+.cta{display:flex;gap:14px;flex-wrap:wrap}
+.trust{display:flex;gap:12px;flex-wrap:wrap;margin-top:32px}
+.trust span{padding:8px 14px;border-radius:999px;background:var(--card);border:1px solid var(--line);font-size:.84rem;font-weight:500;box-shadow:0 3px 0 #e2d4b4}
+
+/* signature: a glass honey jar built from slices, wooden lid, cloth tie, dipper */
+.stage{position:relative;height:min(560px,72vw);min-height:400px;perspective:1100px;display:grid;place-items:center}
+.sun{position:absolute;width:76%;max-width:440px;aspect-ratio:1;border-radius:50%;background:radial-gradient(circle,#f8d27a,#f0b54a 45%,rgba(240,181,74,0) 70%);opacity:.55}
+.board{position:absolute;bottom:9%;left:50%;width:70%;max-width:400px;height:60px;transform:translateX(-50%) rotateX(74deg);border-radius:50%;background:radial-gradient(closest-side,#a77744,#7a5128);box-shadow:0 20px 0 #5a3a1a,0 0 0 6px rgba(122,81,40,.3)}
+.jar{position:relative;width:min(180px,38vw);aspect-ratio:1/1.15;transform-style:preserve-3d;animation:spin 18s linear infinite;margin-bottom:12%}
+.stage:hover .jar{animation-play-state:paused}
+@keyframes spin{from{transform:rotateX(-12deg) rotateY(0)}to{transform:rotateX(-12deg) rotateY(360deg)}}
+.js{position:absolute;inset:0;border-radius:22% 22% 26% 26%/14% 14% 18% 18%;background:linear-gradient(180deg,rgba(255,255,255,.25) 0 10%,rgba(246,196,90,.75) 10%,rgba(224,154,29,.9) 60%,rgba(154,95,7,.95));border:1px solid rgba(255,230,170,.4)}
+.js.face{background:linear-gradient(110deg,rgba(255,255,255,.7),rgba(255,255,255,.1) 24%,transparent 40%),linear-gradient(180deg,rgba(255,255,255,.35) 0 10%,rgba(246,196,90,.8) 10%,rgba(224,154,29,.92) 60%,rgba(130,78,5,.97));box-shadow:inset 0 0 0 2px rgba(255,240,200,.6),inset 0 -26px 30px rgba(110,60,0,.35)}
+.lab{position:absolute;left:14%;right:14%;top:38%;padding:12px 6px;border-radius:6px;text-align:center;background:linear-gradient(180deg,#fbf6ec,#ebdfc6);color:var(--olive-d);font:900 clamp(.72rem,2.4vw,1rem)/1 var(--serif);box-shadow:0 2px 0 #c9b88f,0 6px 10px rgba(0,0,0,.25)}
+.lab small{display:block;font:600 .48rem var(--sans);letter-spacing:.22em;margin-top:5px;color:var(--honey-d)}
+.lid{position:absolute;left:50%;top:-16%;width:82%;height:16%;transform:translateX(-50%);transform-style:preserve-3d}
+.lid i{position:absolute;inset:0;border-radius:6px;background:repeating-linear-gradient(90deg,#8a5a2b 0 6px,#7a4d22 6px 12px),#7a4d22;box-shadow:inset 0 -3px 0 rgba(0,0,0,.25)}
+.lid i.top{transform:rotateX(90deg) translateZ(var(--hz))!important;border-radius:50%;background:repeating-radial-gradient(circle,#9a6833 0 5px,#86592a 5px 9px)}
+.chip{position:absolute;padding:10px 14px;border-radius:18px;background:var(--card);border:1px solid var(--line);box-shadow:0 5px 0 #e2d4b4,0 24px 30px -20px rgba(60,50,10,.5);font-size:.82rem;display:flex;align-items:center;gap:10px;animation:bob 6s ease-in-out infinite;z-index:2}
+.chip b{display:block;font:700 .98rem var(--serif)}
+.chip small{color:var(--muted)}
+.chip .dot{width:30px;height:30px;border-radius:50%;box-shadow:inset 0 -4px 0 rgba(0,0,0,.2),inset 0 2px 0 rgba(255,255,255,.4)}
+.c1{left:0;top:14%}.c2{right:0;top:44%;animation-delay:-2s}.c3{left:8%;bottom:10%;animation-delay:-4s}
+@keyframes bob{50%{transform:translateY(-12px)}}
+
+section{padding-block:80px}
+.sh{display:flex;justify-content:space-between;align-items:end;gap:20px;flex-wrap:wrap;margin-bottom:26px}
+.sh h2{font-size:clamp(2.3rem,5vw,3.8rem);font-weight:900}
+.sh p{max-width:42ch;color:var(--muted);margin:0}
+
+/* category keys */
+.keys{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:32px}
+.key{display:inline-flex;align-items:center;gap:10px;padding:10px 16px 10px 10px;border-radius:999px;border:1px solid var(--line);background:var(--card);cursor:pointer;font:600 .92rem var(--sans);color:var(--ink);box-shadow:0 5px 0 #dccdab,0 14px 18px -14px rgba(60,50,10,.5);transition:transform .12s,box-shadow .12s}
+.key .em{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;background:var(--t);font-size:.95rem;box-shadow:inset 0 -3px 0 rgba(0,0,0,.18),inset 0 2px 0 rgba(255,255,255,.4)}
+.key em{font-style:normal;color:var(--muted);font-size:.78rem}
+.key:hover{transform:translateY(-1px)}
+.key[aria-pressed="true"]{transform:translateY(4px);box-shadow:0 1px 0 #dccdab,inset 0 0 0 2px var(--olive);background:#fff}
+.key:focus-visible{outline:2px solid var(--olive);outline-offset:3px}
+
+/* product cards: jars on a shelf, tilt in 3D */
+.shelf{display:grid;grid-template-columns:repeat(auto-fill,minmax(235px,1fr));gap:26px;perspective:1400px}
+.pc{position:relative;padding:14px;border-radius:28px;background:var(--card);border:1px solid var(--line);display:flex;flex-direction:column;gap:10px;transform-style:preserve-3d;transition:transform .4s cubic-bezier(.2,.8,.2,1);
+  box-shadow:inset 0 2px 0 #fff,0 8px 0 -2px #dccdab,0 40px 50px -34px rgba(60,50,10,.55)}
+.pc .media{position:relative;aspect-ratio:1/1;max-width:100%;border-radius:20px;overflow:hidden;transform:translateZ(40px);background:radial-gradient(circle at 50% 80%,color-mix(in srgb,var(--t) 55%,transparent),transparent 65%),linear-gradient(180deg,#f6eedd,#e8dbbf);box-shadow:inset 0 0 0 1px var(--line),0 16px 24px -16px rgba(60,50,10,.5)}
+.pc .media img{width:100%;height:100%;object-fit:cover}
+.mj{position:absolute;left:50%;bottom:16%;width:36%;aspect-ratio:1/1.15;transform:translateX(-50%);border-radius:22% 22% 26% 26%/14% 14% 18% 18%;
+  background:linear-gradient(110deg,rgba(255,255,255,.65),transparent 34%),linear-gradient(180deg,rgba(255,255,255,.3) 0 12%,var(--t) 12%,color-mix(in srgb,var(--t) 60%,#3a2000));box-shadow:inset 0 0 0 2px rgba(255,255,255,.5),0 22px 22px -12px rgba(60,40,0,.6)}
+.mj::before{content:"";position:absolute;left:50%;top:-20%;width:84%;height:18%;transform:translateX(-50%);border-radius:5px;background:repeating-linear-gradient(90deg,#8a5a2b 0 5px,#7a4d22 5px 10px)}
+.pc .pill{position:absolute;top:24px;left:24px;transform:translateZ(60px);font-size:.72rem;font-weight:700;padding:5px 11px;border-radius:999px;background:var(--olive);color:#f7f1df;box-shadow:0 3px 0 var(--olive-d)}
+.pc .meta{font-size:.76rem;color:var(--muted);letter-spacing:.06em;text-transform:uppercase;font-weight:600}
+.pc h3{font-size:1.35rem;font-weight:700;transform:translateZ(22px)}
+.pc p{margin:0;color:var(--muted);font-size:.9rem;transform:translateZ(14px)}
+.pc .row{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-top:auto;transform:translateZ(30px)}
+.price{font:900 1.35rem var(--serif);color:var(--olive-d)}
+.price s{font:500 .82rem var(--sans);color:var(--muted);margin-left:6px}
+.empty{grid-column:1/-1;text-align:center;color:var(--muted);padding:30px}
+
+/* promise band (olive) */
+.band{background:linear-gradient(180deg,#4f5d2a,#3b4720);color:#f7f1df;border-radius:40px;margin-inline:max(10px,env(safe-area-inset-left,0px));box-shadow:0 10px 0 #2a3311,0 40px 60px -40px rgba(30,30,0,.8)}
+.band .eyebrow{color:var(--honey-l)}
+.band h2{font-size:clamp(2.3rem,5vw,4rem);font-weight:900;color:#f7f1df;text-shadow:0 1px 0 #d8d1b4,0 2px 0 #b9b293,0 3px 0 #9a9474,0 4px 1px rgba(0,0,0,.3),0 12px 20px rgba(0,0,0,.35);margin-bottom:34px}
+.band h2 em{color:var(--honey-l);font-style:italic}
+.tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:18px}
+.tile{padding:22px;border-radius:24px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);box-shadow:inset 0 1px 0 rgba(255,255,255,.12),0 6px 0 rgba(0,0,0,.18)}
+.tile .ic{width:46px;height:46px;border-radius:14px;display:grid;place-items:center;font-size:1.4rem;margin-bottom:12px;background:linear-gradient(180deg,#f8d27a,var(--honey));box-shadow:0 4px 0 var(--honey-d),inset 0 2px 0 rgba(255,255,255,.5)}
+.tile b{display:block;font:700 1.15rem var(--serif);margin-bottom:6px}
+.tile p{margin:0;color:#d8d3bc;font-size:.9rem}
+
+.steps{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;counter-reset:s}
+.step{padding:22px;border-radius:24px;background:var(--card);border:1px solid var(--line);box-shadow:0 6px 0 -1px #dccdab,0 26px 30px -26px rgba(60,50,10,.5)}
+.step::before{counter-increment:s;content:counter(s);display:grid;place-items:center;width:46px;height:46px;border-radius:50%;margin-bottom:12px;font:900 1.3rem var(--serif);color:#2a1802;background:linear-gradient(180deg,#f8d27a,var(--honey));box-shadow:0 4px 0 var(--honey-d),inset 0 2px 0 rgba(255,255,255,.5)}
+.step b{display:block;font:700 1.15rem var(--serif);margin-bottom:6px}
+.step p{margin:0;color:var(--muted);font-size:.92rem}
+.bar{display:flex;flex-wrap:wrap;gap:14px;justify-content:space-between;align-items:center;margin-top:22px;padding:22px 24px;border-radius:26px;background:var(--card);border:1px solid var(--line);box-shadow:0 6px 0 -1px #dccdab}
+.bar b{font:700 1.25rem var(--serif)}
+.bar p{margin:2px 0 0;color:var(--muted);font-size:.9rem}
+.num{font:900 clamp(1.4rem,4vw,2rem) var(--serif);user-select:all}
+footer{padding-block:40px calc(60px + env(safe-area-inset-bottom,0px));display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;color:var(--muted);font-size:.85rem}
+footer .big{width:100%;font:900 clamp(3rem,13vw,10rem)/.9 var(--serif);letter-spacing:-.04em;color:#e9dcbf;text-shadow:0 1px 0 #ddcda9,0 2px 0 #d3c19b,0 3px 0 #c9b58d,0 4px 0 #bfa97f,0 16px 26px rgba(60,50,10,.25)}
+
+.rv{opacity:0;transform:translateY(24px);transition:opacity .8s,transform .8s cubic-bezier(.2,.8,.2,1)}
+.rv.in{opacity:1;transform:none}
+@media (max-width:980px){.tiles,.steps{grid-template-columns:1fr 1fr}}
+@media (max-width:860px){.hero{grid-template-columns:1fr;min-height:0;padding-block:10px 40px}.stage{order:-1;height:360px;min-height:0}.jar{width:min(130px,32vw)}.nav nav{display:none}}
+@media (max-width:520px){.tiles,.steps{grid-template-columns:1fr}.c2{display:none}.acts .wa{display:none}.band{border-radius:28px}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important;scroll-behavior:auto!important}.rv{opacity:1;transform:none}}
+</style>
+</head>
+<body>
+<div class="grain" aria-hidden="true"></div>
+
+<header><div class="wrap"><div class="nav">
+  <a class="logo" href="#top"><i></i>Bareerah Naturals</a>
+  <nav aria-label="Sections"><a href="#shop">Shop</a><a href="#why">Why us</a><a href="#how">How it works</a><a href="#" data-shop-orders>Track order</a></nav>
+  <div class="acts">
+    <a class="b3 cream sm wa" href="https://wa.me/919272527913?text=Assalamu%20Alaikum%20Bareerah%20Naturals" target="_blank" rel="noopener">WhatsApp</a>
+    <button class="b3 sm cartb" type="button" data-shop-cart aria-label="Cart">Cart<span class="shp-badge" data-shp-count hidden>0</span></button>
+  </div>
+</div></div></header>
+
+<main id="top">
+<div class="wrap hero">
+  <div>
+    <p class="eyebrow">Bareerah Naturals · Sunnah foods</p>
+    <h1><span class="olive3d">Pure, like</span><span class="olive3d">it was meant</span><span class="honey3d">to be.</span></h1>
+    <p class="lede">Raw honey, kalonji, miswak, zaitoon, olive oil and anjeer. The foods of the Sunnah, sourced with care and packed fresh for your family.</p>
+    <div class="cta"><a class="b3" href="#shop">Shop Sunnah foods</a><button class="b3 olive" type="button" data-shop-orders>Track my order</button></div>
+    <div class="trust"><span>🍯 No added sugar</span><span>🌿 Natural, unprocessed</span><span>📦 Delivered across India</span></div>
+  </div>
+  <div class="stage" id="stage" aria-hidden="true">
+    <div class="sun"></div><div class="board"></div>
+    <div class="jar" id="jar"></div>
+    <div class="chip c1"><span class="dot" style="background:#2b2622"></span><div><b>Kalonji</b><small>Black seed</small></div></div>
+    <div class="chip c2"><span class="dot" style="background:#7d8c47"></span><div><b>Zaitoon</b><small>Olive oil</small></div></div>
+    <div class="chip c3"><span class="dot" style="background:#a0623a"></span><div><b>Anjeer</b><small>Dried figs</small></div></div>
+  </div>
+</div>
+
+<section id="shop"><div class="wrap">
+  <div class="sh rv"><div><p class="eyebrow">The pantry</p><h2 class="olive3d" id="shTitle">Everything</h2></div>
+    <p>Add to cart, pay online and follow your parcel here. You can also order any item on WhatsApp.</p></div>
+  <div class="keys" id="keys" role="group" aria-label="Category"></div>
+  <div class="shelf" id="grid"><p class="empty">Opening the pantry…</p></div>
+</div></section>
+
+<section class="band rv" id="why"><div class="wrap">
+  <p class="eyebrow">Why Bareerah</p>
+  <h2>Sunnah foods, <em>honestly made.</em></h2>
+  <div class="tiles">
+    <div class="tile"><span class="ic">🍯</span><b>Raw and pure</b><p>No sugar syrup, no mixing. Honey the way the bees made it.</p></div>
+    <div class="tile"><span class="ic">🌿</span><b>From the Sunnah</b><p>Foods mentioned in the Quran and Hadith, for daily barakah.</p></div>
+    <div class="tile"><span class="ic">🔒</span><b>Safe payment</b><p>UPI, cards and netbanking through a secure checkout.</p></div>
+    <div class="tile"><span class="ic">📦</span><b>Live tracking</b><p>Every order gets a link to see packed, shipped and delivered.</p></div>
+  </div>
+</div></section>
+
+<section id="how"><div class="wrap">
+  <div class="sh rv"><div><p class="eyebrow">How it works</p><h2 class="olive3d">Four steps to your kitchen.</h2></div></div>
+  <div class="steps">
+    <div class="step rv"><b>Choose</b><p>Pick your items and add them to the cart.</p></div>
+    <div class="step rv"><b>Address</b><p>Name, phone and delivery address. Saved for next time.</p></div>
+    <div class="step rv"><b>Pay</b><p>Pay online, or confirm with us on WhatsApp.</p></div>
+    <div class="step rv"><b>Track</b><p>Follow your parcel any time from "Track order".</p></div>
+  </div>
+  <div class="bar rv"><div><b>Already ordered?</b><p>Your orders and tracking links are saved on this phone.</p></div><button class="b3" type="button" data-shop-orders>📦 My orders &amp; tracking</button></div>
+  <div class="bar rv"><div><p class="eyebrow" style="margin:0 0 4px">WhatsApp &amp; calls</p><span class="num" id="num">+91 92725 27913</span><p>Email: <span style="user-select:all">bareerahnaturals@gmail.com</span></p></div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap"><button class="b3 cream" id="copyBtn" type="button">Copy number</button><a class="b3 olive" href="https://wa.me/919272527913?text=Assalamu%20Alaikum%20Bareerah%20Naturals" target="_blank" rel="noopener">Open WhatsApp</a></div></div>
+</div></section>
+</main>
+
+<div class="wrap"><footer>
+  <div class="big" aria-hidden="true">Bareerah</div>
+  <span>Bareerah Naturals · Pure Sunnah foods</span><span>© <span id="yr"></span> Bareerah Naturals · <a href="#" data-shop-orders>Track order</a></span>
+</footer></div>
+
+<script src="https://quranicscience.info/shop-engine.js"></script>
+<script>
+const WA="919272527913";
+/* categories are matched from the Category text set in Shop Admin */
+const CATS=[
+  {id:"all",name:"Everything",em:"✦",t:"#f0c86a"},
+  {id:"honey",name:"Honey",em:"🍯",t:"#e09a1d",k:/honey|shahad|shehad/i},
+  {id:"kalonji",name:"Kalonji",em:"⚫",t:"#3a3430",k:/kalonji|black ?seed|habba/i},
+  {id:"olive",name:"Zaitoon & oil",em:"🫒",t:"#7d8c47",k:/olive|zaitoon|zaytun/i},
+  {id:"anjeer",name:"Anjeer & dates",em:"🟤",t:"#a0623a",k:/anjeer|fig|date|khajur|ajwa/i},
+  {id:"miswak",name:"Miswak",em:"🌿",t:"#c9b07a",k:/miswak|siwak/i}];
+const catOf=it=>CATS.find(c=>c.k&&c.k.test((it.cat||"")+" "+it.name))||{id:"other",t:"#e09a1d"};
+const H=s=>String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const rs=v=>"₹"+(+v||0).toLocaleString("en-IN");
+let cur="all",items=[];
+function drawKeys(){document.getElementById("keys").innerHTML=CATS.map(c=>{const n=c.id==="all"?items.length:items.filter(i=>catOf(i).id===c.id).length;
+  return `<button class="key" type="button" data-c="${c.id}" aria-pressed="${c.id===cur}" style="--t:${c.t}"><span class="em">${c.em}</span>${c.name}<em>${n}</em></button>`}).join("")}
+function drawGrid(){const c=CATS.find(x=>x.id===cur);document.getElementById("shTitle").textContent=c.name;
+  const list=cur==="all"?items:items.filter(i=>catOf(i).id===cur);
+  document.getElementById("grid").innerHTML=list.length?list.map(it=>{const t=catOf(it).t,live=!it.demo&&+it.price>0;
+    const wa=`https://wa.me/${WA}?text=${encodeURIComponent("Assalamu Alaikum Bareerah Naturals, please share price for: "+it.name)}`;
+    const buy=live?(it.stock===0?`<button class="b3 sm" disabled>Sold out</button>`:`<button class="b3 sm" type="button" data-shop-add="${H(it.id)}">Add to cart</button>`):`<a class="b3 olive sm" href="${wa}" target="_blank" rel="noopener">Ask on WhatsApp</a>`;
+    return `<article class="pc" style="--t:${t}"><div class="media">${it.img?`<img src="${H(it.img)}" alt="${H(it.name)}" loading="lazy">`:`<span class="mj"></span>`}</div>
+      ${it.tag?`<span class="pill">${H(it.tag)}</span>`:""}<span class="meta">${H([it.cat,it.size].filter(Boolean).join(" · "))}</span>
+      <h3>${H(it.name)}</h3>${it.desc?`<p>${H(it.desc)}</p>`:""}
+      <div class="row"><span class="price">${live?rs(it.price)+(+it.mrp>+it.price?`<s>${rs(it.mrp)}</s>`:""):"Ask price"}</span>${buy}</div></article>`}).join("")
+    :`<p class="empty">Coming soon in this section. <a href="https://wa.me/${WA}" target="_blank" rel="noopener">Ask us on WhatsApp</a>.</p>`;
+  tilt()}
+document.getElementById("keys").addEventListener("click",e=>{const b=e.target.closest(".key");if(!b)return;cur=b.dataset.c;drawKeys();drawGrid()});
+document.addEventListener("shop:items",e=>{items=e.detail||[];drawKeys();drawGrid()});
+
+/* honey jar: 14 glass slices with label on the front, wooden lid */
+(function(){const j=document.getElementById("jar");let h="";const N=14;
+  for(let i=0;i<N;i++){const z=(i-(N-1)/2)*3.4;h+=`<div class="js${i===N-1||i===0?" face":""}" style="transform:translateZ(${z}px)${i===0?" rotateY(180deg)":""}">${i===N-1?'<div class="lab">BAREERAH<small>PURE RAW HONEY</small></div>':""}</div>`}
+  h+=`<div class="lid" style="--hz:26px">${[0,90,180,270].map(r=>`<i style="transform:rotateY(${r}deg) translateZ(var(--hz))"></i>`).join("")}<i class="top"></i></div>`;j.innerHTML=h})();
+
+const fine=matchMedia("(pointer:fine)").matches&&!matchMedia("(prefers-reduced-motion:reduce)").matches;
+function tilt(){if(!fine)return;document.querySelectorAll(".pc").forEach(c=>{c.onpointermove=e=>{const r=c.getBoundingClientRect(),x=(e.clientX-r.left)/r.width-.5,y=(e.clientY-r.top)/r.height-.5;c.style.transform=`rotateY(${x*14}deg) rotateX(${-y*12}deg) translateY(-6px)`};c.onpointerleave=()=>c.style.transform=""})}
+const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add("in");io.unobserve(e.target)}}),{threshold:.1});
+document.querySelectorAll(".rv").forEach(el=>io.observe(el));
+document.getElementById("yr").textContent=new Date().getFullYear();
+document.getElementById("copyBtn").addEventListener("click",async e=>{try{await navigator.clipboard.writeText("+919272527913");e.target.textContent="Copied ✓"}
+  catch(_){const r=document.createRange();r.selectNodeContents(document.getElementById("num"));const s=getSelection();s.removeAllRanges();s.addRange(r);e.target.textContent="Selected"}});
+
+Shop.init({brand:"bareerah",name:"Bareerah Naturals",whatsapp:WA,color:"#e09a1d",fab:false,
+  fallbackItems:[
+    {id:"b1",name:"Pure raw honey",cat:"Honey",desc:"Unprocessed honey with no added sugar.",kind:"product"},
+    {id:"b2",name:"Kalonji (black seed)",cat:"Kalonji",desc:"Clean whole black seed for daily use.",kind:"product"},
+    {id:"b3",name:"Extra virgin olive oil",cat:"Zaitoon / olive oil",desc:"Cold-pressed zaitoon oil for food and hair.",kind:"product"},
+    {id:"b4",name:"Original anjeer",cat:"Anjeer",desc:"Soft, naturally sweet dried figs.",kind:"product"},
+    {id:"b5",name:"Miswak",cat:"Miswak",desc:"Fresh Sunnah tooth stick, individually packed.",kind:"product"}]});
+if("serviceWorker" in navigator)navigator.serviceWorker.register("sw.js").catch(()=>{});
+</script>
+</body>
+</html>
