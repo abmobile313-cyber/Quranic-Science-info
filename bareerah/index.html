@@ -10,7 +10,7 @@
 <link rel="icon" href="icon-192.png">
 <link rel="apple-touch-icon" href="icon-192.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,700;0,9..144,900;1,9..144,500&family=Outfit:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,700;0,9..144,900;1,9..144,500&family=Outfit:wght@400;500;600;700&display=swap">
 <style>
 /* Sun-warmed pantry: cream paper, raw honey amber, olive leaf. Solid, edible-looking depth. */
 :root{
@@ -84,7 +84,7 @@ header{position:sticky;top:env(safe-area-inset-top,0px);z-index:30;padding-block
 .chip b{display:block;font:700 .98rem var(--serif)}
 .chip small{color:var(--muted)}
 .chip .dot{width:30px;height:30px;border-radius:50%;box-shadow:inset 0 -4px 0 rgba(0,0,0,.2),inset 0 2px 0 rgba(255,255,255,.4)}
-.c1{left:0;top:14%}.c2{right:0;top:44%;animation-delay:-2s}.c3{left:8%;bottom:10%;animation-delay:-4s}
+.c1{left:7%;top:22%}.c2{right:5%;top:46%;animation-delay:-2s}.c3{left:8%;bottom:12%;animation-delay:-4s}
 @keyframes bob{50%{transform:translateY(-12px)}}
 
 section{padding-block:80px}
@@ -142,10 +142,25 @@ section{padding-block:80px}
 footer{padding-block:40px calc(60px + env(safe-area-inset-bottom,0px));display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;color:var(--muted);font-size:.85rem}
 footer .big{width:100%;font:900 clamp(3rem,13vw,10rem)/.9 var(--serif);letter-spacing:-.04em;color:#e9dcbf;text-shadow:0 1px 0 #ddcda9,0 2px 0 #d3c19b,0 3px 0 #c9b58d,0 4px 0 #bfa97f,0 16px 26px rgba(60,50,10,.25)}
 
+/* Islamic layer: girih star pattern, mihrab arches, calligraphy */
+.grain{background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'%3E%3Cg fill='none' stroke='%234f5d2a' stroke-opacity='.13' stroke-width='1.2'%3E%3Cpath d='M40 8l9 23 23 9-23 9-9 23-9-23-23-9 23-9z'/%3E%3Crect x='22' y='22' width='36' height='36' transform='rotate(45 40 40)'/%3E%3Crect x='22' y='22' width='36' height='36'/%3E%3C/g%3E%3C/svg%3E") 0 0/80px 80px,radial-gradient(circle at 85% 10%,rgba(224,154,29,.18),transparent 40%),radial-gradient(circle at 5% 70%,rgba(79,93,42,.12),transparent 40%)}
+.ayah{text-align:left;font:700 clamp(1.8rem,4vw,2.8rem)/1.6 "Amiri",serif;color:var(--olive-d);direction:rtl;margin:0 0 4px;text-shadow:0 2px 0 #e2d4b4}
+.ayah-t{font:500 .86rem var(--sans);color:var(--honey-d);letter-spacing:.06em;margin:0 0 18px}
+.mihrab{position:relative;height:min(600px,78vw);min-height:420px;border-radius:50% 50% 24px 24px/34% 34% 24px 24px;background:linear-gradient(180deg,#fbf6ec,#efe2c4);border:2px solid #c9b07a;
+  box-shadow:inset 0 0 0 10px #f4ecdc,inset 0 0 0 12px #c9b07a,0 10px 0 #d8c69c,0 40px 60px -30px rgba(80,60,10,.5);overflow:hidden}
+.mihrab::before{content:"";position:absolute;inset:0;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'%3E%3Cg fill='none' stroke='%234f5d2a' stroke-opacity='.13' stroke-width='1.2'%3E%3Cpath d='M40 8l9 23 23 9-23 9-9 23-9-23-23-9 23-9z'/%3E%3Crect x='22' y='22' width='36' height='36' transform='rotate(45 40 40)'/%3E%3Crect x='22' y='22' width='36' height='36'/%3E%3C/g%3E%3C/svg%3E") center/64px 64px;opacity:.9}
+.mihrab .stage{position:absolute;inset:0;height:auto;min-height:0}
+.lamp{position:absolute;left:50%;top:12%;width:2px;height:12%;background:#9a7a3a;transform:translateX(-50%)}
+.lamp::after{content:"";position:absolute;left:50%;bottom:-26px;width:30px;height:30px;transform:translateX(-50%);border-radius:50% 50% 40% 40%;background:radial-gradient(circle at 50% 40%,#fff3c4,#f0b54a 60%,#9a5f07);box-shadow:0 0 30px 10px rgba(246,196,90,.5)}
+.gband{height:24px;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='48' height='24' viewBox='0 0 48 24'%3E%3Cpath d='M0 12l12-12 12 12-12 12zM24 12l12-12 12 12-12 12z' fill='none' stroke='%23e09a1d' stroke-width='1.5'/%3E%3Ccircle cx='24' cy='12' r='2.5' fill='%234f5d2a'/%3E%3C/svg%3E") center/48px 24px repeat-x;margin-block:10px;opacity:.9}
+.pc .media{border-radius:50% 50% 16px 16px/30% 30% 16px 16px}
+.band{background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'%3E%3Cg fill='none' stroke='%23f6c45a' stroke-opacity='.12' stroke-width='1.2'%3E%3Cpath d='M40 8l9 23 23 9-23 9-9 23-9-23-23-9 23-9z'/%3E%3Crect x='22' y='22' width='36' height='36' transform='rotate(45 40 40)'/%3E%3Crect x='22' y='22' width='36' height='36'/%3E%3C/g%3E%3C/svg%3E") 0 0/80px 80px,linear-gradient(180deg,#4f5d2a,#3b4720)}
+.basmala{text-align:center;font:400 clamp(1.6rem,3.4vw,2.4rem) "Amiri",serif;color:var(--olive);padding-top:18px;direction:rtl}
+
 .rv{opacity:0;transform:translateY(24px);transition:opacity .8s,transform .8s cubic-bezier(.2,.8,.2,1)}
 .rv.in{opacity:1;transform:none}
 @media (max-width:980px){.tiles,.steps{grid-template-columns:1fr 1fr}}
-@media (max-width:860px){.hero{grid-template-columns:1fr;min-height:0;padding-block:10px 40px}.stage{order:-1;height:360px;min-height:0}.jar{width:min(130px,32vw)}.nav nav{display:none}}
+@media (max-width:860px){.hero{grid-template-columns:1fr;min-height:0;padding-block:10px 40px}.mihrab{order:-1;height:420px;min-height:0}.jar{width:min(130px,32vw)}.nav nav{display:none}}
 @media (max-width:520px){.tiles,.steps{grid-template-columns:1fr}.c2{display:none}.acts .wa{display:none}.band{border-radius:28px}}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important;scroll-behavior:auto!important}.rv{opacity:1;transform:none}}
 </style>
@@ -157,29 +172,33 @@ footer .big{width:100%;font:900 clamp(3rem,13vw,10rem)/.9 var(--serif);letter-sp
   <a class="logo" href="#top"><i></i>Bareerah Naturals</a>
   <nav aria-label="Sections"><a href="#shop">Shop</a><a href="#why">Why us</a><a href="#how">How it works</a><a href="#" data-shop-orders>Track order</a></nav>
   <div class="acts">
-    <a class="b3 cream sm wa" href="https://wa.me/919272527913?text=Assalamu%20Alaikum%20Bareerah%20Naturals" target="_blank" rel="noopener">WhatsApp</a>
+    <a class="b3 cream sm wa" href="https://wa.me/919370417863?text=Assalamu%20Alaikum%20Bareerah%20Naturals" target="_blank" rel="noopener">WhatsApp</a>
     <button class="b3 sm cartb" type="button" data-shop-cart aria-label="Cart">Cart<span class="shp-badge" data-shp-count hidden>0</span></button>
   </div>
 </div></div></header>
 
 <main id="top">
+<p class="basmala" lang="ar">بِسْمِ ٱللَّٰهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ</p>
 <div class="wrap hero">
   <div>
     <p class="eyebrow">Bareerah Naturals · Sunnah foods</p>
-    <h1><span class="olive3d">Pure, like</span><span class="olive3d">it was meant</span><span class="honey3d">to be.</span></h1>
+    <p class="ayah" lang="ar">فِيهِ شِفَاءٌ لِّلنَّاسِ</p><p class="ayah-t">“In it is healing for people.” · Surah An-Nahl 16:69</p>
+    <h1><span class="olive3d">Pure Sunnah</span><span class="olive3d">foods, made</span><span class="honey3d">with ikhlas.</span></h1>
     <p class="lede">Raw honey, kalonji, miswak, zaitoon, olive oil and anjeer. The foods of the Sunnah, sourced with care and packed fresh for your family.</p>
     <div class="cta"><a class="b3" href="#shop">Shop Sunnah foods</a><button class="b3 olive" type="button" data-shop-orders>Track my order</button></div>
     <div class="trust"><span>🍯 No added sugar</span><span>🌿 Natural, unprocessed</span><span>📦 Delivered across India</span></div>
   </div>
-  <div class="stage" id="stage" aria-hidden="true">
+  <div class="mihrab" aria-hidden="true"><div class="lamp"></div><div class="stage" id="stage">
     <div class="sun"></div><div class="board"></div>
     <div class="jar" id="jar"></div>
     <div class="chip c1"><span class="dot" style="background:#2b2622"></span><div><b>Kalonji</b><small>Black seed</small></div></div>
     <div class="chip c2"><span class="dot" style="background:#7d8c47"></span><div><b>Zaitoon</b><small>Olive oil</small></div></div>
     <div class="chip c3"><span class="dot" style="background:#a0623a"></span><div><b>Anjeer</b><small>Dried figs</small></div></div>
   </div>
+  </div>
 </div>
 
+<div class="wrap"><div class="gband" aria-hidden="true"></div></div>
 <section id="shop"><div class="wrap">
   <div class="sh rv"><div><p class="eyebrow">The pantry</p><h2 class="olive3d" id="shTitle">Everything</h2></div>
     <p>Add to cart, pay online and follow your parcel here. You can also order any item on WhatsApp.</p></div>
@@ -207,8 +226,8 @@ footer .big{width:100%;font:900 clamp(3rem,13vw,10rem)/.9 var(--serif);letter-sp
     <div class="step rv"><b>Track</b><p>Follow your parcel any time from "Track order".</p></div>
   </div>
   <div class="bar rv"><div><b>Already ordered?</b><p>Your orders and tracking links are saved on this phone.</p></div><button class="b3" type="button" data-shop-orders>📦 My orders &amp; tracking</button></div>
-  <div class="bar rv"><div><p class="eyebrow" style="margin:0 0 4px">WhatsApp &amp; calls</p><span class="num" id="num">+91 92725 27913</span><p>Email: <span style="user-select:all">bareerahnaturals@gmail.com</span></p></div>
-    <div style="display:flex;gap:10px;flex-wrap:wrap"><button class="b3 cream" id="copyBtn" type="button">Copy number</button><a class="b3 olive" href="https://wa.me/919272527913?text=Assalamu%20Alaikum%20Bareerah%20Naturals" target="_blank" rel="noopener">Open WhatsApp</a></div></div>
+  <div class="bar rv"><div><p class="eyebrow" style="margin:0 0 4px">WhatsApp &amp; calls</p><span class="num" id="num">+91 93704 17863</span><p>Email: <span style="user-select:all">bareerahnaturals@gmail.com</span></p></div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap"><button class="b3 cream" id="copyBtn" type="button">Copy number</button><a class="b3 olive" href="https://wa.me/919370417863?text=Assalamu%20Alaikum%20Bareerah%20Naturals" target="_blank" rel="noopener">Open WhatsApp</a></div></div>
 </div></section>
 </main>
 
@@ -219,7 +238,7 @@ footer .big{width:100%;font:900 clamp(3rem,13vw,10rem)/.9 var(--serif);letter-sp
 
 <script src="https://quranicscience.info/shop-engine.js"></script>
 <script>
-const WA="919272527913";
+const WA="919370417863";
 /* categories are matched from the Category text set in Shop Admin */
 const CATS=[
   {id:"all",name:"Everything",em:"✦",t:"#f0c86a"},
@@ -258,7 +277,7 @@ function tilt(){if(!fine)return;document.querySelectorAll(".pc").forEach(c=>{c.o
 const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add("in");io.unobserve(e.target)}}),{threshold:.1});
 document.querySelectorAll(".rv").forEach(el=>io.observe(el));
 document.getElementById("yr").textContent=new Date().getFullYear();
-document.getElementById("copyBtn").addEventListener("click",async e=>{try{await navigator.clipboard.writeText("+919272527913");e.target.textContent="Copied ✓"}
+document.getElementById("copyBtn").addEventListener("click",async e=>{try{await navigator.clipboard.writeText("+919370417863");e.target.textContent="Copied ✓"}
   catch(_){const r=document.createRange();r.selectNodeContents(document.getElementById("num"));const s=getSelection();s.removeAllRanges();s.addRange(r);e.target.textContent="Selected"}});
 
 Shop.init({brand:"bareerah",name:"Bareerah Naturals",whatsapp:WA,color:"#e09a1d",fab:false,
