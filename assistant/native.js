@@ -26,15 +26,17 @@ function natItems(){
     try{add(at(S.mamool),mkQ('mamool').title,'','taleem')}catch(e){}
     if(dow===5&&tm&&tm.t.Dhuhr)add(at(pad(Math.max(0,(hm(tm.t.Dhuhr)||[12])[0]-3))+':00'),T('Juma Mubarak! 🌙','Jumuah Mubarak! 🌙'),T('Ghusl, saaf libaas, Surah Kahf, durood ki kasrat, jaldi masjid.','Ghusl, clean clothes, Surah Kahf, much durood, go early.'),'juma',{tab:'deen',sub:'quran'});
     const J=S.job;if(J&&J.on&&(J.days||[1,2,3,4,5,6]).includes(dow)){
-      jm('login')==='n'&&add(at(J.login),T('Job ka waqt! ⏰','Job login time! ⏰'),T('Login karne ka waqt ho gaya.','Time to log in.'),'job_login',{tab:'kaam',sub:'waqt'});
-      jm('brk')==='n'&&add(at(J.brk),T('Break ka waqt ☕','Break time ☕'),T('Thoda aaram karein, namaz/khana.','Take a rest, prayer/lunch.'),'break_start');
-      jm('brkEnd')==='n'&&add(at(J.brkEnd),T('Break khatam ▶️','Break over ▶️'),T('Wapas kaam par.','Back to work.'),'break_end');
-      jm('leave')==='n'&&add(at(J.leave),T('Chhutti ka waqt 🏁','Leave time 🏁'),T('Aaj ka kaam samet lein.','Wrap up for the day.'),'leave')}
+      jobMode('login')==='n'&&add(at(J.login),T('Job ka waqt! ⏰','Job login time! ⏰'),T('Login karne ka waqt ho gaya.','Time to log in.'),'job_login',{tab:'kaam',sub:'waqt'});
+      jobMode('brk')==='n'&&add(at(J.brk),T('Break ka waqt ☕','Break time ☕'),T('Thoda aaram karein, namaz/khana.','Take a rest, prayer/lunch.'),'break_start');
+      jobMode('brkEnd')==='n'&&add(at(J.brkEnd),T('Break khatam ▶️','Break over ▶️'),T('Wapas kaam par.','Back to work.'),'break_end');
+      jobMode('leave')==='n'&&add(at(J.leave),T('Chhutti ka waqt 🏁','Leave time 🏁'),T('Aaj ka kaam samet lein.','Wrap up for the day.'),'leave')}
     if(typeof mkEvents==='function')mkEvents(base,tm).forEach(e=>add(e.at,e.title,e.body,e.silent?'silent':e.voice,{tab:'deen',sub:'namaz'}));
     if(typeof jumaEvents==='function')jumaEvents(base,az,jm).forEach(e=>add(e.at,e.title,e.body,e.voice,{tab:e.tab,sub:e.sub}));
     if(typeof duaEvents==='function')duaEvents(base).forEach(e=>add(e.at,e.title,e.body,e.voice,{tab:e.tab,sub:e.sub}));
     if(typeof gashtEvents==='function')gashtEvents(base,az,jm).forEach(e=>add(e.at,e.title,e.body||'',e.voice,{tab:e.tab,sub:e.sub}));
     if(typeof wkEvents==='function')wkEvents(base).forEach(e=>add(e.at,e.title,e.body,e.voice,{tab:e.tab,sub:e.sub}));
+    if(typeof dutyEvents==='function')dutyEvents(base).forEach(e=>add(e.at,e.title,e.body,e.voice,{tab:e.tab,sub:e.sub}));
+    if(typeof salEvents==='function')salEvents(base).forEach(e=>add(e.at,e.title,e.body,e.voice,{tab:e.tab,sub:e.sub}));
     if(typeof cevEvents==='function')cevEvents(base).forEach(e=>add(e.at,e.title,e.body,e.voice,{tab:e.tab,sub:e.sub}));
     if(typeof almEvents==='function')almEvents(base).forEach(e=>add(e.at,e.title,e.body,'alert',{tab:e.tab,sub:e.sub,alarm:1,aid:e.aid,snooze:e.snooze,duaRaw:e.duaRaw,duaText:e.duaText,duaLang:e.duaLang}));
     if(typeof pexEvents==='function')pexEvents(base).forEach(e=>add(e.at,e.title,e.body,e.voice,{tab:e.tab,sub:e.sub}));

@@ -131,15 +131,17 @@ function dayEvents(){
   if(typeof gashtEvents==='function')gashtEvents(new Date(),p=>azanTime(p),p=>jamTime(p)).forEach(e=>e.ask?E(e.k,e.at,Infinity,(late)=>{const dk=dkey();if(!(GS[dk]&&GS[dk][e.ask]))addQ(mkQ('gasht',{w:e.ask}),{silent:late>60*60000})}):E(e.k,e.at,20*60000,()=>notify(e.title,e.body,{k:'alert',tab:e.tab,sub:e.sub,voice:e.voice})));
   if(typeof cevEvents==='function')cevEvents(new Date()).forEach(e=>E(e.k,e.at,20*60000,()=>notify(e.title,e.body,{k:'alert',tab:e.tab,sub:e.sub,voice:e.voice})));
   if(typeof wkEvents==='function')wkEvents(new Date()).forEach(e=>E(e.k,e.at,20*60000,()=>notify(e.title,e.body,{k:'alert',tab:e.tab,sub:e.sub,voice:e.voice})));
+  if(typeof dutyEvents==='function')dutyEvents(new Date()).forEach(e=>E(e.k,e.at,20*60000,()=>notify(e.title,e.body,{k:'alert',tab:e.tab,sub:e.sub,voice:e.voice})));
+  if(typeof salEvents==='function')salEvents(new Date()).forEach(e=>E(e.k,e.at,6*3600000,()=>notify(e.title,e.body,{k:'alert',tab:e.tab,sub:e.sub,voice:e.voice})));
   if(typeof almEvents==='function')almEvents(new Date()).forEach(e=>E(e.k,e.at,10*60000,()=>{if(typeof almWeb==='function')almWeb(e)}));
   if(typeof pexEvents==='function')pexEvents(new Date()).forEach(e=>E(e.k,e.at,6*3600000,()=>notify(e.title,e.body,{k:'alert',tab:e.tab,sub:e.sub,voice:e.voice})));
   if(typeof tipEvents==='function')tipEvents(new Date()).forEach(e=>E(e.k,e.at,6*3600000,()=>notify(e.title,e.body,{k:'alert',tab:e.tab,sub:e.sub,voice:e.voice})));
   if(typeof reportEvents==='function')reportEvents(new Date()).forEach(e=>E(e.k,e.at,6*3600000,()=>notify(e.title,e.body,{k:'alert',tab:e.tab,sub:e.sub,voice:e.voice})));
   const J=S.job;if(J.on&&(J.days||[1,2,3,4,5,6]).includes(dow)){
-    jm('login')==='n'&&dl('jl',J.login,()=>notify(T('Job ka waqt! ⏰','Job login time! ⏰'),T('Login karne ka waqt ho gaya.','Time to log in.'),{k:'alert',tab:'kaam',sub:'waqt',voice:'job_login'}));
-    jm('brk')==='n'&&dl('jb',J.brk,()=>notify(T('Break ka waqt ☕','Break time ☕'),T('Thoda aaram karein, namaz/khana.','Take a rest, prayer/lunch.'),{k:'alert',voice:'break_start'}));
-    jm('brkEnd')==='n'&&dl('jbe',J.brkEnd,()=>notify(T('Break khatam ▶️','Break over ▶️'),T('Wapas kaam par.','Back to work.'),{k:'alert',voice:'break_end'}));
-    jm('leave')==='n'&&dl('jlv',J.leave,()=>notify(T('Chhutti ka waqt 🏁','Leave time 🏁'),T('Aaj ka kaam samet lein.','Wrap up for the day.'),{k:'alert',voice:'leave'}))}
+    jobMode('login')==='n'&&dl('jl',J.login,()=>notify(T('Job ka waqt! ⏰','Job login time! ⏰'),T('Login karne ka waqt ho gaya.','Time to log in.'),{k:'alert',tab:'kaam',sub:'waqt',voice:'job_login'}));
+    jobMode('brk')==='n'&&dl('jb',J.brk,()=>notify(T('Break ka waqt ☕','Break time ☕'),T('Thoda aaram karein, namaz/khana.','Take a rest, prayer/lunch.'),{k:'alert',voice:'break_start'}));
+    jobMode('brkEnd')==='n'&&dl('jbe',J.brkEnd,()=>notify(T('Break khatam ▶️','Break over ▶️'),T('Wapas kaam par.','Back to work.'),{k:'alert',voice:'break_end'}));
+    jobMode('leave')==='n'&&dl('jlv',J.leave,()=>notify(T('Chhutti ka waqt 🏁','Leave time 🏁'),T('Aaj ka kaam samet lein.','Wrap up for the day.'),{k:'alert',voice:'leave'}))}
   dl('rev',S.review,()=>{const s=hzScore(dkey());notify(T('Aaj ka hisaab 🌙','Daily review 🌙'),T(`Namaz ${s}/5, tilawat ${tlToday()}/${S.tilTarget}, sadqa ${sdDone()?'✅':'❌'}.`,`Prayers ${s}/5, recitation ${tlToday()}/${S.tilTarget}, sadaqah ${sdDone()?'✅':'❌'}.`,`نماز ${s}/5، تلاوت ${tlToday()}/${S.tilTarget}، صدقہ ${sdDone()?'✅':'❌'}۔`,`नमाज़ ${s}/5, तिलावत ${tlToday()}/${S.tilTarget}, सदक़ा ${sdDone()?'✅':'❌'}।`),{k:'alert',tab:'home',voice:'review'})});
   return ev}
 function reminderTick(){const now=Date.now();

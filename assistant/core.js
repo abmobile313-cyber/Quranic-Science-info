@@ -116,7 +116,7 @@ const AU={ctx:null,out:null,fx:null,conv:null,nbuf:null,
     const noise=(f,q,type,a,pk,d,f2,off)=>{const s0=t+(off||0);const s=c.createBufferSource();s.buffer=this.nbuf;s.loop=true;const b=c.createBiquadFilter();b.type=type;b.frequency.setValueAtTime(f,s0);if(f2)b.frequency.exponentialRampToValueAtTime(f2,s0+a+d);b.Q.value=q;const g=c.createGain();env(g,a,pk,d,off);s.connect(b);b.connect(g);g.connect(this.fx);s.start(s0);s.stop(s0+a+d+.05)};
     const tone=(fr,type,a,pk,d,fr2,send,off)=>{const s0=t+(off||0);const o=c.createOscillator();o.type=type;o.frequency.setValueAtTime(fr,s0);if(fr2)o.frequency.exponentialRampToValueAtTime(fr2,s0+a+d);const g=c.createGain();env(g,a,pk,d,off);o.connect(g);g.connect(this.fx);if(send)g.connect(this.conv);o.start(s0);o.stop(s0+a+d+.05)};
     switch(n){
-      case 'key':noise(3000+Math.random()*1800,1.3,'bandpass',.001,.5,.04);tone(150+Math.random()*30,'sine',.001,.15,.045);break; // typing
+      case 'key':{const P=[1046.5,1174.7,1318.5,1568,1760,2093];const f=P[Math.floor(Math.random()*P.length)];tone(f,'sine',.004,.07,.34,null,true);tone(f*2,'sine',.004,.018,.2,null,true,.01);break} // soft glass sparkle (replaces typing click)
       case 'tick':noise(2800+Math.random()*1200,1.4,'bandpass',.001,.35,.03);tone(190,'sine',.001,.09,.03);break;
       case 'bead':tone(880,'sine',.002,.12,.07,620);noise(4200,2,'bandpass',.001,.18,.025);break;
       case 'whoosh':noise(350,.8,'bandpass',.05,.3,.3,2600);break;
@@ -137,7 +137,7 @@ const sfx=n=>AU.play(n);
 
 /* ---------- VOICE: recorded ElevenLabs clips (no TTS anywhere) ---------- */
 const VO={a:null,blobs:{},
-  IDS:['az_Fajr','az_Dhuhr','az_Asr','az_Maghrib','az_Isha','hz_Fajr','hz_Dhuhr','hz_Asr','hz_Maghrib','hz_Isha','sadqa_ask','sadqa_remind','tilawat_ask','tilawat_remind','azkar_m','azkar_e','taleem','juma','job_login','break_start','break_end','leave','review','task','reminder','call','biz','class_1h','class_10m','timer_nudge','timer_start','test','voice_on','gasht','makruh','alert'],
+  IDS:['az_Fajr','az_Dhuhr','az_Asr','az_Maghrib','az_Isha','hz_Fajr','hz_Dhuhr','hz_Asr','hz_Maghrib','hz_Isha','sadqa_ask','sadqa_remind','tilawat_ask','tilawat_remind','azkar_m','azkar_e','taleem','juma','job_login','break_start','break_end','leave','review','task','reminder','call','biz','class_1h','class_10m','timer_nudge','timer_start','test','voice_on','gasht','makruh','alert','dty_in','dty_out','sal_start','sal_late'],
   url(id,l){if(String(id).startsWith('dua_'))return 'dua/'+id+'.mp3';return 'voice/'+(l||VL())+'/'+id+'.mp3'},
   /* clips are fetched as blobs (works offline through the service worker cache) */
   async blob(id){const k=S.lang+'/'+id;if(this.blobs[k])return this.blobs[k];const r=await fetch(this.url(id));if(!r.ok)throw new Error('clip');const b=await r.blob();if(b.size<2000)throw new Error('clip');return this.blobs[k]=URL.createObjectURL(b)},

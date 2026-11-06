@@ -53,7 +53,7 @@ function expCatCard(r){const ex=FIN.filter(x=>x.type==='out'&&inR(x.date,r)).map
 
 /* ---------- personal kharche: to-do list ---------- */
 let PEX=store.get('pex2',[]);const savePEX=()=>store.set('pex2',PEX);
-const PEXC=['Ghar','Khana','Bills','Sawari','Sehat','Bachche','Sadqa/Zakat','Doosra'];
+const PEXC=['Ghar','Khana','Bills','Sawari','Sehat','Bachche','Personal','Sadqa/Zakat','Doosra'];
 function pexSync(x){FIN=FIN.filter(f=>f.pexId!==x.id);if(x.done){FIN.unshift({id:uid(),pexId:x.id,date:x.doneOn||dkey(),type:'out',amt:+x.amt||0,cur:'₹',biz:'personal',cat:x.cat||'Doosra',note:x.t})}saveFin()}
 function pexCard(){const pend=PEX.filter(x=>!x.done),done=PEX.filter(x=>x.done&&(x.doneOn||'').startsWith(monthK()));const sp=pend.reduce((a,x)=>a+(+x.amt||0),0),sd=done.reduce((a,x)=>a+(+x.amt||0),0);
   const row=x=>`<div class="item kk${x.done?' done':''}"><div class="ic2"><input type="checkbox" class="sw" data-a="pextog" data-id="${x.id}" ${x.done?'checked':''}></div><div class="t"><b style="${x.done?'text-decoration:line-through;opacity:.6':''}">${esc(x.t)}</b><div class="muted sm">₹${num(x.amt)} • ${esc(x.cat||'')}${x.due?' • 📅 '+x.due:''}</div></div><button class="btn s ghost" data-a="pexdel" data-id="${x.id}">✕</button></div>`;
