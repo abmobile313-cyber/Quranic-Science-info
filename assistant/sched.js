@@ -136,15 +136,15 @@ function dayEvents(){
   if(typeof tipEvents==='function')tipEvents(new Date()).forEach(e=>E(e.k,e.at,6*3600000,()=>notify(e.title,e.body,{k:'alert',tab:e.tab,sub:e.sub,voice:e.voice})));
   if(typeof reportEvents==='function')reportEvents(new Date()).forEach(e=>E(e.k,e.at,6*3600000,()=>notify(e.title,e.body,{k:'alert',tab:e.tab,sub:e.sub,voice:e.voice})));
   const J=S.job;if(J.on&&(J.days||[1,2,3,4,5,6]).includes(dow)){
-    dl('jl',J.login,()=>notify(T('Job ka waqt! ⏰','Job login time! ⏰'),T('Login karne ka waqt ho gaya.','Time to log in.'),{k:'alert',tab:'kaam',sub:'waqt',voice:'job_login'}));
-    dl('jb',J.brk,()=>notify(T('Break ka waqt ☕','Break time ☕'),T('Thoda aaram karein, namaz/khana.','Take a rest, prayer/lunch.'),{k:'alert',voice:'break_start'}));
-    dl('jbe',J.brkEnd,()=>notify(T('Break khatam ▶️','Break over ▶️'),T('Wapas kaam par.','Back to work.'),{k:'alert',voice:'break_end'}));
-    dl('jlv',J.leave,()=>notify(T('Chhutti ka waqt 🏁','Leave time 🏁'),T('Aaj ka kaam samet lein.','Wrap up for the day.'),{k:'alert',voice:'leave'}))}
+    jm('login')==='n'&&dl('jl',J.login,()=>notify(T('Job ka waqt! ⏰','Job login time! ⏰'),T('Login karne ka waqt ho gaya.','Time to log in.'),{k:'alert',tab:'kaam',sub:'waqt',voice:'job_login'}));
+    jm('brk')==='n'&&dl('jb',J.brk,()=>notify(T('Break ka waqt ☕','Break time ☕'),T('Thoda aaram karein, namaz/khana.','Take a rest, prayer/lunch.'),{k:'alert',voice:'break_start'}));
+    jm('brkEnd')==='n'&&dl('jbe',J.brkEnd,()=>notify(T('Break khatam ▶️','Break over ▶️'),T('Wapas kaam par.','Back to work.'),{k:'alert',voice:'break_end'}));
+    jm('leave')==='n'&&dl('jlv',J.leave,()=>notify(T('Chhutti ka waqt 🏁','Leave time 🏁'),T('Aaj ka kaam samet lein.','Wrap up for the day.'),{k:'alert',voice:'leave'}))}
   dl('rev',S.review,()=>{const s=hzScore(dkey());notify(T('Aaj ka hisaab 🌙','Daily review 🌙'),T(`Namaz ${s}/5, tilawat ${tlToday()}/${S.tilTarget}, sadqa ${sdDone()?'✅':'❌'}.`,`Prayers ${s}/5, recitation ${tlToday()}/${S.tilTarget}, sadaqah ${sdDone()?'✅':'❌'}.`,`نماز ${s}/5، تلاوت ${tlToday()}/${S.tilTarget}، صدقہ ${sdDone()?'✅':'❌'}۔`,`नमाज़ ${s}/5, तिलावत ${tlToday()}/${S.tilTarget}, सदक़ा ${sdDone()?'✅':'❌'}।`),{k:'alert',tab:'home',voice:'review'})});
   return ev}
 function reminderTick(){const now=Date.now();
-  if(typeof TASKS!=='undefined')TASKS.forEach(t=>{if(!t.done&&t.due&&!t.fired){const at=new Date(t.due).getTime();if(at<=now&&now-at<6*3600000){t.fired=1;store.set('tasks',TASKS);notify(T('Kaam ka waqt','Task due'),t.title,{k:'alert',tab:'kaam',sub:'tasks',voice:'task'})}}});
-  if(typeof ALERTS!=='undefined')ALERTS.forEach(a=>{if(!a.fired&&a.at){const at=new Date(a.at).getTime();if(at<=now&&now-at<6*3600000){a.fired=1;store.set('alerts',ALERTS);notify(T('Yaad-dahani','Reminder'),a.title,{k:'alert',tab:'kaam',sub:'tasks',voice:'reminder'})}}});
+  if(typeof TASKS!=='undefined')TASKS.forEach(t=>{if(!t.done&&t.due&&!t.fired&&!t.ring){const at=new Date(t.due).getTime();if(at<=now&&now-at<6*3600000){t.fired=1;store.set('tasks',TASKS);notify(T('Kaam ka waqt','Task due'),t.title,{k:'alert',tab:'kaam',sub:'tasks',voice:'task'})}}});
+  if(typeof ALERTS!=='undefined')ALERTS.forEach(a=>{if(!a.fired&&a.at&&!a.ring){const at=new Date(a.at).getTime();if(at<=now&&now-at<6*3600000){a.fired=1;store.set('alerts',ALERTS);notify(T('Yaad-dahani','Reminder'),a.title,{k:'alert',tab:'kaam',sub:'tasks',voice:'reminder'})}}});
   SNZ=SNZ.filter(s=>{if(s.at<=now){addQ(Object.assign({},s.q,{key:s.q.key+'~'+Math.floor(now/60000)}));return false}return true});store.set('snz',SNZ)}
 let lastDayK=dkey();
 function schedTick(){

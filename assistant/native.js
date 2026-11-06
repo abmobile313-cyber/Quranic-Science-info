@@ -26,10 +26,10 @@ function natItems(){
     try{add(at(S.mamool),mkQ('mamool').title,'','taleem')}catch(e){}
     if(dow===5&&tm&&tm.t.Dhuhr)add(at(pad(Math.max(0,(hm(tm.t.Dhuhr)||[12])[0]-3))+':00'),T('Juma Mubarak! 🌙','Jumuah Mubarak! 🌙'),T('Ghusl, saaf libaas, Surah Kahf, durood ki kasrat, jaldi masjid.','Ghusl, clean clothes, Surah Kahf, much durood, go early.'),'juma',{tab:'deen',sub:'quran'});
     const J=S.job;if(J&&J.on&&(J.days||[1,2,3,4,5,6]).includes(dow)){
-      add(at(J.login),T('Job ka waqt! ⏰','Job login time! ⏰'),T('Login karne ka waqt ho gaya.','Time to log in.'),'job_login',{tab:'kaam',sub:'waqt'});
-      add(at(J.brk),T('Break ka waqt ☕','Break time ☕'),T('Thoda aaram karein, namaz/khana.','Take a rest, prayer/lunch.'),'break_start');
-      add(at(J.brkEnd),T('Break khatam ▶️','Break over ▶️'),T('Wapas kaam par.','Back to work.'),'break_end');
-      add(at(J.leave),T('Chhutti ka waqt 🏁','Leave time 🏁'),T('Aaj ka kaam samet lein.','Wrap up for the day.'),'leave')}
+      jm('login')==='n'&&add(at(J.login),T('Job ka waqt! ⏰','Job login time! ⏰'),T('Login karne ka waqt ho gaya.','Time to log in.'),'job_login',{tab:'kaam',sub:'waqt'});
+      jm('brk')==='n'&&add(at(J.brk),T('Break ka waqt ☕','Break time ☕'),T('Thoda aaram karein, namaz/khana.','Take a rest, prayer/lunch.'),'break_start');
+      jm('brkEnd')==='n'&&add(at(J.brkEnd),T('Break khatam ▶️','Break over ▶️'),T('Wapas kaam par.','Back to work.'),'break_end');
+      jm('leave')==='n'&&add(at(J.leave),T('Chhutti ka waqt 🏁','Leave time 🏁'),T('Aaj ka kaam samet lein.','Wrap up for the day.'),'leave')}
     if(typeof mkEvents==='function')mkEvents(base,tm).forEach(e=>add(e.at,e.title,e.body,e.silent?'silent':e.voice,{tab:'deen',sub:'namaz'}));
     if(typeof jumaEvents==='function')jumaEvents(base,az,jm).forEach(e=>add(e.at,e.title,e.body,e.voice,{tab:e.tab,sub:e.sub}));
     if(typeof duaEvents==='function')duaEvents(base).forEach(e=>add(e.at,e.title,e.body,e.voice,{tab:e.tab,sub:e.sub}));
@@ -42,8 +42,8 @@ function natItems(){
     if(typeof reportEvents==='function')reportEvents(base).forEach(e=>add(e.at,e.title,e.body,e.voice,{tab:e.tab,sub:e.sub}));
     add(at(S.review),T('Aaj ka hisaab 🌙','Daily review 🌙'),'','review');
   }
-  try{if(typeof TASKS!=='undefined')TASKS.forEach(t=>{if(!t.done&&t.due)add(new Date(t.due),T('Kaam ka waqt','Task due'),t.title,'task',{tab:'kaam',sub:'tasks'})});
-    if(typeof ALERTS!=='undefined')ALERTS.forEach(a=>{if(a.at)add(new Date(a.at),T('Yaad-dahani','Reminder'),a.title,'reminder',{tab:'kaam',sub:'tasks'})})}catch(e){}
+  try{if(typeof TASKS!=='undefined')TASKS.forEach(t=>{if(!t.done&&t.due&&!t.ring)add(new Date(t.due),T('Kaam ka waqt','Task due'),t.title,'task',{tab:'kaam',sub:'tasks'})});
+    if(typeof ALERTS!=='undefined')ALERTS.forEach(a=>{if(a.at&&!a.ring)add(new Date(a.at),T('Yaad-dahani','Reminder'),a.title,'reminder',{tab:'kaam',sub:'tasks'})})}catch(e){}
   PN_D=null;out.sort((a,b)=>a.at-b.at);return out.slice(0,380)}
 let _natLast='';
 function nativeSync(){
