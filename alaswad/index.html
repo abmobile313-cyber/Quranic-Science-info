@@ -10,7 +10,7 @@
 <link rel="icon" href="icon-192.png">
 <link rel="apple-touch-icon" href="icon-192.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;0,6..96,600;0,6..96,800;1,6..96,400&family=Jost:wght@300;400;500;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Reem+Kufi:wght@400;600&family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;0,6..96,600;0,6..96,800;1,6..96,400&family=Jost:wght@300;400;500;600&display=swap">
 <style>
 /* Onyx and gold. Black glass, gold metal, ivory paper. Everything sits in real depth. */
 :root{
@@ -68,15 +68,49 @@ header{position:sticky;top:env(safe-area-inset-top,0px);z-index:30;padding-block
 .bag{position:relative}
 .bag .shp-badge{position:absolute;top:-9px;right:-9px;background:var(--ivory);color:#111}
 
-/* hero */
-.hero{display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:center;min-height:min(90vh,860px);padding-block:30px 60px}
-.hero h1{font-size:clamp(3.2rem,8vw,7.4rem);font-weight:400}
-.hero h1 .gold3d{display:block;font-style:italic}
-.lede{max-width:44ch;color:#c9c2b4;font-size:1.1rem;margin:26px 0 32px}
+/* cinematic full-screen slider */
+.cine{position:relative;height:min(100svh,920px);min-height:620px;overflow:hidden;margin-top:-74px;touch-action:pan-y}
+.slide{position:absolute;inset:0;opacity:0;visibility:hidden;transition:opacity 1.2s ease,visibility 1.2s}
+.slide.on{opacity:1;visibility:visible}
+.slide .copy{position:absolute;left:0;right:0;bottom:120px;z-index:5}
+.slide .copy>*{transform:translateY(30px);opacity:0;transition:transform 1.1s cubic-bezier(.2,.8,.2,1),opacity 1.1s}
+.slide.on .copy>*{transform:none;opacity:1}.slide.on .copy>*:nth-child(2){transition-delay:.15s}.slide.on .copy>*:nth-child(3){transition-delay:.3s}.slide.on .copy>*:nth-child(4){transition-delay:.45s}
+.cine h1,.cine .big{font-size:clamp(3rem,7.6vw,7rem);font-weight:400;max-width:12ch}
+.cine h1 span,.cine .big span{display:block}.cine .gold3d{font-style:italic}
+.lede{max-width:40ch;color:#e2dacb;font-size:1.1rem;margin:20px 0 28px;text-shadow:0 2px 14px #000,0 0 2px #000}
 .cta{display:flex;gap:16px;flex-wrap:wrap}
-.facts{display:flex;gap:34px;flex-wrap:wrap;margin-top:40px;padding-top:22px;border-top:1px solid var(--line)}
-.facts b{display:block;font:400 1.6rem var(--serif);color:var(--gold-hi)}
-.facts span{font-size:.72rem;letter-spacing:.2em;text-transform:uppercase;color:var(--muted)}
+.sky{position:absolute;inset:0;transform:scale(1.08);transition:transform 7s ease-out}
+.slide.on .sky{transform:scale(1)}
+.s1{background:radial-gradient(ellipse at 72% 45%,rgba(201,164,99,.32),transparent 45%),radial-gradient(ellipse at 20% 100%,#1b1b26,transparent 60%),#07070a}
+.s2{background:linear-gradient(180deg,#0b0a10 0%,#3a2410 46%,#9a5a1c 64%,#e2a24d 74%,#2a1d0c 76%)}
+.s3{background:radial-gradient(ellipse at 70% 55%,rgba(236,210,155,.22),transparent 45%),linear-gradient(160deg,#121016,#050506)}
+.dust{position:absolute;inset:0;background:radial-gradient(1.5px 1.5px at 60% 30%,#ecd29b,transparent),radial-gradient(1px 1px at 80% 60%,#ecd29b,transparent),radial-gradient(1.5px 1.5px at 70% 75%,#c9a463,transparent),radial-gradient(1px 1px at 90% 25%,#ecd29b,transparent);background-size:300px 300px;animation:drift 18s linear infinite;opacity:.8}
+@keyframes drift{to{background-position:0 -300px,0 -300px,0 -300px,0 -300px}}
+.dunes{position:absolute;left:0;bottom:0;width:100%;height:56%}
+.sun{position:absolute;left:62%;top:38%;width:170px;height:170px;border-radius:50%;background:radial-gradient(circle,#ffe6a8,#e2a24d 55%,rgba(226,162,77,0) 72%);filter:blur(1px)}
+.slide .stage{position:absolute;right:6%;top:50%;transform:translateY(-52%);width:min(560px,46vw);height:min(640px,72vh)}
+.box3d{position:absolute;right:12%;top:50%;transform:translateY(-50%);perspective:1200px;width:min(320px,34vw);aspect-ratio:1}
+.bx{position:absolute;inset:18%;transform-style:preserve-3d;animation:bxs 16s linear infinite}
+@keyframes bxs{from{transform:rotateX(-18deg) rotateY(0)}to{transform:rotateX(-18deg) rotateY(360deg)}}
+.bx i{position:absolute;inset:0;background:linear-gradient(160deg,#1f1f27,#060608);border:1px solid rgba(236,210,155,.35)}
+.bx i.f{transform:translateZ(var(--h,104px))}.bx i.b{transform:rotateY(180deg) translateZ(var(--h,104px))}.bx i.l{transform:rotateY(-90deg) translateZ(var(--h,104px))}.bx i.r{transform:rotateY(90deg) translateZ(var(--h,104px))}
+.bx i.t{transform:rotateX(90deg) translateZ(var(--h,104px));background:linear-gradient(90deg,transparent 44%,#c9a463 44% 56%,transparent 56%),linear-gradient(0deg,transparent 44%,#c9a463 44% 56%,transparent 56%),linear-gradient(160deg,#26262f,#08080a)}
+.bx i.f,.bx i.b,.bx i.l,.bx i.r{background:linear-gradient(90deg,transparent 44%,#c9a463 44% 56%,transparent 56%),linear-gradient(160deg,#1f1f27,#060608)}
+.bx i.ribbon{inset:auto;left:50%;top:-22%;width:44%;height:24%;transform:translateX(-50%) translateZ(0) rotateX(90deg);border:0;background:radial-gradient(ellipse at 25% 50%,#ecd29b 0 30%,transparent 31%),radial-gradient(ellipse at 75% 50%,#c9a463 0 30%,transparent 31%)}
+.bxsh{position:absolute;left:10%;right:10%;bottom:4%;height:16%;border-radius:50%;background:radial-gradient(closest-side,rgba(0,0,0,.8),transparent)}
+.ar{position:absolute;right:max(18px,env(safe-area-inset-right,0px));top:96px;z-index:4;font:400 clamp(2.4rem,6vw,5rem)/1 "Reem Kufi","Bodoni Moda",serif;color:transparent;-webkit-text-stroke:1px rgba(236,210,155,.45);pointer-events:none}
+.ctrl{position:absolute;left:0;right:0;bottom:34px;z-index:6;display:flex;align-items:center;gap:24px}
+.count{font:400 1rem var(--serif);color:var(--muted)}.count b{font-size:2rem;color:var(--gold-hi);font-weight:400;margin-right:6px}
+.bars{display:flex;gap:10px;flex:1;max-width:420px}
+.bars button{flex:1;height:22px;background:none;border:0;padding:0;cursor:pointer;display:flex;align-items:center}
+.bars i{display:block;width:100%;height:2px;background:rgba(236,210,155,.22);position:relative;overflow:hidden}
+.bars i::after{content:"";position:absolute;inset:0;background:var(--gold);transform:scaleX(0);transform-origin:left}
+.bars button.done i::after{transform:scaleX(1)}.bars button.on i::after{animation:fill var(--dur,7s) linear forwards}
+@keyframes fill{to{transform:scaleX(1)}}
+.arws{display:flex;gap:10px;margin-left:auto}
+.arws button{width:52px;height:52px;border-radius:50%;border:1px solid var(--line);background:rgba(15,15,20,.6);color:var(--gold-hi);font:400 1.6rem var(--serif);cursor:pointer;box-shadow:0 4px 0 #000}
+.arws button:hover{border-color:var(--gold)}.arws button:active{transform:translateY(3px);box-shadow:none}
+.bars button:focus-visible,.arws button:focus-visible{outline:1px solid var(--gold-hi);outline-offset:4px}
 
 /* signature: black glass flacon, gold collar and cap, built from glass slices that turn in space */
 .stage{position:relative;height:min(640px,78vw);min-height:420px;perspective:1200px;display:grid;place-items:center}
@@ -168,8 +202,10 @@ footer .big{width:100%;text-align:center;font:400 clamp(3.6rem,16vw,13rem)/.9 va
 
 @media (max-width:980px){.steps{grid-template-columns:1fr 1fr}.house{grid-template-columns:1fr;gap:30px}}
 @media (max-width:860px){
-  .hero{grid-template-columns:1fr;min-height:0;padding-block:10px 40px}
-  .stage{order:-1;height:380px;min-height:0}
+  .slide .stage{right:50%;transform:translate(50%,-82%);width:80vw;height:46vh}
+  .box3d{right:50%;transform:translate(50%,-90%);width:60vw}
+  .slide .copy{bottom:96px}.cine h1,.cine .big{font-size:clamp(2.5rem,11vw,3.6rem)}.lede{font-size:1rem;margin:12px 0 18px}
+  .ar{display:none}.sun{left:55%;top:30%;width:110px;height:110px}
   .flacon{width:min(140px,34vw)}
   .nav nav{display:none}
   .contact{grid-template-columns:1fr}
@@ -185,27 +221,45 @@ footer .big{width:100%;text-align:center;font:400 clamp(3.6rem,16vw,13rem)/.9 va
   <a class="mark" href="#top"><i><b>A</b></i><span>Al Aswad<small>DUBAI</small></span></a>
   <nav aria-label="Sections"><a href="#collection">Collection</a><a href="#house">The house</a><a href="#concierge">Concierge</a><a href="#" data-shop-orders>Track order</a></nav>
   <div class="acts">
-    <a class="g3 onyx sm wa" href="https://wa.me/919272527913?text=Al%20Aswad%20Dubai%20%E2%80%93%20I%20would%20like%20to%20enquire" target="_blank" rel="noopener">Concierge</a>
+    <a class="g3 onyx sm wa" href="https://wa.me/919370417863?text=Al%20Aswad%20Dubai%20%E2%80%93%20I%20would%20like%20to%20enquire" target="_blank" rel="noopener">Concierge</a>
     <button class="g3 sm bag" type="button" data-shop-cart aria-label="Bag">Bag<span class="shp-badge" data-shp-count hidden>0</span></button>
   </div>
 </div></div></header>
 
 <main id="top">
-<div class="wrap hero">
-  <div>
-    <p class="eyebrow">Al Aswad Dubai · Parfum</p>
-    <h1><span class="ivory3d">Being “Rich”</span><span class="gold3d">isn’t enough.</span></h1>
-    <p class="lede">A fragrance should arrive before you do, and stay after you leave. Al Aswad Dubai makes perfume for people who are already noticed, and want to be remembered.</p>
-    <div class="cta"><a class="g3" href="#collection">Discover Muznah</a><button class="g3 onyx" type="button" data-shop-orders>Track my order</button></div>
-    <div class="facts"><div><b>Nº 01</b><span>Muznah</span></div><div><b>100 · 50 ml</b><span>Two sizes</span></div><div><b>Worldwide</b><span>Delivery</span></div></div>
+<section class="cine" id="cine" aria-roledescription="carousel" aria-label="Al Aswad Dubai">
+  <div class="slide on" data-n="01">
+    <div class="sky s1"></div><div class="dust"></div>
+    <div class="stage" id="stage" aria-hidden="true"><div class="halo"></div><div class="arch"></div><div class="dais"></div><div class="flacon" id="flacon"></div></div>
+    <div class="wrap copy"><p class="eyebrow">Nº 01 · Muznah · Parfum</p>
+      <h1><span class="ivory3d">Being “Rich”</span><span class="gold3d">isn’t enough.</span></h1>
+      <p class="lede">A fragrance should arrive before you do, and stay after you leave.</p>
+      <div class="cta"><a class="g3" href="#collection">Discover Muznah</a><button class="g3 onyx" type="button" data-shop-orders>Track my order</button></div></div>
   </div>
-  <div class="stage" id="stage" aria-hidden="true">
-    <div class="halo"></div><div class="arch"></div><div class="dais"></div>
-    <div class="flacon" id="flacon"></div>
-    <div class="tagf t1"><span>Signature</span><b>Muznah</b></div>
-    <div class="tagf t2"><span>Concentration</span><b>Parfum</b></div>
+  <div class="slide" data-n="02">
+    <div class="sky s2"></div>
+    <svg class="dunes" viewBox="0 0 1440 520" preserveAspectRatio="none" aria-hidden="true"><path d="M0 330 C240 250 420 300 620 260 S1000 170 1440 250 V520 H0Z" fill="#2a1d0c"/><path d="M0 400 C300 330 520 380 760 340 S1180 280 1440 330 V520 H0Z" fill="#1a1208"/><path d="M0 460 C360 420 640 450 900 420 S1260 400 1440 420 V520 H0Z" fill="#0b0805"/></svg>
+    <div class="sun"></div>
+    <div class="wrap copy"><p class="eyebrow">The house · Dubai</p>
+      <h2 class="big"><span class="ivory3d">Born in Dubai.</span><span class="gold3d">Worn worldwide.</span></h2>
+      <p class="lede">Oud, amber and the warmth of desert evenings, composed for people who are already noticed.</p>
+      <div class="cta"><a class="g3" href="#house">Our story</a></div></div>
   </div>
-</div>
+  <div class="slide" data-n="03">
+    <div class="sky s3"></div>
+    <div class="box3d" aria-hidden="true"><div class="bx"><i class="f"></i><i class="b"></i><i class="l"></i><i class="r"></i><i class="t"></i><i class="ribbon"></i></div><div class="bxsh"></div></div>
+    <div class="wrap copy"><p class="eyebrow">Gifting · Worldwide delivery</p>
+      <h2 class="big"><span class="ivory3d">The black box.</span><span class="gold3d">The gold promise.</span></h2>
+      <p class="lede">Every bottle travels in our black and gold gift box, to India, the Gulf and anywhere in the world.</p>
+      <div class="cta"><a class="g3" href="#collection">Order a gift</a><a class="g3 onyx" href="#concierge">Concierge</a></div></div>
+  </div>
+  <div class="ar" aria-hidden="true">الأسود</div>
+  <div class="ctrl wrap">
+    <div class="count"><b id="cNow">01</b><span>/ 03</span></div>
+    <div class="bars" id="bars"><button type="button" aria-label="Slide 1"><i></i></button><button type="button" aria-label="Slide 2"><i></i></button><button type="button" aria-label="Slide 3"><i></i></button></div>
+    <div class="arws"><button type="button" id="sPrev" aria-label="Previous slide">‹</button><button type="button" id="sNext" aria-label="Next slide">›</button></div>
+  </div>
+</section>
 
 <section id="collection"><div class="wrap">
   <div class="sh rv"><div><p class="eyebrow">The collection</p><h2 class="ivory3d">Few bottles. <em class="it gold3d">One at a time.</em></h2></div>
@@ -240,7 +294,7 @@ footer .big{width:100%;text-align:center;font:400 clamp(3.6rem,16vw,13rem)/.9 va
 <section id="contact"><div class="wrap">
   <div class="rule rv"><span class="eyebrow" style="margin:0">Private list</span></div>
   <div class="contact rv">
-    <div><span>WhatsApp</span><b id="num">+91 92725 27913</b><p style="margin:12px 0 0"><button class="g3 onyx sm" type="button" id="copyBtn">Copy number</button></p></div>
+    <div><span>WhatsApp</span><b id="num">+91 93704 17863</b><p style="margin:12px 0 0"><button class="g3 onyx sm" type="button" id="copyBtn">Copy number</button></p></div>
     <div><span>Email</span><b>alaswaddubaiperfume@gmail.com</b></div>
     <div><span>Instagram</span><b>@alaswaddubaiperfume</b><p style="margin:12px 0 0"><a class="g3 onyx sm" href="https://instagram.com/alaswaddubaiperfume" target="_blank" rel="noopener">Open Instagram</a></p></div>
   </div>
@@ -254,7 +308,7 @@ footer .big{width:100%;text-align:center;font:400 clamp(3.6rem,16vw,13rem)/.9 va
 
 <script src="https://quranicscience.info/shop-engine.js"></script>
 <script>
-const WA="919272527913";
+const WA="919370417863";
 const H=s=>String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const money=v=>"$"+(+v||0).toLocaleString("en-US",{maximumFractionDigits:2});
 /* products with the same name and different sizes (e.g. Muznah 100 ml / Muznah 50 ml) are shown as one tray with size buttons */
@@ -284,13 +338,22 @@ document.addEventListener("shop:items",e=>{groups=group(e.detail||[]);draw()});
   const box=(top)=>[0,90,180,270].map(r=>`<i style="transform:rotateY(${r}deg) translateZ(var(--hz))"></i>`).join("")+(top?'<i class="top"></i>':"");
   h+=`<div class="collar" style="--hz:11px">${box()}</div><div class="capg" style="--hz:23px">${box(1)}</div>`;f.innerHTML=h})();
 
+
+/* slider: autoplay 7s, arrows, bars, swipe, pauses when the tab is hidden */
+(function(){const sl=[...document.querySelectorAll('.slide')],bars=[...document.querySelectorAll('#bars button')],now=document.getElementById('cNow');let k=0,t=null;const D=7000;
+  function show(n){k=(n+sl.length)%sl.length;sl.forEach((s,i)=>s.classList.toggle('on',i===k));bars.forEach((b,i)=>{b.classList.toggle('on',i===k);b.classList.toggle('done',i<k);const ii=b.querySelector('i');ii.style.animation='none';ii.offsetWidth;ii.style.animation=''});now.textContent=String(k+1).padStart(2,'0');clearTimeout(t);if(!red)t=setTimeout(()=>show(k+1),D)}
+  const red=matchMedia('(prefers-reduced-motion:reduce)').matches;document.documentElement.style.setProperty('--dur',D/1000+'s');
+  document.getElementById('sPrev').onclick=()=>show(k-1);document.getElementById('sNext').onclick=()=>show(k+1);bars.forEach((b,i)=>b.onclick=()=>show(i));
+  let x0=null;const c=document.getElementById('cine');c.addEventListener('pointerdown',e=>{if(!e.target.closest('a,button'))x0=e.clientX});addEventListener('pointerup',e=>{if(x0==null)return;const d=e.clientX-x0;x0=null;if(Math.abs(d)>40)show(k+(d<0?1:-1))});
+  addEventListener('keydown',e=>{if(e.key==='ArrowRight')show(k+1);if(e.key==='ArrowLeft')show(k-1)});
+  show(0)})();
 const fine=matchMedia("(pointer:fine)").matches&&!matchMedia("(prefers-reduced-motion:reduce)").matches;
 function tilt(){if(!fine)return;document.querySelectorAll(".tray").forEach(c=>{c.onpointermove=e=>{const r=c.getBoundingClientRect(),x=(e.clientX-r.left)/r.width-.5,y=(e.clientY-r.top)/r.height-.5;c.style.transform=`rotateY(${x*12}deg) rotateX(${-y*10}deg) translateY(-6px)`};c.onpointerleave=()=>c.style.transform=""})}
 if(fine){const st=document.getElementById("stage");st.addEventListener("pointermove",e=>{const r=st.getBoundingClientRect();st.style.perspectiveOrigin=`${(e.clientX-r.left)/r.width*100}% ${(e.clientY-r.top)/r.height*100}%`})}
 const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add("in");io.unobserve(e.target)}}),{threshold:.12});
 document.querySelectorAll(".rv").forEach(el=>io.observe(el));
 document.getElementById("yr").textContent=new Date().getFullYear();
-document.getElementById("copyBtn").addEventListener("click",async e=>{try{await navigator.clipboard.writeText("+919272527913");e.target.textContent="Copied"}
+document.getElementById("copyBtn").addEventListener("click",async e=>{try{await navigator.clipboard.writeText("+919370417863");e.target.textContent="Copied"}
   catch(_){const r=document.createRange();r.selectNodeContents(document.getElementById("num"));const s=getSelection();s.removeAllRanges();s.addRange(r);e.target.textContent="Selected"}});
 
 Shop.init({brand:"alaswad",name:"Al Aswad Dubai",whatsapp:WA,color:"#c9a463",currency:"USD",fab:false,
