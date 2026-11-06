@@ -68,7 +68,7 @@ AX.tipf=el=>{TV.f=el.dataset.v;store.set('tipf',TV.f);rerender()};
 AX.tiprf=()=>{fetchTips(true);toast(T('Tips taaza kar raha hoon…','Refreshing tips…'));rerender()};
 AX.tiptog=el=>{S.tipsOn=!!el.checked;saveS();try{nativeSync()}catch(e){}};
 function tipEvents(base){const out=[];if(S.tipsOn===false)return out;const n=TIPN[(Math.floor(base.getTime()/864e5))%(TIPN.length)],t=tipOfDay(n,base),h=(TIPS.l[n.id]||[])[0];
-  out.push({k:'tip_d',at:atTime('10:00',base),voice:'alert',title:`💡 ${tipBiz(n.id)} • ${T('Aaj ka tip','Tip of the day')}`,body:(T(t[0],t[1])+(h?' • '+h.t:'')).slice(0,220),tab:'biz'});return out}
+  out.push({k:'tip_d',at:atTime('10:00',base),voice:'tip_'+n.id,title:`💡 ${tipBiz(n.id)} • ${T('Aaj ka tip','Tip of the day')}`,body:(T(t[0],t[1])+(h?' • '+h.t:'')).slice(0,220),tab:'biz',sub:n.id});return out}
 setTimeout(()=>{try{fetchTips()}catch(e){}},5000);
 
 /* Maktaba actions (books.js renders the page) */

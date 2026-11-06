@@ -90,7 +90,7 @@ async function syncBiz(silent){if(syncing)return;syncing=true;let got=0,errs=[];
     if(!silent)toast(errs.length?T('Kuch source nahi khule: ','Some failed: ')+errs.join(', '):T(`Sync ho gaya — ${got} items`,`Synced — ${got} items`,`سنک ہو گیا — ${got} آئٹمز`,`सिंक हो गया — ${got} आइटम`));
   }finally{syncing=false;updBizBadge();if(typeof refreshHome==='function')refreshHome();if(curTab==='biz'&&typeof rerender==='function'&&!$('#dlg').open)rerender()}}
 function notifyItem(x){const b=bdef(x.hub),k=kk(x.kind);const who=x.name?` ${T('se','from')} ${x.name}`:'';
-  notify(`${k[0]} ${b.name} • ${T('Naya','New')} ${k[1]}`.slice(0,110),([x.title,x.name,x.phone].filter(Boolean).join(' • ')+(x.amt?' • '+(x.cur||'₹')+x.amt:'')+(x.detail?' — '+x.detail:'')).slice(0,160),{k:'alert',tab:'biz',sub:x.hub,tag:'biz-'+x.id,voice:'biz'})}
+  notify(`${k[0]} ${b.name} • ${T('Naya','New')} ${k[1]}`.slice(0,110),([x.title,x.name,x.phone].filter(Boolean).join(' • ')+(x.amt?' • '+(x.cur||'₹')+x.amt:'')+(x.detail?' — '+x.detail:'')).slice(0,160),{k:'alert',tab:'biz',sub:x.hub,tag:'biz-'+x.id,voice:'biz_'+b.id})}
 /* synthetic (computed) items: deadlines, seats, classes */
 function synItems(){const L=[],now=Date.now();
   const close=Date.parse(BATCH.closes),first=Date.parse(BATCH.first);

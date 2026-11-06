@@ -70,7 +70,7 @@ const T=(r,e,u,h)=>{const l=S.lang;if(l==='ro')return r;if(l==='en')return e!=nu
   if(l==='ur'){if(u)return u;const x=I18N[r];return x&&x[0]?x[0]:r}
   if(h)return h;const x=I18N[r];return x&&x[1]?x[1]:r};
 const PN={Fajr:['فجر','फ़ज्र','Fajr'],Sunrise:['طلوعِ آفتاب','सूर्योदय','Sunrise'],Dhuhr:['ظہر','ज़ुहर','Dhuhr'],Asr:['عصر','अस्र','Asr'],Maghrib:['مغرب','मग़रिब','Maghrib'],Isha:['عشاء','इशा','Isha'],Jumma:['جمعہ','जुमा','Jumma']};
-const nm=()=>S.name==='Arsalan'?(S.lang==='ur'?'ارسلان':S.lang==='hi'?'अरसलान':'Arsalan'):S.name;
+const nm=()=>S.name==='Arsalan'?(S.lang==='ur'?'ارسلان بھائی':S.lang==='hi'?'अरसलान भाई':S.lang==='en'?'Brother Arsalan':'Arsalan bhai'):S.name;
 const dn=s=>T(s,s); /* display-translate known default data strings */
 var PN_D=null;/* set while planning another day */
 const isFriD=d=>(d||PN_D||new Date()).getDay()===5;
@@ -142,7 +142,7 @@ const sfx=n=>AU.play(n);
 
 /* ---------- VOICE: recorded ElevenLabs clips (no TTS anywhere) ---------- */
 const VO={a:null,blobs:{},
-  IDS:['az_Fajr','az_Dhuhr','az_Asr','az_Maghrib','az_Isha','hz_Fajr','hz_Dhuhr','hz_Asr','hz_Maghrib','hz_Isha','sadqa_ask','sadqa_remind','tilawat_ask','tilawat_remind','azkar_m','azkar_e','taleem','juma','job_login','break_start','break_end','leave','review','task','reminder','call','biz','class_1h','class_10m','timer_nudge','timer_start','test','voice_on','gasht','makruh','alert','dty_in','dty_out','sal_start','sal_late','open_salam','noor_ji','noor_ok','noor_na','ot_done','jm5_Fajr','jm5_Dhuhr','jm5_Asr','jm5_Maghrib','jm5_Isha','jm5_Juma'],
+  IDS:['ofc_welcome','wq_Fajr','wq_Dhuhr','wq_Asr','wq_Maghrib','wq_Isha','biz_qs','biz_fs','biz_aa','biz_sk','biz_bn','tip_qs','tip_fs','tip_aa','tip_sk','tip_bn','alert_event','alert_dua','alert_alarm','az_Fajr','az_Dhuhr','az_Asr','az_Maghrib','az_Isha','hz_Fajr','hz_Dhuhr','hz_Asr','hz_Maghrib','hz_Isha','sadqa_ask','sadqa_remind','tilawat_ask','tilawat_remind','azkar_m','azkar_e','taleem','juma','job_login','break_start','break_end','leave','review','task','reminder','call','biz','class_1h','class_10m','timer_nudge','timer_start','test','voice_on','gasht','makruh','alert','dty_in','dty_out','sal_start','sal_late','open_salam','noor_ji','noor_ok','noor_na','ot_done','jm5_Fajr','jm5_Dhuhr','jm5_Asr','jm5_Maghrib','jm5_Isha','jm5_Juma'],
   url(id,l){if(String(id).startsWith('dua_'))return 'dua/'+id+'.mp3';return 'voice/'+(l||VL())+'/'+id+'.mp3'},
   /* clips are fetched as blobs (works offline through the service worker cache) */
   async blob(id){const k=S.lang+'/'+id;if(this.blobs[k])return this.blobs[k];const r=await fetch(this.url(id));if(!r.ok)throw new Error('clip');const b=await r.blob();if(b.size<2000)throw new Error('clip');return this.blobs[k]=URL.createObjectURL(b)},
@@ -163,7 +163,7 @@ const unreadN=()=>NLOG.filter(n=>!n.r).length;
 function updBell(){const n=unreadN(),tot=pendingN();const b=$('#bellN');if(b){b.textContent=n>99?'99+':n;b.hidden=!n}setBadge(tot);if(typeof updLogoBadges==='function')updLogoBadges()}
 async function notify(title,body,o={}){
   /* o: tag, tab, sub, voice (string/obj, default title+body), silent, q (pending question id) */
-  const rec={id:uid(),t:Date.now(),title,body:body||'',tab:o.tab||null,sub:o.sub||null,r:false,k:o.k||'info'};
+  const rec={id:uid(),t:Date.now(),title,body:body||'',tab:o.tab||null,sub:o.sub||null,r:false,k:o.k||'info',imp:o.k==='alert'&&!o.silent};
   NLOG.unshift(rec);NLOG=NLOG.slice(0,150);store.set('nlog',NLOG);updBell();
   if(!document.hidden&&!(typeof LCK!=='undefined'&&LCK.locked)){toast('🔔 '+title+(body?' — '+body.slice(0,60):''),3600);sfx(o.k==='alert'?'chime':'ding')}
   if(S.notif&&'Notification' in window&&Notification.permission==='granted'){
@@ -179,7 +179,7 @@ async function askNotifPerm(){if(window.AndroidPA){try{window.AndroidPA.requestP
 /* ---------- tiny helpers used by pages ---------- */
 const meter=(p,cls='')=>`<div class="meter ${cls}"><i style="width:${Math.max(0,Math.min(100,p))}%"></i></div>`;
 const segHTML=(id,items,cur)=>`<div class="seg" id="${id}" style="--i:${Math.max(0,items.findIndex(x=>x[0]===cur))};--n:${items.length}"><div class="pill"></div>${items.map(x=>`<button data-a="seg" data-id="${id}" data-v="${x[0]}" class="${x[0]===cur?'on':''}">${x[1]}</button>`).join('')}</div>`;
-const ICO={bell:'<path d="M6 9a6 6 0 0 1 12 0c0 6 2 7 2 7H4s2-1 2-7"/><path d="M10 20a2 2 0 0 0 4 0"/>',sound:'<path d="M4 9.5v5h3.5L12 18.5v-13L7.5 9.5H4Z"/><path d="M15.5 9a4 4 0 0 1 0 6M18 6.5a7.5 7.5 0 0 1 0 11"/>',mute:'<path d="M4 9.5v5h3.5L12 18.5v-13L7.5 9.5H4Z"/><path d="m16 9.5 5 5M21 9.5l-5 5"/>',theme:'<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>',
+const ICO={office:'<rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 7h2M14 7h2M8 11h2M14 11h2M8 15h2M14 15h2M10 21v-3h4v3"/>',bell:'<path d="M6 9a6 6 0 0 1 12 0c0 6 2 7 2 7H4s2-1 2-7"/><path d="M10 20a2 2 0 0 0 4 0"/>',sound:'<path d="M4 9.5v5h3.5L12 18.5v-13L7.5 9.5H4Z"/><path d="M15.5 9a4 4 0 0 1 0 6M18 6.5a7.5 7.5 0 0 1 0 11"/>',mute:'<path d="M4 9.5v5h3.5L12 18.5v-13L7.5 9.5H4Z"/><path d="m16 9.5 5 5M21 9.5l-5 5"/>',theme:'<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>',
   home:'<path d="M3 11 12 3l9 8"/><path d="M5 10v10h14V10"/>',biz:'<rect x="3" y="7" width="18" height="13" rx="2"/><path d="M9 7V5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2M3 13h18"/>',deen:'<path d="M12 3a9 9 0 1 0 9 9 7 7 0 0 1-9-9Z"/>',kaam:'<path d="M9 11l2 2 4-4"/><rect x="4" y="4" width="16" height="16" rx="3"/>',more:'<circle cx="5" cy="12" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="19" cy="12" r="1.5"/>',
   play:'<path d="M7 4.5v15l12-7.5z"/>',pause:'<path d="M7 5h3.5v14H7zM13.5 5H17v14h-3.5z"/>',next:'<path d="M6 5v14l9-7zM17 5v14"/>',prev:'<path d="M18 5v14l-9-7zM7 5v14"/>',stop:'<rect x="6" y="6" width="12" height="12" rx="2"/>'};
 const svg=(n,c='ic')=>`<svg class="${c}" viewBox="0 0 24 24">${ICO[n]||''}</svg>`;

@@ -10,7 +10,7 @@ const dayNum=()=>Math.floor((Date.now()-new Date().getTimezoneOffset()*60000)/86
 function dailyDua(){const pend=CUR.filter(c=>!DMEM[curKey(c)]);const L=pend.length?pend:CUR;return L[dayNum()%L.length]}
 /* ---------- alarm events (wake / sleep / meals / daily yaad) ---------- */
 function duaEvents(base){const D=S.dua,out=[],at=h=>atTime(h,base);
-  const add=(k,d,title,body,voice)=>{if(d)out.push({k,at:d,title,body,voice,tab:'deen',sub:'duas'})};
+  const add=(k,d,title,body,voice)=>{if(d)out.push({k,at:d,title,body,voice:voice&&voice!=='alert'?voice:'alert_dua',tab:'deen',sub:'duas'})};
   if(D.wakeOn)add('dwk',at(D.wake),T('Uthne ki dua ☀️','Waking-up dua ☀️','جاگنے کی دعا ☀️','जागने की दुआ ☀️'),T('Alhamdulillahil-ladhi ahyana ba\'da ma amatana wa ilayhin-nushur — Tamam taareef Allah ke liye jisne hamein maut (neend) ke baad zinda kiya.','Praise be to Allah who gave us life after causing us to die.','الحمد للہ الذی احیانا بعد ما اماتنا والیہ النشور — تمام تعریفیں اللہ کے لیے جس نے ہمیں (نیند کی) موت کے بعد زندہ کیا۔'),'dua_wake');
   if(D.sleepOn)add('dsl',at(D.sleep),T('Sone ki dua 🌙','Sleeping dua 🌙','سونے کی دعا 🌙','सोने की दुआ 🌙'),T('Bismika Allahumma amutu wa ahya — Aye Allah! Tere hi naam se marta (sota) aur jeeta (jagta) hoon.','O Allah, in Your name I die and I live.','باسمک اللہم اموت و احیا — اے اللہ! تیرے ہی نام سے میں مرتا (سوتا) اور جیتا (جاگتا) ہوں۔'),'dua_sleep');
   if(D.mealOn)[['b','Nashta','Breakfast'],['l','Dopahar ka khana','Lunch'],['d','Raat ka khana','Dinner']].forEach(([k,r,e])=>{const t=at(D[k]);if(!t)return;

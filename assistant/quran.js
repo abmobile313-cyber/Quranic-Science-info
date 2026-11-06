@@ -191,5 +191,5 @@ async function renderMushaf(el){if(!el)return;const P=qpgBuild();QS.gp=Math.max(
   if(QS.mpS){$('#mpsbox').hidden=false;doQSearch()}
   const m=$('#mus');if(m){m.classList.remove('mflip');void m.offsetWidth;m.classList.add('mflip')}
   window.scrollTo({top:0});qSwipe(el);QA.hl()}
-function qSwipe(el){if(el._sw)return;el._sw=1;let x0=null,y0=0;el.addEventListener('touchstart',e=>{const t=e.touches[0];x0=t.clientX;y0=t.clientY},{passive:true});
+function qSwipe(el){if(el._sw)return;el._sw=1;let x0=null,y0=0;el.addEventListener('touchstart',e=>{if(e.target.closest&&e.target.closest('.q-top,.fch,input,select,.mpbar,details,.qview,.rdopt')){x0=null;return}const t=e.touches[0];x0=t.clientX;y0=t.clientY},{passive:true});
   el.addEventListener('touchend',e=>{if(x0==null||!QS.pg||QS.view!=='reader')return;const t=e.changedTouches[0],dx=t.clientX-x0,dy=t.clientY-y0;x0=null;if(Math.abs(dx)>70&&Math.abs(dx)>Math.abs(dy)*1.6){if(dx>0)A.pgn();else A.pgp()}},{passive:true})}

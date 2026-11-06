@@ -125,7 +125,7 @@ const saveCEV=()=>{store.set('cev2',CEV);store.set('cev2d',CEVD)};
 const CEVK=[['jor',()=>T('Jod','Jod')],['ijtema',()=>T('Ijtema','Ijtema')],['event',()=>T('Event','Event')],['mashwara',()=>T('Mashwara','Mashwara')],['other',()=>T('Doosra','Other')]];
 const cevOn=(x,d)=>x.rep==='daily'||(x.rep==='week'&&(x.days||[]).includes(d.getDay()))||(x.rep==='date'&&x.date===dkey(d));
 function cevEvents(base){const out=[];CEV.forEach(x=>{if(!cevOn(x,base)||!hm(x.t))return;const at=atTime(x.t,base);at.setMinutes(at.getMinutes()-(+x.pre||0));
-  out.push({k:'cev_'+x.id,at,voice:'alert',title:`📌 ${x.title}`,body:(+x.pre?T(`${x.pre} min baad`,`in ${x.pre} min`)+' • ':'')+t12(x.t)+(x.note?' • '+x.note:''),tab:'deen',sub:'khabar'})});return out}
+  out.push({k:'cev_'+x.id,at,voice:'alert_event',title:`📌 ${x.title}`,body:(+x.pre?T(`${x.pre} min baad`,`in ${x.pre} min`)+' • ':'')+t12(x.t)+(x.note?' • '+x.note:''),tab:'deen',sub:'khabar'})});return out}
 function cevCard(){const today=new Date(),k=dkey();
   const when=x=>x.rep==='daily'?T('Roz','Daily'):x.rep==='week'?(x.days||[]).map(i=>dayName(i)).join(', '):(x.date||'');
   const rows=CEV.map(x=>{const td=cevOn(x,today),dn=CEVD[k]&&CEVD[k][x.id];return`<div class="item kk${dn?' done':''}"><div class="ic2">📌</div><div class="t"><b>${esc(x.title)}</b><div class="muted sm">${esc(when(x))} • ${t12(x.t)}${+x.pre?' • '+x.pre+' '+T('min pehle yaad','min reminder'):''}${td?' • '+T('aaj','today'):''}</div></div><div class="row" style="gap:6px">${td?`<button class="btn s ${dn?'rdon':'ghost'}" data-a="cevdone" data-id="${x.id}">${dn?'✓':T('Ho gaya','Done')}</button>`:''}<button class="btn s ghost" data-a="cevedit" data-id="${x.id}">✎</button></div></div>`}).join('');

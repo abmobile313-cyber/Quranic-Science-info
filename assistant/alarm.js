@@ -15,7 +15,7 @@ const almOn=(x,d)=>x.on!==false&&(x.rep==='daily'||(x.rep==='wd'&&d.getDay()>=1&
 const almWhen=x=>x.rep==='daily'?T('Roz','Every day'):x.rep==='wd'?T('Peer–Jumma','Mon–Fri'):x.rep==='day'?dayName(+x.day):(x.date||'');
 const almNat=()=>typeof NAT!=='undefined'&&NAT;
 function almEventsBase(base){const out=[];ALM.forEach(x=>{if(!almOn(x,base)||!hm(x.t))return;const k=ALK[x.kind]||ALK.other;
-  out.push({k:'alm_'+x.id,at:atTime(x.t,base),voice:'alert',title:`${k.i} ${x.label||k.n()}`,body:t12(x.t)+(k.raw||x.duaText?' • '+T('Snooze/Dismiss par dua padhi jayegi','Dua is recited on Snooze/Dismiss'):''),tab:'deen',sub:'duas',
+  out.push({k:'alm_'+x.id,at:atTime(x.t,base),voice:'alert_alarm',title:`${k.i} ${x.label||k.n()}`,body:t12(x.t)+(k.raw||x.duaText?' • '+T('Snooze/Dismiss par dua padhi jayegi','Dua is recited on Snooze/Dismiss'):''),tab:'deen',sub:'duas',
     alarm:1,aid:x.id,snooze:+x.snooze||10,duaRaw:k.raw||'',duaText:k.raw?'':(x.duaText||''),duaLang:x.duaLang||'ar'})});return out}
 function almCard(){const nat=almNat();
   const rows=ALM.map(x=>{const k=ALK[x.kind]||ALK.other;return`<div class="item"><div class="ic2">${k.i}</div><div class="t"><b>${esc(x.label||k.n())}</b><div class="muted sm">${t12(x.t)} • ${esc(almWhen(x))}${nat&&NAT.ringName?(NAT.ringName(x.id)?' • 🔔 '+esc(NAT.ringName(x.id)):''):''}</div></div><div class="row" style="gap:6px"><input type="checkbox" class="sw" data-a="almon" data-id="${x.id}" ${x.on!==false?'checked':''}><button class="btn s ghost" data-a="almedit" data-id="${x.id}">✎</button></div></div>`}).join('');
@@ -70,20 +70,20 @@ AX.almall=()=>{DM.t='alarm';go('deen','duas')};
 /* ---------- Office / work time: choose notification or ringing alarm for each time; reminders & tasks can ring too ---------- */
 const jobMode=k=>{const m=S.job&&S.job.m&&S.job.m[k];return m===undefined?'n':m};
 const JROWS=()=>[['login','💼',T('Office / job shuru','Start / login')],['brk','☕',T('Break shuru','Break start')],['brkEnd','▶️',T('Break khatam','Break over')],['leave','🏁',T('Chhutti / office khatam','Leave / finish')]];
-function almEvents(base){const out=almEventsBase(base),J=S.job,dk=dkey(base);
+function almEvents(base){const out=almEventsBase(base),J=jobDay(base),dk=dkey(base);
   if(J&&J.on&&(J.days||[1,2,3,4,5,6]).includes(base.getDay()))JROWS().forEach(([k,i,n])=>{if(jobMode(k)!=='a'||!hm(J[k]))return;
-    out.push({k:'jobalm_'+k,vn:({login:'job_login',brk:'break_start',brkEnd:'break_end',leave:'leave'})[k]||'alert',at:atTime(J[k],base),voice:'alert',title:`${i} ${n}`,body:t12(J[k]),tab:'kaam',sub:'waqt',alarm:1,aid:'job_'+k,snooze:10,duaRaw:'',duaText:'',duaLang:'ar'})});
+    out.push({k:'jobalm_'+k,vn:({login:'job_login',brk:'break_start',brkEnd:'break_end',leave:'leave'})[k]||'alert',at:atTime(J[k],base),voice:'alert_alarm',title:`${i} ${n}`,body:t12(J[k]),tab:'kaam',sub:'waqt',alarm:1,aid:'job_'+k,snooze:10,duaRaw:'',duaText:'',duaLang:'ar'})});
   const hh=d=>pad(d.getHours())+':'+pad(d.getMinutes());
   try{(typeof ALERTS!=='undefined'?ALERTS:[]).forEach(a=>{if(!a.ring||!a.at||a.done)return;const d=new Date(a.at);if(dkey(d)!==dk)return;
-      out.push({k:'ralm_'+a.id,vn:'reminder',at:d,voice:'alert',title:'⏰ '+a.title,body:t12(hh(d)),tab:'kaam',sub:'tasks',alarm:1,aid:'r_'+a.id,snooze:10,duaRaw:'',duaText:'',duaLang:'ar'})});
+      out.push({k:'ralm_'+a.id,vn:'reminder',at:d,voice:'alert_alarm',title:'⏰ '+a.title,body:t12(hh(d)),tab:'kaam',sub:'tasks',alarm:1,aid:'r_'+a.id,snooze:10,duaRaw:'',duaText:'',duaLang:'ar'})});
     (typeof TASKS!=='undefined'?TASKS:[]).forEach(t=>{if(!t.ring||!t.due||t.done)return;const d=new Date(t.due);if(dkey(d)!==dk)return;
-      out.push({k:'talm_'+t.id,vn:'task',at:d,voice:'alert',title:'📋 '+t.title,body:t12(hh(d)),tab:'kaam',sub:'tasks',alarm:1,aid:'t_'+t.id,snooze:10,duaRaw:'',duaText:'',duaLang:'ar'})})}catch(e){}
+      out.push({k:'talm_'+t.id,vn:'task',at:d,voice:'alert_alarm',title:'📋 '+t.title,body:t12(hh(d)),tab:'kaam',sub:'tasks',alarm:1,aid:'t_'+t.id,snooze:10,duaRaw:'',duaText:'',duaLang:'ar'})})}catch(e){}
   return out}
 const JDN=()=>[[1,T('Peer','Mon')],[2,T('Mangal','Tue')],[3,T('Budh','Wed')],[4,T('Jumerat','Thu')],[5,T('Jumma','Fri')],[6,T('Hafta','Sat')],[0,T('Itwaar','Sun')]];
 function officeCard(){const J=S.job,days=J.days||[1,2,3,4,5,6];
   const body=J.on?`<div style="display:flex;flex-wrap:wrap;gap:6px;padding:8px 0">${JDN().map(([d,n])=>`<button class="btn s ${days.includes(d)?'':'ghost'}" data-a="jobday" data-d="${d}">${n}</button>`).join('')}</div>`+
    JROWS().map(([k,i,n])=>`<div style="padding:9px 0;border-bottom:1px solid var(--stroke)"><div style="margin-bottom:6px"><b>${i} ${n}</b></div><div style="display:flex;gap:8px"><input type="time" value="${esc(J[k]||'')}" data-a="jobt" data-chg="1" data-k="${k}" style="flex:1;min-width:0;direction:ltr"><select data-a="jobm" data-k="${k}" style="flex:1.5;min-width:0"><option value="n"${jobMode(k)==='n'?' selected':''}>🔔 ${T('Notification','Notification')}</option><option value="a"${jobMode(k)==='a'?' selected':''}>⏰ ${T('Alarm (bajta hai)','Alarm (rings)')}</option><option value=""${jobMode(k)===''?' selected':''}>🚫 ${T('Band','Off')}</option></select></div></div>`).join('')+`<p class="muted sm" style="margin:8px 0 0;line-height:1.6">🔔 <b>${T('Notification','Notification')}</b>: ${T('waqt par awaaz wali notification ("Arsalan, break ka waqt…"), ek baar.','a spoken notification once.')}<br>⏰ <b>${T('Alarm','Alarm')}</b>: ${T('pehle wahi awaaz wali notification, phir 8 second baad ringtone bajti rehti hai jab tak aap Band ya Snooze (10 min) na dabayein.','first the spoken notification, then 8 s later the ringtone keeps ringing until you Stop or Snooze (10 min).')}</p>`+
-   `<p class="muted sm" style="margin-top:8px">${T('🔔 Notification = awaaz ke saath khabar. ⏰ Alarm = ringtone bajti hai, Snooze/Dismiss ke saath (APK mein band app/screen off par bhi).','🔔 Notification = a spoken heads-up. ⏰ Alarm = rings with Snooze/Dismiss (in the APK even with the app closed/screen off).')}</p>`:
+   `${typeof jobVarCard==='function'?jobVarCard():''}<p class="muted sm" style="margin-top:8px">${T('🔔 Notification = awaaz ke saath khabar. ⏰ Alarm = ringtone bajti hai, Snooze/Dismiss ke saath (APK mein band app/screen off par bhi).','🔔 Notification = a spoken heads-up. ⏰ Alarm = rings with Snooze/Dismiss (in the APK even with the app closed/screen off).')}</p>`:
    `<p class="muted sm">${T('On karein, phir office/job ke waqt, break aur chhutti ka time chunein — har ek ke liye notification ya alarm.','Turn on, then set your office/job start, break and leave times — each as a notification or an alarm.')}</p>`;
   return`<div class="card hero"><div class="row sp"><h2 style="margin:0">💼 ${T('Office / Kaam ka waqt','Office / work time')}</h2><input type="checkbox" class="sw" data-a="jobon" ${J.on?'checked':''}></div>${body}</div>`}
 const jobSync=()=>{saveS();try{schedTick()}catch(e){}try{nativeSync()}catch(e){}};
@@ -93,7 +93,7 @@ AX.jobt=el=>{if(!hm(el.value))return;S.job[el.dataset.k]=el.value;jobSync();toas
 AX.jobm=el=>{S.job.m=Object.assign({},S.job.m||{});S.job.m[el.dataset.k]=el.value;jobSync();toast(el.value==='a'?T('Alarm lag gaya ⏰','Alarm set ⏰'):el.value==='n'?T('Notification lag gayi 🔔','Notification set 🔔'):T('Band kar diya','Turned off'))};
 
 /* ---------- Home dashboard (top): overall day summary + office status + work time + extra time ---------- */
-function officeStatus(){const J=S.job,now=new Date();
+function officeStatus(){const J=jobDay(new Date()),now=new Date();
   if(!J||!J.on)return{t:T('Office ka waqt set nahi — tap karke set karein','Office time not set — tap to set'),c:'muted',set:1};
   if(!(J.days||[1,2,3,4,5,6]).includes(now.getDay()))return{t:T('Aaj office off hai 🌿 (kaam karenge to "extra waqt" mein jama hoga)','Office is off today 🌿 (any work counts as extra time)'),c:'ok'};
   const P=k=>atTime(J[k],now),lo=P('login'),bs=P('brk'),be=P('brkEnd'),lv=P('leave'),L=(a,b)=>fmtDur(Math.max(1,(a-b)/6e4));
@@ -101,7 +101,7 @@ function officeStatus(){const J=S.job,now=new Date();
   if(bs&&be&&now>=bs&&now<be)return{t:T(`☕ Break chal raha hai — ${L(be,now)} baqi (${t12(J.brkEnd)} tak)`,`☕ On break — ${L(be,now)} left (till ${t12(J.brkEnd)})`),c:'gold'};
   if(lv&&now<lv)return{t:T(`💼 Office chal raha hai — chhutti mein ${L(lv,now)} (${t12(J.leave)})`,`💼 At work — leave in ${L(lv,now)} (${t12(J.leave)})`),c:'ok'};
   return{t:T(`🏁 Office ka waqt khatam (${t12(J.leave)}) — ab ka kaam "extra waqt" hai`,`🏁 Office hours over (${t12(J.leave)}) — work now counts as extra time`),c:'ok',over:1}}
-function workToday(){const from=new Date().setHours(0,0,0,0),J=S.job,now=Date.now();let tot=0,extra=0;
+function workToday(){const from=new Date().setHours(0,0,0,0),J=jobDay(new Date()),now=Date.now();let tot=0,extra=0;
   const leave=(J&&J.on&&hm(J.leave))?+atTime(J.leave,new Date()):null,off=J&&J.on&&!(J.days||[1,2,3,4,5,6]).includes(new Date().getDay());
   const seg=(st,en)=>{if(st<from)st=from;const m=Math.max(0,(en-st)/6e4);tot+=m;if(J&&J.on){if(off)extra+=m;else if(leave){const a=Math.max(st,leave);extra+=Math.max(0,(en-a)/6e4)}}};
   TT.log.forEach(x=>{if(x.cat==='work'&&x.end>from)seg(x.start,x.end)});if(TT.run&&TT.run.cat==='work')seg(TT.run.start,now);
