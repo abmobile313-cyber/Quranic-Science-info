@@ -117,6 +117,11 @@ const AU={ctx:null,out:null,fx:null,conv:null,nbuf:null,
     const tone=(fr,type,a,pk,d,fr2,send,off)=>{const s0=t+(off||0);const o=c.createOscillator();o.type=type;o.frequency.setValueAtTime(fr,s0);if(fr2)o.frequency.exponentialRampToValueAtTime(fr2,s0+a+d);const g=c.createGain();env(g,a,pk,d,off);o.connect(g);g.connect(this.fx);if(send)g.connect(this.conv);o.start(s0);o.stop(s0+a+d+.05)};
     switch(n){
       case 'key':{const P=[1046.5,1174.7,1318.5,1568,1760,2093];const f=P[Math.floor(Math.random()*P.length)];tone(f,'sine',.004,.07,.34,null,true);tone(f*2,'sine',.004,.018,.2,null,true,.01);break} // soft glass sparkle (replaces typing click)
+      case 'tap':tone(1046.5,'sine',.003,.09,.16,1318.5,true);tone(2093,'sine',.002,.02,.08);break; // primary: glass pluck
+      case 'tapg':tone(783.99,'sine',.004,.11,.32,null,true);tone(1174.7,'sine',.004,.08,.42,null,true,.06);break; // gold: soft bell pair
+      case 'tapl':tone(1480,'sine',.002,.06,.07,880);break; // ghost/chip: water drop
+      case 'tapd':tone(440,'sine',.004,.1,.18,330,true);break; // off / delete: low soft
+      case 'tapn':noise(1800,.9,'bandpass',.01,.05,.12,4200);tone(659.25,'sine',.004,.07,.2,987.8,true);break; // dock: airy swish + note
       case 'tick':noise(2800+Math.random()*1200,1.4,'bandpass',.001,.35,.03);tone(190,'sine',.001,.09,.03);break;
       case 'bead':tone(880,'sine',.002,.12,.07,620);noise(4200,2,'bandpass',.001,.18,.025);break;
       case 'whoosh':noise(350,.8,'bandpass',.05,.3,.3,2600);break;
@@ -137,7 +142,7 @@ const sfx=n=>AU.play(n);
 
 /* ---------- VOICE: recorded ElevenLabs clips (no TTS anywhere) ---------- */
 const VO={a:null,blobs:{},
-  IDS:['az_Fajr','az_Dhuhr','az_Asr','az_Maghrib','az_Isha','hz_Fajr','hz_Dhuhr','hz_Asr','hz_Maghrib','hz_Isha','sadqa_ask','sadqa_remind','tilawat_ask','tilawat_remind','azkar_m','azkar_e','taleem','juma','job_login','break_start','break_end','leave','review','task','reminder','call','biz','class_1h','class_10m','timer_nudge','timer_start','test','voice_on','gasht','makruh','alert','dty_in','dty_out','sal_start','sal_late'],
+  IDS:['az_Fajr','az_Dhuhr','az_Asr','az_Maghrib','az_Isha','hz_Fajr','hz_Dhuhr','hz_Asr','hz_Maghrib','hz_Isha','sadqa_ask','sadqa_remind','tilawat_ask','tilawat_remind','azkar_m','azkar_e','taleem','juma','job_login','break_start','break_end','leave','review','task','reminder','call','biz','class_1h','class_10m','timer_nudge','timer_start','test','voice_on','gasht','makruh','alert','dty_in','dty_out','sal_start','sal_late','open_salam','noor_ji','noor_ok','noor_na'],
   url(id,l){if(String(id).startsWith('dua_'))return 'dua/'+id+'.mp3';return 'voice/'+(l||VL())+'/'+id+'.mp3'},
   /* clips are fetched as blobs (works offline through the service worker cache) */
   async blob(id){const k=S.lang+'/'+id;if(this.blobs[k])return this.blobs[k];const r=await fetch(this.url(id));if(!r.ok)throw new Error('clip');const b=await r.blob();if(b.size<2000)throw new Error('clip');return this.blobs[k]=URL.createObjectURL(b)},
@@ -178,3 +183,12 @@ const ICO={bell:'<path d="M6 9a6 6 0 0 1 12 0c0 6 2 7 2 7H4s2-1 2-7"/><path d="M
   home:'<path d="M3 11 12 3l9 8"/><path d="M5 10v10h14V10"/>',biz:'<rect x="3" y="7" width="18" height="13" rx="2"/><path d="M9 7V5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2M3 13h18"/>',deen:'<path d="M12 3a9 9 0 1 0 9 9 7 7 0 0 1-9-9Z"/>',kaam:'<path d="M9 11l2 2 4-4"/><rect x="4" y="4" width="16" height="16" rx="3"/>',more:'<circle cx="5" cy="12" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="19" cy="12" r="1.5"/>',
   play:'<path d="M7 4.5v15l12-7.5z"/>',pause:'<path d="M7 5h3.5v14H7zM13.5 5H17v14h-3.5z"/>',next:'<path d="M6 5v14l9-7zM17 5v14"/>',prev:'<path d="M18 5v14l-9-7zM7 5v14"/>',stop:'<rect x="6" y="6" width="12" height="12" rx="2"/>'};
 const svg=(n,c='ic')=>`<svg class="${c}" viewBox="0 0 24 24">${ICO[n]||''}</svg>`;
+
+/* press ripple + per-type tap sound */
+(function(){const SEL='.btn,.chip,.fch button,.ib,.tile,.stat.tap,.item[data-a],.seg button,.dock button,.hzb button,.keys button,.bmini,.tcat';
+  addEventListener('pointerdown',e=>{const el=e.target.closest(SEL);if(!el||el.disabled)return;el.classList.add('pz');
+    const off=()=>{el.classList.remove('pz');removeEventListener('pointerup',off);removeEventListener('pointercancel',off)};addEventListener('pointerup',off);addEventListener('pointercancel',off);setTimeout(off,900);
+    if(getComputedStyle(el).position==='static')el.style.position='relative';
+    const r=el.getBoundingClientRect(),d=Math.max(r.width,r.height)*2.2,s=document.createElement('span');s.className='rip';s.style.cssText=`width:${d}px;height:${d}px;left:${e.clientX-r.left-d/2}px;top:${e.clientY-r.top-d/2}px`;el.appendChild(s);setTimeout(()=>s.remove(),650);
+    const n=el.closest('.dock')?'tapn':el.classList.contains('gold')?'tapg':el.classList.contains('bad')?'tapd':(el.classList.contains('ghost')||el.classList.contains('chip')||el.closest('.fch,.seg,.hzb'))?'tapl':el.classList.contains('btn')?'tap':'tapl';
+    try{sfx(n)}catch(_){}},{passive:true})})();

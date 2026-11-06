@@ -7,9 +7,10 @@ async function lkHash(pin,salt){const s=salt+':'+pin;
   let h=5381;for(let i=0;i<30000;i++){h=((h<<5)+h+s.charCodeAt(i%s.length)+i)|0}return'd'+(h>>>0).toString(16)}
 const lkRand=n=>{let o='';const a=new Uint32Array(n);(window.crypto||{getRandomValues:x=>x.forEach((_,i)=>x[i]=Math.random()*4e9)}).getRandomValues(a);a.forEach(v=>o+=v%10);return o};
 const lkConf=(tab,sub)=>tab==='biz'||(tab==='kaam'&&sub==='paisa')||(tab==='more'&&(sub==='set'||sub==='settings'));
-function lkSecure(){try{if(window.AndroidPA&&AndroidPA.setSecure)AndroidPA.setSecure(lkOn())}catch(e){}}
+/* screenshots allowed everywhere; only the PIN screen and confidential sections (wallet etc.) go black */
+let _lkSec=null;function lkSecure(){try{const sub=curSub[curTab]||(SUBS[curTab]||[[0]])[0][0],on=!!(LCK.locked||(curTab==='kaam'&&sub==='wallet'));if(on===_lkSec)return;_lkSec=on;if(window.AndroidPA&&AndroidPA.setSecure)AndroidPA.setSecure(on)}catch(e){}}
 function lkDots(){const n=S.lock.len||4;return Array.from({length:n},(_,i)=>`<i class="${i<LCK.pin.length?'on':''}"></i>`).join('')}
-function lkShow(after){if(LCK.locked){LCK.after=after||LCK.after;return}LCK.locked=true;LCK.pin='';LCK.after=after||null;
+function lkShow(after){if(LCK.locked){LCK.after=after||LCK.after;return}LCK.locked=true;lkSecure();LCK.pin='';LCK.after=after||null;
   try{const d=$('#dlg');if(d&&d.open)d.close()}catch(e){}
   let el=document.getElementById('lockdlg');if(!el){el=document.createElement('dialog');el.id='lockdlg';el.addEventListener('cancel',e=>e.preventDefault());document.body.appendChild(el)}
   const native=!!window.AndroidPA;
@@ -25,7 +26,7 @@ async function lkCheck(){const m=$('#lkmsg');if(Date.now()<LCK.until){m.textCont
   if(h===S.lock.hash){S.lock.tries=0;saveS();lkOk()}
   else{S.lock.tries=(S.lock.tries||0)+1;saveS();LCK.pin='';const d=$('#lkdots');d.classList.add('bad');setTimeout(()=>{d.classList.remove('bad');d.innerHTML=lkDots()},450);
     if(S.lock.tries%5===0){LCK.until=Date.now()+30000;m.textContent=T('5 galat PIN — 30 second ruko','5 wrong PINs — wait 30 s')}else m.textContent=T('Galat PIN','Wrong PIN');try{navigator.vibrate&&navigator.vibrate(120)}catch(e){}}}
-function lkOk(){LCK.locked=false;LCK.secOk=true;LCK.pin='';LCK.hid=0;const el=document.getElementById('lockdlg');if(el&&el.open)el.close();const cb=LCK.after;LCK.after=null;if(typeof cb==='function')cb();else rerender()}
+function lkOk(){LCK.locked=false;lkSecure();LCK.secOk=true;LCK.pin='';LCK.hid=0;const el=document.getElementById('lockdlg');if(el&&el.open)el.close();const cb=LCK.after;LCK.after=null;if(typeof cb==='function')cb();else rerender()}
 function lkBio(){if(!window.AndroidPA||!AndroidPA.unlock)return;LCK.busy=true;let r='';try{r=AndroidPA.unlock()}catch(e){r='err'}
   if(r==='nosecure'){LCK.busy=false;toast(T('Phone mein screen lock (PIN/fingerprint) laga hua nahi hai — phone Settings mein lagayein','Set a phone screen lock first'))}else if(r!=='ok'){LCK.busy=false}}
 window.lkResult=ok=>{LCK.busy=false;LCK.hid=0;if(ok)lkOk()};
