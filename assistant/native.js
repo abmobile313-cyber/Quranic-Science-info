@@ -35,6 +35,7 @@ function natItems(){
     if(typeof duaEvents==='function')duaEvents(base).forEach(e=>add(e.at,e.title,e.body,e.voice,{tab:e.tab,sub:e.sub}));
     if(typeof gashtEvents==='function')gashtEvents(base,az,jm).forEach(e=>add(e.at,e.title,e.body||'',e.voice,{tab:e.tab,sub:e.sub}));
     if(typeof wkEvents==='function')wkEvents(base).forEach(e=>add(e.at,e.title,e.body,e.voice,{tab:e.tab,sub:e.sub}));
+    if(typeof jmaEvents==='function')jmaEvents(base).forEach(e=>add(e.at,e.title,e.body,e.voice,{tab:e.tab,sub:e.sub}));
     if(typeof dutyEvents==='function')dutyEvents(base).forEach(e=>add(e.at,e.title,e.body,e.voice,{tab:e.tab,sub:e.sub}));
     if(typeof salEvents==='function')salEvents(base).forEach(e=>add(e.at,e.title,e.body,e.voice,{tab:e.tab,sub:e.sub}));
     if(typeof cevEvents==='function')cevEvents(base).forEach(e=>add(e.at,e.title,e.body,e.voice,{tab:e.tab,sub:e.sub}));

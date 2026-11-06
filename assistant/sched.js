@@ -131,6 +131,7 @@ function dayEvents(){
   if(typeof gashtEvents==='function')gashtEvents(new Date(),p=>azanTime(p),p=>jamTime(p)).forEach(e=>e.ask?E(e.k,e.at,Infinity,(late)=>{const dk=dkey();if(!(GS[dk]&&GS[dk][e.ask]))addQ(mkQ('gasht',{w:e.ask}),{silent:late>60*60000})}):E(e.k,e.at,20*60000,()=>notify(e.title,e.body,{k:'alert',tab:e.tab,sub:e.sub,voice:e.voice})));
   if(typeof cevEvents==='function')cevEvents(new Date()).forEach(e=>E(e.k,e.at,20*60000,()=>notify(e.title,e.body,{k:'alert',tab:e.tab,sub:e.sub,voice:e.voice})));
   if(typeof wkEvents==='function')wkEvents(new Date()).forEach(e=>E(e.k,e.at,20*60000,()=>notify(e.title,e.body,{k:'alert',tab:e.tab,sub:e.sub,voice:e.voice})));
+  if(typeof jmaEvents==='function')jmaEvents(new Date()).forEach(e=>E(e.k,e.at,6*3600000,()=>notify(e.title,e.body,{k:'alert',tab:e.tab,sub:e.sub,voice:e.voice})));
   if(typeof dutyEvents==='function')dutyEvents(new Date()).forEach(e=>E(e.k,e.at,20*60000,()=>notify(e.title,e.body,{k:'alert',tab:e.tab,sub:e.sub,voice:e.voice})));
   if(typeof salEvents==='function')salEvents(new Date()).forEach(e=>E(e.k,e.at,6*3600000,()=>notify(e.title,e.body,{k:'alert',tab:e.tab,sub:e.sub,voice:e.voice})));
   if(typeof almEvents==='function')almEvents(new Date()).forEach(e=>E(e.k,e.at,10*60000,()=>{if(typeof almWeb==='function')almWeb(e)}));

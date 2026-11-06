@@ -144,8 +144,8 @@ const rkEndNo=(s,a)=>{const m=rkBuild();const k=m.en[s+':'+a];return k?m.loc[k]:
 const rkStartNo=(s,a)=>{const m=rkBuild();const k=m.st[s+':'+a];return k&&!(s===1&&a===1)?m.loc[k]:0};
 const toAr=n=>typeof toArDigits==='function'?toArDigits(n):String(n);
 async function mpBuild(pg){
-  try{if(document.fonts&&document.fonts.load)await document.fonts.load('24px IndoPak')}catch(e){}
-  const cx=mpBuild.cx||(mpBuild.cx=document.createElement('canvas').getContext('2d'));cx.font='24px IndoPak, Naskh, serif';
+  try{if(document.fonts&&document.fonts.load)await document.fonts.load('24px '+(window.QFN?QFN():'IndoPak'))}catch(e){}
+  const cx=mpBuild.cx||(mpBuild.cx=document.createElement('canvas').getContext('2d'));cx.font='24px '+(window.QFN?QFN():'IndoPak')+', IndoPak, Naskh, serif';
   const W=t=>cx.measureText(t).width,gap=W('\u00a0')*.9;
   const segs=[];let cur=null,hdrLines=0;
   for(let i=pg.i0;i<=pg.i1;i++){const[s,a]=QPF.flat[i];
