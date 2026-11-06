@@ -10,10 +10,10 @@
    Look: set --shp-accent, --shp-accent-ink, --shp-bg, --shp-ink, --shp-card, --shp-line on :root to match the brand. */
 (function () {
   const API = "https://quranic-science-automation.quranicscience01.workers.dev/shop";
-  const S = { cfg: {}, items: [], cart: [], ship: 0, freeShipAbove: 0, rzpKey: "" };
+  const S = { cfg: {}, items: [], cart: [], ship: 0, freeShipAbove: 0, rzpKey: "", cur: "INR" };
   const H = s => String(s == null ? "" : s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
   const ls = { get(k, d) { try { const v = localStorage.getItem(k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } }, set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} } };
-  const rs = v => "₹" + (+v || 0).toLocaleString("en-IN", { maximumFractionDigits: 2 });
+  const rs = v => (S.cur === "USD" ? "$" : S.cur === "AED" ? "AED " : "₹") + (+v || 0).toLocaleString(S.cur === "INR" ? "en-IN" : "en-US", { maximumFractionDigits: 2 });
   const K = n => "shp-" + S.cfg.brand + "-" + n;
   const STEP = { awaiting_payment: "Order placed", paid: "Payment received", processing: "Being prepared", shipped: "Shipped", delivered: "Delivered", cancelled: "Cancelled", check_payment: "Payment being checked" };
   const FLOW = ["awaiting_payment", "paid", "processing", "shipped", "delivered"];
@@ -92,7 +92,7 @@
 
   /* ---------- catalogue ---------- */
   async function loadItems() {
-    try { const j = await api("/items?brand=" + S.cfg.brand); S.items = j.items || []; S.ship = j.ship || 0; S.freeShipAbove = j.freeShipAbove || 0; S.rzpKey = j.rzpKey || ""; }
+    try { const j = await api("/items?brand=" + S.cfg.brand); S.items = j.items || []; S.ship = j.ship || 0; S.freeShipAbove = j.freeShipAbove || 0; S.rzpKey = j.rzpKey || ""; S.cur = j.currency || S.cfg.currency || "INR"; }
     catch (e) { S.items = []; }
     if (!S.items.length && S.cfg.fallbackItems) S.items = S.cfg.fallbackItems.map(x => Object.assign({ demo: true }, x));
     drawGrids(); document.dispatchEvent(new CustomEvent("shop:items", { detail: S.items }));
@@ -172,7 +172,7 @@
     track(o.id, o.key, "Your payment is received. The confirmation can take a minute to show here.");
   }
   function waAfter(o, cust) {
-    const msg = `Assalamu Alaikum ${S.cfg.name}, I placed order ${o.id} (₹${o.total}). Please share how to pay.`;
+    const msg = `Assalamu Alaikum ${S.cfg.name}, I placed order ${o.id} (${rs(o.total)}). Please share how to pay.`;
     modal(head("Order placed ✓") + `<p>Your order number is <b>${H(o.id)}</b>. Online payment is opening very soon. Tap below to send the order to us on WhatsApp and we will share the payment details.</p>
       <p><a class="shp-btn3d" href="https://wa.me/${S.cfg.whatsapp}?text=${encodeURIComponent(msg)}" target="_blank" rel="noopener">Send on WhatsApp</a></p>
       <p><button class="shp-btn3d ghost" type="button" id="shpT">Track this order</button></p>`, true).querySelector("#shpT").onclick = () => track(o.id, o.key);
@@ -234,7 +234,7 @@
 
   /* ---------- start ---------- */
   function init(cfg) {
-    S.cfg = Object.assign({ whatsapp: "919272527913", fab: true }, cfg); S.cart = ls.get(K("cart"), []);
+    S.cfg = Object.assign({ whatsapp: "919272527913", fab: true }, cfg); S.cur = S.cfg.currency || "INR"; S.cart = ls.get(K("cart"), []);
     const st = document.createElement("style"); st.textContent = CSS; document.head.prepend(st);
     if (S.cfg.fab) { const f = document.createElement("button"); f.type = "button"; f.className = "shp-btn3d shp-fab"; f.setAttribute("data-shop-cart", ""); f.setAttribute("aria-label", "Cart");
       f.innerHTML = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 4h2l2.4 11.2a2 2 0 0 0 2 1.6h7.7a2 2 0 0 0 2-1.5L21 8H6"/><circle cx="10" cy="20" r="1.3"/><circle cx="17" cy="20" r="1.3"/></svg><span class="shp-badge" data-shp-count hidden>0</span>`; document.body.appendChild(f); }

@@ -51,7 +51,7 @@ input,select,textarea{font:inherit;font-size:.88rem;color:var(--text);background
     <form id="itemF" class="box" hidden style="background:rgba(0,0,0,.25)">
       <input type="hidden" id="iId">
       <div class="grid2"><label class="ctl">Name<input id="iName" required></label><label class="ctl">Type<select id="iKind"><option value="product">Product (fixed price, add to cart)</option><option value="service">Service (fixed price)</option><option value="quote">Quote only (customer asks for price)</option></select></label></div>
-      <div class="grid2"><label class="ctl">Price ₹ (selling)<input id="iPrice" type="number" min="0" step="1"></label><label class="ctl">MRP ₹ (crossed out, optional)<input id="iMrp" type="number" min="0" step="1"></label></div>
+      <div class="grid2"><label class="ctl">Price <span class="cur">₹</span> (selling)<input id="iPrice" type="number" min="0" step="any"></label><label class="ctl">MRP <span class="cur">₹</span> (crossed out, optional)<input id="iMrp" type="number" min="0" step="any"></label></div>
       <div class="grid2"><label class="ctl">Category<input id="iCat" placeholder="e.g. Attar, Video, Honey"></label><label class="ctl">Size / unit<input id="iSize" placeholder="e.g. 12 ml, 500 g, per reel"></label></div>
       <label class="ctl">Short description<textarea id="iDesc" rows="2"></textarea></label>
       <label class="ctl">Photo link (https://…)<input id="iImg" placeholder="Paste an image link (Google Drive share links work too)"></label>
@@ -60,7 +60,7 @@ input,select,textarea{font:inherit;font-size:.88rem;color:var(--text);background
     </form>
     <div class="items" id="items"></div>
   </div>
-  <div class="box"><h2>Delivery charge</h2><form id="shipF" class="grid2"><label class="ctl">Delivery ₹ per order<input id="sShip" type="number" min="0"></label><label class="ctl">Free delivery above ₹<input id="sFree" type="number" min="0"></label><button class="btn gold" type="submit" style="width:max-content">Save</button></form>
+  <div class="box"><h2>Delivery charge</h2><form id="shipF" class="grid2"><label class="ctl">Delivery <span class="cur">₹</span> per order<input id="sShip" type="number" min="0"></label><label class="ctl">Free delivery above <span class="cur">₹</span><input id="sFree" type="number" min="0"></label><button class="btn gold" type="submit" style="width:max-content">Save</button></form>
     <p class="muted" id="rzp"></p></div>
 </div>
 </div>
@@ -74,7 +74,7 @@ const STEPS={awaiting_payment:"Awaiting payment",paid:"Paid",processing:"Prepari
 firebase.initializeApp({apiKey:"AIzaSyCCoqjw2BzgWcal6OVBqONYOB7x--WP12g",authDomain:"quranicscience-682ff.firebaseapp.com",projectId:"quranicscience-682ff",appId:"1:573259128290:web:ac11b77238e1bd7354edbb"});
 const auth=firebase.auth(),$=id=>document.getElementById(id);
 const H=s=>String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
-const rs=v=>"₹"+(+v||0).toLocaleString("en-IN");
+const CURS={alaswad:"$"};const sym=()=>CURS[brand]||"₹";const rs=v=>sym()+(+v||0).toLocaleString(sym()==="₹"?"en-IN":"en-US");
 const when=t=>t?new Date(t).toLocaleString("en-IN",{day:"numeric",month:"short",hour:"2-digit",minute:"2-digit"}):"";
 const wa=(ph,msg)=>`https://wa.me/${String(ph||"").replace(/\D/g,"").replace(/^(\d{10})$/,"91$1")}?text=${encodeURIComponent(msg)}`;
 function toast(t){const e=$("toast");e.textContent=t;e.hidden=false;clearTimeout(toast.t);toast.t=setTimeout(()=>e.hidden=true,2500)}
@@ -89,6 +89,7 @@ async function load(){
   $("sub").textContent="Loading "+BRANDS[brand].name+"…";
   try{D=await call("GET");}catch(e){$("sub").textContent="Could not load: "+e.message;return}
   $("sub").textContent=BRANDS[brand].name+" · "+BRANDS[brand].site.replace("https://","");
+  document.querySelectorAll(".cur").forEach(e=>e.textContent=sym());
   const site=BRANDS[brand].site;
   $("oCount").textContent=D.orders.length+" total";
   $("orders").innerHTML=D.orders.length?D.orders.map(o=>{const c=o.customer||{},a=c.address||{},link=`${site}/#track=${o.id}.${o.key}`;
@@ -103,13 +104,13 @@ async function load(){
   $("quotes").innerHTML=D.quotes.length?D.quotes.map(q=>{const c=q.customer||{},link=`${site}/#quote=${q.id}.${q.key}`;
     return `<div class="row"><div><b>${H(q.service)} <span class="pill ${q.status}">${H(q.status)}</span></b><small>${H(q.brief)}</small><br><small>${H(q.budget)} · ${H(q.deadline)} · ${when(q.ts)}</small></div>
       <div><b>${H(c.name)}</b><small>${H(c.phone)} ${c.email?"· "+H(c.email):""}</small></div>
-      <div class="ctl" style="min-width:210px"><input type="number" min="0" data-qp="${q.id}" placeholder="Your price ₹" value="${q.price||""}"><textarea rows="2" data-qn="${q.id}" placeholder="What is included, delivery time">${H(q.ownerNote||"")}</textarea>
+      <div class="ctl" style="min-width:210px"><input type="number" min="0" data-qp="${q.id}" placeholder="Your price ${sym()}" value="${q.price||""}"><textarea rows="2" data-qn="${q.id}" placeholder="What is included, delivery time">${H(q.ownerNote||"")}</textarea>
         <button class="btn gold" type="button" data-qsave="${q.id}">Send price</button>
-        <a class="btn" target="_blank" rel="noopener" href="${wa(c.phone,`Assalamu Alaikum ${c.name}, your ${BRANDS[brand].name} quote for ${q.service} is ready${q.price?": ₹"+q.price:""}.\nSee details and pay here: ${link}`)}">WhatsApp customer</a></div></div>`}).join(""):`<p class="muted">No quote requests yet.</p>`;
+        <a class="btn" target="_blank" rel="noopener" href="${wa(c.phone,`Assalamu Alaikum ${c.name}, your ${BRANDS[brand].name} quote for ${q.service} is ready${q.price?": "+sym()+q.price:""}.\nSee details and pay here: ${link}`)}">WhatsApp customer</a></div></div>`}).join(""):`<p class="muted">No quote requests yet.</p>`;
   $("items").innerHTML=D.items.length?D.items.map(i=>`<div class="item ${i.active===false?"off":""}"><b>${H(i.name)}</b><small class="muted">${H(i.kind)} · ${i.price?rs(i.price):"quote"}${i.size?" · "+H(i.size):""}${i.cat?" · "+H(i.cat):""}${i.stock>=0?" · stock "+i.stock:""}</small>
     <div style="display:flex;gap:6px;flex-wrap:wrap"><button class="btn" type="button" data-edit="${i.id}">Edit</button><button class="btn" type="button" data-hide="${i.id}" data-act="${i.active===false}">${i.active===false?"Show":"Hide"}</button></div></div>`).join(""):`<p class="muted">No products yet. Tap “+ Add”.</p>`;
   const cfg=(D.config||{})[brand]||{};$("sShip").value=cfg.ship||0;$("sFree").value=cfg.freeShipAbove||"";
-  $("rzp").textContent=D.rzpKey?"✅ Razorpay online payment is ON for the shops.":"⚠️ Razorpay key not added yet, so customers place the order and pay on WhatsApp.";
+  $("rzp").textContent=(Array.isArray(D.rzpKey)?D.rzpKey.includes(brand):D.rzpKey)?"✅ Razorpay online payment is ON for this shop.":"⚠️ This shop has no Razorpay account yet, so customers place the order and pay on WhatsApp.";
 }
 document.addEventListener("click",async e=>{
   const t=e.target;
