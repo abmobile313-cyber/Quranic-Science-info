@@ -12,7 +12,20 @@ const TRC=()=>S.lang==='ur'?'urdu':'trx';
 /* QD.ur = translation in the app language: Urdu (Mufti Taqi Usmani), Hindi (Suhel Farooq Khan), English (Mufti Taqi Usmani). QD.ro (Roman) is used only for Roman-letter search */
 /* Hindi mode: default = Mufti Taqi Usmani ka Urdu tarjuma Devanagari mein (S.hiTr='taqi'); option = Suhel Farooq Khan ka Hindi tarjuma (S.hiTr='sfk') */
 const hiTaqi=()=>S.lang==='hi'&&S.hiTr!=='sfk';
-function loadQ(){if(QD)return Promise.resolve(QD);return QDP||(QDP=Promise.all([fetch('q-indopak.json').then(r=>r.json()),fetch('taqi.json').then(r=>r.json()),(S.lang==='ur'||S.lang==='ro'||hiTaqi())?null:fetch(S.lang==='hi'?'tr-hi.json':'tr-en.json').then(r=>r.json()),hiTaqi()&&typeof dvuLoad==='function'?dvuLoad():null]).then(([ar,t,tr])=>{let ur=tr||(S.lang==='ro'?t.ro:t.ur);if(hiTaqi()){try{ur=t.ur.map(s=>new Proxy(s,{get:(o,k)=>{const v=o[k];return(typeof v==='string'&&typeof k==='string'&&/^\d+$/.test(k))?urToDv(v):v}}))}catch(e){console.error(e);ur=t.ur}}return QD={ar,ur,ro:t.ro}}).catch(e=>{QDP=null;throw e}))}
+/* Urdu tarjuma (Urdu, Hindi-script aur Roman mein dikhaya jata hai): S.urTr = 'taqi' (Mufti Taqi Usmani) | 'kks' (Pir Muhammad Karam Shah Al-Azhari — Zia-ul-Quran) | 'mh' (Shaikh-ul-Hind Mahmood-ul-Hasan).
+   Default: Barelvi → Karam Shah, baaqi sab → Taqi Usmani. (Kanzul Iman ka free data-source nahi mila, isliye app ke andar nahi.) */
+const QTR=[['taqi','Mufti Muhammad Taqi Usmani','مفتی محمد تقی عثمانی'],['kks','Pir Muhammad Karam Shah Al-Azhari (Zia-ul-Quran)','پیر محمد کرم شاہ الازہری (ضیاء القرآن)'],['mh','Shaikh-ul-Hind Mahmood-ul-Hasan','شیخ الہند محمود الحسن']];
+const urTr=()=>{const v=S.urTr;if(v&&QTR.some(x=>x[0]===v))return v;return (typeof FQ==='function'&&FQ()==='bar')?'kks':'taqi'};
+const lazyMap=(arr,fn)=>arr.map(s=>new Proxy(s,{get:(o,k)=>{const v=o[k];return(typeof v==='string'&&typeof k==='string'&&/^\d+$/.test(k))?fn(v):v}}));
+function loadQ(){if(QD)return Promise.resolve(QD);const tr=urTr(),useUr=S.lang!=='en'&&!(S.lang==='hi'&&!hiTaqi());
+  return QDP||(QDP=Promise.all([fetch('q-indopak.json').then(r=>r.json()),fetch('taqi.json').then(r=>r.json()),useUr?null:fetch(S.lang==='hi'?'tr-hi.json':'tr-en.json').then(r=>r.json()),(useUr&&tr!=='taqi')?fetch('tr-'+tr+'.json').then(r=>r.json()):null,(S.lang==='hi'&&typeof dvuLoad==='function')?dvuLoad():null,(useUr&&tr!=='taqi'&&S.lang==='ro'&&typeof RM!=='undefined')?RM.load().catch(()=>{}):null]).then(([ar,t,tro,alt])=>{
+    let ur;
+    if(!useUr)ur=tro;
+    else{const base=alt||t.ur;
+      if(S.lang==='ur')ur=base;
+      else if(S.lang==='hi'){try{ur=lazyMap(base,a=>urToDv(a))}catch(e){ur=base}}
+      else{ur=alt?((typeof RM!=='undefined'&&RM.conv)?lazyMap(base,a=>{const r=RM.conv(a);return r?r.charAt(0).toUpperCase()+r.slice(1):a}):base):t.ro}}
+    return QD={ar,ur,ro:t.ro,tr}}).catch(e=>{QDP=null;throw e}))}
 let QS=Object.assign({view:'list',tab:'surah',s:1,a:1,mode:'t',bm:[],last:null,rec:'Alafasy_128kbps',q:''},store.get('quran4',{}));
 const saveQS=()=>store.set('quran4',QS);
 if(!QS.m26){QS.pg=true;QS.m26=1;saveQS()}

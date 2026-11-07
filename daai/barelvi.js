@@ -1,0 +1,53 @@
+/* 🌹 Amaal — Barelvi (Ahl-e-Sunnat) users ke liye: Durood/Salam counter, Islami saal ke khaas din (yaad-dahani ke saath), apni kitabein.
+   Sirf S.firqa==='bar' ko dikhta hai. Deobandi/aam users ko yeh tab, card ya notification kabhi nahi aata. */
+const BDUR=[
+ {id:'ibr',n:()=>T('Durood-e-Ibrahimi','Durood-e-Ibrahimi','درودِ ابراہیمی','दुरूद-ए-इब्राहीमी'),
+  ar:'اَللّٰهُمَّ صَلِّ عَلٰى مُحَمَّدٍ وَّعَلٰى اٰلِ مُحَمَّدٍ كَمَا صَلَّيْتَ عَلٰى اِبْرَاهِيْمَ وَعَلٰى اٰلِ اِبْرَاهِيْمَ اِنَّكَ حَمِيْدٌ مَّجِيْدٌ، اَللّٰهُمَّ بَارِكْ عَلٰى مُحَمَّدٍ وَّعَلٰى اٰلِ مُحَمَّدٍ كَمَا بَارَكْتَ عَلٰى اِبْرَاهِيْمَ وَعَلٰى اٰلِ اِبْرَاهِيْمَ اِنَّكَ حَمِيْدٌ مَّجِيْدٌ',
+  note:()=>T('Namaz mein padha jane wala durood (Sahih Bukhari).','The durood recited in salah (Sahih Bukhari).','نماز میں پڑھا جانے والا درود (صحیح بخاری)۔','नमाज़ में पढ़ा जाने वाला दुरूद (सहीह बुख़ारी)।')},
+ {id:'sls',n:()=>T('Salat-o-Salam','Salat-o-Salam','صلاۃ و سلام','सलात-ओ-सलाम'),
+  ar:'اَلصَّلٰوةُ وَالسَّلَامُ عَلَيْكَ يَا رَسُوْلَ اللّٰه، وَعَلٰى اٰلِكَ وَاَصْحَابِكَ يَا حَبِيْبَ اللّٰه',
+  note:()=>T('Mukhtasar Salat-o-Salam.','Short Salat-o-Salam.','مختصر صلاۃ و سلام۔','मुख़्तसर सलात-ओ-सलाम।')},
+ {id:'rzw',n:()=>T('Durood-e-Razawiyya','Durood-e-Razawiyya','درودِ رضویہ','दुरूद-ए-रज़विय्या'),
+  ar:'صَلَّى اللّٰهُ عَلَى النَّبِيِّ الْاُمِّيِّ وَاٰلِهٖ، صَلَّى اللّٰهُ عَلَيْهِ وَسَلَّمَ، صَلٰوةً وَّسَلَامًا عَلَيْكَ يَا رَسُوْلَ اللّٰه',
+  note:()=>T('Aam taur par Juma ki namaz ke baad 100 baar padha jata hai.','Commonly recited 100 times after Jumu\'ah.','عام طور پر جمعہ کی نماز کے بعد 100 بار پڑھا جاتا ہے۔','आम तौर पर जुमा की नमाज़ के बाद 100 बार पढ़ा जाता है।')},
+ {id:'mkh',n:()=>T('Mukhtasar Durood','Short Durood','مختصر درود','मुख़्तसर दुरूद'),
+  ar:'صَلَّى اللّٰهُ عَلَيْهِ وَسَلَّمَ',note:()=>T('Chalte-phirte padhne ke liye.','For any time.','چلتے پھرتے پڑھنے کے لیے۔','चलते-फिरते पढ़ने के लिए।')}];
+/* Islami saal ke khaas din [month, day, ro, en, ur, hi] — Hijri tareekh (umm-al-qura + aap ki chaand ki adjustment, Settings → Hijri) */
+const BDAYS=[
+ [1,1,'Islami naya saal','Islamic New Year','اسلامی نیا سال','इस्लामी नया साल'],
+ [1,10,'Yaum-e-Ashura (9 aur 10 Muharram ka roza)','Day of Ashura (fast 9th & 10th)','یومِ عاشورہ (9 اور 10 محرم کا روزہ)','यौम-ए-आशूरा (9 और 10 मुहर्रम का रोज़ा)'],
+ [2,25,'Urs-e-Ala Hazrat Imam Ahmad Raza Khan (rah.)','Urs of Ala Hazrat Imam Ahmad Raza Khan','عرسِ اعلیٰ حضرت امام احمد رضا خان (رح)','उर्स-ए-आला हज़रत इमाम अहमद रज़ा ख़ान (रह.)'],
+ [3,12,'Milad-un-Nabi ﷺ (12 Rabi-ul-Awwal)','Milad-un-Nabi ﷺ','میلاد النبی ﷺ (12 ربیع الاول)','मीलाद-उन-नबी ﷺ (12 रबी-उल-अव्वल)'],
+ [4,11,'Giyarhvin Shareef — Urs Ghaus-e-Azam Shaikh Abdul Qadir Jilani (rah.)','Giyarhvin Shareef — Urs of Shaikh Abdul Qadir Jilani','گیارہویں شریف — عرس غوثِ اعظم شیخ عبدالقادر جیلانی (رح)','ग्यारहवीं शरीफ़ — उर्स ग़ौस-ए-आज़म शैख़ अब्दुल क़ादिर जीलानी (रह.)'],
+ [7,6,'Urs Khwaja Gharib Nawaz Moinuddin Chishti (rah.)','Urs of Khwaja Moinuddin Chishti','عرس خواجہ غریب نواز معین الدین چشتی (رح)','उर्स ख़्वाजा ग़रीब नवाज़ मुईनुद्दीन चिश्ती (रह.)'],
+ [7,27,'Shab-e-Meraj (27 Rajab)','Shab-e-Meraj','شبِ معراج (27 رجب)','शब-ए-मेराज (27 रजब)'],
+ [8,15,'Shab-e-Barat (14-15 Shaban ki raat)','Shab-e-Barat','شبِ برات (14-15 شعبان کی رات)','शब-ए-बरात (14-15 शाबान की रात)'],
+ [9,1,'Ramzan-ul-Mubarak shuru','Ramadan begins','رمضان المبارک شروع','रमज़ान-उल-मुबारक शुरू'],
+ [9,27,'Shab-e-Qadr (27vi raat — aakhri ashre ki taaq raatein)','Laylat al-Qadr (27th night)','شبِ قدر (27ویں رات — آخری عشرے کی طاق راتیں)','शब-ए-क़द्र (27वीं रात — आख़िरी अशरे की ताक़ रातें)'],
+ [10,1,'Eid-ul-Fitr','Eid al-Fitr','عید الفطر','ईद-उल-फ़ित्र'],
+ [12,9,'Yaum-e-Arafah (roza)','Day of Arafah (fast)','یومِ عرفہ (روزہ)','यौम-ए-अरफ़ा (रोज़ा)'],
+ [12,10,'Eid-ul-Adha','Eid al-Adha','عید الاضحیٰ','ईद-उल-अज़हा']];
+const bdName=x=>S.lang==='en'?x[3]:S.lang==='ur'?x[4]:S.lang==='hi'?x[5]:x[2];
+let BRD=store.get('brd',{});const brdSave=()=>store.set('brd',BRD);
+const brdGet=(id,d=dkey())=>((BRD[d]||{})[id]||0);
+const brdTotal=(d=dkey())=>Object.values(BRD[d]||{}).reduce((a,b)=>a+(+b||0),0);
+const brdTarget=()=>+S.durTarget||100;
+/* next khaas din (within ~400 days) */
+function bdNext(from=new Date()){try{for(let i=0;i<400;i++){const dt=addDays(from,i);const h=hijriOf(dt);const x=BDAYS.find(b=>b[0]===h.m&&b[1]===h.d);if(x)return{x,dt,i,h};if(h.d===11&&h.m!==4&&i<31)return{x:[h.m,11,'Giyarhvin Shareef (har mahine ki 11 tareekh)','Monthly Giyarhvin (11th)','گیارہویں شریف (ہر مہینے کی 11 تاریخ)','ग्यारहवीं शरीफ़ (हर महीने की 11 तारीख़)'],dt,i,h}}}catch(e){}return null}
+function renderBarAmal(el){const tot=brdTotal(),tg=brdTarget(),nx=bdNext();
+  const durs=BDUR.map(d=>{const c=brdGet(d.id);return`<div class="card"><div class="row sp"><b>${d.n()}</b><span class="chip ${c?'ok':''}">${c}</span></div><div class="dua" style="font-family:AmiriQ,Naskh,serif;direction:rtl;text-align:right;line-height:2.1;font-size:22px;margin:8px 0">${d.ar}</div><div class="muted sm">${d.note()}</div><div class="row mt"><button class="btn gold grow" data-a="brdinc" data-id="${d.id}" style="font-size:18px">+1</button><button class="btn ghost" data-a="brdinc" data-id="${d.id}" data-n="10">+10</button><button class="btn ghost" data-a="brdinc" data-id="${d.id}" data-n="-1">−1</button></div></div>`}).join('');
+  const yr=BDAYS.map(x=>{let at=null;try{for(let i=0;i<400;i++){const dt=addDays(new Date(),i),h=hijriOf(dt);if(h.m===x[0]&&h.d===x[1]){at=dt;break}}}catch(e){}return{x,at}}).sort((a,b)=>(a.at||9e15)-(b.at||9e15));
+  el.innerHTML=`<div class="card hero"><div class="row sp"><h2 style="margin:0">🌹 ${T('Durood-o-Salam','Durood & Salam','درود و سلام','दुरूद-ओ-सलाम')}</h2><span class="chip ${tot>=tg?'ok':'gold'}">${tot}/${tg}</span></div><div class="muted sm" style="margin-top:6px">${T('Aaj ka durood gin-te jaiye. Roz ka target Settings mein badal sakte hain.','Count today\'s durood. Change the daily target in Settings.','آج کا درود گنتے جائیے۔ روز کا ہدف سیٹنگز میں بدل سکتے ہیں۔','आज का दुरूद गिनते जाइए। रोज़ का टारगेट सेटिंग्स में बदल सकते हैं।')}</div>${nx?`<div class="mt"><span class="chip gold">📅 ${bdName(nx.x)} — ${nx.i===0?T('aaj','today','آج','आज'):nx.dt.toLocaleDateString(LOC(),{day:'numeric',month:'short'})}</span></div>`:''}</div>${durs}
+  <div class="card"><h2>📅 ${T('Islami saal ke khaas din','Special days of the Islamic year','اسلامی سال کے خاص دن','इस्लामी साल के ख़ास दिन')}</h2>${yr.map(({x,at})=>`<div class="item" style="padding:8px 2px"><div class="t"><b>${bdName(x)}</b><div class="muted sm">${x[1]} ${typeof hjName==='function'?hjName(x[0]):''}${at?' • '+at.toLocaleDateString(LOC(),{weekday:'short',day:'numeric',month:'short',year:'numeric'}):''}</div></div></div>`).join('')}<p class="muted sm">${T('Tareekhein hisaab se hain — chaand dekhne se 1 din aage-peeche ho sakti hain (Settings → Hijri adjust).','Dates are calculated — may differ by a day with moon sighting.','تاریخیں حساب سے ہیں — چاند دیکھنے سے 1 دن آگے پیچھے ہو سکتی ہیں۔','तारीख़ें हिसाब से हैं — चाँद देखने से 1 दिन आगे-पीछे हो सकती हैं।')}</p><div class="fs"><span>${T('In dinon ki yaad-dahani (notification)','Reminders for these days','ان دنوں کی یاد دہانی (نوٹیفکیشن)','इन दिनों की याद-दहानी (नोटिफ़िकेशन)')}</span><input type="checkbox" class="sw" data-a="set" data-p="bdNotif" data-t="check" ${S.bdNotif!==false?'checked':''}></div></div>
+  <div class="card"><h2>📚 ${T('Ahl-e-Sunnat ki kitabein','Ahl-e-Sunnat books','اہلِ سنت کی کتابیں','अहल-ए-सुन्नत की किताबें')}</h2><p class="muted sm">${T('Kanzul Iman, Bahar-e-Shariat, Mirat-ul-Manajih, Dalail-ul-Khairat, Qasida Burda waghera — Kutub → Kitabein mein.','Kanzul Iman, Bahar-e-Shariat, Mirat-ul-Manajih and more — in Books.','کنز الایمان، بہارِ شریعت، مرآۃ المناجیح، دلائل الخیرات، قصیدہ بردہ وغیرہ — کتب ← کتابیں میں۔','कंज़ुल ईमान, बहार-ए-शरीअत, मिरआतुल मनाजीह, दलाइल-उल-ख़ैरात, क़सीदा बुर्दा वग़ैरह — किताबें में।')}</p><button class="btn s ghost" data-a="fqgo" data-v="more">📖 ${T('Kitabein kholein','Open books','کتابیں کھولیں','किताबें खोलें')}</button></div>`}
+A.brdinc=b=>{const id=b.dataset.id,n=+(b.dataset.n||1),d=dkey();BRD[d]=BRD[d]||{};BRD[d][id]=Math.max(0,(BRD[d][id]||0)+n);brdSave();if(n>0){try{sfx('tick')}catch(e){}if(brdTotal()===brdTarget()){try{sfx('success')}catch(e){}toast(T('Mashaallah! Aaj ka durood ka target poora 🌹','Target done 🌹','ماشاءاللہ! آج کا درود کا ہدف پورا 🌹','माशा अल्लाह! आज का दुरूद का टारगेट पूरा 🌹'))}}rerender()};
+function barHomeCard(){if(!isBar())return'';const tot=brdTotal(),tg=brdTarget(),nx=bdNext();return`<div class="card" data-a="tab" data-v="deen" data-s="amal" style="cursor:pointer"><div class="row sp"><b>🌹 ${T('Aaj ka Durood-o-Salam','Today\'s Durood','آج کا درود و سلام','आज का दुरूद-ओ-सलाम')}</b><span class="chip ${tot>=tg?'ok':'gold'}">${tot}/${tg}</span></div>${nx?`<div class="muted sm" style="margin-top:4px">📅 ${bdName(nx.x)} — ${nx.i===0?T('aaj','today','آج','आज'):nx.i===1?T('kal','tomorrow','کل','कल'):T(`${nx.i} din baad`,`in ${nx.i} days`,`${nx.i} دن بعد`,`${nx.i} दिन बाद`)}</div>`:''}</div>`}
+/* Settings: durood target (shown only for Barelvi) */
+/* notifications: khaas din ki subah 8 baje + ek din pehle shaam 7 baje (sirf Barelvi) */
+function barEvents(base){const out=[];if(!isBar()||S.bdNotif===false)return out;try{const h=hijriOf(base),h2=hijriOf(addDays(base,1));
+  const t=BDAYS.find(b=>b[0]===h.m&&b[1]===h.d),t2=BDAYS.find(b=>b[0]===h2.m&&b[1]===h2.d);
+  if(t)out.push({at:atTime('08:00',base),title:'🌹 '+bdName(t),body:T('Aaj ka din — durood, zikr aur dua ka ehtimam karein.','Today — remember durood, dhikr and dua.','آج کا دن — درود، ذکر اور دعا کا اہتمام کریں۔','आज का दिन — दुरूद, ज़िक्र और दुआ का एहतिमाम करें।'),voice:'alert_event',tab:'deen',sub:'amal'});
+  if(t2)out.push({at:atTime('19:00',base),title:'📅 '+T('Kal: ','Tomorrow: ','کل: ','कल: ')+bdName(t2),body:'',voice:'alert_event',tab:'deen',sub:'amal'});
+  if(base.getDay()===5)out.push({at:atTime('14:30',base),title:'🌹 '+T('Juma: Durood-e-Razawiyya','Jumu\'ah: Durood-e-Razawiyya','جمعہ: درودِ رضویہ','जुमा: दुरूद-ए-रज़विय्या'),body:T('Aaj Juma hai — durood ki kasrat karein.','It is Jumu\'ah — send abundant durood.','آج جمعہ ہے — درود کی کثرت کریں۔','आज जुमा है — दुरूद की कसरत करें।'),voice:'alert_event',tab:'deen',sub:'amal'})}catch(e){}return out}
+{const _p=window.pubEvents;if(typeof _p==='function')window.pubEvents=function(base,az,jm){const o=_p(base,az,jm);return o.concat(barEvents(base))}}
+{const _de=dayEvents;dayEvents=function(){const ev=_de();const d=dkey();barEvents(new Date()).forEach((e,i)=>{if(e.at)ev.push({key:d+'|bd'+i,at:e.at,win:30*60000,run:()=>notify(e.title,e.body,{k:'alert',tab:e.tab,sub:e.sub,voice:e.voice})})});return ev}}

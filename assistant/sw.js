@@ -1,4 +1,4 @@
-const V = 'pa-v41';
+const V = 'pa-v42';
 const SHELL = ['./','./index.html','./style.css','./manifest.webmanifest','./icon-192.png','./icon-512.png','./icon-maskable-512.png','./badge-96.png','./i18n.js','./deva-400.woff2','./deva-600.woff2','./deva-700.woff2','./logos/qs.webp','./logos/fs.webp','./logos/aa.webp','./logos/sk.webp','./logos/bn.webp',
   './core.js','./lang2.js','./i18n2.js','./dv-ur.json','./night.js','./aifix.js','./sched.js','./daily.js','./quran.js','./deen.js','./biz.js','./work.js','./kutub.js','./books.js','./dawat.js','./kbook.js','./pbook.js','./extras.js','./tips.js','./alarm.js','./pdf.js','./duty.js','./deliver.js','./salary.js','./tour.js','./money.js','./ai.js','./tts.js','./hf.js','./noor2.js','./lock.js','./native.js','./report.js','./main.js','./office.js','./hachifeel.webp','./quran2.js','./quran15.js','./ip15.woff2','./q15.json','./juma.js','./icons3d.js','./e3d/map.json','./muhammadi.woff2','./noorehira.woff2',
   './inter-400.woff2','./inter-600.woff2','./inter-700.woff2','./outfit-600.woff2','./outfit-700.woff2','./mono-500.woff2',

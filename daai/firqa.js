@@ -32,10 +32,10 @@ try{FQ_BOOKS.forEach(b=>{if(!MKB.some(x=>x.id===b.id))MKB.push(b)})}catch(e){}
 /* Kutub segments: Hayatus Sahaba & 6 Sifat are Tablighi-nisab → Deobandi only */
 function fqSeg(id){if(id==='hayat'||id==='sifat')return isDeo();return true}
 /* Deen sub-tabs: Dawat tab for Deobandi */
-try{const base=SUBS.deen.slice();Object.defineProperty(SUBS,'deen',{configurable:true,get(){return isDeo()?base.concat([['dawat',()=>T('🤝 Dawat','🤝 Dawat','🤝 دعوت','🤝 दावत')]]):base}})}catch(e){}
+try{const base=SUBS.deen.slice();Object.defineProperty(SUBS,'deen',{configurable:true,get(){return isDeo()?base.concat([['dawat',()=>T('🤝 Dawat','🤝 Dawat','🤝 دعوت','🤝 दावत')]]):isBar()?base.concat([['amal',()=>T('🌹 Amaal','🌹 Amaal','🌹 اعمال','🌹 आमाल')]]):base}})}catch(e){}
 /* Dawat-o-Tabligh hub (Deobandi) — kaam, events, reports, nisab books; no news here */
-function renderDawat(el){el.innerHTML=`<div class="card hero"><h2 style="margin:0">🤝 ${T('Dawat-o-Tabligh','Dawat-o-Tabligh','دعوت و تبلیغ','दावत-ओ-तब्लीग़')}</h2><div class="muted sm" style="margin-top:4px">${T('Gasht, taleem, mashwara, shab-guzari aur 3 din — sab ek jagah. Har kaam par ✓ lagayein, hafte/mahine ki report khud banegi.','Gasht, taleem, mashwara, shab-guzari and 3 days — all in one place.','گشت، تعلیم، مشورہ، شب گزاری اور 3 دن — سب ایک جگہ۔ ہر کام پر ✓ لگائیں، ہفتے/مہینے کی رپورٹ خود بنے گی۔','गश्त, तालीम, मशवरा, शब-गुज़ारी और 3 दिन — सब एक जगह। हर काम पर ✓ लगाएँ, हफ़्ते/महीने की रिपोर्ट ख़ुद बनेगी।')}</div><div class="row mt"><button class="btn s ghost" data-a="fqgo" data-v="sifat">✨ ${T('6 Sifat','6 Sifat','6 صفات','6 सिफ़ात')}</button><button class="btn s ghost" data-a="fqgo" data-v="hayat">📚 ${T('Hayatus Sahaba','Hayatus Sahaba','حیاۃ الصحابہ','हयातुस्सहाबा')}</button><button class="btn s ghost" data-a="fqgo" data-v="more">📖 ${T('Fazail-e-Amaal','Fazail-e-Amaal','فضائلِ اعمال','फ़ज़ाइल-ए-आमाल')}</button></div></div>`+kaamCard()+cevCard()+kaamReportCard()+dawatCard()}
-A.fqgo=b=>{KU.v=b.dataset.v;go('deen','kutub')};
+function renderDawat(el){renderKhabar(el);el.insertAdjacentHTML('afterbegin',`<div class="card hero"><h2 style="margin:0">🤝 ${T('Dawat-o-Tabligh','Dawat-o-Tabligh','دعوت و تبلیغ','दावत-ओ-तब्लीग़')}</h2><div class="muted sm" style="margin-top:4px">${T('Gasht, taleem, mashwara, shab-guzari aur 3 din — sab ek jagah. Har kaam par ✓ lagayein, hafte/mahine ki report khud banegi.','Gasht, taleem, mashwara, shab-guzari and 3 days — all in one place.','گشت، تعلیم، مشورہ، شب گزاری اور 3 دن — سب ایک جگہ۔ ہر کام پر ✓ لگائیں، ہفتے/مہینے کی رپورٹ خود بنے گی۔','गश्त, तालीम, मशवरा, शब-गुज़ारी और 3 दिन — सब एक जगह। हर काम पर ✓ लगाएँ, हफ़्ते/महीने की रिपोर्ट ख़ुद बनेगी।')}</div><div class="row wrap mt"><button class="btn s ghost" data-a="fqgo" data-v="sifat">✨ ${T('6 Sifat','6 Sifat','6 صفات','6 सिफ़ात')}</button><button class="btn s ghost" data-a="fqgo" data-v="hayat">📚 ${T('Hayatus Sahaba','Hayatus Sahaba','حیاۃ الصحابہ','हयातुस्सहाबा')}</button><button class="btn s ghost" data-a="fqgo" data-v="hadith">📖 ${T('Fazail-e-Amaal / Muntakhab','Fazail-e-Amaal / Muntakhab','فضائلِ اعمال / منتخب احادیث','फ़ज़ाइल-ए-आमाल / मुन्तख़ब')}</button></div></div>`)}
+A.fqgo=b=>{KU.v=b.dataset.v;if(b.dataset.v==='hadith'&&typeof HD!=='undefined')HD.v='home';go('deen','kutub')};
 /* Dawat events / home card only for Deobandi */
 {const _g=gashtEvents,_r=reportEvents,_w=wkEvents,_c=cevEvents,_h=kaamHomeCard;
  gashtEvents=function(){return isDeo()?_g.apply(this,arguments):[]};
@@ -44,5 +44,13 @@ A.fqgo=b=>{KU.v=b.dataset.v;go('deen','kutub')};
  cevEvents=function(){return isDeo()?_c.apply(this,arguments):[]};
  kaamHomeCard=function(){return isDeo()?_h.apply(this,arguments):''};}
 /* Settings row */
-/* existing users (before this update) who already use dawat features keep Deobandi; others start neutral until they choose */
-if(!S.firqa){const n=k=>Object.keys(store.get(k,{})||{}).length;S.firqa=(n('gasht2')||n('wk2')||(store.get('cev',[])||[]).length)?'deo':'';saveS()}
+/* existing users who already use dawat features → Deobandi; everyone else is asked once (card on Home + one dialog) */
+if(!S.firqa){const n=k=>Object.keys(store.get(k,{})||{}).length;if(n('gasht2')||n('wk2')||(store.get('cev',[])||[]).length){S.firqa='deo';saveS()}}
+/* Deobandi gets the daily 'deeni mamool' (taleem / dhai ghante) question ON like in the personal app */
+function fqApply(){if(isDeo()){if(!S.mamool){S.mamool='21:00';S.mamoolByFq=1}}else if(S.mamoolByFq){S.mamool='';S.mamoolByFq=0}saveS()}
+try{fqApply()}catch(e){}
+const fqNeedAsk=()=>!S.firqa&&(!S.maslak||S.maslak==='hanafi'||S.maslak==='other');
+function firqaAskHTML(){return`<div class="eyebrow">${T('EK ZAROORI SAWAL','ONE QUICK QUESTION','ایک ضروری سوال','एक ज़रूरी सवाल')}</div><h2 style="margin:6px 0 8px">${T('Aap ka maktab-e-fikr','Your school of thought','آپ کا مکتبِ فکر','आपका मकतब-ए-फ़िक्र')}</h2><p class="muted sm">${T('Isi ke hisaab se kitabein aur amaal dikhenge. Quran, mashhoor hadees aur namaz sab ke liye ek jaise hain.','Books and practices are shown accordingly. Quran, famous hadith and prayer are the same for everyone.','اسی کے حساب سے کتابیں اور اعمال دکھیں گے۔ قرآن، مشہور حدیثیں اور نماز سب کے لیے ایک جیسے ہیں۔','इसी के हिसाब से किताबें और आमाल दिखेंगे। क़ुरआन, मशहूर हदीसें और नमाज़ सब के लिए एक जैसे हैं।')}</p><div class="obopts" style="margin-top:10px">${FIRQA.map(m=>`<button class="obopt" data-a="fqpick" data-v="${m[0]}">${m[1]()}</button>`).join('')}</div>`}
+A.fqpick=b=>{S.firqa=b.dataset.v;fqApply();saveS();try{nativeSync()}catch(e){}closeDlg();toast(T('Mahfooz ✅','Saved ✅','محفوظ ✅','महफ़ूज़ ✅'));setTimeout(()=>location.reload(),300)};
+function firqaHomeCard(){if(!fqNeedAsk())return'';return`<div class="card" style="border:1px solid var(--gold,#d4a84b)">${firqaAskHTML()}</div>`}
+setTimeout(()=>{try{if(fqNeedAsk()&&S.obDone&&!$('#dlg').open&&!document.getElementById('ob')){const n=+store.get('fq_asked',0);if(n<2){store.set('fq_asked',n+1);dlg(firqaAskHTML())}}}catch(e){}},3500);
