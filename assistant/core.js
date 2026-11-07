@@ -48,7 +48,7 @@ const DEF_S={name:'Arsalan',lang:'ur',theme:'dark',city:'Mumbai',country:'India'
   tilNotif:'06:00',tilAsk:'21:30',tilTarget:20,
   azM:'06:30',azE:'17:30',
   job:{on:false,login:'09:30',brk:'13:00',brkEnd:'13:45',leave:'18:00'},
-  review:'22:00',mamool:'21:00',rate:88,fbOn:false,qs:32,
+  review:'22:00',mamool:'21:00',hiTr:'taqi',rate:88,fbOn:false,qs:32,
   dua:{wakeOn:true,wake:'05:00',sleepOn:true,sleep:'22:30',mealOn:true,b:'08:30',l:'13:30',d:'20:30',after:20,dailyOn:true,daily:'19:00'},
   gasht:{on:false,own:{d:2,p:'Asr'},nbr:{d:4,p:'Asr'}},
   favs:[],favAct:0,
@@ -66,9 +66,10 @@ const LANGS=[['ur','اردو'],['ro','Roman Urdu'],['hi','हिन्दी'],[
 const LK=()=>S.lang==='ro'?'en':S.lang; /* key for per-language data tables; Roman Urdu reuses the English tables */
 const VL=()=>S.lang==='ro'?'ur':S.lang; /* voice clips: Roman Urdu uses the Urdu recordings */
 const I18N=(typeof window!=='undefined'&&window.I18N_DATA)||{};
-const T=(r,e,u,h)=>{const l=S.lang;if(l==='ro')return r;if(l==='en')return e!=null?e:r;
-  if(l==='ur'){if(u)return u;const x=I18N[r];return x&&x[0]?x[0]:r}
-  if(h)return h;const x=I18N[r];return x&&x[1]?x[1]:r};
+const I18N2=(typeof window!=='undefined'&&window.I18N_UR)||{};
+const T=(r,e,u,h)=>{const l=S.lang;if(l==='ro')return typeof SIMP==='function'?SIMP(r):r;if(l==='en')return e!=null?e:r;
+  if(l==='ur'){if(u)return u;const x=I18N[r]||I18N2[r];if(x&&x[0])return x[0];const tp=typeof tplLookup==='function'?tplLookup(r):null;return tp||r}
+  if(h)return h;const x=I18N[r];if(x&&x[1])return x[1];return typeof DVN==='function'?DVN(typeof SIMP==='function'?SIMP(r):r):r};
 const PN={Fajr:['فجر','फ़ज्र','Fajr'],Sunrise:['طلوعِ آفتاب','सूर्योदय','Sunrise'],Dhuhr:['ظہر','ज़ुहर','Dhuhr'],Asr:['عصر','अस्र','Asr'],Maghrib:['مغرب','मग़रिब','Maghrib'],Isha:['عشاء','इशा','Isha'],Jumma:['جمعہ','जुमा','Jumma']};
 const nm=()=>S.name==='Arsalan'?(S.lang==='ur'?'ارسلان بھائی':S.lang==='hi'?'अरसलान भाई':S.lang==='en'?'Brother Arsalan':'Arsalan bhai'):S.name;
 const dn=s=>T(s,s); /* display-translate known default data strings */

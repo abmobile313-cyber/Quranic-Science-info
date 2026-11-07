@@ -14,7 +14,7 @@ function lkShow(after){if(LCK.locked){LCK.after=after||LCK.after;return}LCK.lock
   try{const d=$('#dlg');if(d&&d.open)d.close()}catch(e){}
   let el=document.getElementById('lockdlg');if(!el){el=document.createElement('dialog');el.id='lockdlg';el.addEventListener('cancel',e=>e.preventDefault());document.body.appendChild(el)}
   const native=!!window.AndroidPA;
-  el.innerHTML=`<div class="lkw"><div class="lkic">🔒</div><h2>${T('Daai locked hai','Daai is locked','داعی لاک ہے','अरसलान PA लॉक है')}</h2><div class="muted sm" id="lkmsg">${T('PIN daalein','Enter your PIN','پن ڈالیں','PIN डालें')}</div><div class="lkd" id="lkdots">${lkDots()}</div>
+  el.innerHTML=`<div class="lkw"><div class="lkic">🔒</div><h2>${T('Deen Saathi locked hai','Deen Saathi is locked','دین ساتھی لاک ہے','दीन साथी लॉक है')}</h2><div class="muted sm" id="lkmsg">${T('PIN daalein','Enter your PIN','پن ڈالیں','PIN डालें')}</div><div class="lkd" id="lkdots">${lkDots()}</div>
   <div class="lkp">${[1,2,3,4,5,6,7,8,9].map(n=>`<button data-k="${n}">${n}</button>`).join('')}<button data-k="bio" ${native&&S.lock.bio?'':'class="ghost" disabled'}>👆</button><button data-k="0">0</button><button data-k="del">⌫</button></div>
   <button class="btn s ghost" id="lkforgot">${T('PIN bhool gaye?','Forgot PIN?','پن بھول گئے؟','PIN भूल गए?')}</button></div>`;
   el.onclick=e=>{const b=e.target.closest('button');if(!b)return;if(b.id==='lkforgot')return lkForgot();const k=b.dataset.k;if(!k)return;if(k==='del'){LCK.pin=LCK.pin.slice(0,-1)}else if(k==='bio'){lkBio();return}else if(LCK.pin.length<(S.lock.len||4)){LCK.pin+=k}

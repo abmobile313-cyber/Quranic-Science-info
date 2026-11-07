@@ -1,5 +1,5 @@
 'use strict';
-/* ===== Daai — 3D opening, first-open setup wizard (voice + mandatory/optional), first-time tab guides ===== */
+/* ===== Deen Saathi — 3D opening, first-open setup wizard (voice + mandatory/optional), first-time tab guides ===== */
 
 /* ---------- 1. Opening: 3D rotating logo + a soft Islamic shimmer (no music) ---------- */
 function pubNoor(){ /* airy swell + an open sustained chord (D–A–D–A): atmosphere, not a tune */
@@ -32,9 +32,9 @@ splash=async function(){
 const OB={open:false,i:0,steps:null};
 const MASLAK=[['hanafi','Hanafi'],['shafii','Shafi\'i'],['maliki','Maliki'],['hanbali','Hanbali'],['ahlehadees','Ahl-e-Hadees'],['other',null]];
 const obChip=req=>req?`<span class="obchip req">⭐ ${T('Zaroori','Mandatory','ضروری','ज़रूरी')}</span>`:`<span class="obchip opt">${T('Ikhtiyari — chhod sakte hain','Optional — you may skip','اختیاری — چھوڑ سکتے ہیں','वैकल्पिक — छोड़ सकते हैं')}</span>`;
-function obSteps(){return[
+function obSteps(){return obFilt([
  {id:'welcome',voice:'ob_welcome',req:false,hideChip:true,
-  title:T('Daai mein khush-aamdeed 🌙','Welcome to Daai 🌙','داعی میں خوش آمدید 🌙','दाई में ख़ुश-आमदीद 🌙'),
+  title:T('Deen Saathi mein khush-aamdeed 🌙','Welcome to Deen Saathi 🌙','دین ساتھی میں خوش آمدید 🌙','दीन साथी में ख़ुश-आमदीद 🌙'),
   body:T('Yeh app aap ki namaz, Quran, azkar, sadqa aur rozmarra ke kaam ek hi jagah sambhalta hai — bilkul muft, bina login. Ab 6 chhote sawal poochhe jayenge (2 minute). ⭐ Zaroori wale bharna lazmi hai; baaki chhod sakte hain.','This app keeps your prayer, Quran, azkar, sadaqah and daily tasks in one place — completely free, no login. Next, 6 quick questions (2 minutes). ⭐ Mandatory ones must be filled; the rest you may skip.','یہ ایپ آپ کی نماز، قرآن، اذکار، صدقہ اور روزمرہ کے کام ایک ہی جگہ سنبھالتی ہے — بالکل مفت، بغیر لاگ ان۔ اب ۶ چھوٹے سوال پوچھے جائیں گے (۲ منٹ)۔ ⭐ ضروری والے بھرنا لازمی ہے؛ باقی چھوڑ سکتے ہیں۔','यह ऐप आपकी नमाज़, क़ुरआन, अज़कार, सदक़ा और रोज़मर्रा के काम एक ही जगह संभालता है — बिल्कुल मुफ़्त, बिना लॉगिन। अब 6 छोटे सवाल पूछे जाएँगे (2 मिनट)। ⭐ ज़रूरी वाले भरना लाज़मी है; बाक़ी छोड़ सकते हैं।'),
   box:()=>`<div class="c"><img src="logos/qs.webp" width="96" height="96" style="border-radius:26px;background:#fff" alt=""></div>`,ok:()=>true},
  {id:'lang',voice:'ob_lang',req:true,
@@ -58,16 +58,21 @@ function obSteps(){return[
  {id:'maslak',voice:'ob_maslak',req:true,
   title:T('3. Aap ka maslak','3. Your school of thought','۳۔ آپ کا مسلک','3. आपका मसलक'),
   body:T('Isi se Asr ka waqt aur masail ka andaaz tay hoga. (Hanafi mein Asr thodi der se shuru hoti hai.)','This decides the Asr time and the style of rulings. (In Hanafi, Asr starts later.)','اسی سے عصر کا وقت اور مسائل کا انداز طے ہوگا۔ (حنفی میں عصر ذرا دیر سے شروع ہوتی ہے۔)','इसी से अस्र का वक़्त और मसाइल का अंदाज़ तय होगा। (हनफ़ी में अस्र थोड़ी देर से शुरू होती है।)'),
-  box:()=>`<div class="obopts">${MASLAK.map(m=>`<button class="obopt ${S.maslak===m[0]?'on':''}" data-m="${m[0]}">${m[1]||T('Aur / batana nahi chahta','Other / prefer not to say','دیگر / بتانا نہیں چاہتا','अन्य / बताना नहीं चाहता')}</button>`).join('')}</div>`,
-  bind:b=>$$('[data-m]',b).forEach(x=>x.onclick=async()=>{S.maslak=x.dataset.m;S.school=S.maslak==='hanafi'?1:0;saveS();$$('[data-m]',b).forEach(y=>y.classList.toggle('on',y===x));try{await loadTimes(true)}catch(e){}obRefresh()}),ok:()=>!!S.maslak},
+  box:()=>`<div class="obopts">${MASLAK.map(m=>`<button class="obopt ${S.maslak===m[0]?'on':''}" data-m="${m[0]}">${({hanafi:T('Hanafi','Hanafi','حنفی','हनफ़ी'),shafii:T("Shafi'i","Shafi'i",'شافعی','शाफ़ई'),maliki:T('Maliki','Maliki','مالکی','मालिकी'),hanbali:T('Hanbali','Hanbali','حنبلی','हंबली'),ahlehadees:T('Ahl-e-Hadees','Ahl-e-Hadees','اہلِ حدیث','अहल-ए-हदीस')})[m[0]]||T('Aur / batana nahi chahta','Other / prefer not to say','دیگر / بتانا نہیں چاہتا','अन्य / बताना नहीं चाहता')}</button>`).join('')}</div>`,
+  bind:b=>$$('[data-m]',b).forEach(x=>x.onclick=async()=>{S.maslak=x.dataset.m;S.school=S.maslak==='hanafi'?1:0;if(S.maslak!=='hanafi'&&S.maslak!=='other')S.firqa='any';saveS();$$('[data-m]',b).forEach(y=>y.classList.toggle('on',y===x));try{await loadTimes(true)}catch(e){}obRefresh()}),ok:()=>!!S.maslak},
+ {id:'firqa',voice:'ob_firqa',req:true,skipIf:()=>S.maslak&&S.maslak!=='hanafi'&&S.maslak!=='other',
+  title:T('4. Aap ka maktab-e-fikr','4. Your school (Deobandi / Barelvi)','۴۔ آپ کا مکتبِ فکر','4. आपका मकतब-ए-फ़िक्र'),
+  body:T('Isi ke hisaab se kitabein aur amaal dikhenge. Quran, mashhoor hadees aur namaz sab ke liye ek jaise hain. Yeh sirf aap ke phone mein rehta hai, kabhi bhi Settings se badal sakte hain.','Books and practices are shown accordingly. Quran, the famous hadith books and prayer are the same for everyone. This stays only on your phone; change it anytime in Settings.','اسی کے حساب سے کتابیں اور اعمال دکھیں گے۔ قرآن، مشہور حدیثیں اور نماز سب کے لیے ایک جیسے ہیں۔ یہ صرف آپ کے فون میں رہتا ہے، کبھی بھی سیٹنگز سے بدل سکتے ہیں۔','इसी के हिसाब से किताबें और आमाल दिखेंगे। क़ुरआन, मशहूर हदीसें और नमाज़ सब के लिए एक जैसे हैं। यह सिर्फ़ आपके फ़ोन में रहता है, कभी भी सेटिंग्स से बदल सकते हैं।'),
+  box:()=>`<div class="obopts">${FIRQA.map(m=>`<button class="obopt ${S.firqa===m[0]?'on':''}" data-fq="${m[0]}">${m[1]()}</button>`).join('')}</div>`,
+  bind:b=>$$('[data-fq]',b).forEach(x=>x.onclick=()=>{S.firqa=x.dataset.fq;saveS();$$('[data-fq]',b).forEach(y=>y.classList.toggle('on',y===x));obRefresh()}),ok:()=>!!S.firqa},
  {id:'masjid',voice:'ob_masjid',req:false,
-  title:T('4. Aap ki masjid','4. Your masjid','۴۔ آپ کی مسجد','4. आपकी मस्जिद'),
+  title:T('5. Aap ki masjid','5. Your masjid','۵۔ آپ کی مسجد','5. आपकी मस्जिद'),
   body:T('Masjid ka naam aur jamaat ke waqt bharein — notification usi hisaab se aayegi, aur jamaat se pehle “kya masjid mein dakhil ho gaye?” poochha jayega. Baad mein Namaz tab se bhi bhar sakte hain.','Enter your masjid name and jamaat times — alerts will follow them, and before jamaat you will be asked “did you enter the masjid?”. You can also do this later from the Namaz tab.','مسجد کا نام اور جماعت کے اوقات بھریں — نوٹیفکیشن اسی حساب سے آئے گا، اور جماعت سے پہلے “کیا مسجد میں داخل ہو گئے؟” پوچھا جائے گا۔ بعد میں نماز ٹیب سے بھی بھر سکتے ہیں۔','मस्जिद का नाम और जमात के वक़्त भरें — नोटिफ़िकेशन उसी हिसाब से आएगा, और जमात से पहले “क्या मस्जिद में दाख़िल हो गए?” पूछा जाएगा। बाद में नमाज़ टैब से भी भर सकते हैं।'),
   box:()=>{const M=S.masjid;return`<label for="obmn">${T('Masjid ka naam','Masjid name','مسجد کا نام','मस्जिद का नाम')}</label><input id="obmn" value="${esc(M.name)}" autocomplete="off">
    <div class="mrow mh"><span></span><span>${T('Jamaat ka waqt','Jamaat time','جماعت کا وقت','जमात का वक़्त')}</span></div>${PRAY.map(p=>`<div class="mrow"><b>${pname(p)}</b><input type="time" id="obj_${p}" value="${M.jm[p]||''}"></div>`).join('')}<div class="mrow"><b>${T('Jumma','Jumma','جمعہ','जुमा')}</b><input type="time" id="obj_ju" value="${M.ju||''}"></div>`},
   save:()=>{const M=S.masjid;M.name=($('#obmn')||{}).value?$('#obmn').value.trim():M.name;PRAY.forEach(p=>{const e=$('#obj_'+p);if(e){if(hm(e.value))M.jm[p]=e.value;else delete M.jm[p]}});const j=$('#obj_ju');if(j)M.ju=hm(j.value)?j.value:'';saveS()},ok:()=>true},
  {id:'notif',voice:'ob_notif',req:true,
-  title:T('5. Notification ki ijazat','5. Notification permission','۵۔ نوٹیفکیشن کی اجازت','5. नोटिफ़िकेशन की इजाज़त'),
+  title:T('6. Notification ki ijazat','6. Notification permission','۶۔ نوٹیفکیشن کی اجازت','6. नोटिफ़िकेशन की इजाज़त'),
   body:T('Namaz, azaan, sadqa aur duaon ki yaad-dahani ke liye. Ijazat dene wala button dabayein — phir phone jo poochhe usme “Allow” karein.','For prayer, adhan, sadaqah and dua reminders. Tap the button, then press “Allow” on the phone prompt.','نماز، اذان، صدقہ اور دعاؤں کی یاد دہانی کے لیے۔ اجازت والا بٹن دبائیں — پھر فون جو پوچھے اس میں “Allow” کریں۔','नमाज़, अज़ान, सदक़ा और दुआओं की याद-दिहानी के लिए। इजाज़त वाला बटन दबाएँ — फिर फ़ोन जो पूछे उसमें “Allow” करें।'),
   box:()=>`<button class="btn gold full" id="obnb">🔔 ${T('Ijazat dein','Allow notifications','اجازت دیں','इजाज़त दें')}</button><div id="obns" class="mt">${S.obNotif?`<div class="okbox">✅ ${T('Ijazat maangi ja chuki hai','Permission requested','اجازت مانگی جا چکی ہے','इजाज़त माँगी जा चुकी है')}</div>`:''}</div>
    <div class="fs mt"><span>${T('Waqt shuru hote hi notification','Notify when prayer time begins','وقت شروع ہوتے ہی نوٹیفکیشن','वक़्त शुरू होते ही नोटिफ़िकेशन')}</span><input type="checkbox" class="sw" id="obw" ${S.waqtNotif!==false?'checked':''}></div>
@@ -76,7 +81,7 @@ function obSteps(){return[
     $('#obw',b).onchange=e=>{S.waqtNotif=e.target.checked;saveS()};$('#oba',b).onchange=e=>{S.azan=e.target.checked;saveS()}},
   ok:()=>!!S.obNotif},
  {id:'target',voice:'ob_target',req:false,
-  title:T('6. Roz ke target','6. Daily targets','۶۔ روز کے اہداف','6. रोज़ के लक्ष्य'),
+  title:T('7. Roz ke target','7. Daily targets','۷۔ روز کے اہداف','7. रोज़ के लक्ष्य'),
   body:T('Chhote target rakhein, par roz poore karein. Baad mein kabhi bhi badal sakte hain.','Keep small targets, but meet them daily. You can change them any time.','چھوٹے اہداف رکھیں، مگر روز پورے کریں۔ بعد میں کبھی بھی بدل سکتے ہیں۔','छोटे लक्ष्य रखें, मगर रोज़ पूरे करें। बाद में कभी भी बदल सकते हैं।'),
   box:()=>`<label>🤲 ${T('Roz ka sadqa (₹)','Daily sadaqah (₹)','روز کا صدقہ (₹)','रोज़ का सदक़ा (₹)')}</label><input id="obsd" type="number" inputmode="decimal" value="${S.sadqaAmt||''}" placeholder="0">
    <div class="chips">${[10,20,50,100].map(v=>`<button class="chip btnchip" data-sd="${v}">₹${v}</button>`).join('')}</div>
@@ -86,8 +91,9 @@ function obSteps(){return[
   save:()=>{const a=+(($('#obsd')||{}).value||0),t=+(($('#obtl')||{}).value||0);S.sadqaAmt=Math.max(0,a||0);if(t>0)S.tilTarget=Math.round(t);saveS()},ok:()=>true},
  {id:'done',voice:'ob_done',req:false,hideChip:true,
   title:T('Mashaallah! Setup poora 🎉','Mashaallah! Setup complete 🎉','ماشاءاللہ! سیٹ اپ مکمل 🎉','माशाअल्लाह! सेटअप पूरा 🎉'),
-  body:T('Ab aap ka Daai taiyaar hai. Home par aaj ka sadqa, tilawat aur namaz ke amaal dikhenge. Har tab par pehli baar ek chhota guide aayega.','Your Daai is ready. Home shows today\'s sadaqah, recitation and prayer deeds. A short guide will appear the first time you open each tab.','اب آپ کا داعی تیار ہے۔ ہوم پر آج کا صدقہ، تلاوت اور نماز کے اعمال دکھیں گے۔ ہر ٹیب پر پہلی بار ایک چھوٹی رہنمائی آئے گی۔','अब आपका दाई तैयार है। होम पर आज का सदक़ा, तिलावत और नमाज़ के आमाल दिखेंगे। हर टैब पर पहली बार एक छोटी गाइड आएगी।'),
-  box:()=>`<div class="obsum">${[['📍',S.lat!=null?T('GPS location','GPS location'):(S.city||'—')],['🕌',(MASLAK.find(m=>m[0]===S.maslak)||[0,'—'])[1]||T('Aur','Other')],['🏠',S.masjid.name||T('Masjid: baad mein','Masjid: later')],['🔔',S.obNotif?T('Notification: maangi','Notifications: requested'):'—'],['🤲',S.sadqaAmt>0?'₹'+S.sadqaAmt+' / '+T('din','day'):T('Sadqa target: baad mein','Sadaqah target: later')],['📖',S.tilTarget+' '+T('ayaat/din','ayahs/day')]].map(x=>`<div><span>${x[0]}</span><b>${esc(x[1])}</b></div>`).join('')}</div>`,ok:()=>true}]}
+  body:T('Ab aap ka Deen Saathi taiyaar hai. Home par aaj ka sadqa, tilawat aur namaz ke amaal dikhenge. Har tab par pehli baar ek chhota guide aayega.','Your Deen Saathi is ready. Home shows today\'s sadaqah, recitation and prayer deeds. A short guide will appear the first time you open each tab.','اب آپ کا دین ساتھی تیار ہے۔ ہوم پر آج کا صدقہ، تلاوت اور نماز کے اعمال دکھیں گے۔ ہر ٹیب پر پہلی بار ایک چھوٹی رہنمائی آئے گی۔','अब आपका दीन साथी तैयार है। होम पर आज का सदक़ा, तिलावत और नमाज़ के आमाल दिखेंगे। हर टैब पर पहली बार एक छोटी गाइड आएगी।'),
+  box:()=>`<div class="obsum">${[['📍',S.lat!=null?T('GPS location','GPS location'):(S.city||'—')],['🕌',(MASLAK.find(m=>m[0]===S.maslak)||[0,'—'])[1]||T('Aur','Other')],['🏠',S.masjid.name||T('Masjid: baad mein','Masjid: later')],['🔔',S.obNotif?T('Notification: maangi','Notifications: requested'):'—'],['🤲',S.sadqaAmt>0?'₹'+S.sadqaAmt+' / '+T('din','day'):T('Sadqa target: baad mein','Sadaqah target: later')],['📖',S.tilTarget+' '+T('ayaat/din','ayahs/day')]].map(x=>`<div><span>${x[0]}</span><b>${esc(x[1])}</b></div>`).join('')}</div>`,ok:()=>true}])}
+const obFilt=a=>a.filter(x=>!(x.skipIf&&x.skipIf()));
 function obRefresh(){const s=OB.steps[OB.i],n=$('#obnext'),ok=(s.ok?s.ok():true);if(n)n.disabled=!ok;const h=$('#obhint');if(h)h.hidden=ok}
 function obDraw(){
   const ov=$('#ob')||(()=>{const d=document.createElement('div');d.id='ob';document.body.appendChild(d);return d})();OB.open=true;
@@ -105,7 +111,7 @@ function obNext(skipped){const s=OB.steps[OB.i];if(!skipped&&s.save)s.save();if(
   if(OB.i>=OB.steps.length-1){obFinish();return}OB.i++;OB.steps=obSteps();obDraw()}
 function obPrev(){if(OB.i>0){OB.i--;OB.steps=obSteps();obDraw()}}
 function obFinish(){clearInterval(OB.t);VO.stop();S.obDone=true;S.setupDone=true;saveS();store.set('ob_step',0);OB.open=false;const ov=$('#ob');if(ov){ov.classList.add('out');setTimeout(()=>ov.remove(),500)}
-  sfx('success');try{schedTick();nativeSync()}catch(e){}go('home');toast(T('Mashaallah! Daai taiyaar hai 🌙','Mashaallah! Daai is ready 🌙'));rerender()}
+  sfx('success');try{schedTick();nativeSync()}catch(e){}go('home');toast(T('Mashaallah! Deen Saathi taiyaar hai 🌙','Mashaallah! Deen Saathi is ready 🌙','ماشاءاللہ! دین ساتھی تیار ہے 🌙','माशा अल्लाह! दीन साथी तैयार है 🌙'));rerender()}
 function obStart(step){OB.steps=obSteps();OB.i=Math.min(step||0,OB.steps.length-1);obDraw()}
 function waitSplash(cb){const t=setInterval(()=>{const sp=document.getElementById('splash');if(sp)return;clearInterval(t);cb()},300)}
 firstRun=function(){if(S.obDone)return;waitSplash(()=>{if(typeof LCK!=='undefined'&&LCK.locked){const t=setInterval(()=>{if(!LCK.locked){clearInterval(t);obStart(store.get('ob_step',0))}},500);return}obStart(store.get('ob_step',0))})};

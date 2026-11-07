@@ -45,7 +45,7 @@ function natItems(){
     if(typeof pexEvents==='function')pexEvents(base).forEach(e=>add(e.at,e.title,e.body,e.voice,{tab:e.tab,sub:e.sub}));
     if(typeof tipEvents==='function')tipEvents(base).forEach(e=>add(e.at,e.title,e.body,e.voice,{tab:e.tab,sub:e.sub}));
     if(typeof reportEvents==='function')reportEvents(base).forEach(e=>add(e.at,e.title,e.body,e.voice,{tab:e.tab,sub:e.sub}));
-    add(at(S.review),T('Aaj ka hisaab 🌙','Daily review 🌙'),'','review');
+    add(typeof nightAt==='function'?nightAt(base):at(S.review),T('Sone se pehle ka hisaab 🌙','Before-sleep review 🌙','سونے سے پہلے کا حساب 🌙','सोने से पहले का हिसाब 🌙'),T('Aaj ki namaz aur amaal ka khulasa — jo likha nahi, update karein','Today\'s prayers & deeds — update what is missing','آج کی نماز اور اعمال کا خلاصہ — جو لکھا نہیں، اپڈیٹ کریں','आज की नमाज़ और आमाल का ख़ुलासा — जो लिखा नहीं, अपडेट करें'),'review',{tab:'home',sub:'night'});
   }
   try{if(typeof TASKS!=='undefined')TASKS.forEach(t=>{if(!t.done&&t.due&&!t.ring)add(new Date(t.due),T('Kaam ka waqt','Task due'),t.title,'task',{tab:'kaam',sub:'tasks'})});
     if(typeof ALERTS!=='undefined')ALERTS.forEach(a=>{if(a.at&&!a.ring)add(new Date(a.at),T('Yaad-dahani','Reminder'),a.title,'reminder',{tab:'kaam',sub:'tasks'})})}catch(e){}

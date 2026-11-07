@@ -28,7 +28,8 @@ async function loadTimes(force){
   store.set('times',cache);TM=cache[k]||null;TM_TMR=cache[k2]||null;
   if(!TM){const any=Object.keys(cache).filter(x=>x!=='loc').sort()[0];if(any){TM=Object.assign({},cache[any],{stale:true})}}
   return TM}
-const hijriTxt=()=>TM?((S.lang==='ur'&&TM.hijriAr)?TM.hijriAr:TM.hijri):'';
+const HMON=[[/Muharram/i,'محرم','मुहर्रम'],[/Safar/i,'صفر','सफ़र'],[/Rabi.{0,4}(al|ul).{0,3}(Awwal|Aw)/i,'ربیع الاول','रबीउल अव्वल'],[/Rabi.{0,4}(al|ul|as).{0,3}(Th|Akh|Sani)/i,'ربیع الآخر','रबीउल आख़िर'],[/Jumad.{0,5}(Awwal|Ula|Aw)/i,'جمادی الاولیٰ','जमादिल अव्वल'],[/Jumad.{0,5}(Th|Akh|Sani)/i,'جمادی الآخرہ','जमादिल आख़िर'],[/Rajab/i,'رجب','रजब'],[/Sha.?ban/i,'شعبان','शाबान'],[/Rama/i,'رمضان','रमज़ान'],[/Shaw/i,'شوال','शव्वाल'],[/Qa.?d/i,'ذوالقعدہ','ज़ुल-क़ादा'],[/Hij/i,'ذوالحجہ','ज़ुल-हिज्जा']];
+const hijriTxt=()=>{if(!TM)return'';const h=TM.hijri||'';if(S.lang==='ur'||S.lang==='hi'){const i=S.lang==='ur'?1:2;for(const m of HMON){const r=h.replace(/[A-Za-z][A-Za-z\-' ]*[A-Za-z]/,w=>m[0].test(w)?m[i]:w);if(r!==h)return r}}return h};
 const tdate=(hhmm,add=0)=>{const d=atTime(hhmm);if(d&&add)d.setDate(d.getDate()+add);return d};
 function nextPrayer(){if(!TM)return null;const now=new Date();let prev=null;
   for(const k of PRAY){const d=azanTime(k)||tdate(TM.t[k]);if(d>now){return{k,at:d,prev:prev||(TM_TMR&&tdate(TM.t.Isha,-1))||new Date(now-4*36e5)}}prev=d}
@@ -144,7 +145,7 @@ function dayEvents(){
     jobMode('brk')==='n'&&dl('jb',J.brk,()=>notify(T('Break ka waqt ☕','Break time ☕'),T('Thoda aaram karein, namaz/khana.','Take a rest, prayer/lunch.'),{k:'alert',voice:'break_start'}));
     jobMode('brkEnd')==='n'&&dl('jbe',J.brkEnd,()=>notify(T('Break khatam ▶️','Break over ▶️'),T('Wapas kaam par.','Back to work.'),{k:'alert',voice:'break_end'}));
     jobMode('leave')==='n'&&dl('jlv',J.leave,()=>notify(T('Chhutti ka waqt 🏁','Leave time 🏁'),T('Aaj ka kaam samet lein.','Wrap up for the day.'),{k:'alert',voice:'leave'}))}
-  dl('rev',S.review,()=>{const s=hzScore(dkey());notify(T('Aaj ka hisaab 🌙','Daily review 🌙'),T(`Namaz ${s}/5, tilawat ${tlToday()}/${S.tilTarget}, sadqa ${sdDone()?'✅':'❌'}.`,`Prayers ${s}/5, recitation ${tlToday()}/${S.tilTarget}, sadaqah ${sdDone()?'✅':'❌'}.`,`نماز ${s}/5، تلاوت ${tlToday()}/${S.tilTarget}، صدقہ ${sdDone()?'✅':'❌'}۔`,`नमाज़ ${s}/5, तिलावत ${tlToday()}/${S.tilTarget}, सदक़ा ${sdDone()?'✅':'❌'}।`),{k:'alert',tab:'home',voice:'review'})});
+  E('rev',typeof nightAt==='function'?nightAt():atTime(S.review),20*60000,()=>{const s=hzScore(dkey());notify(T('Aaj ka hisaab 🌙','Daily review 🌙'),T(`Namaz ${s}/5, tilawat ${tlToday()}/${S.tilTarget}, sadqa ${sdDone()?'✅':'❌'}.`,`Prayers ${s}/5, recitation ${tlToday()}/${S.tilTarget}, sadaqah ${sdDone()?'✅':'❌'}.`,`نماز ${s}/5، تلاوت ${tlToday()}/${S.tilTarget}، صدقہ ${sdDone()?'✅':'❌'}۔`,`नमाज़ ${s}/5, तिलावत ${tlToday()}/${S.tilTarget}, सदक़ा ${sdDone()?'✅':'❌'}।`),{k:'alert',tab:'home',sub:'night',voice:'review'});try{if(!document.hidden&&typeof nightOpen==='function')nightOpen(true)}catch(e){}});
   return ev}
 function reminderTick(){const now=Date.now();
   if(typeof TASKS!=='undefined')TASKS.forEach(t=>{if(!t.done&&t.due&&!t.fired&&!t.ring){const at=new Date(t.due).getTime();if(at<=now&&now-at<6*3600000){t.fired=1;store.set('tasks',TASKS);notify(T('Kaam ka waqt','Task due'),t.title,{k:'alert',tab:'kaam',sub:'tasks',voice:'task'})}}});

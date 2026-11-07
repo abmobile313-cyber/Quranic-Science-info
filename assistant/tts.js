@@ -8,12 +8,12 @@ const ttsClean=t=>TTS_MAP.reduce((s,[r,x])=>s.replace(r,x),String(t||'')).trim()
 const ttsPitch=()=>S.ttsPitch||((S.ttsG||'m')==='m'?0.8:1);
 function ttsCfgSync(){try{if(ttsNative()&&AndroidPA.ttsCfg)AndroidPA.ttsCfg(ttsPitch(),S.ttsVoice||'')}catch(e){}}
 function ttsVoice(lang){const vs=(window.speechSynthesis&&speechSynthesis.getVoices())||[];const f=p=>vs.find(v=>v.lang&&v.lang.toLowerCase().startsWith(p));const male=p=>{if((S.ttsG||'m')!=='m')return null;const ml=vs.filter(v=>v.lang&&v.lang.toLowerCase().startsWith(p)&&/asad|male|madhur|hemant|prabhat|ravi|rishi|salman|omar|hamed/i.test(v.name)&&!/female/i.test(v.name));return ml[0]||null};
-  return lang==='en'?(f('en-in')||f('en')):lang==='ar'?(male('ar')||f('ar')||null):(male('ur')||f('ur')||male('hi')||f('hi')||null)}
+  return lang==='en'?(f('en-in')||f('en')):lang==='ar'?(male('ar')||f('ar')||null):lang==='hi'?(male('hi')||f('hi')||male('ur')||f('ur')||null):(male('ur')||f('ur')||male('hi')||f('hi')||null)}
 TTS.prep=function(cb){if(!ttsNative()){cb();return}ttsCfgSync();if(this.info){cb();return}window.ttsReady=l=>{TTS.info=l||'none';cb()};try{AndroidPA.ttsPrep()}catch(e){this.info='none';cb()}};
-TTS.say=function(text,done){const t=ttsClean(text);if(!t){done();return}const rate=S.ttsRate||0.95;
+TTS.say=function(text,done){const t=ttsClean(text);if(!t){done();return}const rate=S.ttsRate||0.95;if(this.lang==='ur'&&/[\u0900-\u097f]/.test(t)&&!/[\u0600-\u06ff]/.test(t))this.lang='hi'; /* Devanagari (Hindi script) text → Hindi voice reads the same Urdu words */
   if(ttsNative()){const id='t'+Date.now()+Math.random().toString(36).slice(2,5);this.cid=id;this.cb=done;try{AndroidPA.speak(t,this.lang,rate,id)}catch(e){this.cb=null;done()}return}
   if(!window.speechSynthesis||typeof SpeechSynthesisUtterance==='undefined'){toast(T('Is device me awaaz (TTS) support nahi','No text-to-speech on this device'));this.stop();return}
-  const u=new SpeechSynthesisUtterance(t);const v=ttsVoice(this.lang);if(v){u.voice=v;u.lang=v.lang}else u.lang=this.lang==='en'?'en-IN':this.lang==='ar'?'ar-SA':'ur-PK';u.rate=rate;u.pitch=ttsPitch();let fin=false;const f=()=>{if(fin)return;fin=true;done()};u.onend=f;u.onerror=f;speechSynthesis.speak(u)};
+  const u=new SpeechSynthesisUtterance(t);const v=ttsVoice(this.lang);if(v){u.voice=v;u.lang=v.lang}else u.lang=this.lang==='en'?'en-IN':this.lang==='ar'?'ar-SA':this.lang==='hi'?'hi-IN':'ur-PK';u.rate=rate;u.pitch=ttsPitch();let fin=false;const f=()=>{if(fin)return;fin=true;done()};u.onend=f;u.onerror=f;speechSynthesis.speak(u)};
 window.ttsDone=(id,err)=>{if(TTS.cid!==id)return;const c=TTS.cb;TTS.cb=null;if(err){TTS.errs++;if(TTS.errs>2){TTS.stop();toast(T('Awaaz nahi chali — phone ki Text-to-speech settings dekhein','Voice failed — check phone text-to-speech settings'),4500);return}}else TTS.errs=0;if(c)c()};
 TTS.run=function(items,o={}){this.stop();items=items.filter(x=>ttsClean(x.t));if(!items.length){toast(T('Padhne ke liye text nahi mila','Nothing to read'));return}
   this.lang=o.lang||'ur';this.prep(()=>{if(ttsNative()&&this.info==='none'&&this.lang!=='ar'){ttsHelp();return}

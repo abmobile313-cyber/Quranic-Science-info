@@ -1,5 +1,5 @@
 'use strict';
-/* ===== Daai by Quranic Science — core: utils, storage, language, sound, voice, notifications, dialogs ===== */
+/* ===== Deen Saathi by Quranic Science — core: utils, storage, language, sound, voice, notifications, dialogs ===== */
 const $=(s,r=document)=>r.querySelector(s),$$=(s,r=document)=>[...r.querySelectorAll(s)];
 const store={get(k,d){try{const v=localStorage.getItem('pa_'+k);return v?JSON.parse(v):d}catch(e){return d}},set(k,v){try{localStorage.setItem('pa_'+k,JSON.stringify(v))}catch(e){}},del(k){try{localStorage.removeItem('pa_'+k)}catch(e){}}};
 const RD={q:store.get('rd_q',{}),h:store.get('rd_h',{}),s:store.get('rd_s',{}),sv(){store.set('rd_q',this.q);store.set('rd_h',this.h);store.set('rd_s',this.s)},
@@ -48,7 +48,7 @@ const DEF_S={name:'',lang:'ur',theme:'dark',city:'',country:'India',lat:null,lng
   tilNotif:'06:00',tilAsk:'21:30',tilTarget:20,
   azM:'06:30',azE:'17:30',
   job:{on:false,login:'09:30',brk:'13:00',brkEnd:'13:45',leave:'18:00'},
-  review:'22:00',mamool:'21:00',rate:88,fbOn:false,qs:32,
+  review:'22:00',mamool:'21:00',hiTr:'taqi',firqa:'',rate:88,fbOn:false,qs:32,
   dua:{wakeOn:true,wake:'05:00',sleepOn:true,sleep:'22:30',mealOn:true,b:'08:30',l:'13:30',d:'20:30',after:20,dailyOn:true,daily:'19:00'},
   gasht:{on:false,own:{d:2,p:'Asr'},nbr:{d:4,p:'Asr'}},
   favs:[],favAct:0,
@@ -64,11 +64,13 @@ if(!S.dua.m26){S.dua.wakeOn=S.dua.sleepOn=S.dua.mealOn=S.dua.dailyOn=true;S.dua.
 /* ---------- language: T(roman, english, urdu?, hindi?) — Urdu (Nastaliq) / Hindi / English ---------- */
 const LANGS=[['ur','اردو'],['ro','Roman Urdu'],['hi','हिन्दी'],['en','English']];
 const LK=()=>S.lang==='ro'?'en':S.lang; /* key for per-language data tables; Roman Urdu reuses the English tables */
-const VL=()=>S.lang==='ro'?'ur':S.lang; /* voice clips: Roman Urdu uses the Urdu recordings */
+const VL=()=>S.lang==='en'?'en':'ur'; /* voice: Urdu for Roman/Urdu/Hindi (Hindi = Urdu in Devanagari script); English only for English */ /* voice clips: Roman Urdu uses the Urdu recordings */
 const I18N=(typeof window!=='undefined'&&window.I18N_DATA)||{};
-const T=(r,e,u,h)=>{const l=S.lang;if(l==='ro')return r;if(l==='en')return e!=null?e:r;
-  if(l==='ur'){if(u)return u;const x=I18N[r];return x&&x[0]?x[0]:r}
-  if(h)return h;const x=I18N[r];return x&&x[1]?x[1]:r};
+const I18N2=(typeof window!=='undefined'&&window.I18N_UR)||{};
+const T=(r,e,u,h)=>{const l=S.lang;if(l==='en')return e!=null?e:r;
+  if(l==='ro')return typeof SIMP==='function'?SIMP(r):r;
+  if(l==='ur'){if(u)return u;const x=I18N[r]||I18N2[r];if(x&&x[0])return x[0];if(x&&typeof x==='string')return x;const tp=typeof tplLookup==='function'?tplLookup(r):null;return tp||(typeof SIMP==='function'?SIMP(r):r)}
+  if(h)return h;const x=I18N[r];if(x&&x[1])return x[1];return typeof DVN==='function'?DVN(SIMP(r)):r};
 const PN={Fajr:['فجر','फ़ज्र','Fajr'],Sunrise:['طلوعِ آفتاب','सूर्योदय','Sunrise'],Dhuhr:['ظہر','ज़ुहर','Dhuhr'],Asr:['عصر','अस्र','Asr'],Maghrib:['مغرب','मग़रिब','Maghrib'],Isha:['عشاء','इशा','Isha'],Jumma:['جمعہ','जुमा','Jumma']};
 const nm=()=>'';
 const dn=s=>T(s,s); /* display-translate known default data strings */
@@ -142,7 +144,7 @@ const sfx=n=>AU.play(n);
 
 /* ---------- VOICE: recorded ElevenLabs clips (no TTS anywhere) ---------- */
 const VO={a:null,blobs:{},
-  IDS:['wq_Fajr','wq_Dhuhr','wq_Asr','wq_Maghrib','wq_Isha','alert_event','alert_dua','alert_alarm','az_Fajr','az_Dhuhr','az_Asr','az_Maghrib','az_Isha','hz_Fajr','hz_Dhuhr','hz_Asr','hz_Maghrib','hz_Isha','sadqa_ask','sadqa_remind','tilawat_ask','tilawat_remind','azkar_m','azkar_e','taleem','juma','review','task','reminder','call','timer_nudge','timer_start','test','voice_on','gasht','makruh','alert','open_salam','noor_ji','noor_ok','noor_na','jm5_Fajr','jm5_Dhuhr','jm5_Asr','jm5_Maghrib','jm5_Isha','jm5_Juma','open_bism','msj_ask','ob_welcome','ob_lang','ob_loc','ob_maslak','ob_masjid','ob_notif','ob_target','ob_done'],
+  IDS:['wq_Fajr','wq_Dhuhr','wq_Asr','wq_Maghrib','wq_Isha','alert_event','alert_dua','alert_alarm','az_Fajr','az_Dhuhr','az_Asr','az_Maghrib','az_Isha','hz_Fajr','hz_Dhuhr','hz_Asr','hz_Maghrib','hz_Isha','sadqa_ask','sadqa_remind','tilawat_ask','tilawat_remind','azkar_m','azkar_e','taleem','juma','review','task','reminder','call','timer_nudge','timer_start','test','voice_on','gasht','makruh','alert','open_salam','noor_ji','noor_ok','noor_na','jm5_Fajr','jm5_Dhuhr','jm5_Asr','jm5_Maghrib','jm5_Isha','jm5_Juma','open_bism','msj_ask','ob_welcome','ob_lang','ob_loc','ob_maslak','ob_firqa','ob_masjid','ob_notif','ob_target','ob_done'],
   url(id,l){if(String(id).startsWith('dua_'))return 'dua/'+id+'.mp3';return 'voice/'+(l||VL())+'/'+id+'.mp3'},
   /* clips are fetched as blobs (works offline through the service worker cache) */
   async blob(id){const k=S.lang+'/'+id;if(this.blobs[k])return this.blobs[k];const r=await fetch(this.url(id));if(!r.ok)throw new Error('clip');const b=await r.blob();if(b.size<2000)throw new Error('clip');return this.blobs[k]=URL.createObjectURL(b)},
@@ -154,7 +156,7 @@ const VO={a:null,blobs:{},
 
 /* ---------- app-icon badge (pending count) ---------- */
 function setBadge(n){try{if(navigator.setAppBadge){if(n>0)navigator.setAppBadge(n).catch(()=>{});else navigator.clearAppBadge().catch(()=>{})}}catch(e){}
-  const base='Daai';document.title=n>0?'('+(n>99?'99+':n)+') '+base:base}
+  const base='Deen Saathi';document.title=n>0?'('+(n>99?'99+':n)+') '+base:base}
 const pendingN=()=>unreadN()+(typeof PQ!=='undefined'?PQ.length:0);
 
 /* ---------- notifications ---------- */

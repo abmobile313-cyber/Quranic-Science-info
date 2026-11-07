@@ -821,3 +821,7 @@ body.ofcbg::before{content:'';position:fixed;inset:0;z-index:-1;background:radia
 .chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
 .card.coach{border-color:rgba(25,198,240,.5);background:linear-gradient(150deg,rgba(25,198,240,.14),var(--card))}
 .obhint{margin-top:10px;font-size:12.5px;color:#ff8d98;text-align:center}
+/* night review */
+.ntbox{display:flex;flex-direction:column;gap:6px}.ntr{display:flex;align-items:center;gap:8px;justify-content:space-between;padding:8px 10px;border-radius:12px;background:var(--card2,rgba(255,255,255,.04))}
+.ntr.nt-miss{outline:1px dashed rgba(255,190,80,.5)}.nt-btns{display:flex;gap:4px;flex-wrap:wrap;justify-content:flex-end}.nt-btns .btn{padding:6px 8px;font-size:12.5px}
+.ptr.sehri,.ptr.iftar{opacity:.95}.ptr.sehri b,.ptr.iftar b{color:var(--gold,#d4a84b)}

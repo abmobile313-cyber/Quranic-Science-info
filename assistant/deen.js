@@ -8,12 +8,12 @@ function noTimes(){return`<div class="card"><p class="muted">${T('Namaz ke waqt 
 function prayTable(){if(!TM)return'';const now=new Date(),np=nextPrayer();
   const hd=`<div class="ptr phd"><span></span><span>${T('Awwal waqt','Starts','اول وقت','अव्वल वक़्त')}</span><span>${T('Azan','Azan','اذان','अज़ान')}</span><span>${T('Jamaat','Jamaat','جماعت','जमाअत')}</span></div>`;
   const rows=['Fajr','Sunrise','Dhuhr','Asr','Maghrib','Isha'].map(k=>{const isN=np&&np.k===k&&!np.tomorrow,t=tdate(TM.t[k]),past=t<now&&!isN,P=PRAY.includes(k);
-    return`<div class="ptr${isN?' next':''}${past?' past':''}${k==='Sunrise'?' sun':''}"><b>${pname(k)}</b><span>${t12(TM.t[k])}</span><span>${P?t12(hhmmOf(azanTime(k))):'—'}</span><span>${P?t12(hhmmOf(jamTime(k))):'—'}</span></div>`}).join('');
+    return`<div class="ptr${isN?' next':''}${past?' past':''}${k==='Sunrise'?' sun':''}"><b>${pname(k)}</b><span>${t12(TM.t[k])}</span><span>${P?t12(hhmmOf(azanTime(k))):'—'}</span><span>${P?t12(hhmmOf(jamTime(k))):'—'}</span></div>`}).join('')+`<div class="ptr sehri"><b>🌙 ${T('Sehri khatam','Sehri ends','سحری ختم','सेहरी ख़त्म')}</b><span>${t12(TM.t.Fajr)}</span><span></span><span></span></div><div class="ptr iftar"><b>🌅 ${T('Iftar','Iftar','افطار','इफ़्तार')}</b><span>${t12(TM.t.Maghrib)}</span><span></span><span></span></div>`;
   return`<div class="card ptab"><div class="row sp"><h2 style="margin:0">${T('Namaz ke auqat','Prayer times','نماز کے اوقات','नमाज़ के औक़ात')}</h2><button class="btn s ghost" data-a="masjid">⚙️ ${T('Azan/Jamaat set','Set azan/jamaat','اذان/جماعت سیٹ','अज़ान/जमाअत सेट')}</button></div>${hd}${rows}${S.masjid&&S.masjid.name?`<div class="muted sm mt">🕌 ${esc(S.masjid.name)}</div>`:''}</div>`}
 function renderNamaz(el){
   if(!TM){el.innerHTML=noTimes();return}
   const np=nextPrayer(),now=new Date(),h=hzToday(),d=dkey();
-  const hero=`<div class="card hero nhero"><div class="row wrap" style="justify-content:center"><span class="chip">${locChip()}</span>${TM.hijri?`<span class="chip gold">${esc(hijriTxt())}</span>`:''}${TM.stale?`<span class="chip warn">${T('purane waqt','old times')}</span>`:''}</div>
+  const hero=`<div class="card hero nhero"><div class="row wrap" style="justify-content:center"><span class="chip">${locChip()}</span>${hijriTxt()?`<span class="chip gold">${esc(hijriTxt())}</span>`:''}${TM.stale?`<span class="chip warn">${T('purane waqt','old times')}</span>`:''}</div>
     ${ringHTML(np,`<div class="eyebrow">${T('AGLI NAMAZ','NEXT')}</div><div class="pn">${np?pname(np.k):''}</div><div class="cd" data-cd="${np?+np.at:0}">--:--:--</div>`)}
     ${np?`<div class="muted">${T('Azan','Azan')} ${t12(hhmmOf(azanTime(np.k)))} • ${T('Jamaat','Jamaat')} ${t12(hhmmOf(jamTime(np.k)))}${S.masjid.name?' • 🕌 '+esc(S.masjid.name):''}</div>`:''}</div>`;
   const rows=['Fajr','Sunrise','Dhuhr','Asr','Maghrib','Isha'].map(k=>{const t=tdate(TM.t[k]);const isN=np&&np.k===k&&!np.tomorrow;const past=t<now&&!isN;
@@ -67,7 +67,7 @@ let AS={w:new Date().getHours()<12?'m':'e',view:'list'};
 const azKey=(it,w)=>it.ses?it.id+w:it.id;
 function azCard(it,w,onlyOnce){const k=azKey(it,w),c=azGet(k),t=it.t||1,done=c>=t;
   return`<div class="card azc${done?' done':''}"><div class="row sp"><b>${it.n||''}</b>${t>1?`<span class="chip ${done?'ok':'gold'}">${c}/${t}</span>`:`<span class="chip ${done?'ok':''}">${done?'✅':T('1 baar','once')}</span>`}</div>
-   <div class="dua${it.ar.length>140?' sm2':''}">${it.ar}</div>${it.ref?`<div class="muted sm" style="margin-top:6px">${esc(it.ref)}</div>`:''}<div class="${TRC()}" style="margin-top:6px;${S.lang==='ur'?'font-size:23px':''}">${esc(it[LK()]||it.ur||'')}</div>
+   <div class="dua${it.ar.length>140?' sm2':''}">${it.ar}</div>${it.ref?`<div class="muted sm" style="margin-top:6px">${esc(refL(it.ref))}</div>`:''}<div class="${TRC()}" style="margin-top:6px;${S.lang==='ur'?'font-size:23px':''}">${esc(it[LK()]||it.ur||'')}</div>
    <div class="azb"><div class="grow">${t>1?meter(c/t*100,done?'full':''):''}</div>${t>1?`<button class="btn s ghost" data-a="tasopen" data-id="${it.id}" data-w="${w}">${T('Tasbeeh mein','In tasbeeh')}</button>`:''}<button class="azn" data-a="azplus" data-k="${k}" data-t="${t}">${t>1?'+1':'✓'}</button></div></div>`}
 function renderAzkar(el){
   const w=AS.w;const prog=AZK.filter(i=>i.t>=100).map(i=>azGet(azKey(i,w))/i.t);

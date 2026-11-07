@@ -1,5 +1,5 @@
 'use strict';
-/* ===== Daai by Quranic Science — public edition layer =====
+/* ===== Deen Saathi by Quranic Science — public edition layer =====
    Home, Tools (Zakat / Roza / Hijri / 99 Names / my business), Support, Brands card,
    website bar, Quran settings on top, masjid-entry reminder, native answer sync.
    Loaded after every other script, so it can safely re-define earlier functions. */
@@ -35,7 +35,7 @@ const logoBox=(src,sz=46)=>`<img src="${src}" alt="" width="${sz}" height="${sz}
 (function siteBar(){
   const h=document.querySelector('header');if(!h||document.getElementById('siteBar'))return;
   const d=document.createElement('div');d.id='siteBar';
-  d.innerHTML=ext(QS_SITE,'sitebtn',`<img src="logos/qs.webp" alt="" width="26" height="26"><span><b>${T('Quranic Science ki website kholein','Open the Quranic Science website','قرآنک سائنس کی ویب سائٹ کھولیں','Quranic Science की वेबसाइट खोलें')}</b><small>quranicscience.info</small></span><i>↗</i>`);
+  d.innerHTML=ext(QS_SITE,'sitebtn',`<img src="logos/qs.webp" alt="" width="26" height="26"><span><b>${T('Quranic Science ki website kholein','Open the Quranic Science website','قرآنک سائنس کی ویب سائٹ کھولیں','Quranic Science की वेबसाइट खोलें')}</b><small>${T('Arabi aur Tajweed seekhne ke liye visit karein','Visit to learn Arabic and Tajweed','عربی اور تجوید سیکھنے کے لیے وزٹ کریں','अरबी और तजवीद सीखने के लिए विज़िट करें')} • quranicscience.info</small></span><i>↗</i>`);
   h.insertAdjacentElement('afterend',d);
 })();
 
@@ -68,7 +68,7 @@ function supportMsg(){
 function socialRow(sz=44){return`<div class="soc">${QS_LINKS.map(([k,n,u])=>ext(u,'socb',`<img src="${k==='wb'?'logos/qs.webp':'logos/ln_'+k+'.svg'}" alt="${n}" width="${sz}" height="${sz}" style="width:${sz}px;height:${sz}px;object-fit:cover">`,`aria-label="${n}"`)).join('')}</div>`}
 function renderSupport(el){
   const m=supportMsg();
-  el.innerHTML=`<div class="card hero sup"><div class="c">${logoBox('logos/qs.webp',72)}<h2 style="margin:10px 0 2px;font-size:19px;letter-spacing:0;text-transform:none;font-family:inherit">Daai <span class="muted">by</span> Quranic Science</h2><div class="chip ok">${T('100% muft','100% free','100% مفت','100% मुफ़्त')}</div></div>
+  el.innerHTML=`<div class="card hero sup"><div class="c">${logoBox('logos/qs.webp',72)}<h2 style="margin:10px 0 2px;font-size:19px;letter-spacing:0;text-transform:none;font-family:inherit">Deen Saathi <span class="muted">by</span> Quranic Science</h2><div class="chip ok">${T('100% muft','100% free','100% مفت','100% मुफ़्त')}</div></div>
     <p class="supt">${esc(m.p1)}</p><p class="supt">${esc(m.p2)}</p></div>
   <div class="card"><h2>❤️ ${T('Hadiya bhejein','Send a hadiya','ہدیہ بھیجیں','हदिया भेजें')}</h2>
     <div class="c"><img class="qrimg" src="qr.png" alt="UPI QR" width="190" height="190"><div class="qrn">${QS_PN}</div>
@@ -76,11 +76,11 @@ function renderSupport(el){
     <div class="grid2 mt"><a class="btn gold" href="upi://pay?pa=${QS_UPI}&pn=${encodeURIComponent(QS_PN)}&cu=INR">📲 ${T('UPI app se bhejein','Pay with UPI app','UPI ایپ سے بھیجیں','UPI ऐप से भेजें')}</a><button class="btn ghost" data-a="pubcopy" data-v="${QS_UPI}">📋 ${T('UPI ID copy','Copy UPI ID','UPI ID کاپی','UPI ID कॉपी')}</button></div>
     <p class="muted sm mt">${T('QR ko kisi bhi UPI app (PhonePe, GPay, Paytm…) se scan karke bhi bhej sakte hain.','You can also scan this QR with any UPI app (PhonePe, GPay, Paytm…).','آپ اس QR کو کسی بھی UPI ایپ (PhonePe, GPay, Paytm…) سے اسکین بھی کر سکتے ہیں۔','आप इस QR को किसी भी UPI ऐप (PhonePe, GPay, Paytm…) से स्कैन भी कर सकते हैं।')}</p></div>
   <div class="card warnsd"><div class="supt" style="margin:0">⚠️ ${esc(m.p3)}</div>
-    ${ext('https://wa.me/'+QS_PH+'?text='+encodeURIComponent('Assalamu Alaikum, Daai app ke baare mein / sadqa-zakat ke liye rabta kar raha hoon.'),'btn full mt',`💬 ${T('WhatsApp par rabta karein','Contact on WhatsApp','واٹس ایپ پر رابطہ کریں','व्हाट्सऐप पर संपर्क करें')} — ${QS_PH_SHOW}`)}</div>
+    ${ext('https://wa.me/'+QS_PH+'?text='+encodeURIComponent('Assalamu Alaikum, Deen Saathi app ke baare mein / sadqa-zakat ke liye rabta kar raha hoon.'),'btn full mt',`💬 ${T('WhatsApp par rabta karein','Contact on WhatsApp','واٹس ایپ پر رابطہ کریں','व्हाट्सऐप पर संपर्क करें')} — ${QS_PH_SHOW}`)}</div>
   <div class="card"><h2>🌐 ${T('Hamse jude rahein','Stay connected','ہم سے جڑے رہیں','हमसे जुड़े रहें')}</h2>${socialRow(46)}
     ${ext(QS_SITE,'btn full mt',`🌐 ${T('Website kholein','Open website','ویب سائٹ کھولیں','वेबसाइट खोलें')} — quranicscience.info`)}</div>
   ${brandsCard()}
-  <div class="muted sm c" style="padding:6px 8px 18px">Daai by Quranic Science • v1.0<br>${T('Jazakumullahu khairan 🤲','Jazakumullahu khairan 🤲','جزاکم اللہ خیراً 🤲','जज़ाकुमुल्लाहु ख़ैरन 🤲')}</div>`}
+  <div class="muted sm c" style="padding:6px 8px 18px">Deen Saathi by Quranic Science • v1.0<br>${T('Jazakumullahu khairan 🤲','Jazakumullahu khairan 🤲','جزاکم اللہ خیراً 🤲','जज़ाकुमुल्लाहु ख़ैरन 🤲')}</div>`}
 A.pubcopy=el=>pubCopy(el.dataset.v);
 function supportMini(){return`<div class="card supmini"><div class="row"><div class="grow"><b>❤️ ${T('Yeh app muft hai','This app is free','یہ ایپ مفت ہے','यह ऐप मुफ़्त है')}</b><div class="muted sm">${T('Pasand aaye to hadiya se madad karein.','If you like it, support us with a hadiya.','پسند آئے تو ہدیہ سے مدد کریں۔','पसंद आए तो हदिया से मदद करें।')}</div></div><button class="btn s gold" data-a="tab" data-v="more" data-s="support">${T('Support','Support','سپورٹ','सपोर्ट')}</button></div></div>`}
 
@@ -106,7 +106,7 @@ function sadqaCard(){const tgt=+S.sadqaAmt||0,given=sdList().reduce((a,x)=>a+(+x
 AX.pubsdt=()=>form(T('Roz ka sadqa target','Daily sadaqah target','روز کا صدقہ ہدف','रोज़ का सदक़ा लक्ष्य'),[{k:'a',l:T('Kitna rupaya roz? (0 = band)','Rupees per day? (0 = off)','روزانہ کتنے روپے؟ (0 = بند)','रोज़ कितने रुपये? (0 = बंद)'),t:'number',m:'decimal',v:S.sadqaAmt||''}],o=>{S.sadqaAmt=Math.max(0,+o.a||0);saveS();try{nativeSync()}catch(e){}toast(T('Target set ✅','Target set ✅'));rerender()});
 AX.sdadd=()=>askSadqaAmt();
 function homeHero(np,h,d){
-  return`<div class="card hero"><div class="row">${logoBox('logos/qs.webp',54)}<div class="grow"><div class="hello">${T('Assalamu Alaikum 👋','Assalamu Alaikum 👋','السلام علیکم 👋','अस्सलामु अलैकुम 👋')}</div><div class="muted sm">${new Date().toLocaleDateString(LOC(),{weekday:'long',day:'numeric',month:'long'})}${TM&&TM.hijri?' • '+esc(hijriTxt()):''}</div></div></div>
+  return`<div class="card hero"><div class="row">${logoBox('logos/qs.webp',54)}<div class="grow"><div class="hello">${T('Assalamu Alaikum 👋','Assalamu Alaikum 👋','السلام علیکم 👋','अस्सलामु अलैकुम 👋')}</div><div class="muted sm">${new Date().toLocaleDateString(LOC(),{weekday:'long',day:'numeric',month:'long'})}${TM&&hijriTxt()?' • '+esc(hijriTxt()):''}</div></div></div>
   ${np?`<div class="hrow">${ringHTML(np,`<div class="eyebrow" style="font-size:9px">${T('AGLI','NEXT','اگلی','अगली')}</div><div class="pn" style="font-size:20px">${pname(np.k)}</div><div class="cd" style="font-size:15px" data-cd="${+np.at}">--:--:--</div>`)}<div class="grow"><div class="eyebrow">${T('NAMAZ AAJ','TODAY','آج کی نماز','आज की नमाज़')}</div><div class="dots mt">${PRAY.map(p=>`<i class="${h[p]||''}" title="${pname(p)}"></i>`).join('')}</div><div class="muted sm mt">${hzScore(d)}/5 ${T('ada','prayed','ادا','अदा')}</div><button class="btn s ghost mt" data-a="tab" data-v="deen" data-s="namaz">${T('Namaz kholein','Open','نماز کھولیں','नमाज़ खोलें')}</button></div></div>`
    :`<p class="muted mt">${S.lat==null&&!S.city?T('Pehle apni location set karein — phir namaz ke sahi waqt dikhenge.','Set your location first to see prayer times.','پہلے اپنی لوکیشن سیٹ کریں — پھر نماز کے صحیح اوقات دکھیں گے۔','पहले अपनी लोकेशन सेट करें — फिर नमाज़ के सही वक़्त दिखेंगे।'):T('Namaz ke waqt load ho rahe hain…','Loading prayer times…','نماز کے اوقات لوڈ ہو رہے ہیں…','नमाज़ के वक़्त लोड हो रहे हैं…')}</p>`}</div>`}
 renderHome=function(el){
@@ -264,7 +264,7 @@ A.bizadd=el=>{const type=el.dataset.v;form(type==='in'?T('Kamai likhein','Add in
 
 /* ---------- 8. Settings: extra public cards ---------- */
 (function(){const _rs=renderSettings;renderSettings=function(el){_rs(el);
-  el.insertAdjacentHTML('afterbegin',`<div class="card hero"><div class="row">${logoBox('logos/qs.webp',44)}<div class="grow"><b>Daai by Quranic Science</b><div class="muted sm">${T('Muft • bina ads • bina login','Free • no ads • no login','مفت • بغیر اشتہار • بغیر لاگ ان','मुफ़्त • बिना विज्ञापन • बिना लॉगिन')}</div></div></div>
+  el.insertAdjacentHTML('afterbegin',`<div class="card hero"><div class="row">${logoBox('logos/qs.webp',44)}<div class="grow"><b>Deen Saathi by Quranic Science</b><div class="muted sm">${T('Muft • bina ads • bina login','Free • no ads • no login','مفت • بغیر اشتہار • بغیر لاگ ان','मुफ़्त • बिना विज्ञापन • बिना लॉगिन')}</div></div></div>
     <div class="grid2 mt"><button class="btn" data-a="obredo">🧭 ${T('Setup dobara','Run setup again','سیٹ اپ دوبارہ','सेटअप दोबारा')}</button><button class="btn ghost" data-a="tourstart">🎓 ${T('App tour','App tour','ایپ ٹور','ऐप टूर')}</button></div><button class="btn gold full mt" data-a="tutvid">🎬 ${T('Tutorial video dekhein','Watch tutorial video','ٹیوٹوریل ویڈیو دیکھیں','ट्यूटोरियल वीडियो देखें')}</button></div>`);
   el.insertAdjacentHTML('beforeend',`<div class="card"><h2>${T('Masjid aur yaad dahani','Masjid & reminders','مسجد اور یاد دہانی','मस्जिद और याद-दिहानी')}</h2><div class="fs"><span>${T('Jamaat se ~8 min pehle “kya masjid mein dakhil ho gaye?” aur dua','~8 min before jamaat: “did you enter the masjid?” + dua','جماعت سے ~۸ منٹ پہلے “کیا مسجد میں داخل ہو گئے؟” اور دعا','जमात से ~8 मिनट पहले “क्या मस्जिद में दाख़िल हो गए?” और दुआ')}</span><input type="checkbox" class="sw" data-a="set" data-p="msjAsk" data-t="check" ${S.msjAsk!==false?'checked':''}></div></div>`)}})();
 
@@ -314,9 +314,9 @@ if(window.AndroidPA){setTimeout(natAnswers,1800);document.addEventListener('visi
 try{FBX.init=async()=>{};syncBiz=async()=>{};loadInbox=async()=>{};fetchNews=async()=>{}}catch(e){}
 
 /* headers that said Noor / Office etc. */
-try{EYES.more=()=>T('AALA • SUPPORT • SETTINGS','TOOLS • SUPPORT • SETTINGS','اوزار • سپورٹ • سیٹنگز','औज़ार • सपोर्ट • सेटिंग्स');EYES.home=()=>T('ASSALAMU ALAIKUM','ASSALAMU ALAIKUM','السلام علیکم','अस्सलामु अलैकुम');EYES.kaam=()=>T('KAAM • HISAAB • WAQT','TASKS • MONEY • TIME','کام • حساب • وقت','काम • हिसाब • वक़्त');TITLES.more=()=>T('Aur','More','مزید','और')}catch(e){}
+try{EYES.more=()=>T('TOOLS • SUPPORT • SETTINGS','TOOLS • SUPPORT • SETTINGS','ٹولز • سپورٹ • سیٹنگز','टूल्स • सपोर्ट • सेटिंग्स');EYES.home=()=>T('ASSALAMU ALAIKUM','ASSALAMU ALAIKUM','السلام علیکم','अस्सलामु अलैकुम');EYES.kaam=()=>T('KAAM • HISAAB • WAQT','TASKS • MONEY • TIME','کام • حساب • وقت','काम • हिसाब • वक़्त');TITLES.more=()=>T('Aur','More','مزید','और')}catch(e){}
 
 
 /* ---------- Tutorial video (bundled, simple-language narration) ---------- */
-A.tutvid=()=>{try{VO.stop()}catch(e){}dlg(`<div class="card" style="margin:0"><h2>🎬 ${T('Daai ka tutorial','Daai tutorial','داعی کا ٹیوٹوریل','दाई का ट्यूटोरियल')}</h2><video id="tutv" src="tutorial.mp4" controls playsinline preload="metadata" style="width:100%;max-height:64vh;border-radius:12px;background:#000"></video><div class="muted sm mt">${T('Sirf 2 minute — awaaz ke saath poora app samjhein.','Just 2 minutes — learn the whole app with voice.','صرف ۲ منٹ — آواز کے ساتھ پورا ایپ سمجھیں۔','सिर्फ़ 2 मिनट — आवाज़ के साथ पूरा ऐप समझें।')}</div><button class="btn full mt" data-a="closedlg">${T('Band karein','Close','بند کریں','बंद करें')}</button></div>`,{onClose:()=>{const v=document.getElementById('tutv');if(v)v.pause()}});const v=document.getElementById('tutv');if(v){const p=v.play();if(p&&p.catch)p.catch(()=>{})}};
+A.tutvid=()=>{try{VO.stop()}catch(e){}dlg(`<div class="card" style="margin:0"><h2>🎬 ${T('Deen Saathi ka tutorial','Deen Saathi tutorial','دین ساتھی کا ٹیوٹوریل','दीन साथी का ट्यूटोरियल')}</h2><video id="tutv" src="tutorial.mp4" controls playsinline preload="metadata" style="width:100%;max-height:64vh;border-radius:12px;background:#000"></video><div class="muted sm mt">${T('Sirf 2 minute — awaaz ke saath poora app samjhein.','Just 2 minutes — learn the whole app with voice.','صرف ۲ منٹ — آواز کے ساتھ پورا ایپ سمجھیں۔','सिर्फ़ 2 मिनट — आवाज़ के साथ पूरा ऐप समझें।')}</div><button class="btn full mt" data-a="closedlg">${T('Band karein','Close','بند کریں','बंद करें')}</button></div>`,{onClose:()=>{const v=document.getElementById('tutv');if(v)v.pause()}});const v=document.getElementById('tutv');if(v){const p=v.play();if(p&&p.catch)p.catch(()=>{})}};
 (function(){const _tc=tourCard;tourCard=function(){const h=_tc();if(!h)return h;return h.replace('<button class="btn s ghost" data-a="tourx">','<button class="btn s ghost" data-a="tutvid">🎬</button><button class="btn s ghost" data-a="tourx">')}})();

@@ -10,7 +10,9 @@ let QD=null,QDP=null; // {ar,ur,ro}
 const snm=i=>S.lang==='ur'?window.SN_UR[i]:S.lang==='hi'?window.SN_HI[i]:SN[i][0];
 const TRC=()=>S.lang==='ur'?'urdu':'trx';
 /* QD.ur = translation in the app language: Urdu (Mufti Taqi Usmani), Hindi (Suhel Farooq Khan), English (Mufti Taqi Usmani). QD.ro (Roman) is used only for Roman-letter search */
-function loadQ(){if(QD)return Promise.resolve(QD);return QDP||(QDP=Promise.all([fetch('q-indopak.json').then(r=>r.json()),fetch('taqi.json').then(r=>r.json()),(S.lang==='ur'||S.lang==='ro')?null:fetch(S.lang==='hi'?'tr-hi.json':'tr-en.json').then(r=>r.json())]).then(([ar,t,tr])=>(QD={ar,ur:tr||(S.lang==='ro'?t.ro:t.ur),ro:t.ro})).catch(e=>{QDP=null;throw e}))}
+/* Hindi mode: default = Mufti Taqi Usmani ka Urdu tarjuma Devanagari mein (S.hiTr='taqi'); option = Suhel Farooq Khan ka Hindi tarjuma (S.hiTr='sfk') */
+const hiTaqi=()=>S.lang==='hi'&&S.hiTr!=='sfk';
+function loadQ(){if(QD)return Promise.resolve(QD);return QDP||(QDP=Promise.all([fetch('q-indopak.json').then(r=>r.json()),fetch('taqi.json').then(r=>r.json()),(S.lang==='ur'||S.lang==='ro'||hiTaqi())?null:fetch(S.lang==='hi'?'tr-hi.json':'tr-en.json').then(r=>r.json()),hiTaqi()&&typeof dvuLoad==='function'?dvuLoad():null]).then(([ar,t,tr])=>{let ur=tr||(S.lang==='ro'?t.ro:t.ur);if(hiTaqi()){try{ur=t.ur.map(s=>new Proxy(s,{get:(o,k)=>{const v=o[k];return(typeof v==='string'&&typeof k==='string'&&/^\d+$/.test(k))?urToDv(v):v}}))}catch(e){console.error(e);ur=t.ur}}return QD={ar,ur,ro:t.ro}}).catch(e=>{QDP=null;throw e}))}
 let QS=Object.assign({view:'list',tab:'surah',s:1,a:1,mode:'t',bm:[],last:null,rec:'Alafasy_128kbps',q:''},store.get('quran4',{}));
 const saveQS=()=>store.set('quran4',QS);
 if(!QS.m26){QS.pg=true;QS.m26=1;saveQS()}
