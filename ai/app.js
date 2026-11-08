@@ -162,19 +162,20 @@ async function decryptBuf(buf, c) { const k = await courseKey(c), b = new Uint8A
 const courseOf = id => id[0] === "t" ? "tajweed" : "arabic";
 
 /* ============ data ============ */
-async function outline(c) { if (!S.outline[c]) S.outline[c] = await fetch(`data/${c}.json`).then(r => r.json()); return S.outline[c]; }
+async function outline(c) { if (!S.outline[c]) S.outline[c] = await fetch(`data/${c}.json`, { cache: "no-cache" }).then(r => r.json()); return S.outline[c]; }
 async function lessonData(id) {
   if (FREE.includes(id)) { if (!S.free) S.free = await fetch("data/free.json").then(r => r.json()); return S.free.find(l => l.id === id); }
   const wk = id.slice(0, 5);
-  if (!S.weeks[wk]) { const r = await getBin(`data/${wk}.bin`); if (!r.ok) return null; S.weeks[wk] = JSON.parse(new TextDecoder().decode(await decryptBuf(await r.arrayBuffer(), courseOf(id)))); }
+  if (!S.weeks[wk]) { const r = await getBin(`data/${wk}.bin?v=${dv(id)}`); if (!r.ok) return null; S.weeks[wk] = JSON.parse(new TextDecoder().decode(await decryptBuf(await r.arrayBuffer(), courseOf(id)))); }
   return S.weeks[wk].find(l => l.id === id);
 }
 const voiceUrls = {};
+const dv = id => (S.outline[courseOf(id)] || {}).v || 0;
 const getBin = async u => { let r = await fetch(u); if (!r.ok) r = await fetch(u, { cache: "reload" }); return r; };
 async function voiceSrc(id, i) {
-  if (FREE.includes(id)) return `vo/${id}-${i}.mp3`;
+  if (FREE.includes(id)) return `vo/${id}-${i}.mp3?v=${dv(id)}`;
   const key = id + "-" + i; if (voiceUrls[key]) return voiceUrls[key];
-  const r = await getBin(`vo/${key}.bin`); if (!r.ok) return null;
+  const r = await getBin(`vo/${key}.bin?v=${dv(id)}`); if (!r.ok) return null;
   const u = URL.createObjectURL(new Blob([await decryptBuf(await r.arrayBuffer(), courseOf(id))], { type: "audio/mpeg" }));
   return voiceUrls[key] = u;
 }
@@ -554,10 +555,10 @@ async function saveOffline(c, btn) {
   if (!("caches" in window)) return toast("Offline storage is not supported on this browser.");
   await courseKey(c); const o = await outline(c), ready = o.weeks.flatMap(w => w.days).filter(d => d.ready), cache = await caches.open("qsai-off-" + c);
   const urls = new Set(["./", "index.html", `data/${c}.json`, "data/free.json", "icon-192.png", "icon-512.png"]);
-  for (const d of ready) { urls.add(`data/${d.id.slice(0, 5)}.bin`); }
+  for (const d of ready) { urls.add(`data/${d.id.slice(0, 5)}.bin?v=${o.v || 0}`); }
   const bar = btn.parentNode.querySelector(".bar"); bar.hidden = false; btn.disabled = true; btn.textContent = t("saving");
   const weeks = [...new Set(ready.map(d => d.id.slice(0, 5)))]; let done = 0, total = 0;
-  for (const wk of weeks) { const L = await lessonDataWeek(wk); for (const l of L) { l.moments.forEach((m, i) => { urls.add(FREE.includes(l.id) ? `vo/${l.id}-${i + 1}.mp3` : `vo/${l.id}-${i + 1}.bin`); (m.q || []).forEach(q => urls.add(q.w ? QARI_WORD(q.s, q.a, q.w) : QARI_AYAH(q.s, q.a))); }); } }
+  for (const wk of weeks) { const L = await lessonDataWeek(wk); for (const l of L) { l.moments.forEach((m, i) => { const V = `?v=${o.v || 0}`; [String(i + 1)].concat(m.av ? [(i + 1) + "a"] : []).forEach(n => urls.add(FREE.includes(l.id) ? `vo/${l.id}-${n}.mp3${V}` : `vo/${l.id}-${n}.bin${V}`)); (m.q || []).forEach(q => urls.add(q.w ? QARI_WORD(q.s, q.a, q.w) : QARI_AYAH(q.s, q.a))); }); } }
   total = urls.size;
   for (const u of urls) { try { const req = new Request(u, /^https?:/.test(u) ? { mode: "no-cors" } : {}); const res = await fetch(req); await cache.put(req, res); } catch (e) {} done++; bar.firstChild.style.width = Math.round(done * 100 / total) + "%"; }
   const sv = LS.get("qsai-off", {}); sv[c] = { at: Date.now(), n: ready.length }; LS.set("qsai-off", sv);
