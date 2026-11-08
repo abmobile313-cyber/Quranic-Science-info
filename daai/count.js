@@ -6,6 +6,6 @@
  function run(){try{const s=src(),pl=plat();
   if(!localStorage.getItem('pa_cnt_new')){localStorage.setItem('pa_cnt_new','1');hit('/new/'+pl,'New device ('+pl+')',s);hit('/source/'+s,'Came from: '+s)}
   const d=new Date().toISOString().slice(0,10);if(localStorage.getItem('pa_cnt_day')!==d){localStorage.setItem('pa_cnt_day',d);hit('/open/'+pl,'Opened today ('+pl+')')}
-  const l=(window.S&&S.lang)||'';if(l&&localStorage.getItem('pa_cnt_lang')!==l){localStorage.setItem('pa_cnt_lang',l);hit('/lang/'+l,'Language: '+l)}}catch(e){}}
+  let l='';try{l=S.lang||''}catch(e){}if(l&&localStorage.getItem('pa_cnt_lang')!==l){localStorage.setItem('pa_cnt_lang',l);hit('/lang/'+l,'Language: '+l)}}catch(e){}}
  window.addEventListener('load',()=>setTimeout(run,4000));
 })();
