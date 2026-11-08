@@ -42,7 +42,7 @@ const TX = {
   slotTime: "Daily time", slotOff: "Weekly day off", slotSave: "Save my time (final)", slotIs: "Your class time", offIs: "day off", nextAt: "Next lesson opens",
   waitSlot: "This lesson opens at your class time", needSlot: "Choose your daily class time first",
   hw: "Homework", hwP: "Send your homework: a voice recording, a photo of your writing, or a short video (max 10 MB). The AI Ustad checks it and gives you feedback.",
-  hwVoice: "Record voice", hwPhoto: "Photo", hwVideo: "Short video", hwSending: "Uploading…", hwSent: "Homework sent ✓", hwChecking: "AI Ustad is checking…", hwMine: "My homework", hwNone: "No homework sent yet.",
+  hwVoice: "Record voice", hwPhoto: "Photo", hwVideo: "Short video", hwSending: "Uploading…", hwSent: "Homework sent ✓", hwChecking: "AI Ustad is checking…", hwMine: "My homework", hwNone: "No homework sent yet.", hwHint: "Send this homework at the end of the lesson, after the questions (📤 Homework box).",
   hwBig: "File is too big (max 10 MB).", fb: "Feedback", offline: "Offline", offH: "Offline lessons", offP: "Full Access students can save whole courses inside this app and study without internet. Saved lessons can only be opened here.",
   offDl: "Save for offline", offDone: "Saved for offline ✓", offNone: "Nothing saved yet.", offNeed: "Offline saving is for Full Access students.", saving: "Saving…",
   photoL: "Your photo (for the certificate)", photoBtn: "Choose photo", fullBadge: "Full Access", certReady: "Your certificate is ready", protect: "Lessons are protected and can only be played inside Quranic Science.", arVoice: "Arabic pronunciation", repeat: "Repeat", playAll: "Play all, step by step", tapLetter: "Tap a letter to hear the qari" },
@@ -70,7 +70,7 @@ const TX = {
   slotTime: "روزانہ وقت", slotOff: "ہفتہ وار چھٹی", slotSave: "میرا وقت محفوظ کریں (آخری)", slotIs: "آپ کی کلاس کا وقت", offIs: "چھٹی", nextAt: "اگلا سبق کھلے گا",
   waitSlot: "یہ سبق آپ کی کلاس کے وقت کھلے گا", needSlot: "پہلے اپنی روزانہ کلاس کا وقت چنیں",
   hw: "ہوم ورک", hwP: "اپنا ہوم ورک بھیجیں: آواز کی ریکارڈنگ، لکھائی کی تصویر، یا چھوٹی ویڈیو (زیادہ سے زیادہ ۱۰ ایم بی)۔ اے آئی استاد چیک کر کے رائے دے گا۔",
-  hwVoice: "آواز ریکارڈ کریں", hwPhoto: "تصویر", hwVideo: "چھوٹی ویڈیو", hwSending: "بھیجا جا رہا ہے…", hwSent: "ہوم ورک بھیج دیا ✓", hwChecking: "اے آئی استاد چیک کر رہا ہے…", hwMine: "میرا ہوم ورک", hwNone: "ابھی کوئی ہوم ورک نہیں بھیجا۔",
+  hwVoice: "آواز ریکارڈ کریں", hwPhoto: "تصویر", hwVideo: "چھوٹی ویڈیو", hwSending: "بھیجا جا رہا ہے…", hwSent: "ہوم ورک بھیج دیا ✓", hwChecking: "اے آئی استاد چیک کر رہا ہے…", hwMine: "میرا ہوم ورک", hwNone: "ابھی کوئی ہوم ورک نہیں بھیجا۔", hwHint: "یہ ہوم ورک سبق کے آخر میں، سوالوں کے بعد، 📤 ہوم ورک والے خانے سے بھیجیں۔",
   hwBig: "فائل بہت بڑی ہے (زیادہ سے زیادہ ۱۰ ایم بی)۔", fb: "رائے", offline: "آف لائن", offH: "آف لائن اسباق", offP: "فل ایکسیس والے طلبہ پورا کورس اسی ایپ میں محفوظ کر کے بغیر انٹرنیٹ پڑھ سکتے ہیں۔ محفوظ اسباق صرف یہیں کھلیں گے۔",
   offDl: "آف لائن محفوظ کریں", offDone: "آف لائن محفوظ ✓", offNone: "ابھی کچھ محفوظ نہیں۔", offNeed: "آف لائن محفوظ کرنا فل ایکسیس والوں کے لیے ہے۔", saving: "محفوظ ہو رہا ہے…",
   photoL: "آپ کی تصویر (سرٹیفکیٹ کے لیے)", photoBtn: "تصویر چنیں", fullBadge: "فل ایکسیس", certReady: "آپ کا سرٹیفکیٹ تیار ہے", protect: "اسباق محفوظ ہیں اور صرف قرآنک سائنس کے اندر چلتے ہیں۔", arVoice: "عربی تلفظ سنیں", repeat: "دہرائیں", playAll: "سب ترتیب سے سنیں", tapLetter: "حرف پر ٹیپ کریں، قاری کی آواز سنیں" },
@@ -98,7 +98,7 @@ const TX = {
   slotTime: "रोज़ाना वक़्त", slotOff: "हफ़्तावार छुट्टी", slotSave: "मेरा वक़्त महफ़ूज़ करें (आख़िरी)", slotIs: "आपकी क्लास का वक़्त", offIs: "छुट्टी", nextAt: "अगला सबक़ खुलेगा",
   waitSlot: "यह सबक़ आपकी क्लास के वक़्त खुलेगा", needSlot: "पहले अपनी रोज़ाना क्लास का वक़्त चुनें",
   hw: "होमवर्क", hwP: "अपना होमवर्क भेजें: आवाज़ की रिकॉर्डिंग, लिखाई की फ़ोटो, या छोटी वीडियो (ज़्यादा से ज़्यादा 10 MB)। ए आई उस्ताद चेक करके राय देगा।",
-  hwVoice: "आवाज़ रिकॉर्ड करें", hwPhoto: "फ़ोटो", hwVideo: "छोटी वीडियो", hwSending: "भेजा जा रहा है…", hwSent: "होमवर्क भेज दिया ✓", hwChecking: "ए आई उस्ताद चेक कर रहा है…", hwMine: "मेरा होमवर्क", hwNone: "अभी कोई होमवर्क नहीं भेजा।",
+  hwVoice: "आवाज़ रिकॉर्ड करें", hwPhoto: "फ़ोटो", hwVideo: "छोटी वीडियो", hwSending: "भेजा जा रहा है…", hwSent: "होमवर्क भेज दिया ✓", hwChecking: "ए आई उस्ताद चेक कर रहा है…", hwMine: "मेरा होमवर्क", hwNone: "अभी कोई होमवर्क नहीं भेजा।", hwHint: "यह होमवर्क सबक़ के आख़िर में, सवालों के बाद, 📤 होमवर्क वाले ख़ाने से भेजें।",
   hwBig: "फ़ाइल बहुत बड़ी है (ज़्यादा से ज़्यादा 10 MB)।", fb: "राय", offline: "ऑफ़लाइन", offH: "ऑफ़लाइन सबक़", offP: "फ़ुल ऐक्सेस वाले तलबा पूरा कोर्स इसी ऐप में महफ़ूज़ करके बिना इंटरनेट पढ़ सकते हैं। महफ़ूज़ सबक़ सिर्फ़ यहीं खुलेंगे।",
   offDl: "ऑफ़लाइन महफ़ूज़ करें", offDone: "ऑफ़लाइन महफ़ूज़ ✓", offNone: "अभी कुछ महफ़ूज़ नहीं।", offNeed: "ऑफ़लाइन महफ़ूज़ करना फ़ुल ऐक्सेस वालों के लिए है।", saving: "महफ़ूज़ हो रहा है…",
   photoL: "आपकी फ़ोटो (सर्टिफ़िकेट के लिए)", photoBtn: "फ़ोटो चुनें", fullBadge: "फ़ुल ऐक्सेस", certReady: "आपका सर्टिफ़िकेट तैयार है", protect: "सबक़ महफ़ूज़ हैं और सिर्फ़ क़ुरआनिक साइंस के अंदर चलते हैं।", arVoice: "अरबी तलफ़्फ़ुज़ सुनें", repeat: "दोहराएँ", playAll: "सब तरतीब से सुनें", tapLetter: "हर्फ़ पर टैप करें, क़ारी की आवाज़ सुनें" }
@@ -597,6 +597,7 @@ function drawMoment() {
     <div class="vo" id="vo"><span class="eq"><i></i><i></i><i></i></span><button class="btn sm" id="rv">↻ ${t("replay")}</button></div>
     <div class="say">${esc(pick(m))}</div>
     ${visualHTML(m.v)}${m.ar ? tilesHTML(m.ar, m.wq, m.aw) : ""}
+    ${/^(Homework|Weekly test|Test|Speaking test)\b/.test(m.en || "") ? `<p class="mini hwhint">📤 ${t("hwHint")}</p>` : ""}
     <div class="tools">${m.q ? `<button class="btn cy" id="qb">🕋 ${t("listen")}</button>` : m.wq || m.aw ? `<button class="btn cy" id="qb">🔊 ${t("arVoice")}</button>` : ""}${m.q || m.wq || m.v || m.ar ? `<button class="btn sm" id="rp" title="${t("repeat")}">🔁 ×${S.rep}</button>` : ""}${m.rec ? `<button class="btn rec" id="rb">🎙️ ${t("rec")}</button><button class="btn" id="pb" disabled>▶ ${t("mine")}</button>` : ""}</div>
   </section><div class="nav"><button class="btn" id="bk" ${i === 0 ? "disabled" : ""}>${t("back")}</button><button class="btn pri" id="nx">${i === data.moments.length - 1 ? t("toQuiz") : t("next")}</button></div>`;
   $("#vt").onclick = () => { S.voice = !S.voice; LS.set("qsai-voice", S.voice); S.voice ? playVoice() : stopAll(); $("#vt").textContent = S.voice ? "🔊 " + t("voiceOn") : "🔇 " + t("voiceOff"); };
@@ -611,12 +612,15 @@ function drawMoment() {
   $("#nx").onclick = () => { LESSON.i++; drawMoment(); scrollTo({ top: 0, behavior: "smooth" }); };
   if (S.voice) playVoice();
 }
+/* options appear in a fixed but mixed order, so the right answer is not always first */
+function qorder(id, k, n) { let h = 2166136261; for (const ch of id + ":" + k) h = Math.imul(h ^ ch.charCodeAt(0), 16777619) >>> 0;
+  const o = [...Array(n).keys()]; for (let i = n - 1; i > 0; i--) { h = (Math.imul(h, 1103515245) + 12345) >>> 0; const j = h % (i + 1); [o[i], o[j]] = [o[j], o[i]]; } return o; }
 function drawQuiz(k, ans) {
   stopAll();
   const { data } = LESSON, Q = data.quiz[k], app = $("#app");
   if (!Q) return finish(ans);
   app.innerHTML = lessonHead() + `<section class="stage"><span class="qn">${t("q")} ${num(k + 1)} ${t("of")} ${num(data.quiz.length)}</span>
-    <div class="say"><b>${esc(pick(Q.q))}</b></div><div id="opts">${Q.o.map((o, j) => `<button class="qopt" data-j="${j}"><span class="${/[؀-ۿ]/.test(pick(o)) ? "ar" : ""}">${esc(pick(o))}</span></button>`).join("")}</div><div id="fb"></div></section>`;
+    <div class="say"><b>${esc(pick(Q.q))}</b></div><div id="opts">${qorder(LESSON.id, k, Q.o.length).map(j => { const o = Q.o[j]; return `<button class="qopt" data-j="${j}"><span class="${/[؀-ۿ]/.test(pick(o)) ? "ar" : ""}">${esc(pick(o))}</span></button>`; }).join("")}</div><div id="fb"></div></section>`;
   $$(".qopt", app).forEach(b => b.onclick = () => {
     const j = +b.dataset.j, ok = j === Q.a;
     $$(".qopt", app).forEach(x => { x.disabled = true; if (+x.dataset.j === Q.a) x.classList.add("ok"); });
