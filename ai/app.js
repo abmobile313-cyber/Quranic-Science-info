@@ -164,7 +164,7 @@ const courseOf = id => id[0] === "t" ? "tajweed" : "arabic";
 /* ============ data ============ */
 async function outline(c) { if (!S.outline[c]) S.outline[c] = await fetch(`data/${c}.json`, { cache: "no-cache" }).then(r => r.json()); return S.outline[c]; }
 async function lessonData(id) {
-  if (FREE.includes(id)) { if (!S.free) S.free = await fetch("data/free.json").then(r => r.json()); return S.free.find(l => l.id === id); }
+  if (FREE.includes(id)) { if (!S.free) S.free = await fetch(`data/free.json?v=${dv(id)}`).then(r => r.json()); return S.free.find(l => l.id === id); }
   const wk = id.slice(0, 5);
   if (!S.weeks[wk]) { const r = await getBin(`data/${wk}.bin?v=${dv(id)}`); if (!r.ok) return null; S.weeks[wk] = JSON.parse(new TextDecoder().decode(await decryptBuf(await r.arrayBuffer(), courseOf(id)))); }
   return S.weeks[wk].find(l => l.id === id);
@@ -331,7 +331,7 @@ function stopAll() { [voiceEl, qariEl].forEach(a => { try { a && a.pause(); } ca
 async function playVoice() {
   stopAll(); const { id, i, data } = LESSON, m = data && data.moments[i]; if (!m) return;
   let src = null; try { src = await voiceSrc(id, i + 1); } catch (e) {}
-  const box = $("#vo"), after = () => { box && box.classList.remove("playing"); if (m.av && S.voice && LESSON.i === i) playArabic(); };
+  const box = $("#vo"), after = () => { box && box.classList.remove("playing"); };
   if (!src) return after();
   voiceEl = new Audio(src); box && box.classList.add("playing");
   voiceEl.onended = after; voiceEl.onerror = () => box && box.classList.remove("playing");
@@ -448,7 +448,6 @@ function drawMoment() {
   $("#vt").onclick = () => { S.voice = !S.voice; LS.set("qsai-voice", S.voice); S.voice ? playVoice() : stopAll(); $("#vt").textContent = S.voice ? "🔊 " + t("voiceOn") : "🔇 " + t("voiceOff"); };
   $("#rv").onclick = () => playVoice();
   if (m.q || m.wq) $("#qb").onclick = e => playQari(m.q || m.wq.map(x => ({ s: x[1], a: x[2], w: x[3] })), e.currentTarget);
-  if (m.av) $("#ab").onclick = e => playArabic(e.currentTarget);
   if ($("#rp")) $("#rp").onclick = e => { S.rep = S.rep === 1 ? 3 : S.rep === 3 ? 5 : 1; LS.set("qsai-rep", S.rep); e.currentTarget.textContent = "🔁 ×" + S.rep; toast(t("repeat") + ": ×" + S.rep); };
   wireVisuals(app);
   if (m.rec) { const pb = $("#pb"); recUrl = null;

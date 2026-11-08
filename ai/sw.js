@@ -1,5 +1,5 @@
 /* Learn with Quranic Science AI — offline shell. Saved courses live in "qsai-off-<course>" caches (encrypted lessons). */
-const V = "qsai-v12", SHELL = ["./", "index.html", "app.js?v=12", "makharij.webp", "icon-192.png", "icon-512.png", "manifest.webmanifest", "data/tajweed.json", "data/arabic.json", "data/free.json"];
+const V = "qsai-v13", SHELL = ["./", "index.html", "app.js?v=13", "makharij.webp", "icon-192.png", "icon-512.png", "manifest.webmanifest", "data/tajweed.json", "data/arabic.json", "data/free.json"];
 self.addEventListener("install", e => { e.waitUntil(caches.open(V).then(c => c.addAll(SHELL)).catch(() => {})); self.skipWaiting(); });
 self.addEventListener("activate", e => { e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => k.startsWith("qsai-v") && k !== V).map(k => caches.delete(k))))); self.clients.claim(); });
 self.addEventListener("fetch", e => {
