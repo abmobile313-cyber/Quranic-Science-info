@@ -2246,7 +2246,7 @@ const css=document.createElement("style");css.textContent=`.qs-ai-opt{margin:10p
 .qs-ai-btn img{width:34px;height:34px;border-radius:10px;flex:none}.qs-ai-btn small{display:block;font-weight:500;opacity:.85;font-size:12px}.qs-ai-btn b{margin-inline-start:auto;color:#f6d68a;white-space:nowrap}`;document.head.appendChild(css);
 const run=()=>{document.querySelectorAll("article.ccard").forEach(c=>{if(c.querySelector(".qs-ai-opt"))return;const h=c.querySelector("h3");if(!h)return;const m=MAP.find(x=>x[0].test(h.textContent.trim()));if(!m)return;
 const enr=c.querySelector(".enr2")||c.querySelector("[data-enr]");const box=document.createElement("div");box.className="qs-ai-opt";
-box.innerHTML=`<span class="qs-ai-lbl">🤖 Or learn on your own</span><a class="qs-ai-btn" href="/ai.html#${m[1]==="combo"?"home":m[1]}"><img src="/ai/icon-192.png" alt=""><span>Learn with Quranic Science AI<small>Voice lessons · real qari · AI Ustad · certificate</small></span><b>${m[2]}</b></a>`;
+box.innerHTML=`<span class="qs-ai-lbl">🤖 Or learn on your own</span><a class="qs-ai-btn" href="/ai/#${m[1]==="combo"?"home":m[1]}"><img src="/ai/icon-192.png" alt=""><span>Learn with Quranic Science AI<small>Voice lessons · real qari · AI Ustad · certificate</small></span><b>${m[2]}</b></a>`;
 if(enr&&enr.parentNode){const lbl=document.createElement("span");lbl.className="qs-ai-lbl";lbl.textContent="👨‍🏫 Learn with real teacher";enr.parentNode.insertBefore(lbl,enr);enr.after(box);}else{const b=c.querySelector(".cbody");b&&b.appendChild(box);}});};
 let tm=0;new MutationObserver(()=>{clearTimeout(tm);tm=setTimeout(run,120)}).observe(document.body,{childList:true,subtree:true});addEventListener("load",run);})();
 </script>

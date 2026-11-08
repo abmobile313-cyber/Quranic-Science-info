@@ -176,8 +176,8 @@ export async function ownerAlert(env, fs, msg, now = Date.now(), fetchImpl = fet
 /* ---------- payment → classes ---------- */
 /* course short forms, same as the website: student code ARS863M + TAJ = ARS863M-TAJ */
 /* combo courses: paying for the combo also opens each course inside it, so combo students join the same live batches */
-export const COMBOS = { "tajweed-arabic-combo": ["tajweed-class", "arabic-speaking-class"], "all-in-one-creator-course": ["ai-masterclass", "video-editing-course", "content-creation-zero-to-pro"] };
-export const SHORT = { "all-in-one-creator-course": "AIO", "tajweed-arabic-combo": "TAC", "ai-masterclass": "AIM", "video-editing-course": "VED", "content-creation-zero-to-pro": "CCP", "tajweed-class": "TAJ", "arabic-speaking-class": "ARB" };
+export const COMBOS = { "tajweed-arabic-combo": ["tajweed-class", "arabic-speaking-class"], "ai-tajweed-arabic-combo": ["ai-tajweed", "ai-arabic"], "ai-combo-full": ["ai-tajweed-full", "ai-arabic-full", "ai-tajweed", "ai-arabic"], "ai-tajweed-full": ["ai-tajweed"], "ai-arabic-full": ["ai-arabic"], "all-in-one-creator-course": ["ai-masterclass", "video-editing-course", "content-creation-zero-to-pro"] };
+export const SHORT = { "all-in-one-creator-course": "AIO", "tajweed-arabic-combo": "TAC", "ai-masterclass": "AIM", "video-editing-course": "VED", "content-creation-zero-to-pro": "CCP", "tajweed-class": "TAJ", "arabic-speaking-class": "ARB", "ai-tajweed": "AIT", "ai-arabic": "AIA", "ai-tajweed-arabic-combo": "AIC", "ai-tajweed-full": "AITF", "ai-arabic-full": "AIAF", "ai-combo-full": "AICF" };
 export const courseCode = (code, course) => code ? code + (SHORT[course] ? "-" + SHORT[course] : "") : "-";
 const slug = s => String(s || "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 export function paymentInfo(evt) {
@@ -711,6 +711,72 @@ export async function ownerFeed(env) {
   };
 }
 
+
+/* ---------- Learn with Quranic Science AI + homework (photo / video / voice) ----------
+   /ai/key      student's content key for an AI course they bought (lessons are stored encrypted on the website)
+   /ai/setkeys  owner only: save the content keys
+   /hw/upload   student uploads homework (any course) with their student ID
+   /hw/list     owner: all · teacher: their course · student: their own
+   /hw/file     the uploaded file (owner, the course teacher, or the student)
+   /hw/review   teacher/owner feedback + marks · student may save AI feedback on their own AI-course homework */
+async function whoAmI(req, env) {
+  const tok = (req.headers.get("authorization") || "").replace(/^Bearer\s+/i, ""); if (!tok) return null;
+  const who = await fetch(`https://identitytoolkit.googleapis.com/v1/accounts:lookup?key=${env.FIREBASE_WEB_KEY || "AIzaSyCCoqjw2BzgWcal6OVBqONYOB7x--WP12g"}`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ idToken: tok }) }).then(r => r.json()).catch(() => ({}));
+  const me = (who.users || [])[0]; if (!me) return null;
+  const email = String(me.email || "").toLowerCase();
+  return { uid: me.localId, email, verified: !!me.emailVerified, owner: !!me.emailVerified && ownerEmails(env).includes(email) };
+}
+const AI_COURSE = { tajweed: ["ai-tajweed", "ai-tajweed-arabic-combo", "ai-tajweed-full", "ai-combo-full"], arabic: ["ai-arabic", "ai-tajweed-arabic-combo", "ai-arabic-full", "ai-combo-full"] };
+export async function aiRoute(req, env, url) {
+  const cors = { "access-control-allow-origin": "*", "access-control-allow-headers": "authorization,content-type", "access-control-allow-methods": "GET,POST,OPTIONS", "content-type": "application/json", "cache-control": "no-store" };
+  const out = (o, s = 200) => new Response(JSON.stringify(o), { status: s, headers: cors });
+  if (req.method === "OPTIONS") return new Response(null, { headers: cors });
+  const fs = makeFS(env), p = url.pathname, q = url.searchParams;
+  try {
+    const me = await whoAmI(req, env); if (!me) return out({ error: "Please log in." }, 401);
+    const body = req.method === "POST" ? await req.json().catch(() => ({})) : {};
+    const user = (await fs.get(`users/${me.uid}`)) || {}, acc = user.access || {};
+    if (p === "/ai/setkeys") { if (!me.owner) return out({ error: "owner only" }, 401);
+      const k = {}; for (const c of ["tajweed", "arabic"]) if (/^[0-9a-f]{64}$/.test(body[c] || "")) k[c] = body[c];
+      await fs.merge("secrets/aiKeys", k); return out({ ok: true, saved: Object.keys(k) }); }
+    if (p === "/ai/key") { const c = q.get("course"); if (!AI_COURSE[c]) return out({ error: "course" }, 400);
+      if (!me.owner && !AI_COURSE[c].some(k => acc[k])) return out({ error: "not enrolled" }, 403);
+      const keys = (await fs.get("secrets/aiKeys")) || {}; if (!keys[c]) return out({ error: "key missing" }, 500);
+      return out({ key: keys[c], full: me.owner || acc["ai-" + c + "-full"] === true || acc["ai-combo-full"] === true }); }
+    const teacher = me.verified ? await fs.get(`teachers/${me.email}`).catch(() => null) : null;
+    if (p === "/hw/upload" && req.method === "POST") {
+      const data = String(body.data || ""), mime = clip(body.mime, 60), kind = ["voice", "photo", "video"].includes(body.kind) ? body.kind : "";
+      if (!kind || !data) return out({ error: "file missing" }, 400);
+      if (data.length > 14e6) return out({ error: "File is too big. Please keep it under 10 MB (short video, clear photo or voice note)." }, 413);
+      const now = Date.now(), id = "H" + new Date(now + 330 * 60000).toISOString().slice(2, 10).replace(/-/g, "") + "-" + rid(6).toUpperCase(), CH = 700000, n = Math.ceil(data.length / CH);
+      for (let i = 0; i < n; i++) await fs.merge(`hwData/${id}_${i}`, { d: data.slice(i * CH, (i + 1) * CH) });
+      const rec = { uid: me.uid, email: me.email, name: user.name || "", code: user.code || "", phone: user.phone || "", course: clip(body.course, 60), lesson: clip(body.lesson, 80), kind, mime, n, size: Math.round(data.length * 3 / 4), note: clip(body.note, 500), ts: now, status: "new", feedback: "", marks: null, by: "" };
+      await fs.merge(`hw/${id}`, rec);
+      if (!String(rec.course).startsWith("ai-")) await ownerAlert(env, fs, { kind: "info", title: "📤 New homework", body: `${rec.name || rec.email} (${rec.code || "no code"}) · ${rec.course} · ${rec.lesson} · ${kind}` }, now).catch(() => {});
+      return out({ ok: true, id });
+    }
+    if (p === "/hw/list") {
+      let rows;
+      if (me.owner) rows = await fs.query("hw", q.get("course") ? [["course", "EQUAL", q.get("course")]] : [], 300);
+      else if (teacher && teacher.course && q.get("as") === "teacher") rows = await fs.query("hw", [["course", "EQUAL", teacher.course]], 300);
+      else rows = await fs.query("hw", [["uid", "EQUAL", me.uid]], 200);
+      return out({ role: me.owner ? "owner" : teacher && q.get("as") === "teacher" ? "teacher" : "student", teacherCourse: teacher && teacher.course || "", rows: rows.sort((a, b) => (b.ts || 0) - (a.ts || 0)) });
+    }
+    const hw = q.get("id") || body.id ? await fs.get(`hw/${clip(q.get("id") || body.id, 40)}`) : null;
+    const canSee = hw && (me.owner || hw.uid === me.uid || (teacher && teacher.course === hw.course));
+    if (p === "/hw/file") { if (!canSee) return out({ error: "not allowed" }, 403);
+      let d = ""; for (let i = 0; i < (hw.n || 0); i++) d += ((await fs.get(`hwData/${hw.id}_${i}`)) || {}).d || "";
+      return out({ mime: hw.mime, data: d }); }
+    if (p === "/hw/review" && req.method === "POST") { if (!hw) return out({ error: "not found" }, 404);
+      const self = hw.uid === me.uid && String(hw.course).startsWith("ai-");
+      if (!(me.owner || (teacher && teacher.course === hw.course) || self)) return out({ error: "not allowed" }, 403);
+      await fs.merge(`hw/${hw.id}`, { feedback: clip(body.feedback, 2000), marks: body.marks == null || body.marks === "" ? null : Math.max(0, Math.min(10, +body.marks || 0)), status: "checked", by: self ? "ai" : me.owner ? "owner" : "teacher", checkedAt: Date.now() });
+      if (!self) await notify(env, fs, Object.assign({ id: hw.uid }, (await fs.get(`users/${hw.uid}`)) || {}), { title: "Homework checked ✓", body: `${hw.lesson}: ${clip(body.feedback, 120)}`, url: (env.SITE || "https://quranicscience.info") + "/homework.html", tag: "hw-" + hw.id }, Date.now()).catch(() => {});
+      return out({ ok: true }); }
+    return out({ error: "not found" }, 404);
+  } catch (e) { return out({ error: String(e.message || e).slice(0, 200) }, 500); }
+}
+
 export default {
   async fetch(req, env) {
     const url = new URL(req.url);
@@ -727,6 +793,7 @@ export default {
       return new Response(JSON.stringify(await ownerFeed(env)), { headers: cors });
     }
     if (url.pathname.startsWith("/shop/")) return shopRoute(req, env, url);
+    if (url.pathname.startsWith("/ai/") || url.pathname.startsWith("/hw/")) return aiRoute(req, env, url);
     if (url.pathname === "/wa-subscribe") return json(await waSubscribe(env, url.searchParams.get("waba") || ""));
     /* owner test: sends the 3 approved templates ONLY to the owner's own number (no other number is ever accepted) */
     if (url.pathname === "/wa-report") { const fs = makeFS(env); const L = { sent: "✓ Bheja gaya", delivered: "✓✓ Phone par pahunch gaya", read: "🔵 Padh liya", failed: "❌ Nahi gaya" };

@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Learn with Quranic Science AI</title>
+<meta name="description" content="Learn Tajweed and Arabic step by step with your personal AI Ustad: voice lessons, real qari recitation, practice, quizzes, progress and a certificate.">
+<meta name="theme-color" content="#120a0d">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Amiri+Quran&family=Noto+Naskh+Arabic:wght@400;600&family=Noto+Nastaliq+Urdu:wght@400;600&family=Noto+Sans+Devanagari:wght@400;600&display=swap">
+<style>
+:root{--bg:#0f0a0c;--bg2:#170e12;--card:#1d1217;--card2:#251820;--line:rgba(227,170,60,.18);--fg:#f6ece0;--mut:#b9a99b;--gold:#e3aa3c;--gold2:#f6d68a;--mar:#7a1424;--mar2:#a01d34;--cy:#2cc4f2;--ok:#3fcf8e;--bad:#ff6b6b;color-scheme:dark}
+*{box-sizing:border-box}html,body{margin:0}
+body{background:radial-gradient(1200px 600px at 85% -10%,rgba(122,20,36,.45),transparent 60%),radial-gradient(900px 500px at -10% 10%,rgba(44,196,242,.10),transparent 60%),var(--bg);color:var(--fg);font:400 16px/1.6 Outfit,system-ui,sans-serif;min-height:100vh;-webkit-font-smoothing:antialiased}
+body.ur{font-family:"Noto Nastaliq Urdu","Noto Naskh Arabic",Outfit,serif;line-height:2.1}
+body.hi{font-family:"Noto Sans Devanagari",Outfit,sans-serif}
+a{color:var(--gold2)}button{font:inherit;color:inherit;cursor:pointer}
+.wrap{max-width:1040px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.ar{font-family:"Amiri Quran","Noto Naskh Arabic",serif;direction:rtl;unicode-bidi:isolate}
+/* top bar */
+.top{position:sticky;top:0;z-index:20;background:rgba(15,10,12,.78);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid var(--line);padding-top:env(safe-area-inset-top,0px)}
+.top .wrap{display:flex;align-items:center;gap:12px;min-height:64px}
+.brand{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--fg);min-width:0}
+.brand img{width:40px;height:40px;border-radius:12px;box-shadow:0 0 0 1px var(--line),0 6px 20px -6px rgba(227,170,60,.5)}
+.brand b{display:block;font:700 15px/1.15 Outfit;letter-spacing:.01em}.brand small{display:block;color:var(--gold);font:600 11px/1.2 Outfit;letter-spacing:.14em;text-transform:uppercase}
+.sp{flex:1}
+.seg{display:flex;border:1px solid var(--line);border-radius:999px;overflow:hidden}
+.seg button{background:none;border:0;padding:6px 11px;font:600 13px/1 Outfit;color:var(--mut)}
+.seg button[aria-pressed=true]{background:linear-gradient(135deg,var(--gold),#c4862a);color:#1a0f08}
+.who{display:flex;align-items:center;gap:8px}
+.av{width:34px;height:34px;border-radius:50%;background:var(--card2);display:grid;place-items:center;font-weight:700;color:var(--gold);overflow:hidden;border:1px solid var(--line)}
+.av img{width:100%;height:100%;object-fit:cover}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:1px solid var(--line);background:var(--card2);color:var(--fg);padding:11px 18px;border-radius:14px;font:600 15px/1.2 Outfit;text-decoration:none;transition:transform .15s,box-shadow .2s,background .2s}
+body.ur .btn,body.hi .btn{font-family:inherit}
+.btn:hover{transform:translateY(-1px)}.btn:active{transform:none}
+.btn.pri{background:linear-gradient(135deg,var(--gold),#c98a26);color:#1a0f08;border:0;box-shadow:0 10px 26px -12px rgba(227,170,60,.8)}
+.btn.mar{background:linear-gradient(135deg,var(--mar2),var(--mar));border:0;color:#fff}
+.btn.cy{background:rgba(44,196,242,.12);border-color:rgba(44,196,242,.45);color:#bfefff}
+.btn.sm{padding:7px 12px;font-size:13px;border-radius:11px}
+.btn[disabled]{opacity:.45;pointer-events:none}
+/* hero */
+.hero{padding-block:44px 22px;display:grid;grid-template-columns:1.2fr .8fr;gap:28px;align-items:center}
+@media(max-width:760px){.hero{grid-template-columns:1fr;padding-top:28px}}
+.eyebrow{display:inline-flex;gap:8px;align-items:center;font:600 12px/1 Outfit;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);padding:7px 12px;border:1px solid var(--line);border-radius:999px;background:rgba(227,170,60,.07)}
+h1{font:800 clamp(32px,5.4vw,54px)/1.06 Outfit;margin:14px 0 12px;letter-spacing:-.02em;text-wrap:balance}
+body.ur h1{font-family:"Noto Nastaliq Urdu",serif;font-weight:600;line-height:1.7;font-size:clamp(26px,4.4vw,42px)}
+body.hi h1{font-family:"Noto Sans Devanagari",sans-serif;line-height:1.3}
+h1 em{font-style:normal;background:linear-gradient(90deg,var(--gold2),var(--gold),var(--cy));-webkit-background-clip:text;background-clip:text;color:transparent}
+.lead{color:var(--mut);font-size:17px;max-width:56ch}
+.orb{position:relative;aspect-ratio:1;max-width:340px;width:100%;margin:auto}
+.orb img{width:100%;height:100%;border-radius:32%;box-shadow:0 30px 80px -30px rgba(227,170,60,.6),0 0 0 1px var(--line);animation:float 6s ease-in-out infinite}
+.orb:before{content:"";position:absolute;inset:-8%;border-radius:50%;background:conic-gradient(from 0deg,transparent,rgba(44,196,242,.35),transparent 40%,rgba(227,170,60,.35),transparent 70%);filter:blur(28px);animation:spin 14s linear infinite;z-index:-1}
+@keyframes float{50%{transform:translateY(-10px)}}@keyframes spin{to{transform:rotate(360deg)}}
+@media(prefers-reduced-motion:reduce){.orb img,.orb:before{animation:none}}
+.feat{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}.feat span{font-size:13px;padding:6px 11px;border-radius:999px;background:var(--card);border:1px solid var(--line);color:var(--mut)}
+/* course cards */
+.sec{padding-block:18px 36px}
+.sec h2{font:700 24px/1.3 Outfit;margin:0 0 14px}body.ur .sec h2{font-family:"Noto Nastaliq Urdu";line-height:2}
+.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+@media(max-width:860px){.cards{grid-template-columns:1fr}}
+.cc{position:relative;background:linear-gradient(180deg,var(--card2),var(--card));border:1px solid var(--line);border-radius:22px;padding:20px;display:flex;flex-direction:column;gap:10px;overflow:hidden;min-width:0}
+.cc:after{content:"";position:absolute;inset:auto -40px -60px auto;width:180px;height:180px;border-radius:50%;background:radial-gradient(circle,rgba(227,170,60,.18),transparent 65%)}
+.cc .arT{font-family:"Amiri Quran",serif;font-size:26px;color:var(--gold2);direction:rtl}
+.cc h3{margin:0;font:700 20px/1.3 Outfit}body.ur .cc h3{font-family:"Noto Nastaliq Urdu";line-height:2}
+.cc p{margin:0;color:var(--mut);font-size:14.5px}
+.price{display:flex;align-items:baseline;gap:10px;margin-top:4px}.price b{font:800 30px/1 Outfit;color:var(--gold2)}.price small{color:var(--mut)}
+.badge{position:absolute;top:14px;right:14px;font:700 11px/1 Outfit;letter-spacing:.08em;padding:6px 9px;border-radius:999px;background:var(--mar2);color:#fff}
+body.ur .badge{right:auto;left:14px}
+.cc .acts{display:flex;flex-wrap:wrap;gap:8px;margin-top:auto;padding-top:6px}
+.bar{height:8px;border-radius:99px;background:rgba(255,255,255,.07);overflow:hidden}.bar i{display:block;height:100%;background:linear-gradient(90deg,var(--gold),var(--cy));border-radius:99px;transition:width .6s}
+.mini{font-size:13px;color:var(--mut)}
+/* course page */
+.chead{display:flex;gap:18px;align-items:center;flex-wrap:wrap;padding-block:26px 8px}
+.ring{--p:0;width:92px;height:92px;border-radius:50%;background:conic-gradient(var(--gold) calc(var(--p)*1%),rgba(255,255,255,.08) 0);display:grid;place-items:center;flex:none}
+.ring span{width:74px;height:74px;border-radius:50%;background:var(--bg2);display:grid;place-items:center;font:800 20px Outfit}
+.stats{display:flex;gap:10px;flex-wrap:wrap}.stat{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:8px 14px}.stat b{display:block;font:800 18px Outfit;color:var(--gold2)}.stat small{color:var(--mut);font-size:12px}
+.week{background:var(--card);border:1px solid var(--line);border-radius:18px;margin-bottom:12px;overflow:hidden}
+.week summary{list-style:none;cursor:pointer;padding:14px 16px;display:flex;gap:12px;align-items:center}
+.week summary::-webkit-details-marker{display:none}
+.wkn{flex:none;font:700 12px/1 Outfit;padding:7px 10px;border-radius:10px;background:rgba(227,170,60,.12);color:var(--gold);border:1px solid var(--line)}
+.wkt{flex:1;min-width:0}.wkt b{display:block}.wkt small{color:var(--mut)}
+.days{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;padding:0 16px 16px}
+.day{text-align:start;background:var(--bg2);border:1px solid var(--line);border-radius:14px;padding:11px 12px;display:flex;flex-direction:column;gap:4px;min-height:92px;position:relative}
+.day small{color:var(--gold);font:700 11px/1 Outfit;letter-spacing:.06em}
+.day span{font-size:14px;line-height:1.35}body.ur .day span{line-height:1.9}
+.day.done{border-color:rgba(63,207,142,.45)}.day.done:after{content:"✓";position:absolute;top:8px;right:10px;color:var(--ok);font-weight:800}
+body.ur .day.done:after{right:auto;left:10px}
+.day.cur{border-color:var(--gold);box-shadow:0 0 0 2px rgba(227,170,60,.25)}
+.day.lock{opacity:.5;cursor:not-allowed}.day.soon{opacity:.45}
+.day em{font-style:normal;font-size:12px;color:var(--mut)}
+/* lesson */
+.lhead{display:flex;align-items:center;gap:12px;padding-block:18px 6px;flex-wrap:wrap}
+.lhead h2{margin:0;font:700 22px/1.3 Outfit;flex:1;min-width:0}body.ur .lhead h2{font-family:"Noto Nastaliq Urdu";line-height:2}
+.dots{display:flex;gap:6px;margin:10px 0 14px;flex-wrap:wrap}.dots i{width:28px;height:6px;border-radius:9px;background:rgba(255,255,255,.1)}.dots i.on{background:var(--gold)}.dots i.past{background:rgba(227,170,60,.45)}
+.stage{background:linear-gradient(180deg,var(--card2),var(--card));border:1px solid var(--line);border-radius:24px;padding:22px;min-height:300px;display:flex;flex-direction:column;gap:16px;animation:in .35s ease}
+@keyframes in{from{opacity:0;transform:translateY(8px)}}
+.say{font-size:19px;line-height:1.7}body.ur .say{font-size:19px;line-height:2.25}
+.bigar{font-family:"Amiri Quran","Noto Naskh Arabic",serif;direction:rtl;text-align:center;font-size:clamp(28px,5.5vw,44px);line-height:2;color:var(--gold2);background:rgba(0,0,0,.25);border:1px solid var(--line);border-radius:18px;padding:14px 16px;white-space:pre-line}
+.tools{display:flex;flex-wrap:wrap;gap:8px}
+.nav{display:flex;justify-content:space-between;gap:10px;margin-top:14px}
+.vo{display:flex;align-items:center;gap:10px;color:var(--mut);font-size:13px}
+.eq{display:flex;gap:3px;align-items:flex-end;height:16px}.eq i{width:3px;background:var(--gold);border-radius:2px;height:4px}
+.playing .eq i{animation:eq .9s ease-in-out infinite}.playing .eq i:nth-child(2){animation-delay:.15s}.playing .eq i:nth-child(3){animation-delay:.3s}
+@keyframes eq{50%{height:16px}}
+.rec.on{background:rgba(255,107,107,.15);border-color:var(--bad);color:#ffd0d0}
+/* quiz */
+.qopt{display:block;width:100%;text-align:start;background:var(--bg2);border:1px solid var(--line);border-radius:14px;padding:13px 15px;margin:8px 0;font-size:17px}
+.qopt.ok{border-color:var(--ok);background:rgba(63,207,142,.12)}.qopt.no{border-color:var(--bad);background:rgba(255,107,107,.1)}
+.why{padding:12px 14px;border-radius:14px;background:rgba(44,196,242,.08);border:1px solid rgba(44,196,242,.3);color:#d8f4ff}
+.qn{font:700 12px/1 Outfit;letter-spacing:.1em;color:var(--gold)}
+.res{text-align:center;padding:26px 10px}.res .big{font:800 54px/1 Outfit;color:var(--gold2)}
+/* ustad */
+.fab{position:fixed;right:max(16px,env(safe-area-inset-right,0px));bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:30;display:flex;align-items:center;gap:8px;padding:12px 16px;border-radius:999px;border:0;background:linear-gradient(135deg,var(--mar2),var(--mar));color:#fff;font:700 15px/1 Outfit;box-shadow:0 14px 34px -12px rgba(160,29,52,.9)}
+.fab img{width:26px;height:26px;border-radius:8px}
+.drawer{position:fixed;inset:auto 0 0 auto;width:min(420px,100%);height:min(640px,88vh);z-index:40;background:var(--bg2);border:1px solid var(--line);border-radius:22px 22px 0 0;display:flex;flex-direction:column;box-shadow:0 -20px 60px -20px #000;transform:translateY(110%);transition:transform .3s;padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(min-width:700px){.drawer{right:16px;bottom:16px;border-radius:22px}}
+.drawer{visibility:hidden}.drawer.open{transform:none;visibility:visible}
+@media(max-width:520px){.brand small{display:none}.brand b{font-size:13px}.seg button{padding:6px 8px}.who .btn{white-space:nowrap}}
+bdi{unicode-bidi:isolate}
+.dh{display:flex;align-items:center;gap:10px;padding:14px 16px;border-bottom:1px solid var(--line)}
+.dh img{width:34px;height:34px;border-radius:10px}.dh b{flex:1}
+.log{flex:1;overflow:auto;padding:14px;display:flex;flex-direction:column;gap:10px}
+.msg{max-width:88%;padding:10px 13px;border-radius:16px;white-space:pre-wrap;font-size:15px}
+.msg.u{align-self:flex-end;background:rgba(227,170,60,.16);border:1px solid var(--line)}
+.msg.b{align-self:flex-start;background:var(--card2);border:1px solid rgba(44,196,242,.25)}
+.dform{display:flex;gap:8px;padding:12px;border-top:1px solid var(--line)}
+.dform textarea{flex:1;resize:none;height:46px;border-radius:12px;border:1px solid var(--line);background:var(--card);color:var(--fg);padding:10px;font:inherit;font-size:15px}
+.x{background:none;border:0;font-size:22px;color:var(--mut);padding:4px 8px}
+.note{font-size:12px;color:var(--mut);padding:0 14px 8px}
+/* misc */
+.toast{position:fixed;left:50%;bottom:90px;transform:translateX(-50%);background:var(--card2);border:1px solid var(--line);padding:10px 16px;border-radius:12px;z-index:60;opacity:0;transition:opacity .25s;pointer-events:none;max-width:90vw;text-align:center}
+.toast.on{opacity:1}
+.modal{position:fixed;inset:0;z-index:50;background:rgba(0,0,0,.6);display:grid;place-items:center;padding:16px}
+.modal .box{background:var(--bg2);border:1px solid var(--line);border-radius:22px;padding:22px;width:min(460px,100%);max-height:90vh;overflow:auto}
+.modal h3{margin:0 0 8px}
+.foot{border-top:1px solid var(--line);padding-block:22px calc(80px + env(safe-area-inset-bottom,0px));color:var(--mut);font-size:13px}
+.foot .wrap{display:flex;gap:10px 18px;flex-wrap:wrap;justify-content:space-between}
+canvas#cv{width:100%;height:auto;border-radius:12px;border:1px solid var(--line)}
+.cards.two{grid-template-columns:repeat(2,1fr)}@media(max-width:860px){.cards.two{grid-template-columns:1fr}}
+.opt{display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:12px;border:1px solid var(--line);border-radius:14px;background:var(--card)}.opt b{flex:1 1 100%}
+.tagf{font:700 11px/1 Outfit;padding:5px 8px;border-radius:999px;background:var(--gold);color:#1c1712;vertical-align:middle;margin-inline-start:6px}
+.hwb{margin-top:16px}.hwrow{padding:12px;border:1px solid var(--line);border-radius:14px;background:var(--card);margin:8px 0}
+#mark{position:fixed;inset:0;pointer-events:none;z-index:40;display:flex;flex-wrap:wrap;gap:90px 70px;align-content:space-around;justify-content:space-around;overflow:hidden;opacity:.06;transform:rotate(-18deg) scale(1.3)}
+#mark span{font:600 14px Outfit;color:var(--fg);white-space:nowrap}
+.stage,.bigar,.say{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+select.btn{appearance:auto}
+@media print{body{display:none}}
+</style>
+</head>
+<body>
+<header class="top"><div class="wrap">
+  <a class="brand" href="#home"><img src="icon-192.png" alt=""><span><b>Learn with Quranic Science AI</b><small data-t="tag"></small></span></a>
+  <span class="sp"></span>
+  <div class="seg" role="group" aria-label="Language"><button data-lang="en">EN</button><button data-lang="ur">اردو</button><button data-lang="hi">हिंदी</button></div>
+  <div class="who" id="who"></div>
+</div></header>
+<main id="app" class="wrap"></main>
+<footer class="foot"><div class="wrap"><span>© 2026 Quranic Science · Learn with Quranic Science AI</span><span><a href="/">quranicscience.info</a> · <a href="/terms">Terms</a> · <a href="/privacy">Privacy</a> · <a href="/refund-policy">Refund policy</a></span></div></footer>
+<button class="fab" id="fab"><img src="icon-192.png" alt=""><span data-t="ask"></span></button>
+<aside class="drawer" id="drawer" aria-label="AI Ustad">
+  <div class="dh"><img src="icon-192.png" alt=""><b data-t="ustad"></b><button class="x" id="dx" aria-label="Close">×</button></div>
+  <div class="log" id="log"></div>
+  <p class="note" data-t="aiNote"></p>
+  <form class="dform" id="dform"><textarea id="dq" data-ph="askPh"></textarea><button class="btn pri" data-t="send"></button></form>
+</aside>
+<div class="toast" id="toast"></div>
+
+<div id="mark" aria-hidden="true"></div>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="app.js?v=2"></script>
+</body>
+</html>
