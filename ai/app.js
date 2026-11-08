@@ -37,7 +37,7 @@ const TX = {
   free: "Free", voiceOff: "Voice off", voiceOn: "Voice on", micNo: "Microphone not allowed. Please allow it in your browser.", payNote: "After payment your course opens automatically on the same account (same mobile/email).",
   payWa: "Enroll on WhatsApp", owner: "Owner preview: all lessons open.",
   fullT: "Full Access", fullD: "All 72 lessons open at once + offline download inside the app. Learn at your own speed; the certificate opens when every lesson and question is done.",
-  dailyT: "Daily lessons", dailyD: "One new lesson every day at your own fixed time (6 days a week).", addFull: "Add Full Access",
+  dailyT: "Daily lessons", dailyD: "One new lesson every day at your own fixed time (6 days a week).", addFull: "⚡ Full Access: all lessons today", fullWait: "Want to study ahead? Open every lesson today with Full Access.",
   slotH: "Choose your daily class time", slotP: "Your next lesson will open every day at this time, 6 days a week. Choose carefully — once saved, the time and the day off CANNOT be changed.",
   slotTime: "Daily time", slotOff: "Weekly day off", slotSave: "Save my time (final)", slotIs: "Your class time", offIs: "day off", nextAt: "Next lesson opens",
   waitSlot: "This lesson opens at your class time", needSlot: "Choose your daily class time first",
@@ -65,7 +65,7 @@ const TX = {
   free: "مفت", voiceOff: "آواز بند", voiceOn: "آواز چالو", micNo: "مائیک کی اجازت نہیں ملی۔ براؤزر میں اجازت دیں۔", payNote: "ادائیگی کے بعد آپ کا کورس اسی اکاؤنٹ (اسی موبائل/ای میل) پر خود کھل جائے گا۔",
   payWa: "واٹس ایپ پر داخلہ", owner: "مالک کا پیش نظارہ: تمام اسباق کھلے ہیں۔",
   fullT: "فل ایکسیس", fullD: "تمام ۷۲ اسباق ایک ساتھ کھل جائیں گے + ایپ کے اندر آف لائن ڈاؤن لوڈ۔ اپنی رفتار سے سیکھیں؛ سرٹیفکیٹ تب کھلے گا جب ہر سبق اور ہر سوال مکمل ہو جائے۔",
-  dailyT: "روزانہ اسباق", dailyD: "ہر روز آپ کے مقرر وقت پر ایک نیا سبق (ہفتے میں چھ دن)۔", addFull: "فل ایکسیس لیں",
+  dailyT: "روزانہ اسباق", dailyD: "ہر روز آپ کے مقرر وقت پر ایک نیا سبق (ہفتے میں چھ دن)۔", addFull: "⚡ فل ایکسیس: سب سبق آج ہی", fullWait: "آگے پڑھنا چاہتے ہیں؟ فل ایکسیس سے سارے سبق آج ہی کھولیں۔",
   slotH: "اپنی روزانہ کلاس کا وقت چنیں", slotP: "آپ کا اگلا سبق ہر روز اسی وقت کھلے گا، ہفتے میں چھ دن۔ سوچ کر چنیں — ایک بار محفوظ ہونے کے بعد وقت اور چھٹی کا دن بدلا نہیں جا سکے گا۔",
   slotTime: "روزانہ وقت", slotOff: "ہفتہ وار چھٹی", slotSave: "میرا وقت محفوظ کریں (آخری)", slotIs: "آپ کی کلاس کا وقت", offIs: "چھٹی", nextAt: "اگلا سبق کھلے گا",
   waitSlot: "یہ سبق آپ کی کلاس کے وقت کھلے گا", needSlot: "پہلے اپنی روزانہ کلاس کا وقت چنیں",
@@ -93,7 +93,7 @@ const TX = {
   free: "मुफ़्त", voiceOff: "आवाज़ बंद", voiceOn: "आवाज़ चालू", micNo: "माइक की इजाज़त नहीं मिली। ब्राउज़र में इजाज़त दें।", payNote: "पेमेंट के बाद आपका कोर्स उसी अकाउंट (उसी मोबाइल/ईमेल) पर ख़ुद खुल जाएगा।",
   payWa: "व्हाट्सऐप पर दाख़िला", owner: "मालिक का प्रीव्यू: सारे सबक़ खुले हैं।",
   fullT: "फ़ुल ऐक्सेस", fullD: "सारे 72 सबक़ एक साथ खुल जाएँगे + ऐप के अंदर ऑफ़लाइन डाउनलोड। अपनी रफ़्तार से सीखें; सर्टिफ़िकेट तब खुलेगा जब हर सबक़ और हर सवाल पूरा हो जाए।",
-  dailyT: "रोज़ाना सबक़", dailyD: "हर रोज़ आपके तय वक़्त पर एक नया सबक़ (हफ़्ते में छह दिन)।", addFull: "फ़ुल ऐक्सेस लें",
+  dailyT: "रोज़ाना सबक़", dailyD: "हर रोज़ आपके तय वक़्त पर एक नया सबक़ (हफ़्ते में छह दिन)।", addFull: "⚡ फ़ुल ऐक्सेस: सब सबक़ आज ही", fullWait: "आगे पढ़ना चाहते हैं? फ़ुल ऐक्सेस से सारे सबक़ आज ही खोलें।",
   slotH: "अपनी रोज़ाना क्लास का वक़्त चुनें", slotP: "आपका अगला सबक़ हर रोज़ इसी वक़्त खुलेगा, हफ़्ते में छह दिन। सोच कर चुनें — एक बार महफ़ूज़ होने के बाद वक़्त और छुट्टी का दिन बदला नहीं जा सकेगा।",
   slotTime: "रोज़ाना वक़्त", slotOff: "हफ़्तावार छुट्टी", slotSave: "मेरा वक़्त महफ़ूज़ करें (आख़िरी)", slotIs: "आपकी क्लास का वक़्त", offIs: "छुट्टी", nextAt: "अगला सबक़ खुलेगा",
   waitSlot: "यह सबक़ आपकी क्लास के वक़्त खुलेगा", needSlot: "पहले अपनी रोज़ाना क्लास का वक़्त चुनें",
@@ -279,10 +279,9 @@ async function viewHome() {
   const card = (c, desc) => {
     const s = st[c], own = c === "combo" ? (has("tajweed") && has("arabic")) : has(c), full = c === "combo" ? isFull("tajweed") && isFull("arabic") : isFull(c);
     return `<article class="cc">${c === "combo" ? `<span class="badge">${t("best")}</span>` : full && own ? `<span class="badge">${t("fullBadge")}</span>` : ""}<div class="arT">${COURSES[c].ar}</div><h3>${t(c)}</h3><p>${t(desc)}</p>${priceHTML(c)}
-      <p class="mini">➕ ${t("fullT")}: +${rupee(COURSES[c].fInr)} · <bdi dir="ltr">+$${COURSES[c].fUsd}</bdi></p>
       ${c !== "combo" && liveOf(c) && !has(c) ? `<p class="mini">🎓 ${pick(ADDX.h)}: <b>${rupee(COURSES[c].aInr)}</b> · <bdi dir="ltr">$${COURSES[c].aUsd}</bdi> <button class="btn sm pri" data-addon="${c}">${pick(ADDX.b)}</button></p>` : ""}
       ${s && s.done ? `<div class="bar"><i style="width:${s.pct}%"></i></div><span class="mini">${t("progress")} ${num(s.pct)}% · ${t("score")} ${num(s.score)}%</span>` : ""}
-      <div class="acts">${c !== "combo" ? `<a class="btn ${own || s.done ? "pri" : "cy"}" href="#${c}">${own || s.done ? t("open") : t("start")}</a>` : ""}${own ? (full ? "" : `<button class="btn" data-buy="${c}" data-full="1">${t("addFull")}</button>`) : `<button class="btn ${c === "combo" ? "pri" : ""}" data-buy="${c}">${t("enroll")}</button>`}</div></article>`;
+      <div class="acts">${c !== "combo" ? `<a class="btn ${own || s.done ? "pri" : "cy"}" href="#${c}">${own || s.done ? t("open") : t("start")}</a>` : ""}${own ? "" : `<button class="btn ${c === "combo" ? "pri" : ""}" data-buy="${c}">${t("enroll")}</button>`}${full ? "" : `<button class="btn fullb" data-buy="${c}" data-full="1">${t("addFull")}</button>`}</div></article>`;
   };
   app.innerHTML = `<section class="hero"><div><span class="eyebrow">✦ ${t("heroEy")}</span><h1>${t("hero1")} <em>${t("hero2")}</em></h1><p class="lead">${t("heroP")}</p>
     <div class="feat"><span>📚 ${t("f1")}</span><span>🔊 ${t("f2")}</span><span>🕋 ${t("f3")}</span><span>🤖 ${t("f4")}</span><span>🎓 ${t("f5")}</span></div></div>
@@ -293,6 +292,12 @@ async function viewHome() {
     <section class="sec"><div class="cards two"><div class="cc"><h3>📅 ${t("dailyT")}</h3><p>${t("dailyD")}</p></div><div class="cc"><h3>⚡ ${t("fullT")}</h3><p>${t("fullD")}</p></div></div></section>`;
   wireBuy(app);
 }
+/* a locked lesson: say when it opens, and offer Full Access (the price shows only after tapping it) */
+function lockedBox(c, msg) {
+  if (isFull(c)) return toast(msg);
+  const m = modal(`<h3>🔒 ${esc(msg)}</h3><p class="mini">${t("fullWait")}</p><p class="mini">⚡ ${t("fullD")}</p><div class="acts" style="margin-top:10px"><button class="btn fullb" id="lbF">${t("addFull")}</button><button class="btn" id="lbX">OK</button></div>`);
+  $("#lbF", m).onclick = () => { m.remove(); buy(c, true); }; $("#lbX", m).onclick = () => m.remove();
+}
 function wireBuy(root) { $$("[data-buy]", root).forEach(b => b.onclick = () => buy(b.dataset.buy, !!b.dataset.full)); }
 function buy(c, fullOnly) {
   const C = COURSES[c], go = () => {
@@ -302,7 +307,7 @@ function buy(c, fullOnly) {
       <a class="btn cy sm" target="_blank" rel="noopener" href="https://wa.me/${WA}?text=${encodeURIComponent(`Assalamu Alaikum, I want "${TX.en[c]}" – ${label === t("fullT") ? "Full Access add-on" : "course"} (₹${inr} / $${usd}). My email: ${S.user ? S.user.email || "" : ""}`)}">${t("payWa")}</a></div>`;
     const m = modal(`<h3>${t(c)}</h3><p class="mini">${t("payNote")}</p><div style="display:grid;gap:10px;margin-top:10px">
       ${owned || fullOnly ? "" : line(t("dailyT"), C.inr, C.usd, C.pay, C.payIntl)}
-      ${owned || fullOnly ? line(t("fullT"), C.fInr, C.fUsd, C.payFull, C.payFullIntl) : line(t("fullT") + " (" + t("dailyT") + " + " + t("fullT") + ")", C.inr + C.fInr, C.usd + C.fUsd, "", "")}
+      ${owned ? line(t("fullT"), C.fInr, C.fUsd, C.payFull, C.payFullIntl) : fullOnly ? `<p class="mini"><b>1.</b> ${t("dailyT")}</p>` + line(t("dailyT"), C.inr, C.usd, C.pay, C.payIntl) + `<p class="mini"><b>2.</b> ${t("fullT")} (+)</p>` + line(t("fullT"), C.fInr, C.fUsd, C.payFull, C.payFullIntl) + `<p class="mini">= ${rupee(C.inr + C.fInr)} · <bdi dir="ltr">$${C.usd + C.fUsd}</bdi></p>` : line(t("fullT") + " (" + t("dailyT") + " + " + t("fullT") + ")", C.inr + C.fInr, C.usd + C.fUsd, "", "")}
       <p class="mini">⚡ ${t("fullD")}</p></div>`);
     if (S.user && db) db.collection("users").doc(S.user.uid).set({ lastEnroll: { course: fullOnly ? C.full : C.key, ts: Date.now() } }, { merge: true }).catch(() => {});
   };
@@ -328,23 +333,23 @@ async function viewCourse(c) {
     <div class="stats" style="margin-top:8px"><div class="stat"><b>${num(s.done)}/${num(s.total)}</b><small>${t("lessons")}</small></div><div class="stat"><b>${num(s.score)}%</b><small>${t("score")}</small></div>
     <a class="stat" href="#cert=${c}" style="text-decoration:none;color:inherit"><b>🎓</b><small>${t("cert")}</small></a>
     ${sl && has(c) && !isFull(c) ? `<div class="stat"><b>⏰ ${esc(new Date(2000, 0, 1, ...sl.t.split(":").map(Number)).toLocaleTimeString("en-IN", { hour: "numeric", minute: "2-digit" }))}</b><small>${t("slotIs")} · ${DAYS[LANG][sl.off]} ${t("offIs")}</small></div>` : ""}</div></div>
-    ${has(c) ? (isFull(c) ? "" : `<button class="btn" data-buy="${c}" data-full="1">⚡ ${t("addFull")}</button>`) : `<button class="btn pri" data-buy="${c}">${t("enroll")} · ${rupee(COURSES[c].inr)}</button>`}</div>
+    <div class="acts">${has(c) ? "" : `<button class="btn pri" data-buy="${c}">${t("enroll")} · ${rupee(COURSES[c].inr)}</button>`}${isFull(c) ? "" : `<button class="btn fullb" data-buy="${c}" data-full="1">${t("addFull")}</button>`}</div></div>
     ${has(c) ? "" : `<p class="mini">🔓 ${t("buyFirst")}</p>`}
     <div>${o.weeks.map((w, wi) => `<details class="week" ${w.days.some(d => d.id === cur) || (!cur && wi === 0) ? "open" : ""}><summary><span class="wkn">${t("week")} ${num(wi + 1)}</span>
       <span class="wkt"><b>${esc(pick(w.title))}</b><small>${esc(pick(w.goal))}</small></span><span class="mini">${num(w.days.filter(d => P[d.id]).length)}/${num(6)}</span></summary>
       <div class="days">${w.days.map((d, di) => { const done = P[d.id], L = d.ready ? lockInfo(c, o, d.id) : { open: false, why: "soon" };
         const cls = done ? "done" : !d.ready ? "soon" : !L.open ? "lock" : d.id === cur ? "cur" : "";
         const note = done ? `${t("score")} ${num(done.s)}/${num(done.n)}` : !d.ready ? t("soon") : L.why === "time" ? "⏰ " + fmtAt(L.at) : L.why === "live" ? "🎓 " + pick(LIVEX.short) : !L.open ? "🔒" : "";
-        return `<button class="day ${cls}" data-l="${d.id}" data-why="${L.open ? "" : L.why}" data-at="${L.at || ""}"><small>${t("day")} ${num(di + 1)}${wi === 0 && di === 0 ? " · " + t("free") : ""}</small><span>${esc(pick(d.title))}</span><em>${note}</em></button>`; }).join("")}</div></details>`).join("")}</div>
+        return `<button class="day ${cls}" data-l="${d.id}" data-why="${L.open ? "" : L.why}" data-at="${L.at || ""}"><small>${t("day")} ${num(di + 1)}</small><span>${esc(pick(d.title))}</span><em>${note}</em></button>`; }).join("")}</div></details>`).join("")}</div>
     <section class="sec" id="hwList"></section>`;
   wireBuy(app);
   $$(".day", app).forEach(b => b.onclick = () => {
     const w = b.dataset.why;
     if (w === "soon") return toast(t("soon"));
-    if (w === "buy") return toast(t("buyFirst"));
-    if (w === "prev") return toast(t("locked"));
+    if (w === "buy") { toast(t("buyFirst")); return buy(c); }
+    if (w === "prev") return lockedBox(c, t("locked"));
     if (w === "slot") return slotBox(() => route());
-    if (w === "time") return toast(t("waitSlot") + ": " + fmtAt(+b.dataset.at));
+    if (w === "time") return lockedBox(c, t("waitSlot") + ": " + fmtAt(+b.dataset.at));
     location.hash = "lesson=" + b.dataset.l;
   });
   if (S.user) myHomework(c);
