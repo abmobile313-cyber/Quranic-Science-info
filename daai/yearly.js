@@ -235,7 +235,7 @@ const TIJ=[
 function tijToday(d=new Date()){const n=Math.floor((new Date(d.getFullYear(),d.getMonth(),d.getDate())-new Date(2026,0,1))/864e5);return TIJ[((n%TIJ.length)+TIJ.length)%TIJ.length]}
 function tijCard(){const t=tijToday();return`<div class="card"><div class="row sp"><b>💼 ${T('Aaj ki halal tijarat tip','Today\'s halal trade tip','آج کی حلال تجارت ٹپ','आज की हलाल तिजारत टिप')}</b><button class="btn s ghost" data-a="tijsay">🔊 ${T('Sunein','Listen','سنیں','सुनें')}</button></div><p style="margin:8px 0">${YL(t[0])}</p><div class="yrref">📖 ${typeof refL==='function'?refL(t[1]):t[1]}</div></div>`}
 function tijListCard(){return`<details class="card yrg" id="tijList"><summary><b>💼 ${T('Halal tijarat — 31 hidayaat','Halal trade — 31 guidelines','حلال تجارت — 31 ہدایات','हलाल तिजारत — 31 हिदायात')}</b></summary><ol class="yrl">${TIJ.map(t=>`<li>${YL(t[0])} <span class="yrref">— ${typeof refL==='function'?refL(t[1]):t[1]}</span></li>`).join('')}</ol></details>`}
-A.tijsay=()=>{try{const t=tijToday();const s=YL(t[0]);if(typeof TTS!=='undefined'){if(TTS.on){TTS.stop();return}TTS.run([{t:s}],{lang:S.lang==='en'?'en':'ur'})}}catch(e){}};
+A.tijsay=()=>{try{const t=tijToday();const s=YL(t[0]);if(typeof TTS!=='undefined'){if(TTS.on){TTS.stop();return}TTS.run([{t:s}],{lang:isEnL()?'en':'ur'})}}catch(e){}};
 /* ======================= wiring ======================= */
 /* sub-tabs: 🌙 Ramzan, 📅 Saal bhar */
 try{const D=Object.getOwnPropertyDescriptor(SUBS,'deen'),base=()=>D.get?D.get.call(SUBS):D.value;

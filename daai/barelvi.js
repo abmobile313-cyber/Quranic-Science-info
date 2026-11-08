@@ -27,7 +27,7 @@ const BDAYS=[
  [10,1,'Eid-ul-Fitr','Eid al-Fitr','عید الفطر','ईद-उल-फ़ित्र'],
  [12,9,'Yaum-e-Arafah (roza)','Day of Arafah (fast)','یومِ عرفہ (روزہ)','यौम-ए-अरफ़ा (रोज़ा)'],
  [12,10,'Eid-ul-Adha','Eid al-Adha','عید الاضحیٰ','ईद-उल-अज़हा']];
-const bdName=x=>S.lang==='en'?x[3]:S.lang==='ur'?x[4]:S.lang==='hi'?x[5]:x[2];
+const bdName=x=>isEnL()?x[3]:S.lang==='ur'?x[4]:S.lang==='hi'?x[5]:x[2];
 let BRD=store.get('brd',{});const brdSave=()=>store.set('brd',BRD);
 const brdGet=(id,d=dkey())=>((BRD[d]||{})[id]||0);
 const brdTotal=(d=dkey())=>Object.values(BRD[d]||{}).reduce((a,b)=>a+(+b||0),0);

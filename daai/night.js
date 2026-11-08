@@ -12,7 +12,7 @@ function nightData(d=dkey()){const h=HZ[d]||{};const c={j:0,a:0,q:0,n:0};const r
   it.push({k:'az',ok:azn>0,txt:T(`Azkar / tasbeeh (${azn})`,`Azkar / tasbih (${azn})`,`اذکار / تسبیح (${azn})`,`अज़कार / तस्बीह (${azn})`)});
   try{if(typeof isDeo==='function'&&isDeo()&&typeof mmToday==='function'){const m=mmToday()||{};it.push({k:'tm',ok:!!(m.tm||m.talim),txt:T('Masjid / ghar ki taleem','Taleem','مسجد / گھر کی تعلیم','मस्जिद / घर की तालीम')})}}catch(e){}
   return{rows,c,it}}
-function nightSpeech(d=dkey()){const D=nightData(d),c=D.c,en=S.lang==='en';
+function nightSpeech(d=dkey()){const D=nightData(d),c=D.c,en=isEnL();
   const left=D.it.filter(x=>!x.ok);
   if(en){let s=`Today's summary. Prayers: ${c.j} in congregation, ${c.a} alone, ${c.q} missed`+(c.n?`, and ${c.n} not recorded yet`:'')+'. ';
     s+=left.length?'Still remaining: '+left.map(x=>x.txt.replace(/\(.*\)/,'')).join(', ')+'. ':'All small deeds are done, masha Allah. ';
@@ -35,7 +35,7 @@ function nightHTML(d=dkey()){const D=nightData(d),c=D.c;
   <div class="ntbox">${rows}</div><h3 style="margin:14px 0 6px">${T('Chhote amaal','Small deeds','چھوٹے اعمال','छोटे आमाल')}</h3><div class="ntbox">${its}</div>
   <div class="row mt"><button class="btn gold" data-a="ntsay">🔊 ${T('Sunein','Listen','سنیں','सुनें')}</button><button class="btn ghost" data-a="ntdua">🤲 ${T('Sone ki dua','Sleeping dua','سونے کی دعا','सोने की दुआ')}</button><span class="grow"></span><button class="btn ghost" data-a="ntclose">${T('Band','Close','بند','बंद')}</button></div>`}
 function nightOpen(auto){NT.shown=dkey();store.set('night_shown',NT.shown);dlg(nightHTML(),{cls:'ntdlg'});if(auto||S.voice!==false)setTimeout(()=>{try{nightSay()}catch(e){}},500)}
-function nightSay(){if(typeof TTS==='undefined')return;if(TTS.on){TTS.stop();return}const t=nightSpeech();TTS.run([{t}],{lang:S.lang==='en'?'en':'ur'})}
+function nightSay(){if(typeof TTS==='undefined')return;if(TTS.on){TTS.stop();return}const t=nightSpeech();TTS.run([{t}],{lang:isEnL()?'en':'ur'})}
 A.ntset=b=>{setHz(dkey(),b.dataset.p,b.dataset.v);try{PQ=PQ.filter(q=>!(q.kind==='hazri'&&q.key==='hz-'+dkey()+b.dataset.p));savePQ()}catch(e){}sfx('success');dlg(nightHTML(),{cls:'ntdlg'});refreshHome()};
 A.ntedit=b=>{setHz(dkey(),b.dataset.p,'');dlg(nightHTML(),{cls:'ntdlg'})};
 A.ntdo=b=>{const k=b.dataset.k;if(typeof TTS!=='undefined')TTS.stop();closeDlg();
@@ -54,6 +54,6 @@ function nightCard(){const now=new Date(),h=now.getHours();let at;try{at=nightAt
 function nightAuto(){try{if(!S.obDone||NT.shown===dkey()||$('#dlg').open)return;const now=new Date();if(now>=nightAt()&&now.getHours()<=23)nightOpen(true)}catch(e){}}
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)setTimeout(nightAuto,1500)});setTimeout(nightAuto,4000);
 /* text version for chat (in the chosen script) */
-function nightText(d=dkey()){if(S.lang==='ur'||S.lang==='en')return nightSpeech(d);const D=nightData(d),c=D.c;const left=D.it.filter(x=>!x.ok);
+function nightText(d=dkey()){if(S.lang==='ur'||isEnL())return nightSpeech(d);const D=nightData(d),c=D.c;const left=D.it.filter(x=>!x.ok);
   const ro=`Aaj ka khulasa: namaz — ${c.j} jamaat se, ${c.a} akele, ${c.q} qaza`+(c.n?`, ${c.n} abhi likhi nahi (${D.rows.filter(r=>!r[1]).map(r=>pname(r[0])).join(', ')})`:'')+'. '+(left.length?`Abhi baaki: ${left.map(x=>({tl:'tilawat',sd:'sadqa',az:'azkar',tm:'taleem'}[x.k])).join(', ')}. `:'Mashaallah, aaj ke saare chhote amaal ho gaye. ')+(c.n?'Sone se pehle jo namaz likhi nahi, unhe update kar dein.':'');
   return S.lang==='hi'&&typeof DVN==='function'?DVN(ro):ro}

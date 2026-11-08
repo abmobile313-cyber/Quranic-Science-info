@@ -207,7 +207,7 @@ const H=[
 ]
 ];
 const REFN={Bukhari:['بخاری','बुख़ारी'],Muslim:['مسلم','मुस्लिम'],Tirmidhi:['ترمذی','तिर्मिज़ी'],'Abu Dawud':['ابو داود','अबू दाऊद'],'Mustadrak Hakim':['مستدرک حاکم','मुस्तदरक हाकिम']};
-const refT=r=>{if(S.lang==='en'||S.lang==='ro')return r;const i=S.lang==='ur'?0:1;return r.replace(/Mustadrak Hakim|Abu Dawud|Bukhari|Muslim|Tirmidhi/g,m=>REFN[m][i])};
+const refT=r=>{if(isEnL()||S.lang==='ro')return r;const i=S.lang==='ur'?0:1;return r.replace(/Mustadrak Hakim|Abu Dawud|Bukhari|Muslim|Tirmidhi/g,m=>REFN[m][i])};
 const dayOfYear=(d=new Date())=>Math.floor((d-new Date(d.getFullYear(),0,0))/864e5);
 /* returns [text in app language, reference] */
 const hadeesOfDay=()=>{const h=H[dayOfYear()%H.length];return [(S.lang==='ur'||S.lang==='ro')?h[1]:S.lang==='hi'?h[2]:h[0],refT(h[3])]};

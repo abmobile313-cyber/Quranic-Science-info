@@ -12,7 +12,7 @@ function ezApply(){document.body.classList.toggle('easy',isEasy())}
 .easy #ezsay{display:block}`;document.head.appendChild(st);
   const b=document.createElement('button');b.id='ezsay';b.type='button';b.textContent='🔊 '+T('Sunein','Listen','سنیں','सुनें');b.onclick=()=>ezSay();
   const init=()=>{document.body.appendChild(b);ezApply()};if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init()})();
-function ezLang(){return S.lang==='en'?'en':S.lang==='ur'?'ur':'hi'}
+function ezLang(){return (typeof NEWL!=='undefined'&&NEWL.includes(S.lang))?S.lang:S.lang==='en'?'en':S.lang==='ur'?'ur':'hi'}
 function ezSay(){try{if(typeof TTS==='undefined')return;if(TTS.on){TTS.stop();return}
   const v=document.getElementById('dlg')&&document.getElementById('dlg').open?document.getElementById('dlg'):document.getElementById('view');if(!v)return;
   const parts=[];v.querySelectorAll('h1,h2,h3,.eyebrow,.pn,.cd,.ptr,.item b,p,.yrl li').forEach(e=>{if(!e.offsetParent)return;let t=(e.innerText||'').replace(/[\u{1F300}-\u{1FAFF}☀-➿]/gu,'').replace(/\s+/g,' ').trim();if(t&&t.length>1&&!parts.includes(t))parts.push(t)});

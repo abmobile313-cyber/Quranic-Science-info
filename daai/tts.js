@@ -13,7 +13,7 @@ TTS.prep=function(cb){if(!ttsNative()){cb();return}ttsCfgSync();if(this.info){cb
 TTS.say=function(text,done){const t=ttsClean(text);if(!t){done();return}const rate=S.ttsRate||0.95;if(this.lang==='ur'&&/[\u0900-\u097f]/.test(t)&&!/[\u0600-\u06ff]/.test(t))this.lang='hi'; /* Devanagari (Hindi script) text → Hindi voice reads the same Urdu words */
   if(ttsNative()){const id='t'+Date.now()+Math.random().toString(36).slice(2,5);this.cid=id;this.cb=done;try{AndroidPA.speak(t,this.lang,rate,id)}catch(e){this.cb=null;done()}return}
   if(!window.speechSynthesis||typeof SpeechSynthesisUtterance==='undefined'){toast(T('Is device me awaaz (TTS) support nahi','No text-to-speech on this device'));this.stop();return}
-  const u=new SpeechSynthesisUtterance(t);const v=ttsVoice(this.lang);if(v){u.voice=v;u.lang=v.lang}else u.lang=this.lang==='en'?'en-IN':this.lang==='ar'?'ar-SA':this.lang==='hi'?'hi-IN':'ur-PK';u.rate=rate;u.pitch=ttsPitch();let fin=false;const f=()=>{if(fin)return;fin=true;done()};u.onend=f;u.onerror=f;speechSynthesis.speak(u)};
+  const u=new SpeechSynthesisUtterance(t);const v=ttsVoice(this.lang);if(v){u.voice=v;u.lang=v.lang}else u.lang=this.lang==='en'?'en-IN':this.lang==='ar'?'ar-SA':this.lang==='hi'?'hi-IN':({fa:'fa-IR',ps:'ps-AF',tr:'tr-TR',id:'id-ID',bn:'bn-BD'})[this.lang]||'ur-PK';u.rate=rate;u.pitch=ttsPitch();let fin=false;const f=()=>{if(fin)return;fin=true;done()};u.onend=f;u.onerror=f;speechSynthesis.speak(u)};
 window.ttsDone=(id,err)=>{if(TTS.cid!==id)return;const c=TTS.cb;TTS.cb=null;if(err){TTS.errs++;if(TTS.errs>2){TTS.stop();toast(T('Awaaz nahi chali — phone ki Text-to-speech settings dekhein','Voice failed — check phone text-to-speech settings'),4500);return}}else TTS.errs=0;if(c)c()};
 TTS.run=function(items,o={}){this.stop();items=items.filter(x=>ttsClean(x.t));if(!items.length){toast(T('Padhne ke liye text nahi mila','Nothing to read'));return}
   this.lang=o.lang||'ur';this.prep(()=>{if(ttsNative()&&this.info==='none'&&this.lang!=='ar'){ttsHelp();return}
@@ -71,4 +71,4 @@ function hsReportRow(from,to){const r=hsStats(from,to);return`<div class="mrow2"
 AX.dmsay=el=>{if(TTS.on){const same=el.dataset.on;TTS.stop();if(same)return}
   const card=el.closest('.card');if(!card)return;const tr=el.dataset.t==='tr';const n=card.querySelector(tr?'.hdt':'.hda');if(!n)return;
   let txt=n.textContent;if(tr)txt=txt.replace(/^\s*(TARJUMA|TRANSLATION|ترجمہ|अनुवाद)\s*/i,'');
-  TTS.run([{t:txt}],{lang:tr?((S.lang==='en')?'en':'ur'):'ar',onStart:()=>{el.dataset.on='1';if(el.firstChild)el.firstChild.nodeValue='⏸'}})};
+  TTS.run([{t:txt}],{lang:tr?(isNL()?S.lang:(S.lang==='en')?'en':'ur'):'ar',onStart:()=>{el.dataset.on='1';if(el.firstChild)el.firstChild.nodeValue='⏸'}})};

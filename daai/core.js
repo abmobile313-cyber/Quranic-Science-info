@@ -26,7 +26,7 @@ const atTime=(hhmm,base=new Date())=>{const m=hm(hhmm);if(!m)return null;const d
 const t12=s=>{const m=hm(s);if(!m)return s||'';const pm=m[0]>=12,h=m[0];const ap=S.lang==='ur'?(h<4?'رات':h<12?'صبح':h<16?'دوپہر':h<19?'شام':'رات'):S.lang==='hi'?(h<4?'रात':h<12?'सुबह':h<16?'दोपहर':h<19?'शाम':'रात'):(pm?'PM':'AM');return ((m[0]%12)||12)+':'+pad(m[1])+' '+ap};
 const fmtCount=ms=>{const s=Math.max(0,Math.floor(ms/1000));return pad(Math.floor(s/3600))+':'+pad(Math.floor(s%3600/60))+':'+pad(s%60)};
 const fmtDur=min=>{min=Math.round(min);const h=Math.floor(min/60),m=min%60;return h?h+'h '+pad(m)+'m':m+'m'};
-const LOC=()=>S.lang==='ur'?'ur-IN':S.lang==='hi'?'hi-IN':'en-IN';
+const LOC=()=>S.lang==='ur'?'ur-IN':S.lang==='hi'?'hi-IN':({ar:'ar-SA',fa:'fa-IR',ps:'ps-AF',tr:'tr-TR',id:'id-ID',bn:'bn-BD'})[S.lang]||'en-IN';
 const fmtDT=s=>{const d=new Date(s);return isNaN(d)?'':d.toLocaleString(LOC(),{day:'numeric',month:'short',hour:'numeric',minute:'2-digit'})};
 const fmtD=s=>{const d=new Date(s);return isNaN(d)?'':d.toLocaleDateString(LOC(),{day:'numeric',month:'short',year:'numeric'})};
 const num=n=>Number(n||0).toLocaleString('en-IN',{maximumFractionDigits:0});
@@ -40,7 +40,7 @@ const IDB={db:null,open(){return this.db||(this.db=new Promise((res,rej)=>{try{c
   async del(k){try{const db=await this.open();return await new Promise(res=>{const t=db.transaction('kv','readwrite');t.objectStore('kv').delete(k);t.oncomplete=()=>res(true)})}catch(e){return false}}};
 
 /* ---------- settings ---------- */
-const DEF_S={name:'',lang:'ur',theme:'dark',city:'',country:'India',lat:null,lng:null,method:1,school:0,
+const DEF_S={name:'',lang:'en',theme:'dark',city:'',country:'India',lat:null,lng:null,method:1,school:0,
   jam:{Fajr:25,Dhuhr:15,Asr:15,Maghrib:5,Isha:15},askAfter:10,azan:true,waqtNotif:true,autoLoc:true,hsVoice:'tts',ttsRate:0.95,setupDone:false,lock:{on:false,hash:'',salt:'',rc:'',len:4,mode:'all',after:1,bio:true,tries:0},
   voice:true,sfx:true,notif:false,
   masjid:{name:'',az:{},jm:{},pre:false,jz:'',ju:''},
@@ -55,19 +55,24 @@ const DEF_S={name:'',lang:'ur',theme:'dark',city:'',country:'India',lat:null,lng
   mk:{on:true,rise:15,zawal:10,set:20},
   feeds:{}};
 let S=Object.assign({},DEF_S,store.get('settings',{}));
-if(!['ur','ro','hi','en'].includes(S.lang))S.lang='ur';
+if(!['ur','ro','hi','en','ar','fa','ps','tr','id','bn'].includes(S.lang))S.lang='en';
 S.masjid=Object.assign({name:'',az:{},jm:{},pre:false,jz:'',ju:''},S.masjid||{});S.masjid.az=S.masjid.az||{};S.masjid.jm=S.masjid.jm||{};
 S.jam=Object.assign({},DEF_S.jam,S.jam||{});S.job=Object.assign({},DEF_S.job,S.job||{});S.feeds=S.feeds||{};S.dua=Object.assign({},DEF_S.dua,S.dua||{});S.lock=Object.assign({},DEF_S.lock,S.lock||{});S.gasht=Object.assign({},DEF_S.gasht,S.gasht||{});S.gasht.own=Object.assign({},DEF_S.gasht.own,S.gasht.own||{});S.gasht.nbr=Object.assign({},DEF_S.gasht.nbr,S.gasht.nbr||{});S.favs=Array.isArray(S.favs)?S.favs:[];S.mk=Object.assign({},DEF_S.mk,S.mk||{});
 const saveS=()=>store.set('settings',S);
 if(!S.dua.m26){S.dua.wakeOn=S.dua.sleepOn=S.dua.mealOn=S.dua.dailyOn=true;S.dua.m26=1;saveS()}
 
 /* ---------- language: T(roman, english, urdu?, hindi?) — Urdu (Nastaliq) / Hindi / English ---------- */
-const LANGS=[['ur','اردو'],['ro','Roman Urdu'],['hi','हिन्दी'],['en','English']];
-const LK=()=>S.lang==='ro'?'en':S.lang; /* key for per-language data tables; Roman Urdu reuses the English tables */
-const VL=()=>S.lang==='en'?'en':'ur'; /* voice: Urdu for Roman/Urdu/Hindi (Hindi = Urdu in Devanagari script); English only for English */ /* voice clips: Roman Urdu uses the Urdu recordings */
+const LANGS=[['en','English'],['ur','اردو'],['ro','Roman Urdu'],['hi','हिन्दी'],['ar','العربية'],['fa','فارسی / دری'],['ps','پښتو'],['tr','Türkçe'],['id','Bahasa Indonesia'],['bn','বাংলা']];
+const NEWL=['ar','fa','ps','tr','id','bn'];const isNL=()=>NEWL.includes(S.lang);const isEnL=()=>S.lang==='en'||NEWL.includes(S.lang);const RTLL=['ur','ar','fa','ps'];
+/* nayi zabaanein: English jumle ka tarjuma XL_<lang> table se (xl-<lang>.js); na mile to English */
+let XLTP=null;function XLT(b){const D=(typeof window!=='undefined'&&window['XL_'+S.lang])||null;if(!D||typeof b!=='string')return b;const x=D[b];if(x)return x;
+  if(b.length<600){if(!XLTP){XLTP=[];for(const k in D){if(k.indexOf('${')<0)continue;const ph=[];const pat=k.split(/(\$\{[^}]*\})/).map(p=>{if(/^\$\{/.test(p)){ph.push(p);return'([\\s\\S]*?)'}return p.replace(/[.*+?^$()|[\]\\{}]/g,'\\$&')}).join('');try{XLTP.push({re:new RegExp('^'+pat+'$'),ph,u:D[k]})}catch(e){}}}
+    for(const t of XLTP){const m=t.re.exec(b);if(m){let o=t.u;t.ph.forEach((p,i)=>{o=o.split(p).join(m[i+1])});return o}}}return b}
+const LK=()=>(S.lang==='ro'||NEWL.includes(S.lang))?'en':S.lang; /* key for per-language data tables; Roman Urdu reuses the English tables */
+const VL=()=>isEnL()?'en':'ur'; /* voice: Urdu for Roman/Urdu/Hindi (Hindi = Urdu in Devanagari script); English only for English */ /* voice clips: Roman Urdu uses the Urdu recordings */
 const I18N=(typeof window!=='undefined'&&window.I18N_DATA)||{};
 const I18N2=(typeof window!=='undefined'&&window.I18N_UR)||{};
-const T=(r,e,u,h)=>{const l=S.lang;if(l==='en')return e!=null?e:r;
+const T=(r,e,u,h)=>{const l=S.lang;if(l==='en')return e!=null?e:r;if(NEWL.includes(l))return XLT(e!=null?e:r);
   if(l==='ro')return typeof SIMP==='function'?SIMP(r):r;
   if(l==='ur'){if(u)return u;const x=I18N[r]||I18N2[r];if(x&&x[0])return x[0];if(x&&typeof x==='string')return x;const tp=typeof tplLookup==='function'?tplLookup(r):null;return tp||(typeof SIMP==='function'?SIMP(r):r)}
   if(h)return h;const x=I18N[r];if(x&&x[1])return x[1];return typeof DVN==='function'?DVN(SIMP(r)):r};
@@ -76,8 +81,9 @@ const nm=()=>'';
 const dn=s=>T(s,s); /* display-translate known default data strings */
 var PN_D=null;/* set while planning another day */
 const isFriD=d=>(d||PN_D||new Date()).getDay()===5;
-const pname=(k,d)=>{if(k==='Dhuhr'&&isFriD(d))k='Jumma';return(PN[k]||[k,k,k])[S.lang==='ur'?0:S.lang==='hi'?1:2]};
-function applyLang(){const h=document.documentElement;h.lang=S.lang;h.dir=S.lang==='ur'?'rtl':'ltr';h.dataset.lang=S.lang;
+const PNX={ar:{Fajr:'الفجر',Sunrise:'الشروق',Dhuhr:'الظهر',Asr:'العصر',Maghrib:'المغرب',Isha:'العشاء',Jumma:'الجمعة'},fa:{Fajr:'صبح',Sunrise:'طلوع آفتاب',Dhuhr:'ظهر',Asr:'عصر',Maghrib:'مغرب',Isha:'عشا',Jumma:'جمعه'},ps:{Fajr:'سهار',Sunrise:'لمر ختل',Dhuhr:'ماسپښین',Asr:'مازدیګر',Maghrib:'ماښام',Isha:'ماخستن',Jumma:'جمعه'},tr:{Fajr:'Sabah',Sunrise:'Güneş',Dhuhr:'Öğle',Asr:'İkindi',Maghrib:'Akşam',Isha:'Yatsı',Jumma:'Cuma'},id:{Fajr:'Subuh',Sunrise:'Terbit',Dhuhr:'Zuhur',Asr:'Asar',Maghrib:'Magrib',Isha:'Isya',Jumma:'Jumat'},bn:{Fajr:'ফজর',Sunrise:'সূর্যোদয়',Dhuhr:'যোহর',Asr:'আসর',Maghrib:'মাগরিব',Isha:'এশা',Jumma:'জুমা'}};
+const pname=(k,d)=>{if(k==='Dhuhr'&&isFriD(d))k='Jumma';if(PNX[S.lang]&&PNX[S.lang][k])return PNX[S.lang][k];return(PN[k]||[k,k,k])[S.lang==='ur'?0:S.lang==='hi'?1:2]};
+function applyLang(){const h=document.documentElement;h.lang=S.lang;h.dir=RTLL.includes(S.lang)?'rtl':'ltr';h.dataset.lang=S.lang;
   const a=$('#spSub'),b=$('#spTap');if(a)a.textContent=T('Namaz • Quran • Kaarobar • Kaam • My Assistant','Prayer • Quran • Business • Work • My Assistant');if(b)b.textContent=T('Tap karein — shuru','Tap to begin')}
 const PRAY=['Fajr','Dhuhr','Asr','Maghrib','Isha'];
 

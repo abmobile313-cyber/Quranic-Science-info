@@ -71,7 +71,7 @@ function renderCalls(el){PI=PI.length?PI:store.get('pinbox',[]);const due=CALLS.
 function callRow(c,f){const d=CALLDIR[c.dir]||CALLDIR.in;return`<div class="item${c.done?' done':''}"><div class="ic2">${d[0]}</div><div class="t"><b>${esc(c.who||'?')}${c.topic?' — '+esc(c.topic):''}</b><div class="muted sm">${esc(c.note||'')}</div><div class="muted sm">${fmtDT(c.t)}${c.follow?` • ⏰ ${fmtDT(c.follow)}`:''}</div></div><div class="acts">${c.phone?`<a class="btn s ghost" href="tel:${esc(c.phone)}">📞</a><a class="btn s ghost" target="_blank" rel="noopener" href="${waLink(c.phone)}">💬</a>`:''}${c.follow&&!c.done?`<button class="btn s" data-a="calldone" data-id="${c.id}">✓</button>`:''}<button class="btn s ghost" data-a="calldel" data-id="${c.id}">✕</button></div></div>`}
 function dictate(inputId,lang){
   const put=t=>{const el=$('#'+inputId);if(!el||!t)return;el.value=(el.value?el.value+' ':'')+t;if(inputId==='aiIn'&&typeof aiSend==='function'){const v=el.value;el.value='';aiSend(v)}};
-  const L=lang||(S.lang==='en'?'en-IN':S.lang==='ur'?'ur-PK':'hi-IN');
+  const L=lang||(isEnL()?'en-IN':S.lang==='ur'?'ur-PK':'hi-IN');
   if(window.AndroidPA&&AndroidPA.sttStart){ /* APK: Android WebView has no web speech API → native recognizer */
     const pR=window.sttResult,pE=window.sttErr,hfWas=typeof HF!=='undefined'&&HF.on;let done=false;
     const fin=t=>{if(done)return;done=true;clearTimeout(to);window.sttResult=pR;window.sttErr=pE;try{AndroidPA.sttStop()}catch(e){}if(t){put(t);toast(T('Likh liya','Done'),1200)}if(hfWas&&typeof hfStart==='function')setTimeout(hfStart,800)};

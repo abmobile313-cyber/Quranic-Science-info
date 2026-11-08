@@ -7,7 +7,7 @@ const QMANZIL=[[1,4],[5,9],[10,16],[17,25],[26,36],[37,49],[50,114]];
 const QREC=[['Alafasy_128kbps','Mishary Alafasy'],['Abdurrahmaan_As-Sudais_192kbps','Abdur-Rahman As-Sudais'],['Husary_128kbps','Mahmoud Khalil Al-Husary'],['Maher_AlMuaiqly_128kbps','Maher Al-Muaiqly']];
 const p3=n=>String(n).padStart(3,'0');
 let QD=null,QDP=null; // {ar,ur,ro}
-const snm=i=>S.lang==='ur'?window.SN_UR[i]:S.lang==='hi'?window.SN_HI[i]:SN[i][0];
+const snm=i=>S.lang==='ur'?window.SN_UR[i]:S.lang==='hi'?window.SN_HI[i]:(S.lang==='ar'||S.lang==='fa'||S.lang==='ps')?SN[i][1]:SN[i][0];
 const TRC=()=>S.lang==='ur'?'urdu':'trx';
 /* QD.ur = translation in the app language: Urdu (Mufti Taqi Usmani), Hindi (Suhel Farooq Khan), English (Mufti Taqi Usmani). QD.ro (Roman) is used only for Roman-letter search */
 /* Hindi mode: default = Mufti Taqi Usmani ka Urdu tarjuma Devanagari mein (S.hiTr='taqi'); option = Suhel Farooq Khan ka Hindi tarjuma (S.hiTr='sfk') */
@@ -17,8 +17,8 @@ const hiTaqi=()=>S.lang==='hi'&&S.hiTr!=='sfk';
 const QTR=[['taqi','Mufti Muhammad Taqi Usmani','مفتی محمد تقی عثمانی'],['kks','Pir Muhammad Karam Shah Al-Azhari (Zia-ul-Quran)','پیر محمد کرم شاہ الازہری (ضیاء القرآن)'],['mh','Shaikh-ul-Hind Mahmood-ul-Hasan','شیخ الہند محمود الحسن']];
 const urTr=()=>{const v=S.urTr;if(v&&QTR.some(x=>x[0]===v))return v;return (typeof FQ==='function'&&FQ()==='bar')?'kks':'taqi'};
 const lazyMap=(arr,fn)=>arr.map(s=>new Proxy(s,{get:(o,k)=>{const v=o[k];return(typeof v==='string'&&typeof k==='string'&&/^\d+$/.test(k))?fn(v):v}}));
-function loadQ(){if(QD)return Promise.resolve(QD);const tr=urTr(),useUr=S.lang!=='en'&&!(S.lang==='hi'&&!hiTaqi());
-  return QDP||(QDP=Promise.all([fetch('q-indopak.json').then(r=>r.json()),fetch('taqi.json').then(r=>r.json()),useUr?null:fetch(S.lang==='hi'?'tr-hi.json':'tr-en.json').then(r=>r.json()),(useUr&&tr!=='taqi')?fetch('tr-'+tr+'.json').then(r=>r.json()):null,(S.lang==='hi'&&typeof dvuLoad==='function')?dvuLoad():null,(useUr&&tr!=='taqi'&&S.lang==='ro'&&typeof RM!=='undefined')?RM.load().catch(()=>{}):null]).then(([ar,t,tro,alt])=>{
+function loadQ(){if(QD)return Promise.resolve(QD);const tr=urTr(),nl=typeof NEWL!=='undefined'&&NEWL.includes(S.lang),useUr=!nl&&S.lang!=='en'&&!(S.lang==='hi'&&!hiTaqi());
+  return QDP||(QDP=Promise.all([fetch('q-indopak.json').then(r=>r.json()),fetch('taqi.json').then(r=>r.json()),useUr?null:fetch(nl?'tr-'+S.lang+'.json':S.lang==='hi'?'tr-hi.json':'tr-en.json').then(r=>r.json()),(useUr&&tr!=='taqi')?fetch('tr-'+tr+'.json').then(r=>r.json()):null,(S.lang==='hi'&&typeof dvuLoad==='function')?dvuLoad():null,(useUr&&tr!=='taqi'&&S.lang==='ro'&&typeof RM!=='undefined')?RM.load().catch(()=>{}):null]).then(([ar,t,tro,alt])=>{
     let ur;
     if(!useUr)ur=tro;
     else{const base=alt||t.ur;
@@ -34,7 +34,7 @@ const MODES=[['q',()=>T('Sirf Quran','Quran only')],['t',()=>T('Tarjuma','Transl
 /* ---------- audio ---------- */
 const QA={a:new Audio(),s:0,n:0,on:false,ph:'ar',
   /* translation voice: Urdu (Shamshad Ali Khan) for Urdu / Roman Urdu / Hindi, English (Sahih International) for English — both from everyayah.com, free */
-  trUrl(s,n){const f=S.lang==='en'?'English/Sahih_Intnl_Ibrahim_Walk_192kbps':'translations/urdu_shamshad_ali_khan_46kbps';return `https://everyayah.com/data/${f}/${p3(s)}${p3(n)}.mp3`},
+  trUrl(s,n){const f=isEnL()?'English/Sahih_Intnl_Ibrahim_Walk_192kbps':'translations/urdu_shamshad_ali_khan_46kbps';return `https://everyayah.com/data/${f}/${p3(s)}${p3(n)}.mp3`},
   ended(){if(QS.tv!==false&&this.ph==='ar'){this.ph='tr';this.a.src=this.trUrl(this.s,this.n);this.a.play().catch(()=>{this.ph='ar';this.next()});this.upd();return}this.ph='ar';this.next()},
   url(s,n){return `https://everyayah.com/data/${QS.rec}/${p3(s)}${p3(n)}.mp3`},
   recName(){return(QREC.find(r=>r[0]===QS.rec)||QREC[0])[1]},

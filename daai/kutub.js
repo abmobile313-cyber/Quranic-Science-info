@@ -27,7 +27,7 @@ const HI=S.lang==='hi';const urdu=(t)=>HI&&typeof urToDv==='function'?esc(urToDv
 const HB=[['bukhari','Sahih al-Bukhari','صحيح البخاري','صحیح بخاری','सहीह बुख़ारी'],['muslim','Sahih Muslim','صحيح مسلم','صحیح مسلم','सहीह मुस्लिम'],['tirmidhi','Jami at-Tirmidhi','جامع الترمذي','جامع ترمذی','जामेअ तिर्मिज़ी'],['abudawud','Sunan Abu Dawud','سنن أبي داود','سنن ابی داود','सुनन अबू दाऊद'],['ibnmajah','Sunan Ibn Majah','سنن ابن ماجه','سنن ابن ماجہ','सुनन इब्ने माजा']];
 const bkName=b=>S.lang==='ur'?b[3]:S.lang==='hi'?b[4]:b[1];
 const HAPI=['https://cdn.jsdelivr.net/gh/fawazahmed0/hadith-api@1/editions/','https://raw.githubusercontent.com/fawazahmed0/hadith-api/1/editions/'];
-const HDE=S.lang==='en'; /* English edition for English; Urdu edition for Urdu & Hindi (no free Hindi edition exists) */
+const HDE=S.lang==='en'||(typeof NEWL!=='undefined'&&NEWL.includes(S.lang)); /* English edition for English; Urdu edition for Urdu & Hindi (no free Hindi edition exists) */
 const HDP=HDE?'hden_':'hd_',HDHAVE=HDE?'hd_have_en':'hd_have';
 let HD={ver:1,v:'home',b:null,sec:null,q:'',books:{},have:store.get(HDHAVE,{}),fav:store.get('hfav',[]),page:0,sel:store.get('hd_sel',null),res:null,busy:{}};
 async function getJSON(file,onP){let last;for(const base of HAPI){try{const c=new AbortController(),to=setTimeout(()=>c.abort(),60000);const r=await fetch(base+file,{signal:c.signal});clearTimeout(to);if(!r.ok)throw new Error(r.status);const len=+r.headers.get('content-length')||0;if(r.body&&len&&onP){const rd=r.body.getReader();const parts=[];let got=0;for(;;){const{done,value}=await rd.read();if(done)break;parts.push(value);got+=value.length;onP(got/len)}return JSON.parse(await new Blob(parts).text())}return await r.json()}catch(e){last=e}}throw last}
@@ -115,7 +115,7 @@ async function hsSearch(){const box=$('#hsres');if(!box)return;const raw=HS.q.tr
 /* ---------- KHABAR (news) + DAWAT ---------- */
 const NEWS=[{n:'Al Jazeera',u:'https://www.aljazeera.com/xml/rss/all.xml',lg:'en'},{n:'Middle East Eye',u:'https://www.middleeasteye.net/rss',lg:'en'},{n:'BBC World',u:'https://feeds.bbci.co.uk/news/world/rss.xml',lg:'en'},{n:'5Pillars',u:'https://5pillarsuk.com/feed/',lg:'en'},{n:'About Islam',u:'https://aboutislam.net/feed/',lg:'en'},{n:'BBC Urdu',u:'https://feeds.bbci.co.uk/urdu/rss.xml',lg:'ur'},{n:'DW Urdu',u:'https://rss.dw.com/xml/rss-urdu-all',lg:'ur'},{n:'BBC Hindi',u:'https://feeds.bbci.co.uk/hindi/rss.xml',lg:'hi'},{n:'DW Hindi',u:'https://rss.dw.com/xml/rss-hi-all',lg:'hi'}];
 const NLG=[['ur','اردو'],['hi','हिन्दी'],['en','English'],['all',T('Sab zubaan','All','سب زبانیں','सभी भाषाएँ')]];
-const nlgDef=()=>S.lang==='ur'?'ur':S.lang==='hi'?'hi':S.lang==='en'?'en':'all';
+const nlgDef=()=>S.lang==='ur'?'ur':S.lang==='hi'?'hi':isEnL()?'en':'all';
 const KW={pal:/palestin|gaza|israel|west bank|al-aqsa|aqsa|rafah|hamas|jerusalem|فلسطین|غزہ|اسرائیل|اقصیٰ|اقصی|القدس|غزة|فلسطين|फ़िलिस्तीन|फिलिस्तीन|ग़ज़ा|गाज़ा|गजा|इसराइल|इसराइली|इस्राइल|यरुशलम|येरुशलम|अल-अक़्सा|हमास/i,deen:/islam|muslim|masjid|mosque|hajj|umrah|ramadan|quran|eid|ramzan|اسلام|مسلم|مسجد|حج|عمرہ|قرآن|رمضان|عید|इस्लाम|मुस्लिम|मुसलमान|मस्जिद|हज|उमरा|क़ुरान|कुरान|रमज़ान|रमजान|ईद|मदरसा|मदरसे/i};
 let NV={tab:'pal',lg:store.get('news_lg',null),items:store.get('news',{t:0,l:[]}),busy:false};
 const nvLg=()=>NV.lg||nlgDef();

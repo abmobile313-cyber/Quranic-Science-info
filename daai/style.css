@@ -829,3 +829,9 @@ body.ofcbg::before{content:'';position:fixed;inset:0;z-index:-1;background:radia
 :lang(ur) .sp-tap,[dir=rtl] .sp-tap,html[lang=ur] .sp-tap{letter-spacing:0!important;text-transform:none}
 [lang=ur] *,[dir=rtl] .btn,[dir=rtl] .chip,[dir=rtl] .eyebrow{letter-spacing:0!important}
 .tabbar button span,nav button span{white-space:nowrap;overflow:visible}
+
+/* nayi zabaanein */
+html[data-lang=ar],html[data-lang=fa],html[data-lang=ps]{--f-ui:Naskh,Inter,system-ui,sans-serif;--f-head:Naskh,Outfit,Inter,sans-serif}
+html[data-lang=ar] body,html[data-lang=fa] body,html[data-lang=ps] body{line-height:1.8}
+html[data-lang=ar] .eyebrow,html[data-lang=fa] .eyebrow,html[data-lang=ps] .eyebrow,html[data-lang=ar] .card h2,html[data-lang=fa] .card h2,html[data-lang=ps] .card h2{letter-spacing:0;text-transform:none}
+html[data-lang=bn] body{font-family:'Noto Sans Bengali',Inter,system-ui,sans-serif}

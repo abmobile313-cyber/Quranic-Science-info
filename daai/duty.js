@@ -39,7 +39,7 @@ function dOtWords(m){const h=Math.floor(m/60),mm=m%60;
   if(S.lang==='hi')return`आज आपने ${h?h+' घंटे ':''}${mm?mm+' मिनट ':''}ज़्यादा काम किया।`;
   return`آج آپ نے ${h?h+' گھنٹے ':''}${mm?mm+' منٹ ':''}زیادہ کام کیا۔`}
 async function dOtSay(m){if(!S.voice&&!S.sfx)return;try{const u=await VO.blob('ot_done');const a=new Audio(u);await new Promise(r=>{a.onended=r;a.onerror=r;a.play().catch(r)})}catch(e){}
-  try{if(typeof TTS!=='undefined'){const old=TTS.lang;TTS.lang=S.lang==='en'?'en':'ur';TTS.prep(()=>TTS.say(dOtWords(m),()=>{TTS.lang=old}))}}catch(e){}}
+  try{if(typeof TTS!=='undefined'){const old=TTS.lang;TTS.lang=isEnL()?'en':'ur';TTS.prep(()=>TTS.say(dOtWords(m),()=>{TTS.lang=old}))}}catch(e){}}
 /* reminders if one forgets to switch ON / OFF */
 function dutyEvents(base){const J=jobDay(base),out=[];if(!J.on||dkey(base)!==dkey()||!dIsWork(base))return out;const r=DL[dkey(base)];
   if(!(r&&r.in))out.push({k:'dty_in',at:new Date(+atTime(J.login,base)+((J.grace||10)+5)*6e4),title:T('💼 Duty ON karna bhool gaye?','💼 Forgot to start duty?'),body:T('Abhi tak login nahi hua. Duty ON dabayein — ya asli login ka waqt daal dein.','Not logged in yet. Tap Duty ON, or enter your real login time.'),voice:'dty_in',tab:'kaam',sub:'duty'});

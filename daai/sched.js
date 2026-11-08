@@ -9,11 +9,12 @@ let MM=store.get('mamool',{});           // {date:{talim:1,gasht:1,minutes:n,...
 let PQ=store.get('pq',[]);               // pending questions
 let SNZ=store.get('snz',[]);
 const savePQ=()=>store.set('pq',PQ);
-const locKey=()=>S.lat!=null?`${S.lat.toFixed(2)},${S.lng.toFixed(2)}`:`${S.city},${S.country}`;
+const tuneQ=()=>{const t=S.tune||{};const v=['Imsak','Fajr','Sunrise','Dhuhr','Asr','Maghrib','Sunset','Isha','Midnight'].map(k=>(k==='Sunset'?(+t.Maghrib||0):(+t[k]||0)));return v.some(x=>x)?'&tune='+v.join(','):''};
+const locKey=()=>(S.lat!=null?`${S.lat.toFixed(2)},${S.lng.toFixed(2)}`:`${S.city},${S.country}`)+'|'+S.method+'|'+S.school+tuneQ();
 const dmy=d=>pad(d.getDate())+'-'+pad(d.getMonth()+1)+'-'+d.getFullYear();
 async function fetchTimes(d){
-  const base=S.lat!=null?`https://api.aladhan.com/v1/timings/${dmy(d)}?latitude=${S.lat}&longitude=${S.lng}&method=${S.method}&school=${S.school}`
-    :`https://api.aladhan.com/v1/timingsByCity/${dmy(d)}?city=${encodeURIComponent(S.city)}&country=${encodeURIComponent(S.country)}&method=${S.method}&school=${S.school}`;
+  const base=S.lat!=null?`https://api.aladhan.com/v1/timings/${dmy(d)}?latitude=${S.lat}&longitude=${S.lng}&method=${S.method}&school=${S.school}${tuneQ()}`
+    :`https://api.aladhan.com/v1/timingsByCity/${dmy(d)}?city=${encodeURIComponent(S.city)}&country=${encodeURIComponent(S.country)}&method=${S.method}&school=${S.school}${tuneQ()}`;
   const c=new AbortController();const to=setTimeout(()=>c.abort(),9000);
   try{const r=await fetch(base,{signal:c.signal});const j=await r.json();const t=j.data.timings,o={};
     ['Fajr','Sunrise','Dhuhr','Asr','Maghrib','Isha'].forEach(k=>o[k]=(t[k]||'').slice(0,5));
