@@ -166,7 +166,7 @@ select.btn{appearance:auto}
 .vc{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:12px 8px;text-align:center;display:grid;gap:4px}
 .vc .em{font-size:34px;line-height:1}.vc b{font-size:24px;color:var(--gold2);line-height:1.7}.vc small{color:var(--mut);font-size:13px}
 .bigar{display:grid;gap:8px}.trow{display:flex;flex-wrap:wrap;gap:8px 10px;justify-content:center;direction:rtl}
-.tile{font:inherit;color:inherit;background:none;border:0;padding:2px 8px;border-radius:12px}.tile.ltr{background:rgba(227,170,60,.1);border:1px solid var(--line);cursor:pointer;min-width:52px}
+.tile{font:inherit;color:inherit;background:none;border:0;padding:2px 6px;border-radius:12px}.tile .tile{padding:0 6px}.tile.qw,.tile.ltr{font:inherit;color:inherit;cursor:pointer;background:rgba(44,196,242,.08);border:1px dashed rgba(44,196,242,.55);border-radius:12px}.tile.qw.playing,.tile.ltr.playing{background:rgba(44,196,242,.25);box-shadow:0 0 0 2px var(--cy)}.tile.ltr{background:rgba(227,170,60,.1);border:1px solid var(--line);cursor:pointer;min-width:52px}
 </style>
 </head>
 <body>
@@ -191,6 +191,6 @@ select.btn{appearance:auto}
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
-<script src="app.js?v=11"></script>
+<script src="app.js?v=12"></script>
 </body>
 </html>

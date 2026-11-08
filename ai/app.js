@@ -377,8 +377,14 @@ function visualHTML(v) {
   if (v.t === "cards") return `<figure class="viz cards">${v.c.map(c => `<div class="vc"><span class="em">${c[0]}</span><b class="ar">${esc(c[1])}</b><small>${esc(pick({ en: c[2], ur: c[3], hi: c[4] }))}</small></div>`).join("")}</figure>`;
   return "";
 }
-function tilesHTML(ar) {
-  return `<div class="bigar">${ar.split("\n").map(line => `<div class="trow">${line.split(/\s*·\s*/).map(p => { const one = p.trim().replace(/[\u064B-\u0652\u0670]/g, ""); return LETTER[one] ? `<button class="tile ltr" data-c="${one}">${esc(p.trim())}</button>` : `<span class="tile">${esc(p.trim())}</span>`; }).join("")}</div>`).join("")}</div>`;
+function tilesHTML(ar, wq) {
+  const W = {}; (wq || []).forEach(x => W[x[0]] = x.slice(1));
+  const word = w => { if (W[w]) return `<button class="tile qw" data-q="${W[w].join(",")}">${esc(w)}</button>`;
+    const core = w.replace(/[\u064B-\u0652\u0670]/g, "");
+    if (LETTER[core]) return `<button class="tile ltr" data-c="${core}">${esc(w)}</button>`;
+    if (core.length === 2 && /^[اأإء]/.test(core) && LETTER[core[1]]) return `<button class="tile ltr" data-c="${core[1]}">${esc(w)}</button>`;
+    return esc(w); };
+  return `<div class="bigar">${ar.split("\n").map(line => `<div class="trow">${line.split(/\s*·\s*/).map(p => `<span class="tile">${p.trim().split(/(\s+)/).map(x => /\s/.test(x) ? x : word(x)).join("")}</span>`).join("")}</div>`).join("")}</div>`;
 }
 function wireVisuals(root) {
   $$(".zchip[data-z],.zon", root).forEach(b => b.onclick = async () => { const z = b.dataset.z, g = $(`.zon[data-z="${z}"]`, root);
@@ -389,6 +395,7 @@ function wireVisuals(root) {
     b.classList.remove("playing"); });
   $$(".grp", root).forEach(b => b.onclick = () => playQari(lettersQ(b.dataset.l).slice(0, 4), b));
   $$(".tile.ltr", root).forEach(b => b.onclick = () => playQari(lettersQ(b.dataset.c), b));
+  $$(".tile.qw", root).forEach(b => b.onclick = () => { const [s, a, w] = b.dataset.q.split(",").map(Number); playQari([{ s, a, w }], b); });
 }
 async function playQari(list, btn) {
   stopAll(); btn && btn.classList.add("playing");
@@ -435,12 +442,12 @@ function drawMoment() {
   app.innerHTML = lessonHead() + `<section class="stage">
     <div class="vo" id="vo"><span class="eq"><i></i><i></i><i></i></span><button class="btn sm" id="rv">↻ ${t("replay")}</button></div>
     <div class="say">${esc(pick(m))}</div>
-    ${visualHTML(m.v)}${m.ar ? tilesHTML(m.ar) : ""}
-    <div class="tools">${m.q ? `<button class="btn cy" id="qb">🕋 ${t("listen")}</button>` : ""}${m.av ? `<button class="btn" id="ab">🗣️ ${t("arVoice")}</button>` : ""}${m.q || m.av || m.v || m.ar ? `<button class="btn sm" id="rp" title="${t("repeat")}">🔁 ×${S.rep}</button>` : ""}${m.rec ? `<button class="btn rec" id="rb">🎙️ ${t("rec")}</button><button class="btn" id="pb" disabled>▶ ${t("mine")}</button>` : ""}</div>
+    ${visualHTML(m.v)}${m.ar ? tilesHTML(m.ar, m.wq) : ""}
+    <div class="tools">${m.q || m.wq ? `<button class="btn cy" id="qb">🕋 ${t("listen")}</button>` : ""}${m.q || m.wq || m.v || m.ar ? `<button class="btn sm" id="rp" title="${t("repeat")}">🔁 ×${S.rep}</button>` : ""}${m.rec ? `<button class="btn rec" id="rb">🎙️ ${t("rec")}</button><button class="btn" id="pb" disabled>▶ ${t("mine")}</button>` : ""}</div>
   </section><div class="nav"><button class="btn" id="bk" ${i === 0 ? "disabled" : ""}>${t("back")}</button><button class="btn pri" id="nx">${i === data.moments.length - 1 ? t("toQuiz") : t("next")}</button></div>`;
   $("#vt").onclick = () => { S.voice = !S.voice; LS.set("qsai-voice", S.voice); S.voice ? playVoice() : stopAll(); $("#vt").textContent = S.voice ? "🔊 " + t("voiceOn") : "🔇 " + t("voiceOff"); };
   $("#rv").onclick = () => playVoice();
-  if (m.q) $("#qb").onclick = e => playQari(m.q, e.currentTarget);
+  if (m.q || m.wq) $("#qb").onclick = e => playQari(m.q || m.wq.map(x => ({ s: x[1], a: x[2], w: x[3] })), e.currentTarget);
   if (m.av) $("#ab").onclick = e => playArabic(e.currentTarget);
   if ($("#rp")) $("#rp").onclick = e => { S.rep = S.rep === 1 ? 3 : S.rep === 3 ? 5 : 1; LS.set("qsai-rep", S.rep); e.currentTarget.textContent = "🔁 ×" + S.rep; toast(t("repeat") + ": ×" + S.rep); };
   wireVisuals(app);
