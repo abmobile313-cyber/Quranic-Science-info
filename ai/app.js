@@ -166,14 +166,15 @@ async function outline(c) { if (!S.outline[c]) S.outline[c] = await fetch(`data/
 async function lessonData(id) {
   if (FREE.includes(id)) { if (!S.free) S.free = await fetch("data/free.json").then(r => r.json()); return S.free.find(l => l.id === id); }
   const wk = id.slice(0, 5);
-  if (!S.weeks[wk]) { const r = await fetch(`data/${wk}.bin`); if (!r.ok) return null; S.weeks[wk] = JSON.parse(new TextDecoder().decode(await decryptBuf(await r.arrayBuffer(), courseOf(id)))); }
+  if (!S.weeks[wk]) { const r = await getBin(`data/${wk}.bin`); if (!r.ok) return null; S.weeks[wk] = JSON.parse(new TextDecoder().decode(await decryptBuf(await r.arrayBuffer(), courseOf(id)))); }
   return S.weeks[wk].find(l => l.id === id);
 }
 const voiceUrls = {};
+const getBin = async u => { let r = await fetch(u); if (!r.ok) r = await fetch(u, { cache: "reload" }); return r; };
 async function voiceSrc(id, i) {
   if (FREE.includes(id)) return `vo/${id}-${i}.mp3`;
   const key = id + "-" + i; if (voiceUrls[key]) return voiceUrls[key];
-  const r = await fetch(`vo/${key}.bin`); if (!r.ok) return null;
+  const r = await getBin(`vo/${key}.bin`); if (!r.ok) return null;
   const u = URL.createObjectURL(new Blob([await decryptBuf(await r.arrayBuffer(), courseOf(id))], { type: "audio/mpeg" }));
   return voiceUrls[key] = u;
 }
