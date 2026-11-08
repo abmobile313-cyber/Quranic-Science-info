@@ -198,3 +198,9 @@ AX.dpprev=()=>{const L=dParseLines(($('#dpTx')||{}).value);const box=$('#dpPrev'
 AX.dpsave=()=>{const L=AX.dpprev();if(!L||!L.length){toast(T('Pehle duty ki lines paste karein','Paste some lines first'));return}let n=0;
   L.forEach(r=>{if(r.off){S.job.ov=S.job.ov||{};S.job.ov[r.dk]={off:1};delete DL[r.dk];n++;return}if(!hm(r.in))return;const nr={in:dOnDay(r.dk,r.in),out:hm(r.out)?dOnDay(r.dk,r.out):0,brks:[]};if(hm(r.bs))nr.brks.push([dOnDay(r.dk,r.bs),hm(r.be)?dOnDay(r.dk,r.be):dOnDay(r.dk,r.bs)]);DL[r.dk]=nr;n++});
   saveDL();saveS();toast(T(`${n} din save ho gaye ✅`,`${n} days saved ✅`));AX.dpast({dataset:{m:0}});try{rerender()}catch(e){}};
+
+/* 🔊 Office awaaz: subah pehli Duty ON = 'Welcome to office', break khatam = 'Welcome back', Duty OFF = alvida */
+async function dVoice(id){try{if(!(S.voice||S.sfx!==false))return;const u=await VO.blob(id);if(!u)return;const a=new Audio(u);a.play().catch(()=>{})}catch(e){}}
+{const _in=AX.dyin;AX.dyin=function(){const dk=dkey(),r=dRec(dk),first=!r.in,re=!!r.out;const st0=dState(dk);_in.apply(this,arguments);const r2=dRec(dk);if(first&&r2.in)dVoice('ofc_welcome');else if(re&&!r2.out)dVoice('ofc_back')}}
+{const _be=AX.dybe;AX.dybe=function(){const dk=dkey(),was=dState(dk)==='brk';_be.apply(this,arguments);if(was&&dState(dk)!=='brk')dVoice('ofc_back')}}
+{const _out=AX.dyout;AX.dyout=function(){const dk=dkey(),r=dRec(dk),can=r.in&&!r.out;_out.apply(this,arguments);if(can&&dRec(dk).out)dVoice('ofc_bye')}}

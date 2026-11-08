@@ -11,6 +11,7 @@ function wkHas(ws,k){for(let i=0;i<7;i++){const g=WK[dkey(addDays(ws,i))];if(g&&
 const DAYN=[['Itwaar','Sun','اتوار','रविवार'],['Peer','Mon','پیر','सोमवार'],['Mangal','Tue','منگل','मंगलवार'],['Budh','Wed','بدھ','बुधवार'],['Jumeraat','Thu','جمعرات','जुमेरात'],['Jumma','Fri','جمعہ','जुमा'],['Hafta','Sat','ہفتہ','हफ़्ता']];
 const dayName=i=>T(DAYN[i][0],DAYN[i][1],DAYN[i][2],DAYN[i][3]);
 const wkStart=(d=new Date())=>{const x=new Date(d);x.setHours(0,0,0,0);x.setDate(x.getDate()-((x.getDay()+2)%7));return x};   // week = Friday → Thursday
+const dmCfg=()=>Object.assign({on:true,p:'Isha',m:15},S.dmash||{});
 const mmM=m=>m.masjid!==undefined?(m.masjid?1:0):(m.talim?1:0);
 const GK=[['own',()=>T('Apni masjid ka gasht','Gasht of own masjid','اپنی مسجد کا گشت','अपनी मस्जिद का गश्त')],['nbr',()=>T('Padosi masjid ka gasht','Gasht of neighbouring masjid','پڑوس کی مسجد کا گشت','पड़ोस की मस्जिद का गश्त')]];
 const gashtCfg=k=>(S.gasht&&S.gasht[k])||{d:k==='own'?2:4,p:'Asr'};
@@ -22,6 +23,7 @@ function kaamStats(from,to){
     r.elapsed++;
     if(mmM(m))r.tm++;else if(!isT)r.missTm++;
     if(m.ghar)r.tg++;else if(!isT)r.missTg++;
+    if(m.dmash)r.dm=(r.dm||0)+1;else if(!isT)r.missDm=(r.missDm||0)+1;
     r.min+=mn;if(mn>=150)r.h25++;else if(!isT)r.missH++;
     if(g.own){r.own++;r.ownD.push(k)}if(g.nbr){r.nbr++;r.nbrD.push(k)}
     const h=HZ[k]||{};PRAY.forEach(p=>{r.nam.tot++;if(h[p]==='j')r.nam.j++;else if(h[p]==='a')r.nam.a++;else if(h[p]==='q')r.nam.q++;else r.nam.none++})});
@@ -46,6 +48,7 @@ function kaamCard(){
    <div class="item kk${min>=150?' done':''}" style="flex-wrap:wrap"><div class="ic2">⏱</div><div class="t"><b>${T('Dhai ghante (aaj)','2.5 hours (today)')}</b><div class="muted sm">${fmtDur(min)} / 2h 30m</div></div><div class="row" style="gap:6px"><button class="btn s" data-a="mmmin" data-n="30">+30m</button><button class="btn s" data-a="mmmin" data-n="60">+1h</button><button class="btn s ghost" data-a="mmmin" data-n="-30">−</button></div><div style="flex-basis:100%">${meter(min/150*100,min>=150?'full':'gold')}</div></div>
    ${GK.map(([k,nm])=>row(wk(k),'🚶',nm(),`${T('Is hafte','This week')}: ${wk(k)?'✅':'⏳'} • ${gl(k)}`,`<button class="btn s ${GS[today]&&GS[today][k]?'rdon':'ghost'}" data-a="gashttog" data-w="${k}">${GS[today]&&GS[today][k]?T('✓ Aaj kiya','✓ Done today'):T('Aaj kiya','Done today')}</button>`)).join('')}
    ${WKK.map(([k,ic,nm])=>{const c=wkCfg()[k],ok=wkHas(ws,k),td=WK[today]&&WK[today][k];return row(ok,ic,nm(),`${T('Is hafte','This week')}: ${ok?'✅':'⏳'} • ${dayName(c.d)}${k==='mash'?' • '+t12(c.t):''}`,`<button class="btn s ${td?'rdon':'ghost'}" data-a="wktog" data-w="${k}">${td?T('✓ Aaj kiya','✓ Done today'):T('Aaj kiya','Done today')}</button>`)}).join('')}
+   ${row(mm.dmash,'💬',T('Rozana mashwara (masjid)','Daily mashwara (masjid)','روزانہ مشورہ (مسجد)','रोज़ाना मशवरा (मस्जिद)'),`${pname(dmCfg().p)} ${T('ke baad','after','کے بعد','के बाद')} • ${T('aaj ke kaam ki tarteeb, gasht/taleem ki zimmedari','plan of today\'s work & duties','آج کے کام کی ترتیب، گشت/تعلیم کی ذمہ داری','आज के काम की तरतीब, गश्त/तालीम की ज़िम्मेदारी')}`,ck('dmash',mm.dmash))}
    ${row(ks.tdays>=3,'📅',T('Mahine ke 3 din','3 days this month'),`${ks.tdays}/3 ${T('din','days')}${ks.log.length?' • '+ks.log.map(x=>x.date.slice(8)+'/'+x.date.slice(5,7)+' ('+x.days+')').join(', '):''}`,`<button class="btn s" data-a="dawatadd">＋</button>`)}
    <div class="row wrap mt"><button class="btn s ghost" data-a="gashtset">⏰ ${T('Gasht ka din / namaz aur yaad-dahani','Gasht day / prayer & reminders')}</button></div></div>`}
 /* ---------- weekly / monthly report ---------- */
@@ -55,6 +58,7 @@ function periodRange(p,off){const base=new Date();if(p==='w'){const s=wkStart(ba
 const fmtDM=d=>pad(d.getDate())+'/'+pad(d.getMonth()+1);
 function missList(p,s,e,r){const m=[],todayK=dkey();
   if(r.missTm)m.push(T(`Masjid ki taleem ${r.missTm} din chhooti`,`Masjid taleem missed ${r.missTm} day(s)`));
+  if(r.missDm)m.push(T(`Rozana mashwara ${r.missDm} din chhoota`,`Daily mashwara missed ${r.missDm} day(s)`,`روزانہ مشورہ ${r.missDm} دن چھوٹا`,`रोज़ाना मशवरा ${r.missDm} दिन छूटा`));
   if(r.missTg)m.push(T(`Ghar ki taleem ${r.missTg} din chhooti`,`Home taleem missed ${r.missTg} day(s)`));
   if(r.missH)m.push(T(`Dhai ghante ${r.missH} din poore nahi hue`,`2.5 hours not reached on ${r.missH} day(s)`));
   if(p==='w'){GK.forEach(([k,nm])=>{if(!weekHasGasht(s,k)){const c=gashtCfg(k),due=addDays(s,(c.d+2)%7);if(dkey(due)<todayK||dkey(e)<todayK)m.push(T(`${nm()} nahi hua (${dayName(c.d)})`,`${nm()} missed (${dayName(c.d)})`))}})}
@@ -72,6 +76,7 @@ function kaamReportCard(){
     ${dayRow('🕋 '+T('Namaz (5)','Prayers (5)'),k=>hzScore(k)===5)}
     ${dayRow('🕌 '+T('Masjid taleem','Masjid taleem'),k=>mmM(MM[k]||{}))}
     ${dayRow('🏠 '+T('Ghar taleem','Home taleem'),k=>(MM[k]||{}).ghar)}
+    ${dayRow('💬 '+T('Rozana mashwara','Daily mashwara','روزانہ مشورہ','रोज़ाना मशवरा'),k=>(MM[k]||{}).dmash)}
     ${dayRow('⏱ '+T('Dhai ghante','2.5 hrs'),k=>((MM[k]||{}).minutes||0)>=150)}
     ${dayRow('🚶 '+T('Apni masjid gasht','Own gasht'),k=>(GS[k]||{}).own)}
     ${dayRow('🚶 '+T('Padosi gasht','Neighbour gasht'),k=>(GS[k]||{}).nbr)}
@@ -93,16 +98,17 @@ function kaamReportCard(){
    ${grid}<div style="margin-top:10px">${sums}</div>${gd}
    <div class="warnbox" style="margin-top:10px;${miss.length?'':'background:rgba(60,200,120,.12);border-color:rgba(60,200,120,.35)'}"><b>${miss.length?T('Jo kaam chhoot gaye:','Missed:'):T('Mashaallah — koi kaam nahi chhoota ✅','Mashaallah — nothing missed ✅')}</b>${miss.length?'<ul style="margin:6px 0 0;padding-left:18px">'+miss.map(x=>`<li>${esc(x)}</li>`).join('')+'</ul>':''}</div></div>`}
 function kaamSummaryText(s,e){const r=kaamStats(s,e),x=r.elapsed||1;
-  return T(`Namaz ${r.nam.j+r.nam.a}/${r.nam.tot} • Masjid taleem ${r.tm}/${x} • Ghar taleem ${r.tg}/${x} • Dhai ghante ${r.h25}/${x} • Gasht apni ${r.own>0?'✅':'❌'} padosi ${r.nbr>0?'✅':'❌'} • 3 din ${Math.min(3,r.tdays)}/3`,
-    `Prayers ${r.nam.j+r.nam.a}/${r.nam.tot} • Masjid taleem ${r.tm}/${x} • Home taleem ${r.tg}/${x} • 2.5h ${r.h25}/${x} • Gasht own ${r.own>0?'✅':'❌'} nbr ${r.nbr>0?'✅':'❌'} • 3 days ${Math.min(3,r.tdays)}/3`)}
+  return T(`Namaz ${r.nam.j+r.nam.a}/${r.nam.tot} • Masjid taleem ${r.tm}/${x} • Ghar taleem ${r.tg}/${x} • Rozana mashwara ${r.dm||0}/${x} • Dhai ghante ${r.h25}/${x} • Gasht apni ${r.own>0?'✅':'❌'} padosi ${r.nbr>0?'✅':'❌'} • 3 din ${Math.min(3,r.tdays)}/3`,
+    `Prayers ${r.nam.j+r.nam.a}/${r.nam.tot} • Masjid taleem ${r.tm}/${x} • Home taleem ${r.tg}/${x} • Daily mashwara ${r.dm||0}/${x} • 2.5h ${r.h25}/${x} • Gasht own ${r.own>0?'✅':'❌'} nbr ${r.nbr>0?'✅':'❌'} • 3 days ${Math.min(3,r.tdays)}/3`)}
 /* ---------- gasht settings ---------- */
 function gashtSetForm(){const G=S.gasht,dayOpts=DAYN.map((d,i)=>[i,dayName(i)]),pOpts=PRAY.map(p=>[p,pname(p)]);
   form(T('Gasht ka din aur namaz','Gasht day & prayer'),[
     {k:'on',l:T('Gasht ki voice notification','Gasht voice reminders'),t:'select',v:G.on?1:0,o:[[1,T('Haan, yaad dilayein','Yes, remind me')],[0,T('Nahi','No')]]},
     {k:'od',l:T('Apni masjid ka gasht — din','Own masjid gasht — day'),t:'select',v:G.own.d,o:dayOpts},{k:'op',l:T('Kaun si namaz ke baad','After which prayer'),t:'select',v:G.own.p,o:pOpts},
     {k:'nd',l:T('Padosi masjid ka gasht — din','Neighbour masjid gasht — day'),t:'select',v:G.nbr.d,o:dayOpts},{k:'np',l:T('Kaun si namaz ke baad','After which prayer'),t:'select',v:G.nbr.p,o:pOpts},
-    {k:'sd',l:T('Shab-guzari ka din','Shab-guzari day'),t:'select',v:wkCfg().shab.d,o:dayOpts},{k:'md',l:T('Hafta-wari mashwara ka din','Weekly mashwara day'),t:'select',v:wkCfg().mash.d,o:dayOpts},{k:'mt',l:T('Mashwara ka waqt','Mashwara time'),t:'time',v:wkCfg().mash.t}],
-    o=>{S.gasht={on:+o.on===1,own:{d:+o.od,p:o.op},nbr:{d:+o.nd,p:o.np}};S.wk={on:true,shab:{d:+o.sd},mash:{d:+o.md,t:hm(o.mt)?o.mt:'20:30'}};saveS();if(typeof schedTick==='function')schedTick();if(typeof nativeSync==='function')nativeSync();toast(T('Gasht set ho gaya ✅','Gasht saved ✅'));rerender()})}
+    {k:'sd',l:T('Shab-guzari ka din','Shab-guzari day'),t:'select',v:wkCfg().shab.d,o:dayOpts},{k:'md',l:T('Hafta-wari mashwara ka din','Weekly mashwara day'),t:'select',v:wkCfg().mash.d,o:dayOpts},{k:'mt',l:T('Mashwara ka waqt','Mashwara time'),t:'time',v:wkCfg().mash.t},
+    {k:'dmon',l:T('Rozana mashwara ki yaad-dahani','Daily mashwara reminder','روزانہ مشورے کی یاد دہانی','रोज़ाना मशवरे की याद-दहानी'),t:'select',v:dmCfg().on?1:0,o:[[1,T('Haan','Yes','ہاں','हाँ')],[0,T('Nahi','No','نہیں','नहीं')]]},{k:'dmp',l:T('Rozana mashwara — kaun si namaz ke baad','Daily mashwara — after which prayer','روزانہ مشورہ — کون سی نماز کے بعد','रोज़ाना मशवरा — कौन सी नमाज़ के बाद'),t:'select',v:dmCfg().p,o:pOpts}],
+    o=>{S.gasht={on:+o.on===1,own:{d:+o.od,p:o.op},nbr:{d:+o.nd,p:o.np}};S.wk={on:true,shab:{d:+o.sd},mash:{d:+o.md,t:hm(o.mt)?o.mt:'20:30'}};S.dmash={on:+o.dmon===1,p:o.dmp||'Isha',m:15};saveS();if(typeof schedTick==='function')schedTick();if(typeof nativeSync==='function')nativeSync();toast(T('Gasht set ho gaya ✅','Gasht saved ✅'));rerender()})}
 /* ---------- reminder events (shared by web scheduler and the APK plan) ---------- */
 function gashtEvents(base,az,jm){const out=[],G=S.gasht;if(!G||!G.on)return out;const dow=base.getDay();
   GK.forEach(([k,nm])=>{const c=G[k];if(!c||c.d!==dow)return;const p=c.p,pn=pname(p),w=nm(),azd=az(p),jmd=jm(p);
@@ -114,7 +120,9 @@ function reportEvents(base){const out=[],dow=base.getDay();
   if(dow===5){const ws=wkStart(addDays(base,-1)),we=addDays(ws,6);out.push({k:'rpw',at:atTime('07:00',base),voice:'review',title:T('Hafte ki report 📊 (Jumma se Jumeraat)','Weekly report 📊 (Jumma → Thursday)'),body:kaamSummaryText(ws,we),tab:'deen',sub:'khabar'})}
   if(base.getDate()===1){const pe=addDays(base,-1),ps=new Date(pe.getFullYear(),pe.getMonth(),1);out.push({k:'rpm',at:atTime('08:00',base),voice:'review',title:T('Mahine ki report 📊','Monthly report 📊'),body:kaamSummaryText(ps,pe),tab:'deen',sub:'khabar'})}
   return out}
-function wkEvents(base){const out=[],C=wkCfg();if(!C.on)return out;const dow=base.getDay();
+function wkEvents(base){const out=[],C=wkCfg();
+  try{const D=dmCfg();if(D.on){let t=null;try{t=typeof jamTime==='function'?jamTime(D.p,base):null}catch(e){}if(!t){try{t=azanTime(D.p,base)}catch(e){}if(t){t=new Date(t);t.setMinutes(t.getMinutes()+20)}}if(t){const q=new Date(t);q.setMinutes(q.getMinutes()+(D.m||15));const vid=(typeof VO!=='undefined'&&VO.IDS&&VO.IDS.includes('mashwara'))?'mashwara':'taleem';out.push({k:'dm_mash',at:q,voice:vid,title:T(`Rozana mashwara — ${pname(D.p)} ke baad 🗣️`,`Daily mashwara — after ${pname(D.p)} 🗣️`,`روزانہ مشورہ — ${pname(D.p)} کے بعد 🗣️`,`रोज़ाना मशवरा — ${pname(D.p)} के बाद 🗣️`),body:T('Masjid ke mashwara mein shareek hon — aaj gasht, taleem, mulaqat ki zimmedari tay hogi.','Join the masjid mashwara — today\'s gasht, taleem and visits are assigned.','مسجد کے مشورے میں شریک ہوں — آج گشت، تعلیم، ملاقات کی ذمہ داری طے ہوگی۔','मस्जिद के मशवरे में शरीक हों — आज गश्त, तालीम, मुलाक़ात की ज़िम्मेदारी तय होगी।'),tab:'deen',sub:'khabar'})}}}catch(e){}
+  if(!C.on)return out;const dow=base.getDay();
   if(C.shab.d===dow)out.push({k:'wk_shab',at:atTime('16:30',base),voice:'gasht',title:T('Aaj shab-guzari ka din 🌙','Shab-guzari day today 🌙'),body:T('Markaz/masjid mein raat guzarne ki taiyaari — bistar, zaroori saaman, ghar walon ko itla.','Prepare to spend the night at the markaz/masjid — bedding, essentials, inform family.'),tab:'deen',sub:'khabar'});
   if(C.mash.d===dow&&hm(C.mash.t))out.push({k:'wk_mash',at:atTime(C.mash.t,base),voice:'taleem',title:T('Hafta-wari mashwara ka waqt 🤝','Weekly mashwara time 🤝'),body:T('Is hafte ke kaam, gasht aur agle hafte ka tartib.','This week\'s work, gasht and plan for next week.'),tab:'deen',sub:'khabar'});
   return out}

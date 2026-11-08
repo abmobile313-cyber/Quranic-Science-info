@@ -44,6 +44,7 @@ function natItems(){
     if(typeof pubEvents==='function')pubEvents(base,az,jm).forEach(e=>add(e.at,e.title,e.body,e.voice,{tab:e.tab,sub:e.sub,qk:e.qk,qp:e.qp}));
     if(typeof pexEvents==='function')pexEvents(base).forEach(e=>add(e.at,e.title,e.body,e.voice,{tab:e.tab,sub:e.sub}));
     if(typeof tipEvents==='function')tipEvents(base).forEach(e=>add(e.at,e.title,e.body,e.voice,{tab:e.tab,sub:e.sub}));
+    if(typeof yrEvents==='function')yrEvents(base).forEach(e=>add(e.at,e.title,e.body,e.voice||'alert',{tab:e.tab,sub:e.sub}));
     if(typeof reportEvents==='function')reportEvents(base).forEach(e=>add(e.at,e.title,e.body,e.voice,{tab:e.tab,sub:e.sub}));
     add(typeof nightAt==='function'?nightAt(base):at(S.review),T('Sone se pehle ka hisaab 🌙','Before-sleep review 🌙','سونے سے پہلے کا حساب 🌙','सोने से पहले का हिसाब 🌙'),T('Aaj ki namaz aur amaal ka khulasa — jo likha nahi, update karein','Today\'s prayers & deeds — update what is missing','آج کی نماز اور اعمال کا خلاصہ — جو لکھا نہیں، اپڈیٹ کریں','आज की नमाज़ और आमाल का ख़ुलासा — जो लिखा नहीं, अपडेट करें'),'review',{tab:'home',sub:'night'});
   }

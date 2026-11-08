@@ -43,6 +43,7 @@ function natItems(){
     if(typeof almEvents==='function')almEvents(base).forEach(e=>{let at=e.at;if(e.vn&&at){add(at,e.title,e.body,e.vn,{tab:e.tab,sub:e.sub});at=new Date(+at+8000)}add(at,e.title,e.body,e.voice||'alert_alarm',{tab:e.tab,sub:e.sub,alarm:1,aid:e.aid,snooze:e.snooze,duaRaw:e.duaRaw,duaText:e.duaText,duaLang:e.duaLang})});
     if(typeof pexEvents==='function')pexEvents(base).forEach(e=>add(e.at,e.title,e.body,e.voice,{tab:e.tab,sub:e.sub}));
     if(typeof tipEvents==='function')tipEvents(base).forEach(e=>add(e.at,e.title,e.body,e.voice,{tab:e.tab,sub:e.sub}));
+    if(typeof yrEvents==='function')yrEvents(base).forEach(e=>add(e.at,e.title,e.body,e.voice||'alert',{tab:e.tab,sub:e.sub}));
     if(typeof reportEvents==='function')reportEvents(base).forEach(e=>add(e.at,e.title,e.body,e.voice,{tab:e.tab,sub:e.sub}));
     add(typeof nightAt==='function'?nightAt(base):at(S.review),T('Sone se pehle ka hisaab 🌙','Before-sleep review 🌙','سونے سے پہلے کا حساب 🌙','सोने से पहले का हिसाब 🌙'),T('Aaj ki namaz aur amaal ka khulasa — jo likha nahi, update karein','Today\'s prayers & deeds — update what is missing','آج کی نماز اور اعمال کا خلاصہ — جو لکھا نہیں، اپڈیٹ کریں','आज की नमाज़ और आमाल का ख़ुलासा — जो लिखा नहीं, अपडेट करें'),'review',{tab:'home',sub:'night'});
   }

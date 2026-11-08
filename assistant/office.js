@@ -61,7 +61,7 @@ function oMood(){const q=OQUOTES[(new Date().getDate()+new Date().getHours())%OQ
    <div class="ofq">“${esc(T(q[0],q[1]))}”</div>
    <div class="ofdua"><div class="ar" dir="rtl">${d[0]}</div><div class="sm"><i>${esc(d[1])}</i> — ${esc(d[2])}</div></div>
    <div class="row wrap mt" style="gap:6px"><button class="btn s gold" data-a="ofbreath">🫁 ${T('1 minute saans','1-min breathing')}</button><button class="btn s ghost" data-a="ofwater">💧 ${T('Paani','Water')} ${w}/8</button><button class="btn s ghost" data-a="ofstretch">🧘 ${T('Stretch','Stretch')}</button><button class="btn s ghost" data-a="ofnewq">🔄 ${T('Naya khayal','New thought')}</button></div></div>`}
-async function renderOffice(el){if(OFCW!==1){OFCW=1;try{if(S.voice||S.sfx!==false){const u=await VO.blob('ofc_welcome');const a=new Audio(u);a.play().catch(()=>{})}}catch(e){}}
+async function renderOffice(el){/* welcome awaaz ab sirf Duty ON / break khatam / Duty OFF par (duty.js) */
   document.body.classList.add('ofcbg');
   el.innerHTML=oHero()+(typeof dutyToday==='function'?dutyToday():'')+oDash()+oLogCard()+(typeof dvOfficeCard==='function'?dvOfficeCard():'')+oApps()+oMood()+oTeam()}
 /* welcome awaaz har baar jab Office tab mein aayein */
