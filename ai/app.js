@@ -355,6 +355,7 @@ const ZONES = { jawf:[190,140,"ا و ي",{en:"Al-Jawf: empty space of mouth & th
   l7:[272,158,"ص س ز",{en:"Tip near the lower front teeth (whistle)",ur:"نوک + نیچے کے دانت (صفیر)",hi:"नोक + नीचे के दाँत (सफ़ीर)"}], l8:[285,146,"ظ ذ ث",{en:"Tip + edges of upper front teeth",ur:"نوک + اوپر کے دانتوں کے کنارے",hi:"नोक + ऊपर के दाँतों के किनारे"}],
   s1:[300,160,"ف",{en:"Lower lip + upper front teeth",ur:"نچلا ہونٹ + اوپر کے دانت",hi:"नीचे का होंठ + ऊपर के दाँत"}], s2:[312,147,"ب م و",{en:"Both lips",ur:"دونوں ہونٹ",hi:"दोनों होंठ"}],
   kh:[230,92,"غُنَّة",{en:"Al-Khayshum: the nose (ghunnah)",ur:"الخیشوم: ناک (غنہ)",hi:"अल-ख़ैशूम: नाक (ग़ुन्ना)"}] };
+const RL = { nose: { en: "nose", ur: "ناک", hi: "नाक" }, throat: { en: "throat", ur: "حلق", hi: "हल्क़" }, tongue: { en: "tongue", ur: "زبان", hi: "ज़बान" }, lips: { en: "lips", ur: "ہونٹ", hi: "होंठ" } };
 const GCOL = ["#2cc4f2", "#f6a53c", "#3fcf8e", "#ff6b6b", "#b9a99b"];
 function lettersQ(str) { return [...str].filter(ch => LETTER[ch]).map(ch => ({ s: LETTER[ch][0], a: LETTER[ch][1], w: LETTER[ch][2] })); }
 function visualHTML(v) {
@@ -369,6 +370,8 @@ function visualHTML(v) {
       <path class="tng" d="M112,222 C118,166 168,146 222,148 C252,149 276,154 290,160 C262,174 204,178 150,204 Z"/>
       <path class="thr" d="M88,255 C90,205 92,165 116,132 M118,255 C116,215 118,190 124,176"/>
       <rect class="tth" x="286" y="129" width="8" height="10" rx="2"/><rect class="tth" x="284" y="161" width="8" height="9" rx="2"/>
+      <ellipse class="lip" cx="306" cy="139" rx="9" ry="6"/><ellipse class="lip" cx="304" cy="160" rx="9" ry="6"/><circle class="eye" cx="262" cy="70" r="5"/>
+      <text class="rl" x="232" y="76">${esc(pick(RL.nose))}</text><text class="rl" x="72" y="120">${esc(pick(RL.throat))}</text><text class="rl" x="170" y="196">${esc(pick(RL.tongue))}</text><text class="rl" x="338" y="152">${esc(pick(RL.lips))}</text>
       ${on.has("jawf") ? `<ellipse cx="190" cy="140" rx="${many ? 70 : 78}" ry="${many ? 26 : 30}" class="jawf"/>` : ""}${dots}</svg>
       <figcaption>${[...on].map(k => `<button class="zchip" data-z="${k}"><b class="ar">${ZONES[k][2]}</b><span>${esc(pick(ZONES[k][3]))}</span> 🔊</button>`).join("")}</figcaption></figure>`;
   }
