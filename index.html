@@ -2239,5 +2239,16 @@ addEventListener("hashchange", () => { if (location.hash === "#app") open(); });
   }, true);
 })();
 </script>
+<script id="qs-ai-opt">/* "Learn with Quranic Science AI": a second option on the Tajweed, Arabic and Combo course cards */
+(()=>{const MAP=[[/^tajweed \+ arabic/i,"combo","₹3,999"],[/^tajweed class/i,"tajweed","₹1,499"],[/^arabic speaking/i,"arabic","₹2,999"]];
+const css=document.createElement("style");css.textContent=`.qs-ai-opt{margin:10px 0 4px;display:grid;gap:8px}.qs-ai-lbl{font:700 12px/1.2 Outfit,system-ui,sans-serif;letter-spacing:.06em;text-transform:uppercase;opacity:.75}
+.qs-ai-btn{display:flex;align-items:center;gap:10px;padding:11px 14px;border-radius:14px;text-decoration:none;color:#fff;background:linear-gradient(135deg,#a01d34,#7a1424);border:1px solid rgba(227,170,60,.55);box-shadow:0 10px 26px -14px rgba(160,29,52,.9);font:700 15px/1.25 Outfit,system-ui,sans-serif}
+.qs-ai-btn img{width:34px;height:34px;border-radius:10px;flex:none}.qs-ai-btn small{display:block;font-weight:500;opacity:.85;font-size:12px}.qs-ai-btn b{margin-inline-start:auto;color:#f6d68a;white-space:nowrap}`;document.head.appendChild(css);
+const run=()=>{document.querySelectorAll("article.ccard").forEach(c=>{if(c.querySelector(".qs-ai-opt"))return;const h=c.querySelector("h3");if(!h)return;const m=MAP.find(x=>x[0].test(h.textContent.trim()));if(!m)return;
+const enr=c.querySelector(".enr2")||c.querySelector("[data-enr]");const box=document.createElement("div");box.className="qs-ai-opt";
+box.innerHTML=`<span class="qs-ai-lbl">🤖 Or learn on your own</span><a class="qs-ai-btn" href="/ai.html#${m[1]==="combo"?"home":m[1]}"><img src="/ai/icon-192.png" alt=""><span>Learn with Quranic Science AI<small>Voice lessons · real qari · AI Ustad · certificate</small></span><b>${m[2]}</b></a>`;
+if(enr&&enr.parentNode){const lbl=document.createElement("span");lbl.className="qs-ai-lbl";lbl.textContent="👨‍🏫 Learn with real teacher";enr.parentNode.insertBefore(lbl,enr);enr.after(box);}else{const b=c.querySelector(".cbody");b&&b.appendChild(box);}});};
+let tm=0;new MutationObserver(()=>{clearTimeout(tm);tm=setTimeout(run,120)}).observe(document.body,{childList:true,subtree:true});addEventListener("load",run);})();
+</script>
 </body>
 </html>
