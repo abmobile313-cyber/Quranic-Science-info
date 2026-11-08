@@ -24,3 +24,9 @@ function blHead(){const M={bLang:()=>T('Zabaan','Language','زبان','ज़ब
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
   {const _sl=window.setLang;if(typeof _sl==='function')window.setLang=function(){const r=_sl.apply(this,arguments);setTimeout(blHead,50);return r}}
   setInterval(blHead,5000)})();
+/* sub-tab bar: jab 6 se zyada tab hon to 4-4 ke grid mein (koi naam na kate, na chhupe) */
+function segFix(){document.querySelectorAll('.seg').forEach(s=>{const n=s.querySelectorAll(':scope>button').length;s.classList.toggle('many',n>5);if(n>5)s.style.setProperty('--cols',n>8?4:n===6?3:4)})}
+(function(){const st=document.createElement('style');st.textContent=`.seg.many{display:grid!important;grid-auto-flow:row!important;grid-template-columns:repeat(var(--cols,4),1fr)!important;grid-auto-columns:auto!important;gap:4px;padding:5px}
+.seg.many>.pill{display:none}.seg.many>button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;min-height:54px;padding:6px 2px;border-radius:12px;font-size:12.5px;line-height:1.15;white-space:normal;text-align:center;word-break:keep-all}
+.seg.many>button.on{background:linear-gradient(135deg,var(--blue),var(--cyan));color:#fff;box-shadow:0 4px 14px rgba(26,140,255,.35)}`;document.head.appendChild(st);
+  const mo=new MutationObserver(()=>{clearTimeout(segFix.t);segFix.t=setTimeout(segFix,30)});const init=()=>{const v=document.getElementById('view')||document.body;mo.observe(v,{childList:true,subtree:true});segFix()};if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init()})();
