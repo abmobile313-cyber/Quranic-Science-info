@@ -8,9 +8,9 @@ const RECAPTCHA = "6Lf3gQsuAAAAACWh2Tym8DMJoLbh5RLxNjbokYDx", AI_MODEL = "gemini
 const WA = "919272527913";
 const FREE = ["t-w01d1", "a-w01d1"];
 const COURSES = {
-  tajweed: { key: "ai-tajweed", full: "ai-tajweed-full", k: "t", ar: "التَّجْوِيدُ", inr: 1499, usd: 18, fInr: 999, fUsd: 12, pay: "", payIntl: "", payFull: "", payFullIntl: "" },
-  arabic:  { key: "ai-arabic",  full: "ai-arabic-full",  k: "a", ar: "اللُّغَةُ الْعَرَبِيَّةُ", inr: 2999, usd: 36, fInr: 999, fUsd: 12, pay: "", payIntl: "", payFull: "", payFullIntl: "" },
-  combo:   { key: "ai-tajweed-arabic-combo", full: "ai-combo-full", k: "c", ar: "التَّجْوِيدُ + الْعَرَبِيَّةُ", inr: 3999, usd: 48, fInr: 1499, fUsd: 18, pay: "", payIntl: "", payFull: "", payFullIntl: "" }
+  tajweed: { key: "ai-tajweed", full: "ai-tajweed-full", live: "tajweed-class", k: "t", ar: "التَّجْوِيدُ", inr: 1499, usd: 18, fInr: 999, fUsd: 12, pay: "", payIntl: "", payFull: "", payFullIntl: "" },
+  arabic:  { key: "ai-arabic",  full: "ai-arabic-full", live: "arabic-speaking-class",  k: "a", ar: "اللُّغَةُ الْعَرَبِيَّةُ", inr: 2999, usd: 36, fInr: 999, fUsd: 12, pay: "", payIntl: "", payFull: "", payFullIntl: "" },
+  combo:   { key: "ai-tajweed-arabic-combo", full: "ai-combo-full", live: "tajweed-arabic-combo", k: "c", ar: "التَّجْوِيدُ + الْعَرَبِيَّةُ", inr: 3999, usd: 48, fInr: 1499, fUsd: 18, pay: "", payIntl: "", payFull: "", payFullIntl: "" }
 };
 const QARI_AYAH = (s, a) => `https://everyayah.com/data/Husary_128kbps/${String(s).padStart(3, "0")}${String(a).padStart(3, "0")}.mp3`;
 const QARI_WORD = (s, a, w) => `https://audio.qurancdn.com/wbw/${String(s).padStart(3, "0")}_${String(a).padStart(3, "0")}_${String(w).padStart(3, "0")}.mp3`;
@@ -119,11 +119,16 @@ const IDB = (() => { let dbp; const open = () => dbp || (dbp = new Promise((res,
   return { get: k => tx("readonly", s => s.get(k)).catch(() => null), set: (k, v) => tx("readwrite", s => s.put(v, k)).catch(() => null), del: k => tx("readwrite", s => s.delete(k)).catch(() => null) }; })();
 
 /* ============ state ============ */
-const S = { rep: LS.get("qsai-rep", 1), user: null, doc: {}, prog: LS.get("qsai-prog", {}), outline: {}, weeks: {}, voice: LS.get("qsai-voice", true), keys: {}, full: {} };
+const S = { rep: LS.get("qsai-rep", 1), user: null, doc: {}, prog: LS.get("qsai-prog", {}), outline: {}, weeks: {}, voice: LS.get("qsai-voice", true), keys: {}, full: {}, tch: null, live: {} };
 const isOwner = () => !!(S.user && OWNERS.includes((S.user.email || "").toLowerCase()));
 const acc = () => S.doc.access || {};
-const has = c => isOwner() || !!(acc()[COURSES[c].key] || acc()[COURSES.combo.key] || acc()[COURSES[c].full] || acc()[COURSES.combo.full]);
-const isFull = c => isOwner() || !!(acc()[COURSES[c].full] || acc()[COURSES.combo.full] || S.full[c]);
+/* bought the AI course itself */
+const buyer = c => isOwner() || !!(acc()[COURSES[c].key] || acc()[COURSES.combo.key] || acc()[COURSES[c].full] || acc()[COURSES.combo.full]);
+/* a live-class (teacher) student: the same lessons open together with their live classes */
+const liveOf = c => c !== "combo" && !!(acc()[COURSES[c].live] || acc()[COURSES.combo.live]);
+const isTeacherOf = c => !!(S.tch && (S.tch.course === (COURSES[c] || {}).live || S.tch.course === COURSES.combo.live));
+const has = c => c === "combo" ? buyer(c) || (liveOf("tajweed") && liveOf("arabic")) : buyer(c) || liveOf(c) || isTeacherOf(c);
+const isFull = c => isOwner() || isTeacherOf(c) || !!(acc()[COURSES[c].full] || acc()[COURSES.combo.full] || S.full[c]);
 const progOf = () => Object.assign({}, S.prog, (S.doc.ai || {}));
 const slot = () => S.doc.aiSlot || null;
 
@@ -135,6 +140,8 @@ async function loadDoc() {
   S.doc = {};
   if (!S.user || !db) return;
   try { const d = await db.collection("users").doc(S.user.uid).get(); S.doc = d.exists ? d.data() : {}; } catch (e) {}
+  S.tch = null; S.live = {};
+  if (S.user.email) try { const tdoc = await db.collection("teachers").doc(S.user.email.toLowerCase()).get(); if (tdoc.exists) S.tch = tdoc.data(); } catch (e) {}
   const local = LS.get("qsai-prog", {}), remote = S.doc.ai || {}, add = {};
   for (const k in local) if (!remote[k]) add[k] = local[k];
   if (Object.keys(add).length) { S.doc.ai = Object.assign({}, remote, add); try { await db.collection("users").doc(S.user.uid).set({ ai: add }, { merge: true }); } catch (e) {} }
@@ -193,11 +200,22 @@ function slotTimeAfter(ts) {
   while (d.getDay() === +s.off) d.setDate(d.getDate() + 1);
   return d.getTime();
 }
+/* which AI lessons are open for a live student: the lesson of every live class that has started */
+async function liveOpen(c) {
+  if (S.live[c] || !db || !liveOf(c)) return S.live[c] || new Set();
+  const set = new Set(), o = await outline(c), ids = allIds(o), b = S.doc.batch, now = Date.now();
+  try { const q = await db.collection("classes").where("course", "==", COURSES[c].live).get();
+    q.docs.map(d => d.data()).filter(k => !b || !k.batch || k.batch === b || k.batch === "ALL").forEach(k => {
+      const at = k.date ? new Date(String(k.date).replace(" ", "T")).getTime() : 0;
+      if (at && at - 15 * 60000 <= now) { const id = k.ai || ids[(k.n || 0) - 1]; if (id) set.add(id); } }); } catch (e) {}
+  return S.live[c] = set;
+}
 function lockInfo(c, o, id) {
   const ids = allIds(o), i = ids.indexOf(id), P = progOf();
   if (i === 0) return { open: true };
   if (!has(c)) return { open: false, why: "buy" };
   if (isFull(c) || P[id]) return { open: true };
+  if (!buyer(c) && liveOf(c)) return (S.live[c] || new Set()).has(id) ? { open: true } : { open: false, why: "live" };
   const prev = P[ids[i - 1]]; if (!prev) return { open: false, why: "prev" };
   if (!slot()) return { open: false, why: "slot" };
   const at = slotTimeAfter(prev.ts || 0); return at <= Date.now() ? { open: true } : { open: false, why: "time", at };
@@ -247,6 +265,7 @@ function route() {
   if (v === "offline") return viewOffline();
   if (v === "keys") return viewKeys();
   if (v === "lab") return viewLab();
+  if (v === "plan") return viewPlan(a || "tajweed");
   return viewHome();
 }
 addEventListener("hashchange", route);
@@ -298,9 +317,10 @@ function slotBox(after) {
 async function viewCourse(c) {
   const app = $("#app"), o = await outline(c), P = progOf(), ids = allIds(o);
   if (has(c) && S.user) { try { await courseKey(c); } catch (e) {} }
-  if (has(c) && !isFull(c) && !isOwner() && !slot()) slotBox(() => route());
+  if (liveOf(c) && !buyer(c)) await liveOpen(c);
+  if (buyer(c) && !isFull(c) && !isOwner() && !slot()) slotBox(() => route());
   const s = stats(c, o), cur = ids.find(id => !P[id]), sl = slot();
-  app.innerHTML = `<div class="chead"><div class="ring" style="--p:${s.pct}"><span>${num(s.pct)}%</span></div>
+  app.innerHTML = (liveOf(c) && !buyer(c) ? `<p class="livenote">🎓 ${pick(LIVEX.note)}</p>` : "") + (isTeacherOf(c) || isOwner() ? `<p class="livenote"><a href="#plan=${c}">📘 ${pick(LIVEX.plan)}</a></p>` : "") + `<div class="chead"><div class="ring" style="--p:${s.pct}"><span>${num(s.pct)}%</span></div>
     <div style="flex:1;min-width:200px"><div class="arT ar" style="font-size:24px;color:var(--gold2)">${COURSES[c].ar}</div><h2 style="margin:0">${t(c)} ${isFull(c) && has(c) ? `<span class="tagf">${t("fullBadge")}</span>` : ""}</h2>
     <div class="stats" style="margin-top:8px"><div class="stat"><b>${num(s.done)}/${num(s.total)}</b><small>${t("lessons")}</small></div><div class="stat"><b>${num(s.score)}%</b><small>${t("score")}</small></div>
     <a class="stat" href="#cert=${c}" style="text-decoration:none;color:inherit"><b>🎓</b><small>${t("cert")}</small></a>
@@ -311,7 +331,7 @@ async function viewCourse(c) {
       <span class="wkt"><b>${esc(pick(w.title))}</b><small>${esc(pick(w.goal))}</small></span><span class="mini">${num(w.days.filter(d => P[d.id]).length)}/${num(6)}</span></summary>
       <div class="days">${w.days.map((d, di) => { const done = P[d.id], L = d.ready ? lockInfo(c, o, d.id) : { open: false, why: "soon" };
         const cls = done ? "done" : !d.ready ? "soon" : !L.open ? "lock" : d.id === cur ? "cur" : "";
-        const note = done ? `${t("score")} ${num(done.s)}/${num(done.n)}` : !d.ready ? t("soon") : L.why === "time" ? "⏰ " + fmtAt(L.at) : !L.open ? "🔒" : "";
+        const note = done ? `${t("score")} ${num(done.s)}/${num(done.n)}` : !d.ready ? t("soon") : L.why === "time" ? "⏰ " + fmtAt(L.at) : L.why === "live" ? "🎓 " + pick(LIVEX.short) : !L.open ? "🔒" : "";
         return `<button class="day ${cls}" data-l="${d.id}" data-why="${L.open ? "" : L.why}" data-at="${L.at || ""}"><small>${t("day")} ${num(di + 1)}${wi === 0 && di === 0 ? " · " + t("free") : ""}</small><span>${esc(pick(d.title))}</span><em>${note}</em></button>`; }).join("")}</div></details>`).join("")}</div>
     <section class="sec" id="hwList"></section>`;
   wireBuy(app);
@@ -399,6 +419,34 @@ function wireVisuals(root) {
   const LB = wireLab(root);
   $$(".tile.ltr", root).forEach(b => b.onclick = () => (LB && LB.say(b.dataset.c, b)) || playQari(lettersQ(b.dataset.c), b));
   $$(".tile.qw", root).forEach(b => b.onclick = () => { const [s, a, w] = b.dataset.q.split(",").map(Number); playQari([{ s, a, w }], b); });
+}
+
+/* ============ live class ↔ AI course: same syllabus, same day ============ */
+const LIVEX = {
+  wait: { en: "This lesson opens on the day of your live class.", ur: "یہ سبق آپ کی لائیو کلاس کے دن کھلے گا۔", hi: "यह सबक़ आपकी लाइव क्लास के दिन खुलेगा।" },
+  short: { en: "with live class", ur: "لائیو کلاس کے ساتھ", hi: "लाइव क्लास के साथ" },
+  note: { en: "You are in our live class. The same lesson as your class opens here on the same day: practise with the qari, the quiz and homework.", ur: "آپ ہماری لائیو کلاس میں ہیں۔ آپ کی کلاس والا سبق اسی دن یہاں کھلتا ہے: قاری صاحب کے ساتھ مشق، سوال اور ہوم ورک۔", hi: "आप हमारी लाइव क्लास में हैं। आपकी क्लास वाला सबक़ उसी दिन यहाँ खुलता है: क़ारी साहब के साथ मश्क़, सवाल और होमवर्क।" },
+  plan: { en: "Teacher's lesson plan", ur: "استاد کا سبق پلان", hi: "उस्ताद का सबक़ प्लान" },
+  planP: { en: "Teach each live class from the AI lesson of the same day, so live and AI students learn exactly the same thing. Open a day to see its points, Arabic, qari references, questions and homework.", ur: "ہر لائیو کلاس اسی دن کے AI سبق سے پڑھائیں، تاکہ لائیو اور AI دونوں طالب علم بالکل ایک ہی چیز سیکھیں۔ کوئی دن کھولیں: نکات، عربی، قاری کے حوالے، سوال اور ہوم ورک۔", hi: "हर लाइव क्लास उसी दिन के AI सबक़ से पढ़ाएँ, ताकि लाइव और AI दोनों तालिब-ए-इल्म बिल्कुल एक ही चीज़ सीखें। कोई दिन खोलें: नुक़्ते, अरबी, क़ारी के हवाले, सवाल और होमवर्क।" },
+  cls: { en: "Live class", ur: "لائیو کلاس", hi: "लाइव क्लास" }, ans: { en: "Answer", ur: "جواب", hi: "जवाब" },
+  only: { en: "This page is for teachers of the live course and the owner.", ur: "یہ صفحہ لائیو کورس کے استادوں اور مالک کے لیے ہے۔", hi: "यह पेज लाइव कोर्स के उस्तादों और मालिक के लिए है।" } };
+async function viewPlan(c) {
+  const app = $("#app"); if (!COURSES[c] || c === "combo") c = "tajweed";
+  if (!S.user) return loginBox(() => route());
+  if (!isOwner() && !isTeacherOf(c)) { app.innerHTML = `<section class="sec"><h2>📘 ${pick(LIVEX.plan)}</h2><p>${pick(LIVEX.only)}</p></section>`; return; }
+  const o = await outline(c); let n = 0;
+  app.innerHTML = `<section class="sec"><div class="seg" style="width:max-content;margin-bottom:10px">${["tajweed", "arabic"].filter(k => isOwner() || isTeacherOf(k)).map(k => `<button aria-pressed="${k === c}" onclick="location.hash='plan=${k}'">${t(k)}</button>`).join("")}</div>
+    <h2>📘 ${pick(LIVEX.plan)} · ${t(c)}</h2><p class="lead">${pick(LIVEX.planP)}</p>
+    ${o.weeks.map((w, wi) => `<div class="week"><div style="padding:12px 14px"><b>${t("week")} ${num(wi + 1)} · ${esc(pick(w.title))}</b><p class="mini">${esc(pick(w.goal))}</p></div>
+      ${w.days.map(d => { n++; return `<details class="pday" data-id="${d.id}" ${d.ready ? "" : "disabled"}><summary><b>${pick(LIVEX.cls)} ${num(n)}</b> · ${esc(pick(d.title))} ${d.ready ? "" : "· " + t("soon")}</summary><div class="pbody mini">…</div></details>`; }).join("")}</div>`).join("")}</section>`;
+  $$(".pday", app).forEach(dt => dt.ontoggle = async () => {
+    if (!dt.open || dt.dataset.done) return; dt.dataset.done = 1; const body = $(".pbody", dt);
+    let L = null; try { L = await lessonData(dt.dataset.id); } catch (e) {}
+    if (!L) { body.textContent = t("soon"); return; }
+    body.innerHTML = `<ol class="plist">${L.moments.map(m => `<li><p>${esc(pick(m))}</p>${m.ar ? `<p class="ar" style="font-size:24px;line-height:1.9">${esc(m.ar).replace(/\n/g, "<br>")}</p>` : ""}${m.q ? `<p>🕋 ${m.q.map(q => q.w ? `${q.s}:${q.a} (${q.w})` : `${q.s}:${q.a}`).join(" · ")}</p>` : ""}</li>`).join("")}</ol>
+      ${(L.quiz || []).length ? `<h4>❓ ${pick({ en: "Questions", ur: "سوالات", hi: "सवालात" })}</h4><ol>${L.quiz.map(q => `<li>${esc(pick(q.q))}<br>✓ <b>${esc(pick(q.o[q.a]))}</b></li>`).join("")}</ol>` : ""}
+      <p><a class="btn sm cy" href="#lesson=${L.id}">▶ ${t("open")}</a></p>`;
+  });
 }
 
 /* ============ Makharij Lab: live animation of tongue, lips, jaw, throat and nose ============ */
@@ -494,7 +542,8 @@ async function viewLesson(id) {
   const c = courseOf(id), o = await outline(c);
   const meta = o.weeks.flatMap((w, wi) => w.days.map((d, di) => Object.assign({ wi, di }, d))).find(d => d.id === id);
   if (!meta || !meta.ready) { toast(t("soon")); location.hash = c; return; }
-  const L = lockInfo(c, o, id); if (!L.open) { toast(L.why === "time" ? t("waitSlot") + ": " + fmtAt(L.at) : L.why === "buy" ? t("buyFirst") : t("locked")); location.hash = c; return; }
+  if (liveOf(c) && !buyer(c)) await liveOpen(c);
+  const L = lockInfo(c, o, id); if (!L.open) { toast(L.why === "time" ? t("waitSlot") + ": " + fmtAt(L.at) : L.why === "buy" ? t("buyFirst") : L.why === "live" ? pick(LIVEX.wait) : t("locked")); location.hash = c; return; }
   let data = null; try { data = await lessonData(id); } catch (e) { if (!S.user) return loginBox(() => route()); }
   if (!data) { toast(t("soon")); location.hash = c; return; }
   Object.assign(LESSON, { id, data, i: 0, c, meta, o });
@@ -574,7 +623,7 @@ function wireHw(c, lessonId) {
     status.innerHTML = `<p class="mini">⏳ ${t("hwSending")}</p>`;
     const data = await b64(blob), mime = blob.type || (kind === "voice" ? "audio/webm" : kind === "photo" ? "image/jpeg" : "video/mp4");
     const r = await fetch(`${W}/hw/upload`, { method: "POST", headers: { authorization: "Bearer " + await token(), "content-type": "application/json" },
-      body: JSON.stringify({ course: COURSES[c].key, lesson: lessonId, kind, mime, data, note: "" }) }).then(r => r.json()).catch(() => ({ error: "network" }));
+      body: JSON.stringify({ course: !buyer(c) && liveOf(c) ? COURSES[c].live : COURSES[c].key, lesson: lessonId, kind, mime, data, note: "" }) }).then(r => r.json()).catch(() => ({ error: "network" }));
     if (!r.ok) { status.innerHTML = `<p class="mini" style="color:var(--bad)">${esc(r.error || "Error")}</p>`; return; }
     status.innerHTML = `<p class="mini">✓ ${t("hwSent")}</p><p class="why" id="hwfb">🤖 ${t("hwChecking")}</p>`;
     const fb = await aiCheckHomework(lessonId, kind, mime, data);

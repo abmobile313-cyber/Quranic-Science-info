@@ -726,7 +726,8 @@ async function whoAmI(req, env) {
   const email = String(me.email || "").toLowerCase();
   return { uid: me.localId, email, verified: !!me.emailVerified, owner: !!me.emailVerified && ownerEmails(env).includes(email) };
 }
-const AI_COURSE = { tajweed: ["ai-tajweed", "ai-tajweed-arabic-combo", "ai-tajweed-full", "ai-combo-full"], arabic: ["ai-arabic", "ai-tajweed-arabic-combo", "ai-arabic-full", "ai-combo-full"] };
+const AI_COURSE = { tajweed: ["ai-tajweed", "ai-tajweed-arabic-combo", "ai-tajweed-full", "ai-combo-full", "tajweed-class", "tajweed-arabic-combo"], arabic: ["ai-arabic", "ai-tajweed-arabic-combo", "ai-arabic-full", "ai-combo-full", "arabic-speaking-class", "tajweed-arabic-combo"] };
+const AI_LIVE = { tajweed: "tajweed-class", arabic: "arabic-speaking-class" };
 export async function aiRoute(req, env, url) {
   const cors = { "access-control-allow-origin": "*", "access-control-allow-headers": "authorization,content-type", "access-control-allow-methods": "GET,POST,OPTIONS", "content-type": "application/json", "cache-control": "no-store" };
   const out = (o, s = 200) => new Response(JSON.stringify(o), { status: s, headers: cors });
@@ -740,9 +741,10 @@ export async function aiRoute(req, env, url) {
       const k = {}; for (const c of ["tajweed", "arabic"]) if (/^[0-9a-f]{64}$/.test(body[c] || "")) k[c] = body[c];
       await fs.merge("secrets/aiKeys", k); return out({ ok: true, saved: Object.keys(k) }); }
     if (p === "/ai/key") { const c = q.get("course"); if (!AI_COURSE[c]) return out({ error: "course" }, 400);
-      if (!me.owner && !AI_COURSE[c].some(k => acc[k])) return out({ error: "not enrolled" }, 403);
+      const tch = me.verified ? await fs.get(`teachers/${me.email}`).catch(() => null) : null, isT = !!(tch && (tch.course === AI_LIVE[c] || tch.course === "tajweed-arabic-combo"));
+      if (!me.owner && !isT && !AI_COURSE[c].some(k => acc[k])) return out({ error: "not enrolled" }, 403);
       const keys = (await fs.get("secrets/aiKeys")) || {}; if (!keys[c]) return out({ error: "key missing" }, 500);
-      return out({ key: keys[c], full: me.owner || acc["ai-" + c + "-full"] === true || acc["ai-combo-full"] === true }); }
+      return out({ key: keys[c], teacher: isT, full: me.owner || isT || acc["ai-" + c + "-full"] === true || acc["ai-combo-full"] === true }); }
     const teacher = me.verified ? await fs.get(`teachers/${me.email}`).catch(() => null) : null;
     if (p === "/hw/upload" && req.method === "POST") {
       const data = String(body.data || ""), mime = clip(body.mime, 60), kind = ["voice", "photo", "video"].includes(body.kind) ? body.kind : "";
