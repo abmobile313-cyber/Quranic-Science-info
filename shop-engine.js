@@ -208,7 +208,7 @@
       row.onclick = () => track(m.id, m.key); list.appendChild(row); } catch (e) {} }
     for (const q of quotes.slice(0, 10)) { try { const r = await api(`/quote?id=${q.id}&key=${q.key}`); const row = document.createElement("div"); row.className = "shp-card"; row.style.cursor = "pointer";
       const last = (r.msgs || []).slice(-1)[0] || {}, unread = last.f === "o";
-      row.innerHTML = `<div style="display:flex;justify-content:space-between;gap:8px"><b>Quote · ${H(r.service)}</b><span class="shp-pill">${r.status === "paid" ? "Paid" : r.status === "quoted" ? "Price ready" : unread ? "New reply" : "Waiting for reply"}</span></div>
+      row.innerHTML = `<div style="display:flex;justify-content:space-between;gap:8px"><b>Quote · ${H(r.service)}</b><span class="shp-pill">${r.status === "paid" ? "Paid" : r.status === "advance_paid" ? "Advance paid" : r.status === "quoted" ? "Price ready" : unread ? "New reply" : "Waiting for reply"}</span></div>
         <small class="shp-note">${H(String(last.t || r.brief || "").slice(0, 90))}${r.price ? " · " + rs(r.price) : ""}</small>`;
       row.onclick = () => quoteView(q.id, q.key); list.appendChild(row); } catch (e) {} }
     p.querySelector("#shpFind").onsubmit = e => { e.preventDefault(); const v = p.querySelector("#shpCode").value, m = /([A-Z]{2}\d{6}-[A-Z0-9]{5})[.\s/=&key]*([a-z0-9]{16})/.exec(v); if (m) track(m[1], m[2]); else toast("Paste the full tracking link."); };
@@ -219,13 +219,17 @@
     const p = modal(head("Quote " + H(id)) + `<p class="shp-note">Loading…</p>`, true);
     try {
       const r = await api(`/quote?id=${encodeURIComponent(id)}&key=${encodeURIComponent(key)}`), msgs = r.msgs || [];
-      p.innerHTML = head(H(r.service)) + `<span class="shp-pill">${r.status === "paid" ? "Paid ✓" : r.status === "quoted" ? "Price ready" : "In discussion"}</span> <small class="shp-note">${H(r.id)}</small>
+      const sp = +r.split || 0, adv = sp ? Math.round(r.price * sp) : 0, fin = sp ? Math.max(0, Math.round(r.price - (+r.advancePaid || adv))) : 0;
+      p.innerHTML = head(H(r.service)) + `<span class="shp-pill">${r.status === "paid" ? "Paid ✓" : r.status === "advance_paid" ? "Advance paid ✓ · work in progress" : r.status === "quoted" ? "Price ready" : "In discussion"}</span> <small class="shp-note">${H(r.id)}</small>
         <div class="shp-chat">${msgs.map(m => `<div class="shp-msg ${m.f === "o" ? "o" : ""}"><span>${H(m.t)}</span>${m.price ? `<b>${rs(m.price)}</b>` : ""}<small>${m.f === "o" ? H(S.cfg.name) : "You"} · ${new Date(m.ts).toLocaleString("en-IN", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })}</small></div>`).join("")}</div>
-        ${r.status === "quoted" && r.price ? `<button class="shp-btn3d" type="button" id="shpAcc" style="width:100%;margin:6px 0 12px">Accept & pay ${rs(r.price)}</button>` : ""}
+        ${sp && r.price ? `<div class="shp-card" style="margin:8px 0"><b>Payment plan</b><small class="shp-note" style="display:block;margin-top:4px">Total ${rs(r.price)} · ${Math.round(sp * 100)}% advance ${rs(adv)} to start · ${100 - Math.round(sp * 100)}% ${rs(fin)} on final delivery</small></div>` : ""}
+        ${r.status === "quoted" && r.price ? `<button class="shp-btn3d" type="button" id="shpAcc" style="width:100%;margin:6px 0 12px">${sp ? `Accept & pay ${Math.round(sp * 100)}% advance ${rs(adv)}` : `Accept & pay ${rs(r.price)}`}</button>` : ""}
+        ${r.status === "advance_paid" && fin ? `<button class="shp-btn3d" type="button" id="shpFin" style="width:100%;margin:6px 0 12px">Pay final ${100 - Math.round(sp * 100)}% ${rs(fin)}</button><p class="shp-note">Pay the final amount when your project is delivered.</p>` : ""}
         ${r.status !== "paid" ? `<form class="shp-form" id="shpMsg"><label>Ask a question or reply<textarea id="shpMt" rows="3" placeholder="Type your message…" required></textarea></label><p class="shp-err" id="shpErr"></p><button class="shp-btn3d ghost" type="submit">Send message</button></form>` : ""}
         <p class="shp-note">Our replies come here and on your WhatsApp.</p>`;
       const ch = p.querySelector(".shp-chat"); ch.scrollTop = ch.scrollHeight;
-      const acc = p.querySelector("#shpAcc"); if (acc) acc.onclick = () => checkout({ id, key, price: r.price });
+      const acc = p.querySelector("#shpAcc"); if (acc) acc.onclick = () => checkout({ id, key, price: sp ? adv : r.price });
+      const fb = p.querySelector("#shpFin"); if (fb) fb.onclick = () => checkout({ id, key, price: fin });
       const f = p.querySelector("#shpMsg"); if (f) f.onsubmit = async e => { e.preventDefault(); const t = p.querySelector("#shpMt").value.trim(); if (!t) return;
         const b = f.querySelector("button"); b.disabled = true; b.textContent = "Sending…";
         try { await api("/quote/msg", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ id, key, text: t }) }); quoteView(id, key); }
