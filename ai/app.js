@@ -45,7 +45,7 @@ const TX = {
   hwVoice: "Record voice", hwPhoto: "Photo", hwVideo: "Short video", hwSending: "Uploading…", hwSent: "Homework sent ✓", hwChecking: "AI Ustad is checking…", hwMine: "My homework", hwNone: "No homework sent yet.",
   hwBig: "File is too big (max 10 MB).", fb: "Feedback", offline: "Offline", offH: "Offline lessons", offP: "Full Access students can save whole courses inside this app and study without internet. Saved lessons can only be opened here.",
   offDl: "Save for offline", offDone: "Saved for offline ✓", offNone: "Nothing saved yet.", offNeed: "Offline saving is for Full Access students.", saving: "Saving…",
-  photoL: "Your photo (for the certificate)", photoBtn: "Choose photo", fullBadge: "Full Access", certReady: "Your certificate is ready", protect: "Lessons are protected and can only be played inside Quranic Science." },
+  photoL: "Your photo (for the certificate)", photoBtn: "Choose photo", fullBadge: "Full Access", certReady: "Your certificate is ready", protect: "Lessons are protected and can only be played inside Quranic Science.", arVoice: "Arabic pronunciation", repeat: "Repeat", tapLetter: "Tap a letter to hear the qari" },
  ur: { tag: "تجوید · عربی · اے آئی استاد", heroEy: "نیا · اپنی رفتار سے", hero1: "تجوید اور عربی سیکھیں اپنے", hero2: "اے آئی استاد کے ساتھ",
   heroP: "آپ کی زبان میں آواز والے چھوٹے اسباق، اصل قاری کی تلاوت، اپنی آواز ریکارڈ کر کے مشق، اے آئی سے ہوم ورک کی جانچ، ہر سبق کے بعد تین سوال، نظر آنے والی پروگریس، اور آخر میں سرٹیفکیٹ۔",
   f1: "ہر کورس میں ۷۲ اسباق", f2: "ہر قدم پر آواز", f3: "اصل قاری کی آواز", f4: "اے آئی ہوم ورک چیک کرتا ہے", f5: "سرٹیفکیٹ",
@@ -73,7 +73,7 @@ const TX = {
   hwVoice: "آواز ریکارڈ کریں", hwPhoto: "تصویر", hwVideo: "چھوٹی ویڈیو", hwSending: "بھیجا جا رہا ہے…", hwSent: "ہوم ورک بھیج دیا ✓", hwChecking: "اے آئی استاد چیک کر رہا ہے…", hwMine: "میرا ہوم ورک", hwNone: "ابھی کوئی ہوم ورک نہیں بھیجا۔",
   hwBig: "فائل بہت بڑی ہے (زیادہ سے زیادہ ۱۰ ایم بی)۔", fb: "رائے", offline: "آف لائن", offH: "آف لائن اسباق", offP: "فل ایکسیس والے طلبہ پورا کورس اسی ایپ میں محفوظ کر کے بغیر انٹرنیٹ پڑھ سکتے ہیں۔ محفوظ اسباق صرف یہیں کھلیں گے۔",
   offDl: "آف لائن محفوظ کریں", offDone: "آف لائن محفوظ ✓", offNone: "ابھی کچھ محفوظ نہیں۔", offNeed: "آف لائن محفوظ کرنا فل ایکسیس والوں کے لیے ہے۔", saving: "محفوظ ہو رہا ہے…",
-  photoL: "آپ کی تصویر (سرٹیفکیٹ کے لیے)", photoBtn: "تصویر چنیں", fullBadge: "فل ایکسیس", certReady: "آپ کا سرٹیفکیٹ تیار ہے", protect: "اسباق محفوظ ہیں اور صرف قرآنک سائنس کے اندر چلتے ہیں۔" },
+  photoL: "آپ کی تصویر (سرٹیفکیٹ کے لیے)", photoBtn: "تصویر چنیں", fullBadge: "فل ایکسیس", certReady: "آپ کا سرٹیفکیٹ تیار ہے", protect: "اسباق محفوظ ہیں اور صرف قرآنک سائنس کے اندر چلتے ہیں۔", arVoice: "عربی تلفظ سنیں", repeat: "دہرائیں", tapLetter: "حرف پر ٹیپ کریں، قاری کی آواز سنیں" },
  hi: { tag: "तजवीद · अरबी · ए आई उस्ताद", heroEy: "नया · अपनी रफ़्तार से", hero1: "तजवीद और अरबी सीखें अपने", hero2: "ए आई उस्ताद के साथ",
   heroP: "आपकी ज़बान में आवाज़ वाले छोटे सबक़, असली क़ारी की तिलावत, अपनी आवाज़ रिकॉर्ड करके मश्क़, ए आई से होमवर्क की जाँच, हर सबक़ के बाद तीन सवाल, नज़र आने वाली प्रोग्रेस, और आख़िर में सर्टिफ़िकेट।",
   f1: "हर कोर्स में 72 सबक़", f2: "हर क़दम पर आवाज़", f3: "असली क़ारी की आवाज़", f4: "ए आई होमवर्क चेक करता है", f5: "सर्टिफ़िकेट",
@@ -101,7 +101,7 @@ const TX = {
   hwVoice: "आवाज़ रिकॉर्ड करें", hwPhoto: "फ़ोटो", hwVideo: "छोटी वीडियो", hwSending: "भेजा जा रहा है…", hwSent: "होमवर्क भेज दिया ✓", hwChecking: "ए आई उस्ताद चेक कर रहा है…", hwMine: "मेरा होमवर्क", hwNone: "अभी कोई होमवर्क नहीं भेजा।",
   hwBig: "फ़ाइल बहुत बड़ी है (ज़्यादा से ज़्यादा 10 MB)।", fb: "राय", offline: "ऑफ़लाइन", offH: "ऑफ़लाइन सबक़", offP: "फ़ुल ऐक्सेस वाले तलबा पूरा कोर्स इसी ऐप में महफ़ूज़ करके बिना इंटरनेट पढ़ सकते हैं। महफ़ूज़ सबक़ सिर्फ़ यहीं खुलेंगे।",
   offDl: "ऑफ़लाइन महफ़ूज़ करें", offDone: "ऑफ़लाइन महफ़ूज़ ✓", offNone: "अभी कुछ महफ़ूज़ नहीं।", offNeed: "ऑफ़लाइन महफ़ूज़ करना फ़ुल ऐक्सेस वालों के लिए है।", saving: "महफ़ूज़ हो रहा है…",
-  photoL: "आपकी फ़ोटो (सर्टिफ़िकेट के लिए)", photoBtn: "फ़ोटो चुनें", fullBadge: "फ़ुल ऐक्सेस", certReady: "आपका सर्टिफ़िकेट तैयार है", protect: "सबक़ महफ़ूज़ हैं और सिर्फ़ क़ुरआनिक साइंस के अंदर चलते हैं।" }
+  photoL: "आपकी फ़ोटो (सर्टिफ़िकेट के लिए)", photoBtn: "फ़ोटो चुनें", fullBadge: "फ़ुल ऐक्सेस", certReady: "आपका सर्टिफ़िकेट तैयार है", protect: "सबक़ महफ़ूज़ हैं और सिर्फ़ क़ुरआनिक साइंस के अंदर चलते हैं।", arVoice: "अरबी तलफ़्फ़ुज़ सुनें", repeat: "दोहराएँ", tapLetter: "हर्फ़ पर टैप करें, क़ारी की आवाज़ सुनें" }
 };
 const LS = { get(k, d) { try { const v = localStorage.getItem(k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } }, set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} } };
 let LANG = LS.get("qsai-lang", "ur");
@@ -119,7 +119,7 @@ const IDB = (() => { let dbp; const open = () => dbp || (dbp = new Promise((res,
   return { get: k => tx("readonly", s => s.get(k)).catch(() => null), set: (k, v) => tx("readwrite", s => s.put(v, k)).catch(() => null), del: k => tx("readwrite", s => s.delete(k)).catch(() => null) }; })();
 
 /* ============ state ============ */
-const S = { user: null, doc: {}, prog: LS.get("qsai-prog", {}), outline: {}, weeks: {}, voice: LS.get("qsai-voice", true), keys: {}, full: {} };
+const S = { rep: LS.get("qsai-rep", 1), user: null, doc: {}, prog: LS.get("qsai-prog", {}), outline: {}, weeks: {}, voice: LS.get("qsai-voice", true), keys: {}, full: {} };
 const isOwner = () => !!(S.user && OWNERS.includes((S.user.email || "").toLowerCase()));
 const acc = () => S.doc.access || {};
 const has = c => isOwner() || !!(acc()[COURSES[c].key] || acc()[COURSES.combo.key] || acc()[COURSES[c].full] || acc()[COURSES.combo.full]);
@@ -326,26 +326,66 @@ async function viewCourse(c) {
 
 /* ============ audio ============ */
 let voiceEl = null, qariEl = null, rec = null, recUrl = null, recChunks = [];
-function stopAll() { try { window.speechSynthesis && speechSynthesis.cancel(); } catch (e) {} [voiceEl, qariEl].forEach(a => { try { a && a.pause(); } catch (e) {} }); if (rec && rec.state === "recording") try { rec.stop(); } catch (e) {} $$(".playing").forEach(e => e.classList.remove("playing")); }
-function tts(text, lang) {
-  const box = $("#vo"), sy = window.speechSynthesis; if (!sy || !text) return;
-  sy.cancel(); const u = new SpeechSynthesisUtterance(text.replace(/[؀-ۿݐ-ݿ]+/g, " ")); u.lang = lang; u.rate = .95;
-  const v = sy.getVoices().find(x => x.lang && x.lang.toLowerCase().startsWith(lang.slice(0, 2))); if (v) u.voice = v;
-  box && box.classList.add("playing"); u.onend = u.onerror = () => box && box.classList.remove("playing"); sy.speak(u);
-}
+function stopAll() { [voiceEl, qariEl].forEach(a => { try { a && a.pause(); } catch (e) {} }); if (rec && rec.state === "recording") try { rec.stop(); } catch (e) {} $$(".playing").forEach(e => e.classList.remove("playing")); }
 async function playVoice() {
   stopAll(); const { id, i, data } = LESSON, m = data && data.moments[i]; if (!m) return;
-  if (LANG === "en") return tts(m.en, "en-IN");
   let src = null; try { src = await voiceSrc(id, i + 1); } catch (e) {}
-  if (!src) return tts(m.hi, "hi-IN");
-  voiceEl = new Audio(src); const box = $("#vo"); box && box.classList.add("playing");
-  voiceEl.onended = () => box && box.classList.remove("playing");
-  voiceEl.onerror = () => { box && box.classList.remove("playing"); tts(m.hi, "hi-IN"); };
+  const box = $("#vo"), after = () => { box && box.classList.remove("playing"); if (m.av && S.voice && LESSON.i === i) playArabic(); };
+  if (!src) return after();
+  voiceEl = new Audio(src); box && box.classList.add("playing");
+  voiceEl.onended = after; voiceEl.onerror = () => box && box.classList.remove("playing");
   voiceEl.play().catch(() => box && box.classList.remove("playing"));
+}
+/* the Arabic words of a moment, read by a native Arabic voice (ElevenLabs) */
+async function playArabic(btn) {
+  const { id, i } = LESSON; stopAll(); let src = null; try { src = await voiceSrc(id, (i + 1) + "a"); } catch (e) {}
+  if (!src) return; btn = btn || $("#ab"); btn && btn.classList.add("playing");
+  let left = S.rep || 1; voiceEl = new Audio(src);
+  voiceEl.onended = () => { if (--left > 0 && btn && btn.classList.contains("playing")) setTimeout(() => voiceEl.play().catch(() => {}), 500); else btn && btn.classList.remove("playing"); };
+  voiceEl.onerror = () => btn && btn.classList.remove("playing"); voiceEl.play().catch(() => btn && btn.classList.remove("playing"));
+}
+/* every letter has a real qari example word (word-by-word Qur'an audio) */
+const LETTER = { "ء":[112,1,4],"ا":[1,4,1],"ب":[114,1,3],"ت":[1,7,3],"ث":[113,4,3],"ج":[110,1,2],"ح":[1,2,1],"خ":[114,4,4],"د":[112,3,2],"ذ":[1,7,2],"ر":[1,3,1],"ز":[99,1,2],"س":[1,5,4],"ش":[113,2,2],"ص":[112,2,2],"ض":[1,7,9],"ط":[105,3,3],"ظ":[94,3,3],"ع":[1,5,2],"غ":[1,7,5],"ف":[113,1,4],"ق":[112,1,1],"ك":[108,1,3],"ل":[112,3,1],"م":[1,4,1],"ن":[114,1,4],"ه":[112,1,2],"و":[112,4,1],"ي":[112,3,2] };
+const ZONES = { jawf:[190,140,"ا و ي",{en:"Al-Jawf: empty space of mouth & throat",ur:"الجوف: منہ اور حلق کا خالی حصہ",hi:"अल-जौफ़: मुँह और हल्क़ का ख़ाली हिस्सा"}],
+  h1:[98,226,"ء ه",{en:"Deepest throat",ur:"اقصیٰ حلق (سب سے گہرا)",hi:"अक़्सा-ए-हल्क़ (सबसे गहरा)"}], h2:[101,192,"ع ح",{en:"Middle of the throat",ur:"وسطِ حلق (درمیان)",hi:"वस्ते-हल्क़ (बीच)"}], h3:[106,160,"غ خ",{en:"Top of the throat",ur:"ادنیٰ حلق (منہ کے قریب)",hi:"अदना-ए-हल्क़ (मुँह के क़रीब)"}],
+  l1:[132,150,"ق",{en:"Very back of the tongue + soft palate",ur:"زبان کی جڑ + نرم تالو",hi:"ज़बान की जड़ + नर्म तालू"}], l2:[152,145,"ك",{en:"Back of the tongue, a little forward",ur:"زبان کی جڑ، ق سے تھوڑا آگے",hi:"ज़बान की जड़, क़ाफ़ से थोड़ा आगे"}],
+  l3:[200,140,"ج ش ي",{en:"Middle of the tongue + palate",ur:"زبان کا درمیان + تالو",hi:"ज़बान का बीच + तालू"}], l4:[228,156,"ض",{en:"Side of the tongue + upper back teeth",ur:"زبان کا کنارہ + اوپر کی داڑھیں",hi:"ज़बान का किनारा + ऊपर की दाढ़ें"}],
+  l5:[252,145,"ل ن ر",{en:"Edge and tip of the tongue",ur:"زبان کا کنارہ اور نوک",hi:"ज़बान का किनारा और नोक"}], l6:[268,136,"ط د ت",{en:"Tip + gum of upper front teeth",ur:"نوک + اوپر کے دانتوں کی جڑ",hi:"नोक + ऊपर के दाँतों की जड़"}],
+  l7:[272,158,"ص س ز",{en:"Tip near the lower front teeth (whistle)",ur:"نوک + نیچے کے دانت (صفیر)",hi:"नोक + नीचे के दाँत (सफ़ीर)"}], l8:[285,146,"ظ ذ ث",{en:"Tip + edges of upper front teeth",ur:"نوک + اوپر کے دانتوں کے کنارے",hi:"नोक + ऊपर के दाँतों के किनारे"}],
+  s1:[300,160,"ف",{en:"Lower lip + upper front teeth",ur:"نچلا ہونٹ + اوپر کے دانت",hi:"नीचे का होंठ + ऊपर के दाँत"}], s2:[312,147,"ب م و",{en:"Both lips",ur:"دونوں ہونٹ",hi:"दोनों होंठ"}],
+  kh:[230,92,"غُنَّة",{en:"Al-Khayshum: the nose (ghunnah)",ur:"الخیشوم: ناک (غنہ)",hi:"अल-ख़ैशूम: नाक (ग़ुन्ना)"}] };
+const GCOL = ["#2cc4f2", "#f6a53c", "#3fcf8e", "#ff6b6b", "#b9a99b"];
+function lettersQ(str) { return [...str].filter(ch => LETTER[ch]).map(ch => ({ s: LETTER[ch][0], a: LETTER[ch][1], w: LETTER[ch][2] })); }
+function visualHTML(v) {
+  if (!v) return "";
+  if (v.t === "mouth") {
+    const on = new Set(v.on), many = on.size > 4;
+    const dots = Object.entries(ZONES).map(([k, z]) => on.has(k) ? `<g class="zon" data-z="${k}"><circle cx="${z[0]}" cy="${z[1]}" r="${many ? 7 : 13}" class="zg"/>${many ? "" : `<text x="${z[0]}" y="${z[1] - 18}" class="zt">${z[2]}</text>`}</g>` : `<circle cx="${z[0]}" cy="${z[1]}" r="4" class="zd"/>`).join("");
+    return `<figure class="viz mouth"><svg viewBox="0 0 360 260" role="img" aria-label="makharij">
+      <path class="head" d="M70,255 C55,175 70,62 172,40 C242,26 292,48 304,92 L318,114 L304,121 L309,131 L300,134 C305,147 305,163 296,172 C284,192 254,201 232,206 L220,255"/>
+      <ellipse class="nose" cx="232" cy="92" rx="56" ry="11"/>
+      <path class="pal" d="M118,128 C168,112 236,114 290,131"/>
+      <path class="tng" d="M112,222 C118,166 168,146 222,148 C252,149 276,154 290,160 C262,174 204,178 150,204 Z"/>
+      <path class="thr" d="M88,255 C90,205 92,165 116,132 M118,255 C116,215 118,190 124,176"/>
+      <rect class="tth" x="286" y="129" width="8" height="10" rx="2"/><rect class="tth" x="284" y="161" width="8" height="9" rx="2"/>
+      ${on.has("jawf") ? `<ellipse cx="190" cy="140" rx="${many ? 70 : 78}" ry="${many ? 26 : 30}" class="jawf"/>` : ""}${dots}</svg>
+      <figcaption>${[...on].map(k => `<button class="zchip" data-z="${k}"><b class="ar">${ZONES[k][2]}</b><span>${esc(pick(ZONES[k][3]))}</span> 🔊</button>`).join("")}</figcaption></figure>`;
+  }
+  if (v.t === "groups") return `<figure class="viz groups">${v.g.map(g => `<button class="grp" style="--gc:${GCOL[g[4] || 0]}" data-l="${esc(g[3])}"><span class="gl">${esc(pick({ en: g[0], ur: g[1], hi: g[2] }))}</span><b class="ar">${esc(g[3])}</b></button>`).join("")}</figure>`;
+  if (v.t === "cards") return `<figure class="viz cards">${v.c.map(c => `<div class="vc"><span class="em">${c[0]}</span><b class="ar">${esc(c[1])}</b><small>${esc(pick({ en: c[2], ur: c[3], hi: c[4] }))}</small></div>`).join("")}</figure>`;
+  return "";
+}
+function tilesHTML(ar) {
+  return `<div class="bigar">${ar.split("\n").map(line => `<div class="trow">${line.split(/\s*·\s*/).map(p => { const one = p.trim().replace(/[\u064B-\u0652\u0670]/g, ""); return LETTER[one] ? `<button class="tile ltr" data-c="${one}">${esc(p.trim())}</button>` : `<span class="tile">${esc(p.trim())}</span>`; }).join("")}</div>`).join("")}</div>`;
+}
+function wireVisuals(root) {
+  $$(".zchip,.zon", root).forEach(b => b.onclick = e => playQari(lettersQ(ZONES[b.dataset.z][2]).slice(0, 3), b.classList.contains("zchip") ? b : null));
+  $$(".grp", root).forEach(b => b.onclick = () => playQari(lettersQ(b.dataset.l).slice(0, 4), b));
+  $$(".tile.ltr", root).forEach(b => b.onclick = () => playQari(lettersQ(b.dataset.c), b));
 }
 async function playQari(list, btn) {
   stopAll(); btn && btn.classList.add("playing");
-  for (const q of list) {
+  for (const q of [].concat(...Array(S.rep || 1).fill(list))) {
     const src = q.w ? QARI_WORD(q.s, q.a, q.w) : QARI_AYAH(q.s, q.a);
     await new Promise(r => { qariEl = new Audio(src); qariEl.onended = qariEl.onerror = r; qariEl.play().catch(r); });
     if (!btn || !btn.classList.contains("playing")) break;
@@ -388,12 +428,15 @@ function drawMoment() {
   app.innerHTML = lessonHead() + `<section class="stage">
     <div class="vo" id="vo"><span class="eq"><i></i><i></i><i></i></span><button class="btn sm" id="rv">↻ ${t("replay")}</button></div>
     <div class="say">${esc(pick(m))}</div>
-    ${m.ar ? `<div class="bigar">${esc(m.ar)}</div>` : ""}
-    <div class="tools">${m.q ? `<button class="btn cy" id="qb">🕋 ${t("listen")}</button>` : ""}${m.rec ? `<button class="btn rec" id="rb">🎙️ ${t("rec")}</button><button class="btn" id="pb" disabled>▶ ${t("mine")}</button>` : ""}</div>
+    ${visualHTML(m.v)}${m.ar ? tilesHTML(m.ar) : ""}
+    <div class="tools">${m.q ? `<button class="btn cy" id="qb">🕋 ${t("listen")}</button>` : ""}${m.av ? `<button class="btn" id="ab">🗣️ ${t("arVoice")}</button>` : ""}${m.q || m.av || m.v || m.ar ? `<button class="btn sm" id="rp" title="${t("repeat")}">🔁 ×${S.rep}</button>` : ""}${m.rec ? `<button class="btn rec" id="rb">🎙️ ${t("rec")}</button><button class="btn" id="pb" disabled>▶ ${t("mine")}</button>` : ""}</div>
   </section><div class="nav"><button class="btn" id="bk" ${i === 0 ? "disabled" : ""}>${t("back")}</button><button class="btn pri" id="nx">${i === data.moments.length - 1 ? t("toQuiz") : t("next")}</button></div>`;
   $("#vt").onclick = () => { S.voice = !S.voice; LS.set("qsai-voice", S.voice); S.voice ? playVoice() : stopAll(); $("#vt").textContent = S.voice ? "🔊 " + t("voiceOn") : "🔇 " + t("voiceOff"); };
   $("#rv").onclick = () => playVoice();
   if (m.q) $("#qb").onclick = e => playQari(m.q, e.currentTarget);
+  if (m.av) $("#ab").onclick = e => playArabic(e.currentTarget);
+  if ($("#rp")) $("#rp").onclick = e => { S.rep = S.rep === 1 ? 3 : S.rep === 3 ? 5 : 1; LS.set("qsai-rep", S.rep); e.currentTarget.textContent = "🔁 ×" + S.rep; toast(t("repeat") + ": ×" + S.rep); };
+  wireVisuals(app);
   if (m.rec) { const pb = $("#pb"); recUrl = null;
     $("#rb").onclick = e => startRec(b => { if (recUrl) URL.revokeObjectURL(recUrl); recUrl = URL.createObjectURL(b); pb.disabled = false; }, e.currentTarget, "🎙️ " + t("rec"));
     pb.onclick = () => { if (recUrl) { stopAll(); voiceEl = new Audio(recUrl); voiceEl.play(); } }; }
