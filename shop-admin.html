@@ -127,5 +127,6 @@ function img(u){const m=/drive\.google\.com\/(?:file\/d\/|open\?id=)([\w-]{20,})
 $("itemF").onsubmit=async e=>{e.preventDefault();try{await call("POST",{action:"saveItem",item:{id:$("iId").value||undefined,brand,name:$("iName").value,kind:$("iKind").value,price:$("iPrice").value,mrp:$("iMrp").value,cat:$("iCat").value,size:$("iSize").value,desc:$("iDesc").value,img:img($("iImg").value),tag:$("iTag").value,stock:$("iStock").value}});$("itemF").hidden=true;toast("Saved ✓");load()}catch(x){toast("Error: "+x.message)}};
 $("shipF").onsubmit=async e=>{e.preventDefault();try{await call("POST",{action:"config",brand,ship:$("sShip").value,freeShipAbove:$("sFree").value});toast("Saved ✓")}catch(x){toast("Error: "+x.message)}};
 </script>
+<script data-goatcounter="https://deensaathi.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
 </body>
 </html>

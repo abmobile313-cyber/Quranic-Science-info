@@ -2273,5 +2273,6 @@ window.qsPlanBtn=function(course){var c=course?A[P[course]]:null;if(course&&!c)r
 window.qsAiCell=function(u,course){var p=P[course];if(!p)return"";var ai=u&&u.ai||{},ks=Object.keys(ai).filter(function(k){return k.indexOf(p+"-w")===0});if(!ks.length)return'<span class="hint">\u2013</span>';var s=0,n=0;ks.forEach(function(k){var r=ai[k]||{};if(r.n){s+=r.s||0;n+=r.n}});return'<span class="pa p" title="AI lessons finished \u00b7 quiz score">'+ks.length+" \u2713"+(n?" \u00b7 "+Math.round(s/n*100)+"%":"")+"</span>"};
 })();
 </script>
+<script data-goatcounter="https://deensaathi.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
 </body>
 </html>

@@ -49,5 +49,6 @@ if(window.__qa){window.__qa.pause();window.__qa=null;if(a.classList.contains("pl
 for(var n=+m[2];n<=+(m[3]||m[2]);n++){if(!a.classList.contains("playing"))break;try{var j=await(await fetch("https://api.alquran.cloud/v1/ayah/"+m[1]+":"+n+"/ar.alafasy")).json();await new Promise(function(r){window.__qa=new Audio(j.data.audio);window.__qa.onended=r;window.__qa.onerror=r;window.__qa.play().catch(r);});}catch(x){break;}}
 a.classList.remove("playing");window.__qa=null;});
 </script>
+<script data-goatcounter="https://deensaathi.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
 </body>
 </html>
