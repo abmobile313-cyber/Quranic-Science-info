@@ -243,6 +243,7 @@ function route() {
   if (v === "lesson" && a) return viewLesson(a);
   if (v === "cert" && a) return viewCert(a);
   if (v === "offline") return viewOffline();
+  if (v === "keys") return viewKeys();
   return viewHome();
 }
 addEventListener("hashchange", route);
@@ -473,6 +474,22 @@ async function myHomework(c) {
   const rows = (r.rows || []).filter(x => x.course === COURSES[c].key || x.course === COURSES.combo.key).slice(0, 30);
   box.innerHTML = `<h2>📤 ${t("hwMine")}</h2>${rows.length ? rows.map(x => `<div class="hwrow"><b>${esc(x.lesson)}</b> · ${x.kind === "voice" ? "🎙️" : x.kind === "photo" ? "📷" : "🎥"} · <span class="mini">${new Date(x.ts).toLocaleDateString()}</span>
     ${x.feedback ? `<p class="why">🤖 ${esc(x.feedback)}</p>` : `<p class="mini">⏳</p>`}</div>`).join("") : `<p class="mini">${t("hwNone")}</p>`}`;
+}
+
+/* ============ owner: save the lesson keys (pick the keys file once) ============ */
+function viewKeys() {
+  const app = $("#app");
+  if (!isOwner()) { app.innerHTML = `<section class="stage res" style="margin-top:24px"><h2>Owner only</h2><button class="btn pri" id="kl">${t("login")}</button></section>`; $("#kl").onclick = () => loginBox(() => route()); return; }
+  app.innerHTML = `<section class="stage res" style="margin-top:24px"><div style="font-size:42px">🔐</div><h2>Lesson keys</h2>
+    <p>Choose the file <b>qs-ai-keys.json</b> that Claude sent you. It is saved safely on the server, then you can delete the file.</p>
+    <label class="btn pri">📄 Choose qs-ai-keys.json<input type="file" accept=".json,application/json" id="kf" hidden></label><p id="ks" class="mini" style="margin-top:12px"></p></section>`;
+  $("#kf").onchange = async e => { const f = e.target.files[0]; if (!f) return; const st = $("#ks"); st.textContent = "Saving…";
+    try { const body = await f.text(); JSON.parse(body);
+      const r = await fetch(`${W}/ai/setkeys`, { method: "POST", headers: { authorization: "Bearer " + await token(), "content-type": "application/json" }, body }).then(r => r.json());
+      if (!r.ok) throw new Error(r.error || "failed"); S.keys = {};
+      const k = await fetch(`${W}/ai/key?course=tajweed`, { headers: { authorization: "Bearer " + await token() } }).then(r => r.json());
+      st.innerHTML = k.key ? "✅ Saved: " + r.saved.join(", ") + ". All lessons now open for enrolled students." : "⚠️ " + esc(k.error || "check again");
+    } catch (er) { st.textContent = "❌ " + er.message; } };
 }
 
 /* ============ offline (Full Access): lessons saved encrypted inside the app only ============ */
