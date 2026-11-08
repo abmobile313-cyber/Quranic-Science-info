@@ -402,14 +402,27 @@ function visualHTML(v) {
   if (v.t === "cards") return `<figure class="viz cards">${v.c.map(c => `<div class="vc"><span class="em">${c[0]}</span><b class="ar">${esc(c[1])}</b><small>${esc(pick({ en: c[2], ur: c[3], hi: c[4] }))}</small></div>`).join("")}</figure>`;
   return "";
 }
-function tilesHTML(ar, wq) {
-  const W = {}; (wq || []).forEach(x => W[x[0]] = x.slice(1));
+function tilesHTML(ar, wq, aw) {
+  const W = {}, A = aw || {}; (wq || []).forEach(x => W[x[0]] = x.slice(1));
+  const one = w => W[w] ? { s: W[w][0], a: W[w][1], w: W[w][2] } : A[w] ? { k: A[w] } : null;
   const word = w => { if (W[w]) return `<button class="tile qw" data-q="${W[w].join(",")}">${esc(w)}</button>`;
+    if (A[w]) return `<button class="tile qw aw" data-k="${A[w]}">${esc(w)}</button>`;
     const core = w.replace(/[\u064B-\u0652\u0670]/g, "");
     if (LETTER[core]) return `<button class="tile ltr" data-c="${core}">${esc(w)}</button>`;
     if (core.length === 2 && /^[اأإء]/.test(core) && LETTER[core[1]]) return `<button class="tile ltr" data-c="${core[1]}">${esc(w)}</button>`;
     return esc(w); };
-  return `<div class="bigar">${ar.split("\n").map(line => `<div class="trow">${line.split(/\s*·\s*/).map(p => `<span class="tile">${p.trim().split(/(\s+)/).map(x => /\s/.test(x) ? x : word(x)).join("")}</span>`).join("")}</div>`).join("")}</div>`;
+  const phrase = p => { const t = p.trim(), toks = t.match(/[\u0621-\u0652\u0670\u0671]+/g) || [], key = t.replace(/\s+/g, " ");
+    let seq = null;
+    if (toks.length > 1) { if (A[key]) seq = [{ k: A[key] }]; else { const s = toks.map(one).filter(Boolean); if (s.length > 1) seq = s; } }
+    const play = seq ? `<button class="tp" data-seq='${JSON.stringify(seq)}' aria-label="play">🔊</button>` : "";
+    return `<span class="tile">${t.split(/(\s+)/).map(x => /\s/.test(x) ? x : word(x)).join("")}${play}</span>`; };
+  return `<div class="bigar">${ar.split("\n").map(line => `<div class="trow">${line.split(/\s*·\s*/).map(phrase).join("")}</div>`).join("")}</div>`;
+}
+/* everything Arabic on the screen, in reading order (for the big listen button) */
+function screenSeq(root) {
+  const out = []; $$(".bigar .tile:not(.qw):not(.ltr)", root).forEach(t => { const tp = $(".tp", t);
+    if (tp) out.push(...JSON.parse(tp.dataset.seq)); else $$(".qw", t).forEach(b => out.push(b.dataset.k ? { k: b.dataset.k } : (([s, a, w]) => ({ s, a, w }))(b.dataset.q.split(",").map(Number)))); });
+  return out;
 }
 function wireVisuals(root) {
   $$(".zchip[data-z],.zon", root).forEach(b => b.onclick = async () => { const z = b.dataset.z, g = $(`.zon[data-z="${z}"]`, root);
@@ -421,7 +434,8 @@ function wireVisuals(root) {
   $$(".grp", root).forEach(b => b.onclick = () => playQari(lettersQ(b.dataset.l).slice(0, 4), b));
   const LB = wireLab(root);
   $$(".tile.ltr", root).forEach(b => b.onclick = () => (LB && LB.say(b.dataset.c, b)) || playQari(lettersQ(b.dataset.c), b));
-  $$(".tile.qw", root).forEach(b => b.onclick = () => { const [s, a, w] = b.dataset.q.split(",").map(Number); playQari([{ s, a, w }], b); });
+  $$(".tile.qw", root).forEach(b => b.onclick = () => { if (b.dataset.k) return playQari([{ k: b.dataset.k }], b); const [s, a, w] = b.dataset.q.split(",").map(Number); playQari([{ s, a, w }], b); });
+  $$(".tp", root).forEach(b => b.onclick = () => playQari(JSON.parse(b.dataset.seq), b));
 }
 
 /* ============ live class ↔ AI course: same syllabus, same day ============ */
@@ -539,7 +553,7 @@ async function viewLab() {
 async function playQari(list, btn) {
   stopAll(); btn && btn.classList.add("playing");
   for (const q of [].concat(...Array(S.rep || 1).fill(list))) {
-    const src = q.w ? QARI_WORD(q.s, q.a, q.w) : QARI_AYAH(q.s, q.a);
+    const src = q.k ? `arv/${q.k}.mp3` : q.w ? QARI_WORD(q.s, q.a, q.w) : QARI_AYAH(q.s, q.a);
     await new Promise(r => { qariEl = new Audio(src); qariEl.onended = qariEl.onerror = r; qariEl.play().catch(r); });
     if (!btn || !btn.classList.contains("playing")) break;
     await new Promise(r => setTimeout(r, 250));
@@ -582,12 +596,12 @@ function drawMoment() {
   app.innerHTML = lessonHead() + `<section class="stage">
     <div class="vo" id="vo"><span class="eq"><i></i><i></i><i></i></span><button class="btn sm" id="rv">↻ ${t("replay")}</button></div>
     <div class="say">${esc(pick(m))}</div>
-    ${visualHTML(m.v)}${m.ar ? tilesHTML(m.ar, m.wq) : ""}
-    <div class="tools">${m.q || m.wq ? `<button class="btn cy" id="qb">🕋 ${t("listen")}</button>` : ""}${m.q || m.wq || m.v || m.ar ? `<button class="btn sm" id="rp" title="${t("repeat")}">🔁 ×${S.rep}</button>` : ""}${m.rec ? `<button class="btn rec" id="rb">🎙️ ${t("rec")}</button><button class="btn" id="pb" disabled>▶ ${t("mine")}</button>` : ""}</div>
+    ${visualHTML(m.v)}${m.ar ? tilesHTML(m.ar, m.wq, m.aw) : ""}
+    <div class="tools">${m.q ? `<button class="btn cy" id="qb">🕋 ${t("listen")}</button>` : m.wq || m.aw ? `<button class="btn cy" id="qb">🔊 ${t("arVoice")}</button>` : ""}${m.q || m.wq || m.v || m.ar ? `<button class="btn sm" id="rp" title="${t("repeat")}">🔁 ×${S.rep}</button>` : ""}${m.rec ? `<button class="btn rec" id="rb">🎙️ ${t("rec")}</button><button class="btn" id="pb" disabled>▶ ${t("mine")}</button>` : ""}</div>
   </section><div class="nav"><button class="btn" id="bk" ${i === 0 ? "disabled" : ""}>${t("back")}</button><button class="btn pri" id="nx">${i === data.moments.length - 1 ? t("toQuiz") : t("next")}</button></div>`;
   $("#vt").onclick = () => { S.voice = !S.voice; LS.set("qsai-voice", S.voice); S.voice ? playVoice() : stopAll(); $("#vt").textContent = S.voice ? "🔊 " + t("voiceOn") : "🔇 " + t("voiceOff"); };
   $("#rv").onclick = () => playVoice();
-  if (m.q || m.wq) $("#qb").onclick = e => playQari(m.q || m.wq.map(x => ({ s: x[1], a: x[2], w: x[3] })), e.currentTarget);
+  if ($("#qb")) $("#qb").onclick = e => playQari(m.q || screenSeq(app), e.currentTarget);
   if ($("#rp")) $("#rp").onclick = e => { S.rep = S.rep === 1 ? 3 : S.rep === 3 ? 5 : 1; LS.set("qsai-rep", S.rep); e.currentTarget.textContent = "🔁 ×" + S.rep; toast(t("repeat") + ": ×" + S.rep); };
   wireVisuals(app);
   if (m.rec) { const pb = $("#pb"); recUrl = null;
