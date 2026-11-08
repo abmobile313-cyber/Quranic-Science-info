@@ -356,23 +356,21 @@ const ZONES = { jawf:[190,140,"ا و ي",{en:"Al-Jawf: empty space of mouth & th
   s1:[300,160,"ف",{en:"Lower lip + upper front teeth",ur:"نچلا ہونٹ + اوپر کے دانت",hi:"नीचे का होंठ + ऊपर के दाँत"}], s2:[312,147,"ب م و",{en:"Both lips",ur:"دونوں ہونٹ",hi:"दोनों होंठ"}],
   kh:[230,92,"غُنَّة",{en:"Al-Khayshum: the nose (ghunnah)",ur:"الخیشوم: ناک (غنہ)",hi:"अल-ख़ैशूम: नाक (ग़ुन्ना)"}] };
 const RL = { nose: { en: "nose", ur: "ناک", hi: "नाक" }, throat: { en: "throat", ur: "حلق", hi: "हल्क़" }, tongue: { en: "tongue", ur: "زبان", hi: "ज़बान" }, lips: { en: "lips", ur: "ہونٹ", hi: "होंठ" } };
+/* zone positions on makharij.webp (1000×1000) and where their letter label sits */
+const ZXY = { jawf:[560,432], h1:[352,765], h2:[305,640], h3:[332,505], l1:[420,505], l2:[485,478], l3:[590,458], l4:[690,478], l5:[742,500], l6:[790,468], l7:[786,535], l8:[818,496], s1:[842,512], s2:[872,488], kh:[680,268] };
+const ZL = { h1:[160,770], h2:[130,640], h3:[150,505], l1:[420,610], l2:[470,380], l3:[590,370], l4:[640,600], l5:[700,620], l6:[880,370], l7:[900,620], l8:[930,430], s1:[930,580], s2:[930,430], kh:[680,140] };
 const GCOL = ["#2cc4f2", "#f6a53c", "#3fcf8e", "#ff6b6b", "#b9a99b"];
 function lettersQ(str) { return [...str].filter(ch => LETTER[ch]).map(ch => ({ s: LETTER[ch][0], a: LETTER[ch][1], w: LETTER[ch][2] })); }
 function visualHTML(v) {
   if (!v) return "";
   if (v.t === "mouth") {
     const on = new Set(v.on), many = on.size > 4;
-    const dots = Object.entries(ZONES).map(([k, z]) => on.has(k) ? `<g class="zon" data-z="${k}"><circle cx="${z[0]}" cy="${z[1]}" r="${many ? 7 : 13}" class="zg"/>${many ? "" : `<text x="${z[0]}" y="${z[1] - 18}" class="zt">${z[2]}</text>`}</g>` : `<circle cx="${z[0]}" cy="${z[1]}" r="4" class="zd"/>`).join("");
-    return `<figure class="viz mouth"><svg viewBox="0 0 360 260" role="img" aria-label="makharij">
-      <path class="head" d="M70,255 C55,175 70,62 172,40 C242,26 292,48 304,92 L318,114 L304,121 L309,131 L300,134 C305,147 305,163 296,172 C284,192 254,201 232,206 L220,255"/>
-      <ellipse class="nose" cx="232" cy="92" rx="56" ry="11"/>
-      <path class="pal" d="M118,128 C168,112 236,114 290,131"/>
-      <path class="tng" d="M112,222 C118,166 168,146 222,148 C252,149 276,154 290,160 C262,174 204,178 150,204 Z"/>
-      <path class="thr" d="M88,255 C90,205 92,165 116,132 M118,255 C116,215 118,190 124,176"/>
-      <rect class="tth" x="286" y="129" width="8" height="10" rx="2"/><rect class="tth" x="284" y="161" width="8" height="9" rx="2"/>
-      <ellipse class="lip" cx="306" cy="139" rx="9" ry="6"/><ellipse class="lip" cx="304" cy="160" rx="9" ry="6"/><circle class="eye" cx="262" cy="70" r="5"/>
-      <text class="rl" x="232" y="76">${esc(pick(RL.nose))}</text><text class="rl" x="72" y="120">${esc(pick(RL.throat))}</text><text class="rl" x="170" y="196">${esc(pick(RL.tongue))}</text><text class="rl" x="338" y="152">${esc(pick(RL.lips))}</text>
-      ${on.has("jawf") ? `<ellipse cx="190" cy="140" rx="${many ? 70 : 78}" ry="${many ? 26 : 30}" class="jawf"/>` : ""}${dots}</svg>
+    const marks = Object.entries(ZONES).map(([k, z]) => { const [x, y] = ZXY[k];
+      if (!on.has(k)) return `<circle cx="${x}" cy="${y}" r="9" class="zd"/>`;
+      if (k === "jawf") return `<g class="zon" data-z="${k}"><ellipse cx="${x}" cy="${y}" rx="190" ry="48" class="jawf"/>${many ? "" : `<g class="pill"><rect x="${x - 70}" y="${y - 40}" width="140" height="64" rx="32"/><text x="${x}" y="${y + 6}">${z[2]}</text></g>`}</g>`;
+      const lx = ZL[k] ? ZL[k][0] : x, ly = ZL[k] ? ZL[k][1] : y - 90, w = Math.max(90, z[2].replace(/\s/g, "").length * 34 + 50);
+      return `<g class="zon" data-z="${k}"><circle cx="${x}" cy="${y}" r="${many ? 16 : 24}" class="zg"/>${many ? "" : `<line x1="${x}" y1="${y}" x2="${lx}" y2="${ly}" class="ld"/><g class="pill"><rect x="${lx - w / 2}" y="${ly - 36}" width="${w}" height="64" rx="32"/><text x="${lx}" y="${ly + 10}">${z[2]}</text></g>`}</g>`; }).join("");
+    return `<figure class="viz mouth"><div class="mk"><img src="makharij.webp" alt="" draggable="false"><svg viewBox="0 0 1000 1000" role="img" aria-label="makharij">${marks}</svg></div>
       <figcaption>${[...on].map(k => `<button class="zchip" data-z="${k}"><b class="ar">${ZONES[k][2]}</b><span>${esc(pick(ZONES[k][3]))}</span> 🔊</button>`).join("")}</figcaption></figure>`;
   }
   if (v.t === "groups") return `<figure class="viz groups">${v.g.map(g => `<button class="grp" style="--gc:${GCOL[g[4] || 0]}" data-l="${esc(g[3])}"><span class="gl">${esc(pick({ en: g[0], ur: g[1], hi: g[2] }))}</span><b class="ar">${esc(g[3])}</b></button>`).join("")}</figure>`;
