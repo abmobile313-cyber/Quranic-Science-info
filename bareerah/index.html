@@ -34,7 +34,7 @@ img,video{display:block;max-width:100%}a{color:inherit}button{font:inherit;color
 /* top bar */
 .bis{background:var(--em3);color:var(--gold2);text-align:center;padding:8px 16px;padding-top:max(8px,env(safe-area-inset-top,0px));font:400 20px var(--A)}
 header{position:sticky;top:0;z-index:30;background:rgba(246,239,226,.86);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
-.nav{display:flex;align-items:center;gap:18px;padding:12px 0}
+.nav{display:flex;align-items:center;gap:18px;padding-block:12px}
 .brand{display:flex;align-items:center;gap:12px;text-decoration:none}
 .seal{width:46px;height:46px;border-radius:50%;display:grid;place-items:center;background:var(--em);color:var(--gold2);font:700 22px var(--A);box-shadow:inset 0 0 0 2px var(--gold),0 6px 14px -6px rgba(15,59,46,.6)}
 .brand b{display:block;font:600 20px var(--F);color:var(--em);line-height:1}.brand small{font:500 10px var(--O);letter-spacing:.32em;color:var(--gold)}
@@ -53,7 +53,7 @@ header{position:sticky;top:0;z-index:30;background:rgba(246,239,226,.86);-webkit
 .archf{position:relative;aspect-ratio:4/5;max-width:470px;margin-left:auto;width:100%}
 .archf .fr{position:absolute;inset:0;border-radius:240px 240px 16px 16px;overflow:hidden;box-shadow:0 0 0 10px rgba(199,154,59,.18),0 0 0 11px rgba(199,154,59,.5),0 40px 80px -30px #000}
 .archf img{width:100%;height:100%;object-fit:cover}
-.archf .drip{position:absolute;left:0;right:0;top:0;height:140px;pointer-events:none;z-index:2}
+.archf .drip{position:absolute;left:0;right:0;top:0;height:140px;pointer-events:none;z-index:2;opacity:.85;filter:drop-shadow(0 2px 3px rgba(0,0,0,.25))}
 .badge{position:absolute;left:-18px;bottom:40px;z-index:3;padding:14px 18px;border-radius:18px;background:var(--cream);color:var(--em);box-shadow:0 20px 40px -20px #000;display:grid;gap:2px}
 .badge b{font:600 22px var(--F)}.badge span{font-size:12px;color:var(--mut)}
 @media(max-width:900px){.hero .wrap{grid-template-columns:1fr;padding-top:40px}.archf{margin:10px auto 0}.badge{left:8px}}
@@ -89,7 +89,7 @@ section{padding:100px 0 20px}
 .pc .bd{padding:16px 18px 18px;display:flex;flex-direction:column;gap:6px;flex:1}
 .pc .cat{font:600 11px var(--O);letter-spacing:.2em;text-transform:uppercase;color:var(--gold)}
 .pc h3{margin:0;font:600 20px var(--F);color:var(--em)}.pc p{margin:0;font-size:14px;color:var(--mut)}
-.row{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:auto;padding-top:10px}
+.row{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px;margin-top:auto;padding-top:10px}
 .price{font:600 19px var(--O);color:var(--em)}.price s{font-size:13px;color:var(--mut);font-weight:400;margin-left:6px}
 /* hadith + steps */
 .split{display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:center}
@@ -137,7 +137,7 @@ footer .pol{display:flex;flex-wrap:wrap;justify-content:center;gap:6px 16px;marg
     <div class="archf rv in">
       <div class="fr"><img src="p/honey.webp" alt="Bareerah Naturals raw honey with honeycomb and dipper"></div>
       <svg class="drip" viewBox="0 0 470 140" preserveAspectRatio="none" aria-hidden="true"><defs><linearGradient id="hg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f6c45a"/><stop offset="1" stop-color="#c47a12"/></linearGradient></defs>
-        <path style="transform-origin:120px 0" d="M100 0h40v70c0 18-8 30-20 30s-20-12-20-30z"/><path style="transform-origin:250px 0" d="M236 0h28v95c0 13-6 22-14 22s-14-9-14-22z"/><path style="transform-origin:360px 0" d="M344 0h32v55c0 15-7 25-16 25s-16-10-16-25z"/></svg>
+        <path style="transform-origin:150px 0" d="M143 0h14v52c0 7-3 12-7 12s-7-5-7-12z"/><path style="transform-origin:300px 0" d="M294 0h12v74c0 6-3 10-6 10s-6-4-6-10z"/></svg>
       <div class="badge"><b>100% pure</b><span>No sugar · No mixing · Lab-checked</span></div>
     </div>
   </div>
