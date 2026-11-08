@@ -6,11 +6,11 @@ const W = "https://quranic-science-automation.quranicscience01.workers.dev";
 const OWNERS = ["quranicscience01@gmail.com"];
 const RECAPTCHA = "6Lf3gQsuAAAAACWh2Tym8DMJoLbh5RLxNjbokYDx", AI_MODEL = "gemini-3.5-flash-lite";
 const WA = "919272527913";
-const FREE = ["t-w01d1", "a-w01d1"];
+const FREE = []; /* no free demo: every lesson needs enrolment */
 const COURSES = {
-  tajweed: { key: "ai-tajweed", full: "ai-tajweed-full", live: "tajweed-class", addon: "ai-tajweed-live", aInr: 699, aUsd: 9, k: "t", ar: "التَّجْوِيدُ", inr: 1499, usd: 18, fInr: 999, fUsd: 12, pay: "", payIntl: "", payFull: "", payFullIntl: "" },
-  arabic:  { key: "ai-arabic",  full: "ai-arabic-full", live: "arabic-speaking-class", addon: "ai-arabic-live", aInr: 999, aUsd: 12,  k: "a", ar: "اللُّغَةُ الْعَرَبِيَّةُ", inr: 2999, usd: 36, fInr: 999, fUsd: 12, pay: "", payIntl: "", payFull: "", payFullIntl: "" },
-  combo:   { key: "ai-tajweed-arabic-combo", full: "ai-combo-full", live: "tajweed-arabic-combo", addon: "ai-combo-live", aInr: 1499, aUsd: 18, k: "c", ar: "التَّجْوِيدُ + الْعَرَبِيَّةُ", inr: 3999, usd: 48, fInr: 1499, fUsd: 18, pay: "", payIntl: "", payFull: "", payFullIntl: "" }
+  tajweed: { key: "ai-tajweed", full: "ai-tajweed-full", live: "tajweed-class", addon: "ai-tajweed-live", aInr: 1099, aUsd: 13, k: "t", ar: "التَّجْوِيدُ", inr: 1499, usd: 18, fInr: 999, fUsd: 12, pay: "https://rzp.io/rzp/nyBSf1Qy", payIntl: "https://rzp.io/rzp/sb2LY58", payFull: "https://rzp.io/rzp/AbiamVu", payFullIntl: "https://rzp.io/rzp/WYETCtoG", aPay: "https://rzp.io/rzp/oXXWfGW", aPayIntl: "https://rzp.io/rzp/NKWkAvq" },
+  arabic:  { key: "ai-arabic",  full: "ai-arabic-full", live: "arabic-speaking-class", addon: "ai-arabic-live", aInr: 2199, aUsd: 27,  k: "a", ar: "اللُّغَةُ الْعَرَبِيَّةُ", inr: 2999, usd: 36, fInr: 999, fUsd: 12, pay: "https://rzp.io/rzp/94PwijX5", payIntl: "https://rzp.io/rzp/11HeEIV", payFull: "https://rzp.io/rzp/N7PnZ7uz", payFullIntl: "https://rzp.io/rzp/ffSQWCxi", aPay: "https://rzp.io/rzp/OZ6BrfpI", aPayIntl: "https://rzp.io/rzp/dkWYZXP1" },
+  combo:   { key: "ai-tajweed-arabic-combo", full: "ai-combo-full", live: "tajweed-arabic-combo", addon: "ai-combo-live", aInr: 2999, aUsd: 36, k: "c", ar: "التَّجْوِيدُ + الْعَرَبِيَّةُ", inr: 3999, usd: 48, fInr: 1499, fUsd: 18, pay: "https://rzp.io/rzp/y8gz8VNJ", payIntl: "https://rzp.io/rzp/32kV4V3P", payFull: "https://rzp.io/rzp/tgs4Ns0t", payFullIntl: "https://rzp.io/rzp/8ZhpCj7", aPay: "https://rzp.io/rzp/c76ssKV", aPayIntl: "https://rzp.io/rzp/O9rDowk" }
 };
 const QARI_AYAH = (s, a) => `https://everyayah.com/data/Husary_128kbps/${String(s).padStart(3, "0")}${String(a).padStart(3, "0")}.mp3`;
 const QARI_WORD = (s, a, w) => `https://audio.qurancdn.com/wbw/${String(s).padStart(3, "0")}_${String(a).padStart(3, "0")}_${String(w).padStart(3, "0")}.mp3`;
@@ -23,7 +23,7 @@ const TX = {
   f1: "72 lessons per course", f2: "Voice in every step", f3: "Real qari audio", f4: "AI checks your homework", f5: "Certificate",
   courses: "Choose your course", tajweed: "Tajweed with AI", arabic: "Arabic Speaking with AI", combo: "Tajweed + Arabic with AI",
   dT: "Makharij, sifaat, every rule of recitation, Juz Amma — 12 weeks.", dA: "Understand the Qur'an word by word and speak simple Arabic — 12 weeks.", dC: "Both courses together at a lower price.",
-  best: "BEST VALUE", start: "Start free lesson", open: "Open course", enroll: "Enroll", intl: "Outside India", progress: "Progress", score: "Score", lessons: "Lessons",
+  best: "BEST VALUE", start: "See lessons", open: "Open course", enroll: "Enroll", intl: "Outside India", progress: "Progress", score: "Score", lessons: "Lessons",
   week: "Week", day: "Day", soon: "Coming soon", locked: "Finish the previous lesson first", buyFirst: "Enroll to open all lessons", login: "Log in", logout: "Log out",
   loginWhy: "Log in with the same account you use on quranicscience.info. Your progress and certificate are saved there.", google: "Continue with Google",
   emailL: "Email", passL: "Password", emailBtn: "Log in with email", mobileHint: "Use mobile-number login? Log in on the main website first, then come back here.",
@@ -51,7 +51,7 @@ const TX = {
   f1: "ہر کورس میں ۷۲ اسباق", f2: "ہر قدم پر آواز", f3: "اصل قاری کی آواز", f4: "اے آئی ہوم ورک چیک کرتا ہے", f5: "سرٹیفکیٹ",
   courses: "اپنا کورس چنیں", tajweed: "اے آئی کے ساتھ تجوید", arabic: "اے آئی کے ساتھ عربی بول چال", combo: "اے آئی کے ساتھ تجوید + عربی",
   dT: "مخارج، صفات، تلاوت کے تمام قواعد، تیسواں پارہ — بارہ ہفتے۔", dA: "قرآن لفظ بہ لفظ سمجھیں اور آسان عربی بولیں — بارہ ہفتے۔", dC: "دونوں کورس ایک ساتھ کم قیمت میں۔",
-  best: "بہترین", start: "مفت سبق شروع کریں", open: "کورس کھولیں", enroll: "داخلہ لیں", intl: "ہندوستان سے باہر", progress: "پروگریس", score: "نمبر", lessons: "اسباق",
+  best: "بہترین", start: "اسباق دیکھیں", open: "کورس کھولیں", enroll: "داخلہ لیں", intl: "ہندوستان سے باہر", progress: "پروگریس", score: "نمبر", lessons: "اسباق",
   week: "ہفتہ", day: "دن", soon: "جلد آ رہا ہے", locked: "پہلے پچھلا سبق مکمل کریں", buyFirst: "تمام اسباق کھولنے کے لیے داخلہ لیں", login: "لاگ اِن", logout: "لاگ آؤٹ",
   loginWhy: "وہی اکاؤنٹ استعمال کریں جو quranicscience.info پر ہے۔ آپ کی پروگریس اور سرٹیفکیٹ وہیں محفوظ ہوتے ہیں۔", google: "گوگل سے جاری رکھیں",
   emailL: "ای میل", passL: "پاس ورڈ", emailBtn: "ای میل سے لاگ اِن", mobileHint: "موبائل نمبر سے لاگ اِن کرتے ہیں؟ پہلے مین ویب سائٹ پر لاگ اِن کریں، پھر یہاں واپس آئیں۔",
@@ -79,7 +79,7 @@ const TX = {
   f1: "हर कोर्स में 72 सबक़", f2: "हर क़दम पर आवाज़", f3: "असली क़ारी की आवाज़", f4: "ए आई होमवर्क चेक करता है", f5: "सर्टिफ़िकेट",
   courses: "अपना कोर्स चुनें", tajweed: "ए आई के साथ तजवीद", arabic: "ए आई के साथ अरबी बोलचाल", combo: "ए आई के साथ तजवीद + अरबी",
   dT: "मख़ारिज, सिफ़ात, तिलावत के तमाम क़वाइद, तीसवाँ पारा — बारह हफ़्ते।", dA: "क़ुरआन लफ़्ज़-ब-लफ़्ज़ समझें और आसान अरबी बोलें — बारह हफ़्ते।", dC: "दोनों कोर्स एक साथ कम क़ीमत में।",
-  best: "बेहतरीन", start: "मुफ़्त सबक़ शुरू करें", open: "कोर्स खोलें", enroll: "दाख़िला लें", intl: "हिंदुस्तान से बाहर", progress: "प्रोग्रेस", score: "नंबर", lessons: "सबक़",
+  best: "बेहतरीन", start: "सबक़ देखें", open: "कोर्स खोलें", enroll: "दाख़िला लें", intl: "हिंदुस्तान से बाहर", progress: "प्रोग्रेस", score: "नंबर", lessons: "सबक़",
   week: "हफ़्ता", day: "दिन", soon: "जल्द आ रहा है", locked: "पहले पिछला सबक़ पूरा करें", buyFirst: "सारे सबक़ खोलने के लिए दाख़िला लें", login: "लॉग इन", logout: "लॉग आउट",
   loginWhy: "वही अकाउंट इस्तेमाल करें जो quranicscience.info पर है। आपकी प्रोग्रेस और सर्टिफ़िकेट वहीं महफ़ूज़ होते हैं।", google: "गूगल से जारी रखें",
   emailL: "ईमेल", passL: "पासवर्ड", emailBtn: "ईमेल से लॉग इन", mobileHint: "मोबाइल नंबर से लॉग इन करते हैं? पहले मेन वेबसाइट पर लॉग इन करें, फिर यहाँ वापस आएँ।",
@@ -214,8 +214,8 @@ async function liveOpen(c) {
 }
 function lockInfo(c, o, id) {
   const ids = allIds(o), i = ids.indexOf(id), P = progOf();
-  if (i === 0) return { open: true };
   if (!has(c)) return { open: false, why: "buy" };
+  if (i === 0) return { open: true };
   if (isFull(c) || P[id]) return { open: true };
   if (!buyer(c) && liveAI(c)) return (S.live[c] || new Set()).has(id) ? { open: true } : { open: false, why: "live" };
   const prev = P[ids[i - 1]]; if (!prev) return { open: false, why: "prev" };
@@ -462,6 +462,7 @@ function addonHTML(c) { const C = COURSES[c];
 function buyAddon(c) {
   const go = () => { const both = liveOf("tajweed") && liveOf("arabic");
     const line = (k, label) => { const C = COURSES[k]; return `<div class="opt"><b>${label}</b><span>${rupee(C.aInr)} · <bdi dir="ltr">$${C.aUsd}</bdi></span>
+      ${C.aPay ? `<a class="btn pri sm" href="${C.aPay}" target="_blank" rel="noopener">${t("enroll")} – India</a>` : ""}${C.aPayIntl ? `<a class="btn sm" href="${C.aPayIntl}" target="_blank" rel="noopener">${t("intl")}</a>` : ""}
       <a class="btn cy sm" target="_blank" rel="noopener" href="https://wa.me/${WA}?text=${encodeURIComponent(`Assalamu Alaikum, I am a live-class student. I want the AI practice add-on: ${label} (₹${C.aInr} / $${C.aUsd}). My email: ${S.user ? S.user.email || "" : ""}`)}">${t("payWa")}</a></div>`; };
     modal(`<h3>🎓 ${pick(ADDX.b)}</h3><p class="mini">${pick(ADDX.p)}</p><div style="display:grid;gap:10px;margin-top:10px">${line(c, t(c))}${both ? line("combo", pick(ADDX.both)) : ""}</div>`);
     if (S.user && db) db.collection("users").doc(S.user.uid).set({ lastEnroll: { course: COURSES[c].addon, ts: Date.now() } }, { merge: true }).catch(() => {}); };
@@ -705,7 +706,7 @@ async function viewOffline() {
 async function saveOffline(c, btn) {
   if (!("caches" in window)) return toast("Offline storage is not supported on this browser.");
   await courseKey(c); const o = await outline(c), ready = o.weeks.flatMap(w => w.days).filter(d => d.ready), cache = await caches.open("qsai-off-" + c);
-  const urls = new Set(["./", "index.html", `data/${c}.json`, "data/free.json", "icon-192.png", "icon-512.png"]);
+  const urls = new Set(["./", "index.html", `data/${c}.json`, "icon-192.png", "icon-512.png"]);
   for (const d of ready) { urls.add(`data/${d.id.slice(0, 5)}.bin?v=${o.v || 0}`); }
   const bar = btn.parentNode.querySelector(".bar"); bar.hidden = false; btn.disabled = true; btn.textContent = t("saving");
   const weeks = [...new Set(ready.map(d => d.id.slice(0, 5)))]; let done = 0, total = 0;

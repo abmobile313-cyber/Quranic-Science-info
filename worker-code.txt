@@ -177,7 +177,7 @@ export async function ownerAlert(env, fs, msg, now = Date.now(), fetchImpl = fet
 /* course short forms, same as the website: student code ARS863M + TAJ = ARS863M-TAJ */
 /* combo courses: paying for the combo also opens each course inside it, so combo students join the same live batches */
 export const COMBOS = { "ai-combo-live": ["ai-tajweed-live", "ai-arabic-live"], "tajweed-arabic-combo": ["tajweed-class", "arabic-speaking-class"], "ai-tajweed-arabic-combo": ["ai-tajweed", "ai-arabic"], "ai-combo-full": ["ai-tajweed-full", "ai-arabic-full", "ai-tajweed", "ai-arabic"], "ai-tajweed-full": ["ai-tajweed"], "ai-arabic-full": ["ai-arabic"], "all-in-one-creator-course": ["ai-masterclass", "video-editing-course", "content-creation-zero-to-pro"] };
-export const SHORT = { "all-in-one-creator-course": "AIO", "tajweed-arabic-combo": "TAC", "ai-masterclass": "AIM", "video-editing-course": "VED", "content-creation-zero-to-pro": "CCP", "tajweed-class": "TAJ", "arabic-speaking-class": "ARB", "ai-tajweed": "AIT", "ai-arabic": "AIA", "ai-tajweed-arabic-combo": "AIC", "ai-tajweed-full": "AITF", "ai-arabic-full": "AIAF", "ai-combo-full": "AICF" };
+export const SHORT = { "all-in-one-creator-course": "AIO", "tajweed-arabic-combo": "TAC", "ai-masterclass": "AIM", "video-editing-course": "VED", "content-creation-zero-to-pro": "CCP", "tajweed-class": "TAJ", "arabic-speaking-class": "ARB", "ai-tajweed": "AIT", "ai-arabic": "AIA", "ai-tajweed-arabic-combo": "AIC", "ai-tajweed-full": "AITF", "ai-arabic-full": "AIAF", "ai-combo-full": "AICF", "ai-tajweed-live": "AITL", "ai-arabic-live": "AIAL", "ai-combo-live": "AICL" };
 export const courseCode = (code, course) => code ? code + (SHORT[course] ? "-" + SHORT[course] : "") : "-";
 const slug = s => String(s || "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 export function paymentInfo(evt) {
@@ -199,7 +199,18 @@ export const PAGES = {
   pl_TuP9AJkcY0CbZv: "content-creation-zero-to-pro", pl_TuPFzHjPINWWea: "content-creation-zero-to-pro",
   pl_TuP9zWDnFZG8GJ: "tajweed-class", pl_TuPGs7TDUIlODI: "tajweed-class",
   pl_TuPArQv7aZiIsd: "arabic-speaking-class", pl_TuPHbNqlb1HmsA: "arabic-speaking-class",
-  pl_TwHKgPNdatBPDf: "ref-pdf", pl_TwHNgLO274GlET: "ref-pdf"
+  pl_TwHKgPNdatBPDf: "ref-pdf", pl_TwHNgLO274GlET: "ref-pdf",
+  /* Learn with Quranic Science AI (INR page, International page) */
+  pl_Txe4sMDO0i0Uiu: "ai-tajweed", pl_TxeLcxP4UwzGNl: "ai-tajweed",
+  pl_Txe6wINbtZXmgO: "ai-arabic", pl_TxeNsnYpbIR79t: "ai-arabic",
+  pl_Txe8f446FMX99e: "ai-tajweed-arabic-combo", pl_TxePABjSDmRljG: "ai-tajweed-arabic-combo",
+  pl_TxeB3S48AV2vAK: "ai-tajweed-full", pl_TxeQFzDgICdVGt: "ai-tajweed-full",
+  pl_TxeEP2gTXLrjvu: "ai-arabic-full", pl_TxeRCwiwm8gnBm: "ai-arabic-full",
+  pl_TxeFSAyIYnzGuO: "ai-combo-full", pl_TxeSG2IMlqi37J: "ai-combo-full",
+  /* AI practice add-on, only for live-class students */
+  pl_TxeGbRnAGCEc84: "ai-tajweed-live", pl_TxeTHa4jPMQVBk: "ai-tajweed-live",
+  pl_TxeHo0VZ8kRsNL: "ai-arabic-live", pl_TxeUBdcMdlUCBf: "ai-arabic-live",
+  pl_TxeJ1BNjHABjSo: "ai-combo-live", pl_TxeV7zOuGDQRCu: "ai-combo-live"
 };
 /* unique course prices (first-batch price on each Razorpay page); ₹5,999 and $75 are shared by several courses, so those wait for the owner */
 export const AMOUNTS_MULTI = { "INR:5999": ["tajweed-arabic-combo", "video-editing-course", "content-creation-zero-to-pro"], "USD:75": ["tajweed-arabic-combo", "video-editing-course", "content-creation-zero-to-pro", "arabic-speaking-class"] };
