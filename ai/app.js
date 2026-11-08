@@ -358,7 +358,7 @@ const ZONES = { jawf:[190,140,"ا و ي",{en:"Al-Jawf: empty space of mouth & th
 const RL = { nose: { en: "nose", ur: "ناک", hi: "नाक" }, throat: { en: "throat", ur: "حلق", hi: "हल्क़" }, tongue: { en: "tongue", ur: "زبان", hi: "ज़बान" }, lips: { en: "lips", ur: "ہونٹ", hi: "होंठ" } };
 /* zone positions on makharij.webp (1000×1000) and where their letter label sits */
 const ZXY = { jawf:[560,432], h1:[352,765], h2:[305,640], h3:[332,505], l1:[420,505], l2:[485,478], l3:[590,458], l4:[690,478], l5:[742,500], l6:[790,468], l7:[786,535], l8:[818,496], s1:[842,512], s2:[872,488], kh:[680,268] };
-const ZL = { h1:[160,770], h2:[130,640], h3:[150,505], l1:[420,610], l2:[470,380], l3:[590,370], l4:[640,600], l5:[700,620], l6:[880,370], l7:[900,620], l8:[930,430], s1:[930,580], s2:[930,430], kh:[680,140] };
+const ZL = { h1:[160,770], h2:[130,640], h3:[150,505], l1:[420,610], l2:[470,380], l3:[590,370], l4:[640,600], l5:[700,620], l6:[870,340], l7:[890,620], l8:[905,420], s1:[905,650], s2:[905,420], kh:[680,140] };
 const GCOL = ["#2cc4f2", "#f6a53c", "#3fcf8e", "#ff6b6b", "#b9a99b"];
 function lettersQ(str) { return [...str].filter(ch => LETTER[ch]).map(ch => ({ s: LETTER[ch][0], a: LETTER[ch][1], w: LETTER[ch][2] })); }
 function visualHTML(v) {
