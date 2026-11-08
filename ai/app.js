@@ -522,7 +522,7 @@ function labHTML(zones) {
 }
 function wireLab(root) {
   const fig = $(".mlab", root); if (!fig || !window.MLab) return null;
-  const lab = MLab.Lab($(".mlsvg", fig), LANG); let slow = false, lbl = true, busy = 0, all = false;
+  const lab = (window.MLab3 && MLab3.ok() ? MLab3 : MLab).Lab($(".mlsvg", fig), LANG); let slow = false, lbl = true, busy = 0, all = false;
   const cap = (c, z) => { $(".mlch", fig).textContent = c || "";
     $(".mlzt", fig).textContent = z ? pick(ZONES[z][3]) : pick(LABX.tap);
     $(".mlhow", fig).textContent = z ? pick(HOW[z]) + ("خصضغطقظ".includes(c) && c.length === 1 ? pick(LABX.heavy) : "") + ("نم".includes(c) && c.length === 1 ? pick(LABX.ghunna) : "") + (c === "ر" ? pick(LABX.raa) : "") : ""; };

@@ -30,7 +30,7 @@ a{color:inherit}
 h1{font:800 clamp(40px,7vw,72px)/1.02 Outfit;margin:16px 0 10px;background:linear-gradient(90deg,var(--gold2),var(--gold) 45%,var(--cy));-webkit-background-clip:text;background-clip:text;color:transparent;text-wrap:balance}
 .lead{font-size:19px;color:#d7dde2;max-width:56ch;margin:0 0 6px}
 .ur{font-family:"Noto Nastaliq Urdu",serif;direction:rtl;line-height:2.1;font-size:18px;color:var(--gold2);margin:4px 0 18px}
-.chips{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 24px}.chips span{font-size:13px;border:1px solid var(--line);background:rgba(15,31,45,.8);border-radius:999px;padding:6px 12px}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 24px}.chips>span{font-size:13px;border:1px solid var(--line);background:rgba(15,31,45,.8);border-radius:999px;padding:6px 12px}
 .acts{display:flex;flex-wrap:wrap;gap:12px}
 .phone{position:relative;justify-self:center;width:min(300px,78vw);aspect-ratio:9/16;border-radius:38px;padding:10px;background:linear-gradient(160deg,#2b3a48,#0b1520);box-shadow:0 30px 80px rgba(0,0,0,.6),0 0 0 1px rgba(255,255,255,.06) inset}
 .phone video,.phone img{width:100%;height:100%;object-fit:cover;border-radius:30px;display:block;background:#000}
@@ -51,22 +51,25 @@ h1{font:800 clamp(40px,7vw,72px)/1.02 Outfit;margin:16px 0 10px;background:linea
 .cta h3{margin:0;font:700 26px Outfit}.cta p{margin:4px 0 0;color:#d7dde2}
 .foot{border-top:1px solid var(--line);color:var(--mut);font-size:14px}.foot .wrap{display:flex;flex-wrap:wrap;gap:10px 18px;justify-content:space-between;padding-block:22px}
 .lb{position:fixed;inset:0;background:rgba(0,0,0,.85);display:grid;place-items:center;z-index:50;padding:16px}.lb img{max-height:92vh;max-width:100%;border-radius:20px}
+html[data-l=en] .rm,html:not([data-l=en]) .en{display:none}
+.lg{display:inline-flex;border:1px solid var(--line);border-radius:999px;overflow:hidden}.lg button{font:600 13px Outfit;padding:7px 12px;border:0;background:transparent;color:var(--mut);cursor:pointer}.lg button.on{background:var(--gold);color:#1a1205}
+@media(max-width:520px){.top .btn[href="#video"]{display:none}}
 </style>
 </head>
 <body>
 <header class="top"><div class="wrap">
-  <a class="brand" href="/"><img src="icon.webp" alt=""><span>Quranic Science</span></a><span class="sp"></span>
-  <a class="btn sm" href="#video">▶ Video</a><a class="btn sm pri" href="/daai/">App kholein</a>
+  <a class="brand" href="/"><img src="icon.webp" alt=""><span>Quranic Science</span></a><span class="sp"></span><div class="lg" role="group" aria-label="Language"><button type="button" data-l="en">English</button><button type="button" data-l="rm">Roman Urdu</button></div>
+  <a class="btn sm" href="#video">▶ Video</a><a class="btn sm pri" href="/daai/"><span class="rm">App kholein</span><span class="en">Open app</span></a>
 </div></header>
 <main>
 <section class="wrap hero">
   <div>
     <span class="eyebrow">Free · No login · No ads</span>
     <h1>Deen Saathi</h1>
-    <p class="lead">Har Musalman ka Islamic saathi, bilkul muft. Namaz ke auqaat, Quran padhna, umri qaza ka hisaab, Ramzan, khawateen ke masail, bachche aur buzurg: sab ek hi app mein.</p>
+    <p class="lead"><span class="rm">Har Musalman ka Islamic saathi, bilkul muft. Namaz ke auqaat, Quran padhna, umri qaza ka hisaab, Ramzan, khawateen ke masail, bachche aur buzurg: sab ek hi app mein.</span><span class="en">Every Muslim's Islamic companion, completely free. Prayer times, Quran reading, a lifetime qaza tracker, Ramadan, guidance for women, children and elders: all in one app.</span></p>
     <p class="ur">ہر مسلمان کا اسلامی ساتھی، بالکل مفت۔ نماز، قرآن، قضا، رمضان، خواتین، بچے اور بزرگ — سب ایک ایپ میں۔</p>
-    <div class="chips"><span>🕌 Namaz ke auqaat + azan</span><span>📖 Quran reading mode</span><span>✨ Aaj ki ayat</span><span>🌙 Ramzan</span><span>🧕 Khawateen</span><span>👨‍👩‍👧 Bachche · Buzurg</span><span>👆 Aasaan mode</span><span>🗣️ Awaaz ke saath</span></div>
-    <div class="acts"><a class="btn pri" href="/daai/">📲 App kholein (muft)</a><a class="btn" href="#video">▶ 2 minute ka video dekhein</a></div>
+    <div class="chips"><span><span class="rm">🕌 Namaz ke auqaat + azan</span><span class="en">🕌 Prayer times + azan</span></span><span>📖 Quran reading mode</span><span><span class="rm">✨ Aaj ki ayat</span><span class="en">✨ Verse of the day</span></span><span><span class="rm">🌙 Ramzan</span><span class="en">🌙 Ramadan</span></span><span><span class="rm">🧕 Khawateen</span><span class="en">🧕 Women</span></span><span><span class="rm">👨‍👩‍👧 Bachche · Buzurg</span><span class="en">👨‍👩‍👧 Children · Elders</span></span><span><span class="rm">👆 Aasaan mode</span><span class="en">👆 Easy mode</span></span><span><span class="rm">🗣️ Awaaz ke saath</span><span class="en">🗣️ With voice</span></span></div>
+    <div class="acts"><a class="btn pri" href="/daai/">📲 <span class="rm">App kholein (muft)</span><span class="en">Open the app (free)</span></a><a class="btn" href="#video"><span class="rm">▶ 2 minute ka video dekhein</span><span class="en">▶ Watch the 2-minute video</span></a></div>
   </div>
   <div class="phone"><div class="glow"></div><img src="hero.webp" alt="Deen Saathi app"></div>
 </section>
@@ -75,67 +78,74 @@ h1{font:800 clamp(40px,7vw,72px)/1.02 Outfit;margin:16px 0 10px;background:linea
   <div class="vid">
     <div class="phone"><div class="glow"></div><video src="/daai/tutorial.mp4" poster="poster.jpg" controls playsinline preload="metadata"></video></div>
     <div>
-      <h2>2 minute mein poori app samjhein</h2>
-      <p class="sub">Video dekhein: app kahan se kya karti hai. Urdu, Hindi, Roman aur English, chaaron zabanon mein.</p>
+      <h2><span class="rm">2 minute mein poori app samjhein</span><span class="en">Understand the whole app in 2 minutes</span></h2>
+      <p class="sub"><span class="rm">Video dekhein: app kahan se kya karti hai. Urdu, Hindi, Roman aur English, chaaron zabanon mein.</span><span class="en">Watch the video to see what the app does and where. In Urdu, Hindi, Roman Urdu and English.</span></p>
       <ol>
-        <li><b>Setup:</b> Mard ya khatoon chunein, Aasaan ya Poora app.</li>
-        <li><b>Home:</b> agli namaz, aaj ka hisaab, Quran wahin se jahan chhoda tha.</li>
-        <li><b>Aaj ki ayat:</b> tarjume ke saath, ek tap mein WhatsApp par bhejein.</li>
-        <li><b>Namaz aur umri qaza:</b> waqt, azan, yaad-dahani aur qaza ka poora hisaab.</li>
-        <li><b>Quran reading mode:</b> sirf Quran, page palatiye, ayat ke neeche tarjuma.</li>
+        <li><span class="rm"><b>Setup:</b> Mard ya khatoon chunein, Aasaan ya Poora app.</span><span class="en"><b>Setup:</b> choose man or woman, and Easy or Full app.</span></li>
+        <li><span class="rm"><b>Home:</b> agli namaz, aaj ka hisaab, Quran wahin se jahan chhoda tha.</span><span class="en"><b>Home:</b> the next prayer, today's summary, and the Quran from where you left off.</span></li>
+        <li><span class="rm"><b>Aaj ki ayat:</b> tarjume ke saath, ek tap mein <span class="rm">WhatsApp par bhejein</span><span class="en">Share on WhatsApp</span>.</span><span class="en"><b>Verse of the day:</b> with translation, share on WhatsApp in one tap.</span></li>
+        <li><span class="rm"><b>Namaz aur umri qaza:</b> waqt, azan, yaad-dahani aur qaza ka poora hisaab.</span><span class="en"><b>Prayer and lifetime qaza:</b> times, azan, reminders and a full qaza count.</span></li>
+        <li><span class="rm"><b>Quran reading mode:</b> sirf Quran, page palatiye, ayat ke neeche tarjuma.</span><span class="en"><b>Quran reading mode:</b> just the Quran, turn the pages, translation under each verse.</span></li>
       </ol>
     </div>
   </div>
 </section>
 
 <section class="wrap sec">
-  <h2>App ki jhalak</h2>
-  <p class="sub">Asli screens. Kisi bhi tasveer par tap karke bada dekhein.</p>
+  <h2><span class="rm">App ki jhalak</span><span class="en">A look at the app</span></h2>
+  <p class="sub"><span class="rm">Asli screens. Kisi bhi tasveer par tap karke bada dekhein.</span><span class="en">Real screens. Tap any picture to see it bigger.</span></p>
   <div class="shots">
-    <figure class="shot"><img src="setup.webp" alt="" loading="lazy"><div><b>⭐ Setup</b><small>Aasaan ya Poora app, aapki marzi</small></div></figure>
-    <figure class="shot"><img src="ayat.webp" alt="" loading="lazy"><div><b>✨ Aaj ki ayat</b><small>Tarjume ke saath, WhatsApp share</small></div></figure>
-    <figure class="shot"><img src="namaz.webp" alt="" loading="lazy"><div><b>🕌 Namaz aur umri qaza</b><small>Har namaz ka alag hisaab</small></div></figure>
-    <figure class="shot"><img src="quran.webp" alt="" loading="lazy"><div><b>📖 Quran reading mode</b><small>Indo-Pak mushaf, tarjuma ke saath</small></div></figure>
-    <figure class="shot"><img src="saalbhar.webp" alt="" loading="lazy"><div><b>🌙 Ramzan aur saal bhar</b><small>Roza, Taraweeh, Qurbani, Hajj</small></div></figure>
-    <figure class="shot"><img src="khawateen.webp" alt="" loading="lazy"><div><b>🧕 Khawateen</b><small>Ayyam ka hisaab, masail</small></div></figure>
-    <figure class="shot"><img src="parivar.webp" alt="" loading="lazy"><div><b>👨‍👩‍👧 Bachche aur buzurg</b><small>6 kalime, duaen, tayammum</small></div></figure>
-    <figure class="shot"><img src="aasaan.webp" alt="" loading="lazy"><div><b>👆 Aasaan mode</b><small>Bade button, har cheez "Sunein"</small></div></figure>
+    <figure class="shot"><img src="setup.webp" alt="" loading="lazy"><div><b>⭐ Setup</b><small><span class="rm">Aasaan ya Poora app, aapki marzi</span><span class="en">Easy or Full app, your choice</span></small></div></figure>
+    <figure class="shot"><img src="ayat.webp" alt="" loading="lazy"><div><b><span class="rm">✨ Aaj ki ayat</span><span class="en">✨ Verse of the day</span></b><small><span class="rm">Tarjume ke saath, WhatsApp share</span><span class="en">With translation, share on WhatsApp</span></small></div></figure>
+    <figure class="shot"><img src="namaz.webp" alt="" loading="lazy"><div><b><span class="rm">🕌 Namaz aur umri qaza</span><span class="en">🕌 Prayer and lifetime qaza</span></b><small><span class="rm">Har namaz ka alag hisaab</span><span class="en">A separate count for every prayer</span></small></div></figure>
+    <figure class="shot"><img src="quran.webp" alt="" loading="lazy"><div><b>📖 Quran reading mode</b><small><span class="rm">Indo-Pak mushaf, tarjuma ke saath</span><span class="en">Indo-Pak mushaf, with translation</span></small></div></figure>
+    <figure class="shot"><img src="saalbhar.webp" alt="" loading="lazy"><div><b><span class="rm">🌙 Ramzan aur saal bhar</span><span class="en">🌙 Ramadan and the whole year</span></b><small><span class="rm">Roza, Taraweeh, Qurbani, Hajj</span><span class="en">Fasting, Taraweeh, Qurbani, Hajj</span></small></div></figure>
+    <figure class="shot"><img src="khawateen.webp" alt="" loading="lazy"><div><b><span class="rm">🧕 Khawateen</span><span class="en">🧕 Women</span></b><small><span class="rm">Ayyam ka hisaab, masail</span><span class="en">Period tracker and rulings</span></small></div></figure>
+    <figure class="shot"><img src="parivar.webp" alt="" loading="lazy"><div><b><span class="rm">👨‍👩‍👧 Bachche aur buzurg</span><span class="en">👨‍👩‍👧 Children and elders</span></b><small><span class="rm">6 kalime, duaen, tayammum</span><span class="en">6 Kalimas, duas, tayammum</span></small></div></figure>
+    <figure class="shot"><img src="aasaan.webp" alt="" loading="lazy"><div><b><span class="rm">👆 Aasaan mode</span><span class="en">👆 Easy mode</span></b><small><span class="rm">Bade button, har cheez "Sunein"</span><span class="en">Big buttons, "Listen" on everything</span></small></div></figure>
   </div>
 </section>
 
 <section class="wrap sec">
-  <h2>Kya kya milta hai</h2>
+  <h2><span class="rm">Kya kya milta hai</span><span class="en">What you get</span></h2>
   <div class="feat">
-    <div class="f"><div class="i">🕌</div><b>Namaz ke sahi auqaat</b><p>Aapki location aur maslak ke hisaab se, azan aur jamaat ke waqt ke saath.</p></div>
-    <div class="f"><div class="i">📖</div><b>Quran: wahin se padhein</b><p>Continue reading, khatm tracker, ayat ke neeche Urdu tarjuma.</p></div>
-    <div class="f"><div class="i">🧾</div><b>Umri qaza ka hisaab</b><p>Fajr se Witr tak har namaz ka baaqi hisaab, ek tap mein.</p></div>
-    <div class="f"><div class="i">🤲</div><b>Azkar, tasbeeh, Qibla</b><p>Rozana azkar, tasbeeh counter aur Qibla ki simt.</p></div>
-    <div class="f"><div class="i">🧕</div><b>Khawateen ka khaas hissa</b><p>Ayyam ka hisaab, haiz, nifas aur roze ke masail.</p></div>
-    <div class="f"><div class="i">👆</div><b>Buzurgon ke liye aasaan</b><p>Bade huroof, bade button aur har cheez awaaz mein sunne ka option.</p></div>
-    <div class="f"><div class="i">🔒</div><b>Aapka data aapke phone mein</b><p>Na login, na ads. Sab kuch aapke apne phone mein mehfooz.</p></div>
-    <div class="f"><div class="i">🌐</div><b>Chaar zabanein</b><p>Urdu, Hindi, Roman Urdu aur English.</p></div>
+    <div class="f"><div class="i">🕌</div><b><span class="rm">Namaz ke sahi auqaat</span><span class="en">Accurate prayer times</span></b><p><span class="rm">Aapki location aur maslak ke hisaab se, azan aur jamaat ke waqt ke saath.</span><span class="en">For your location and school of thought, with azan and jamaat times.</span></p></div>
+    <div class="f"><div class="i">📖</div><b><span class="rm">Quran: wahin se padhein</span><span class="en">Quran: continue where you stopped</span></b><p><span class="rm">Continue reading, khatm tracker, ayat ke neeche Urdu tarjuma.</span><span class="en">Continue reading, khatm tracker, Urdu translation under each verse.</span></p></div>
+    <div class="f"><div class="i">🧾</div><b><span class="rm">Umri qaza ka hisaab</span><span class="en">Lifetime qaza tracker</span></b><p><span class="rm">Fajr se Witr tak har namaz ka baaqi hisaab, ek tap mein.</span><span class="en">The remaining count of every prayer from Fajr to Witr, in one tap.</span></p></div>
+    <div class="f"><div class="i">🤲</div><b><span class="rm">Azkar, tasbeeh, Qibla</span><span class="en">Azkar, tasbeeh, Qibla</span></b><p><span class="rm">Rozana azkar, tasbeeh counter aur Qibla ki simt.</span><span class="en">Daily azkar, a tasbeeh counter and the Qibla direction.</span></p></div>
+    <div class="f"><div class="i">🧕</div><b><span class="rm">Khawateen ka khaas hissa</span><span class="en">A special section for women</span></b><p><span class="rm">Ayyam ka hisaab, haiz, nifas aur roze ke masail.</span><span class="en">Period tracking, and rulings on menses, postnatal bleeding and fasting.</span></p></div>
+    <div class="f"><div class="i">👆</div><b><span class="rm">Buzurgon ke liye aasaan</span><span class="en">Easy for elders</span></b><p><span class="rm">Bade huroof, bade button aur har cheez awaaz mein sunne ka option.</span><span class="en">Big letters, big buttons and the option to hear everything aloud.</span></p></div>
+    <div class="f"><div class="i">🔒</div><b><span class="rm">Aapka data aapke phone mein</span><span class="en">Your data stays on your phone</span></b><p><span class="rm">Na login, na ads. Sab kuch aapke apne phone mein mehfooz.</span><span class="en">No login, no ads. Everything is kept safe on your own phone.</span></p></div>
+    <div class="f"><div class="i">🌐</div><b><span class="rm">Chaar zabanein</span><span class="en">Four languages</span></b><p><span class="rm">Urdu, Hindi, Roman Urdu aur English.</span><span class="en">Urdu, Hindi, Roman Urdu and English.</span></p></div>
   </div>
 </section>
 
 <section class="wrap sec">
-  <h2>Phone mein app ki tarah lagayein</h2>
-  <p class="sub">Play Store ki zarurat nahi. Ek baar lagayein, phir icon se seedha khulegi.</p>
+  <h2><span class="rm">Phone mein app ki tarah lagayein</span><span class="en">Install it like an app on your phone</span></h2>
+  <p class="sub"><span class="rm">Play Store ki zarurat nahi. Ek baar lagayein, phir icon se seedha khulegi.</span><span class="en">No Play Store needed. Add it once, then open it straight from the icon.</span></p>
   <div class="steps">
-    <div class="st"><b>App kholein</b><p>Chrome mein quranicscience.info/daai kholein.</p></div>
-    <div class="st"><b>Menu (⋮) dabayein</b><p>Upar daayein teen dots par tap karein.</p></div>
-    <div class="st"><b>"Add to Home screen"</b><p>Ya "Install app" chunein. iPhone par Share → "Add to Home Screen".</p></div>
-    <div class="st"><b>Ho gaya</b><p>Home screen par Deen Saathi ka icon aa jayega.</p></div>
+    <div class="st"><span class="rm"><b>App kholein</b><p>Chrome mein quranicscience.info/daai kholein.</p></span><span class="en"><b>Open the app</b><p>Open quranicscience.info/daai in Chrome.</p></span></div>
+    <div class="st"><span class="rm"><b>Menu (⋮) dabayein</b><p>Upar daayein teen dots par tap karein.</p></span><span class="en"><b>Tap the menu (⋮)</b><p>Tap the three dots at the top right.</p></span></div>
+    <div class="st"><span class="rm"><b>"Add to Home screen"</b><p>Ya "Install app" chunein. iPhone par Share → "Add to Home Screen".</p></span><span class="en"><b>"Add to Home screen"</b><p>Or choose "Install app". On iPhone: Share → "Add to Home Screen".</p></span></div>
+    <div class="st"><span class="rm"><b>Ho gaya</b><p>Home screen par Deen Saathi ka icon aa jayega.</p></span><span class="en"><b>Done</b><p>The Deen Saathi icon appears on your home screen.</p></span></div>
   </div>
 </section>
 
 <section class="wrap"><div class="cta">
-  <div><h3>Aaj hi shuru karein, aur doston ko bhi bhejein</h3><p>Har Musalman ke kaam ki app. Bilkul muft, hamesha.</p></div>
-  <div class="acts"><a class="btn pri" href="/daai/">📲 App kholein</a><a class="btn" id="share" href="https://wa.me/?text=Deen%20Saathi%20%E2%80%94%20har%20Musalman%20ka%20Islamic%20saathi%2C%20bilkul%20muft%3A%20https%3A%2F%2Fquranicscience.info%2Fdeen-saathi%2F" target="_blank" rel="noopener">WhatsApp par bhejein</a></div>
+  <div><h3><span class="rm">Aaj hi shuru karein, aur doston ko bhi bhejein</span><span class="en">Start today, and share it with your friends</span></h3><p><span class="rm">Har Musalman ke kaam ki app. Bilkul muft, hamesha.</span><span class="en">An app every Muslim can use. Completely free, always.</span></p></div>
+  <div class="acts"><a class="btn pri" href="/daai/">📲 <span class="rm">App kholein</span><span class="en">Open the app</span></a><a class="btn" id="share" href="https://wa.me/?text=Deen%20Saathi%20%E2%80%94%20har%20Musalman%20ka%20Islamic%20saathi%2C%20bilkul%20muft%3A%20https%3A%2F%2Fquranicscience.info%2Fdeen-saathi%2F" target="_blank" rel="noopener"><span class="rm">WhatsApp par bhejein</span><span class="en">Share on WhatsApp</span></a></div>
 </div></section>
 </main>
 <footer class="foot"><div class="wrap"><span>© 2026 Quranic Science · Deen Saathi</span><span><a href="/">quranicscience.info</a> · <a href="/daai/privacy.html">Privacy</a> · <a href="/terms">Terms</a></span></div></footer>
 <script>
 document.querySelectorAll('.shot img').forEach(i => i.onclick = () => { const d = document.createElement('div'); d.className = 'lb'; d.innerHTML = '<img src="' + i.src + '" alt="">'; d.onclick = () => d.remove(); document.body.appendChild(d); });
+</script>
+<script>
+(function(){var k="ds-lang",l;try{l=localStorage.getItem(k)}catch(e){}
+if(!l){var n=(navigator.language||"en").toLowerCase();l=/^(ur|hi)|-in$|-pk$/.test(n)?"rm":"en"}
+function set(x){document.documentElement.setAttribute("data-l",x);document.documentElement.lang=x==="en"?"en":"ur-Latn";document.querySelectorAll(".lg button").forEach(function(b){b.classList.toggle("on",b.dataset.l===x)});try{localStorage.setItem(k,x)}catch(e){}
+var w=document.getElementById("share");if(w)w.href="https://wa.me/?text="+encodeURIComponent(x==="en"?"Deen Saathi — every Muslim\u2019s Islamic companion, completely free: https://quranicscience.info/deen-saathi/":"Deen Saathi — har Musalman ka Islamic saathi, bilkul muft: https://quranicscience.info/deen-saathi/")}
+set(l);document.querySelectorAll(".lg button").forEach(function(b){b.onclick=function(){set(b.dataset.l)}})})();
 </script>
 </body>
 </html>
