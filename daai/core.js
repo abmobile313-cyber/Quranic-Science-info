@@ -23,7 +23,7 @@ const sleep=ms=>new Promise(r=>setTimeout(r,ms));
 const addDays=(d,n)=>{const x=new Date(d);x.setDate(x.getDate()+n);return x};
 const hm=(s)=>{const m=/(\d{1,2}):(\d{2})/.exec(s||'');return m?[+m[1],+m[2]]:null};
 const atTime=(hhmm,base=new Date())=>{const m=hm(hhmm);if(!m)return null;const d=new Date(base);d.setHours(m[0],m[1],0,0);return d};
-const t12=s=>{const m=hm(s);if(!m)return s||'';const pm=m[0]>=12;const ap=S.lang==='ur'?(pm?'شام':'صبح'):S.lang==='hi'?(pm?'शाम':'सुबह'):(pm?'PM':'AM');return ((m[0]%12)||12)+':'+pad(m[1])+' '+ap};
+const t12=s=>{const m=hm(s);if(!m)return s||'';const pm=m[0]>=12,h=m[0];const ap=S.lang==='ur'?(h<4?'رات':h<12?'صبح':h<16?'دوپہر':h<19?'شام':'رات'):S.lang==='hi'?(h<4?'रात':h<12?'सुबह':h<16?'दोपहर':h<19?'शाम':'रात'):(pm?'PM':'AM');return ((m[0]%12)||12)+':'+pad(m[1])+' '+ap};
 const fmtCount=ms=>{const s=Math.max(0,Math.floor(ms/1000));return pad(Math.floor(s/3600))+':'+pad(Math.floor(s%3600/60))+':'+pad(s%60)};
 const fmtDur=min=>{min=Math.round(min);const h=Math.floor(min/60),m=min%60;return h?h+'h '+pad(m)+'m':m+'m'};
 const LOC=()=>S.lang==='ur'?'ur-IN':S.lang==='hi'?'hi-IN':'en-IN';
@@ -144,7 +144,7 @@ const sfx=n=>AU.play(n);
 
 /* ---------- VOICE: recorded ElevenLabs clips (no TTS anywhere) ---------- */
 const VO={a:null,blobs:{},
-  IDS:['wq_Fajr','wq_Dhuhr','wq_Asr','wq_Maghrib','wq_Isha','alert_event','alert_dua','alert_alarm','az_Fajr','az_Dhuhr','az_Asr','az_Maghrib','az_Isha','hz_Fajr','hz_Dhuhr','hz_Asr','hz_Maghrib','hz_Isha','sadqa_ask','sadqa_remind','tilawat_ask','tilawat_remind','azkar_m','azkar_e','taleem','juma','review','task','reminder','call','timer_nudge','timer_start','test','voice_on','gasht','makruh','alert','open_salam','noor_ji','noor_ok','noor_na','jm5_Fajr','jm5_Dhuhr','jm5_Asr','jm5_Maghrib','jm5_Isha','jm5_Juma','open_bism','msj_ask','ob_welcome','ob_lang','ob_loc','ob_maslak','ob_firqa','ob_masjid','ob_notif','ob_target','ob_done'],
+  IDS:['wq_Fajr','wq_Dhuhr','wq_Asr','wq_Maghrib','wq_Isha','alert_event','alert_dua','alert_alarm','az_Fajr','az_Dhuhr','az_Asr','az_Maghrib','az_Isha','hz_Fajr','hz_Dhuhr','hz_Asr','hz_Maghrib','hz_Isha','sadqa_ask','sadqa_remind','tilawat_ask','tilawat_remind','azkar_m','azkar_e','taleem','juma','review','task','reminder','call','timer_nudge','timer_start','test','voice_on','gasht','makruh','alert','open_salam','noor_ji','noor_ok','noor_na','jm5_Fajr','jm5_Dhuhr','jm5_Asr','jm5_Maghrib','jm5_Isha','jm5_Juma','open_bism','msj_ask','haiz_end','ob_gender','ob_welcome','ob_lang','ob_loc','ob_maslak','ob_firqa','ob_masjid','ob_notif','ob_target','ob_done'],
   url(id,l){if(String(id).startsWith('dua_'))return 'dua/'+id+'.mp3';return 'voice/'+(l||VL())+'/'+id+'.mp3'},
   /* clips are fetched as blobs (works offline through the service worker cache) */
   async blob(id){const k=S.lang+'/'+id;if(this.blobs[k])return this.blobs[k];const r=await fetch(this.url(id));if(!r.ok)throw new Error('clip');const b=await r.blob();if(b.size<2000)throw new Error('clip');return this.blobs[k]=URL.createObjectURL(b)},

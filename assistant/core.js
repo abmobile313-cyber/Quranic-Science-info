@@ -23,7 +23,7 @@ const sleep=ms=>new Promise(r=>setTimeout(r,ms));
 const addDays=(d,n)=>{const x=new Date(d);x.setDate(x.getDate()+n);return x};
 const hm=(s)=>{const m=/(\d{1,2}):(\d{2})/.exec(s||'');return m?[+m[1],+m[2]]:null};
 const atTime=(hhmm,base=new Date())=>{const m=hm(hhmm);if(!m)return null;const d=new Date(base);d.setHours(m[0],m[1],0,0);return d};
-const t12=s=>{const m=hm(s);if(!m)return s||'';const pm=m[0]>=12;const ap=S.lang==='ur'?(pm?'شام':'صبح'):S.lang==='hi'?(pm?'शाम':'सुबह'):(pm?'PM':'AM');return ((m[0]%12)||12)+':'+pad(m[1])+' '+ap};
+const t12=s=>{const m=hm(s);if(!m)return s||'';const pm=m[0]>=12,h=m[0];const ap=S.lang==='ur'?(h<4?'رات':h<12?'صبح':h<16?'دوپہر':h<19?'شام':'رات'):S.lang==='hi'?(h<4?'रात':h<12?'सुबह':h<16?'दोपहर':h<19?'शाम':'रात'):(pm?'PM':'AM');return ((m[0]%12)||12)+':'+pad(m[1])+' '+ap};
 const fmtCount=ms=>{const s=Math.max(0,Math.floor(ms/1000));return pad(Math.floor(s/3600))+':'+pad(Math.floor(s%3600/60))+':'+pad(s%60)};
 const fmtDur=min=>{min=Math.round(min);const h=Math.floor(min/60),m=min%60;return h?h+'h '+pad(m)+'m':m+'m'};
 const LOC=()=>S.lang==='ur'?'ur-IN':S.lang==='hi'?'hi-IN':'en-IN';

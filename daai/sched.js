@@ -36,7 +36,7 @@ function nextPrayer(){if(!TM)return null;const now=new Date();let prev=null;
   const f=(TM_TMR||TM).t.Fajr;return{k:'Fajr',at:tdate(f,1),prev:tdate(TM.t.Isha),tomorrow:true}}
 /* azan = masjid azan time if set, else calculated prayer start. jamaat = masjid jamaat time if set, else azan/start + offset */
 const azanTime=(k,d=new Date())=>{if(k==='Dhuhr'&&d.getDay()===5&&S.masjid&&hm(S.masjid.jz))return atTime(S.masjid.jz,d);const m=S.masjid&&S.masjid.az&&S.masjid.az[k];if(m&&hm(m))return atTime(m,d);if(!TM)return null;return atTime(TM.t[k],d)};
-const jamTime=(k,d=new Date())=>{if(k==='Dhuhr'&&d.getDay()===5&&S.masjid&&hm(S.masjid.ju))return atTime(S.masjid.ju,d);const m=S.masjid&&S.masjid.jm&&S.masjid.jm[k];if(m&&hm(m))return atTime(m,d);const x=azanTime(k,d);if(!x)return null;x.setMinutes(x.getMinutes()+(S.jam[k]||0));return x};
+let jamTime=(k,d=new Date())=>{if(k==='Dhuhr'&&d.getDay()===5&&S.masjid&&hm(S.masjid.ju))return atTime(S.masjid.ju,d);const m=S.masjid&&S.masjid.jm&&S.masjid.jm[k];if(m&&hm(m))return atTime(m,d);const x=azanTime(k,d);if(!x)return null;x.setMinutes(x.getMinutes()+(S.jam[k]||0));return x};
 const hhmmOf=d=>d?pad(d.getHours())+':'+pad(d.getMinutes()):'';
 
 /* ---------- hazri ---------- */
@@ -110,7 +110,8 @@ const markF=k=>{fired.add(k);store.set('fired',[...fired].slice(-600))};
 function dayEvents(){
   const ev=[],d=dkey(),dow=new Date().getDay(),n=VN(S);
   const E=(key,at,win,run,late)=>{if(at)ev.push({key:d+'|'+key,at,win,run,late})};
-  if(TM&&!TM.stale){
+  if(TM&&!TM.stale&&!(typeof fmPaused==='function'&&fmPaused()))
+  {
     PRAY.forEach(p=>{const t=TM.t[p];
       if(S.waqtNotif!==false){const st=atTime(t),az=azanTime(p),same=S.azan&&az&&st&&Math.abs(az-st)<60000;if(st&&!same)E('wq-'+p,st,15*60000,()=>notify(T(`${pname(p)} ka waqt shuru`,`${pname(p)} time has begun`,`${pname(p)} کا وقت شروع`,`${pname(p)} का वक़्त शुरू`),T('Namaz ka waqt shuru ho gaya.','Prayer time has begun.','نماز کا وقت شروع ہو گیا۔','नमाज़ का वक़्त शुरू हो गया।'),{k:'alert',tab:'deen',sub:'namaz',tag:'wq-'+p,voice:'wq_'+p}))}
       if(S.azan)E('azan-'+p,azanTime(p),15*60000,()=>{const jt=t12(hhmmOf(jamTime(p)));notify(T(`${pname(p)} ki azaan ka waqt ho chuka hai 🕌`,`it's time for ${pname(p)} adhan 🕌`,`${pname(p)} کی اذان کا وقت ہو چکا ہے 🕌`,`${pname(p)} की अज़ान का वक़्त हो चुका है 🕌`),(p==='Maghrib'?T('Fauran jamaat khadi ho jayegi.','The jamaat will stand right away.','فوراً جماعت کھڑی ہو جائے گی۔','फ़ौरन जमात खड़ी हो जाएगी।'):T(`Jamaat ${jt} par.`,`Jamaat at ${jt}.`,`جماعت ${jt} پر۔`,`जमात ${jt} पर।`))+(S.masjid.name?' · '+S.masjid.name:''),{k:'alert',tab:'deen',sub:'namaz',tag:'azan-'+p,voice:(p==='Dhuhr'&&isFriD()?'juma':'az_'+p)})});
@@ -126,7 +127,7 @@ function dayEvents(){
   dl('azm',S.azM,()=>{if(azGet('k3m')<100||azGet('istm')<100||azGet('durm')<100)addQ(mkQ('azkar',{w:'m'}))});
   dl('aze',S.azE,()=>{if(azGet('k3e')<100||azGet('iste')<100||azGet('dure')<100)addQ(mkQ('azkar',{w:'e'}))});
   E('mm',atTime(S.mamool),Infinity,(late)=>{if(!mmToday().talim)addQ(mkQ('mamool'),{silent:late>60*60000})});
-  if(dow===5)dl('juma',(TM&&TM.t.Dhuhr)?pad(Math.max(0,(hm(TM.t.Dhuhr)||[12])[0]-3))+':00':'09:00',()=>notify(T('Juma Mubarak! 🌙','Jumuah Mubarak! 🌙'),T('Ghusl, saaf libaas, Surah Kahf, durood ki kasrat, jaldi masjid.','Ghusl, clean clothes, Surah Kahf, much durood, go early.'),{k:'alert',tab:'deen',sub:'quran',voice:'juma'}));
+  if(dow===5)dl('juma',(TM&&TM.t.Dhuhr)?pad(Math.max(0,(hm(TM.t.Dhuhr)||[12])[0]-3))+':00':'09:00',()=>notify(T('Juma Mubarak! 🌙','Jumuah Mubarak! 🌙'),((typeof fmJumaText==='function'&&fmJumaText())||T('Ghusl, saaf libaas, Surah Kahf, durood ki kasrat, jaldi masjid.','Ghusl, clean clothes, Surah Kahf, much durood, go early.')),{k:'alert',tab:'deen',sub:'quran',voice:'juma'}));
   if(typeof mkEvents==='function')mkEvents(new Date(),TM).forEach(e=>E(e.k,e.at,10*60000,()=>notify(e.title,e.body,{k:e.silent?'info':'alert',tab:'deen',sub:'namaz',voice:e.voice,silent:!!e.silent})));
   if(typeof jumaEvents==='function')jumaEvents(new Date(),p=>azanTime(p),p=>jamTime(p)).forEach(e=>E(e.k,e.at,20*60000,()=>notify(e.title,e.body,{k:'alert',tab:e.tab,sub:e.sub,voice:e.voice})));
   if(typeof duaEvents==='function')duaEvents(new Date()).forEach(e=>E(e.k,e.at,20*60000,()=>notify(e.title,e.body,{k:'alert',tab:e.tab,sub:e.sub,voice:e.voice})));

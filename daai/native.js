@@ -10,7 +10,7 @@ function natItems(){
     const at=h=>atTime(h,base);
     const az=p=>{if(!tm)return null;if(p==='Dhuhr'&&fri&&S.masjid&&hm(S.masjid.jz))return at(S.masjid.jz);const m=S.masjid&&S.masjid.az&&S.masjid.az[p];return(m&&hm(m))?at(m):at(tm.t[p])};
     const jm=p=>{if(p==='Dhuhr'&&fri&&S.masjid&&hm(S.masjid.ju))return at(S.masjid.ju);const m=S.masjid&&S.masjid.jm&&S.masjid.jm[p];if(m&&hm(m))return at(m);const x=az(p);if(!x)return null;x.setMinutes(x.getMinutes()+(S.jam[p]||0));return x};
-    if(tm)PRAY.forEach(p=>{
+    if(tm&&!(typeof fmPaused==='function'&&fmPaused(base)))PRAY.forEach(p=>{
       if(S.waqtNotif!==false){const st=at(tm.t[p]),a0=az(p),same=S.azan&&a0&&st&&Math.abs(a0-st)<60000;if(st&&!same)add(st,T(`${pname(p)} ka waqt shuru`,`${pname(p)} time has begun`,`${pname(p)} کا وقت شروع`,`${pname(p)} का वक़्त शुरू`),T('Namaz ka waqt shuru ho gaya.','Prayer time has begun.','نماز کا وقت شروع ہو گیا۔','नमाज़ का वक़्त शुरू हो गया।'),'wq_'+p,{tab:'deen',sub:'namaz'})}
       if(S.azan){const j=jm(p),jt=j?t12(hhmmOf(j)):'';
         add(az(p),T(`${pname(p)} ki azaan ka waqt ho chuka hai 🕌`,`it's time for ${pname(p)} adhan 🕌`,`${pname(p)} کی اذان کا وقت ہو چکا ہے 🕌`,`${pname(p)} की अज़ान का वक़्त हो चुका है 🕌`),(p==='Maghrib'?T('Fauran jamaat khadi ho jayegi.','The jamaat will stand right away.','فوراً جماعت کھڑی ہو جائے گی۔','फ़ौरन जमात खड़ी हो जाएगी।'):T(`Jamaat ${jt} par.`,`Jamaat at ${jt}.`,`جماعت ${jt} پر۔`,`जमात ${jt} पर।`))+(S.masjid.name?' · '+S.masjid.name:''),vz(p),{tab:'deen',sub:'namaz'})}
@@ -25,7 +25,7 @@ function natItems(){
     add(at(S.azM),mkQ('azkar',{w:'m'}).title,'','azkar_m');
     add(at(S.azE),mkQ('azkar',{w:'e'}).title,'','azkar_e');
     try{add(at(S.mamool),mkQ('mamool').title,'','taleem')}catch(e){}
-    if(dow===5&&tm&&tm.t.Dhuhr)add(at(pad(Math.max(0,(hm(tm.t.Dhuhr)||[12])[0]-3))+':00'),T('Juma Mubarak! 🌙','Jumuah Mubarak! 🌙'),T('Ghusl, saaf libaas, Surah Kahf, durood ki kasrat, jaldi masjid.','Ghusl, clean clothes, Surah Kahf, much durood, go early.'),'juma',{tab:'deen',sub:'quran'});
+    if(dow===5&&tm&&tm.t.Dhuhr)add(at(pad(Math.max(0,(hm(tm.t.Dhuhr)||[12])[0]-3))+':00'),T('Juma Mubarak! 🌙','Jumuah Mubarak! 🌙'),((typeof fmJumaText==='function'&&fmJumaText())||T('Ghusl, saaf libaas, Surah Kahf, durood ki kasrat, jaldi masjid.','Ghusl, clean clothes, Surah Kahf, much durood, go early.')),'juma',{tab:'deen',sub:'quran'});
     const J=jobDay(base);if(J&&J.on&&(J.days||[1,2,3,4,5,6]).includes(dow)){
       jobMode('login')==='n'&&add(at(J.login),T('Job ka waqt! ⏰','Job login time! ⏰'),T('Login karne ka waqt ho gaya.','Time to log in.'),'job_login',{tab:'kaam',sub:'waqt'});
       jobMode('brk')==='n'&&add(at(J.brk),T('Break ka waqt ☕','Break time ☕'),T('Thoda aaram karein, namaz/khana.','Take a rest, prayer/lunch.'),'break_start');
