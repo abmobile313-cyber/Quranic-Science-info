@@ -20,7 +20,7 @@ async function rerender(reveal){const v=$('#view');if(!v)return;const key=curTab
   try{
     if(curTab==='home')renderHome(el);
     else if(curTab==='biz')renderBiz(el);
-    else if(curTab==='deen'){if(sub==='namaz')renderNamaz(el);else if(sub==='ramzan'&&typeof renderRamzan==='function')renderRamzan(el);else if(sub==='saal'&&typeof renderSaal==='function')renderSaal(el);else if(sub==='quran')await renderQuran(el);else if(sub==='azkar')renderAzkar(el);else if(sub==='khabar')renderKhabar(el);else{
+    else if(curTab==='deen'){if(sub==='namaz')renderNamaz(el);else if(sub==='parivar'&&typeof renderParivar==='function')renderParivar(el);else if(sub==='ramzan'&&typeof renderRamzan==='function')renderRamzan(el);else if(sub==='saal'&&typeof renderSaal==='function')renderSaal(el);else if(sub==='quran')await renderQuran(el);else if(sub==='azkar')renderAzkar(el);else if(sub==='khabar')renderKhabar(el);else{
       el.innerHTML=segHTML('kuseg',[['hadith',T('Hadees','Hadith')],['hayat',T('Hayat','Hayat')],['duas',T('Duain','Duas')],['sifat',T('6 Sifat','6 Sifat')],['more',T('Kitabein','Books')]],KU.v)+'<div id="ku"></div>';const kb=$('#ku');if(KU.v==='hadith')await renderHadith(kb);else if(KU.v==='hayat')await renderHayat(kb);else if(KU.v==='duas')await renderDuas(kb);else if(KU.v==='sifat')renderSifat(kb);else renderMoreBooks(kb)}}
     else if(curTab==='kaam'){if(sub==='tasks')renderTasks(el);else if(sub==='calls')renderCalls(el);else if(sub==='duty')renderDuty(el);else if(sub==='deliv')renderDeliv(el);else if(sub==='paisa')renderPaisa(el);else if(sub==='waqt')renderWaqt(el);else await renderWallet(el)}
     else if(curTab==='office'){if(typeof renderOffice==='function')await renderOffice(el)}

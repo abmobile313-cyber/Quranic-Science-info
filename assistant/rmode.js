@@ -68,3 +68,38 @@ details.mtrd.rmon{margin-top:8px}details.mtrd.rmon>summary{display:none}
 setTimeout(rmBar,1500);
 /* phone ka Back button: pehle Reading mode se bahar */
 try{const _nb=NAV.back.bind(NAV);NAV.back=function(){if(QS.rm&&document.getElementById('rmbar')){rmExit();return true}return _nb()}}catch(e){}
+/* ===== Tarjuma wala Quran (Reading mode + Tarjuma ON): har ayat ke neeche uska tarjuma, wahi safhe, wahi palatna ===== */
+function rmTrPage(pg){let h='';for(let i=pg.i0;i<=pg.i1;i++){const[s,a]=QPF.flat[i];
+    if(a===1){h+=`<div class="rmsh"><span>${toAr(s)}</span><b>سُوۡرَةُ ${SN[s-1][1]}</b><span>${toAr(QD.ar[s-1].length)}</span></div><div class="rmsn">${esc(snm(s-1))}</div>${s!==1&&s!==9?`<div class="rmbs">${(typeof Q15!=='undefined'&&Q15)?q15Bism():'بِسۡمِ اللّٰهِ الرَّحۡمٰنِ الرَّحِيۡمِ'}</div>`:''}`}
+    const ar=(typeof Q15!=='undefined'&&Q15&&Q15.ayU[s-1])?q15AyahHTML(s,a):esc(QD.ar[s-1][a-1]);
+    const tr=(QD.ur[s-1]&&QD.ur[s-1][a-1])||'';
+    h+=`<div class="rmay ay${bmHas(s,a)?' bm':''}" data-a="qay" data-ay="${s}:${a}"><div class="rmar">${ar}${(typeof Q15!=='undefined'&&Q15)?'':` <span class="ayno">${toAr(a)}</span>`}</div><div class="rmtr ${TRC()}"><b>${a}.</b> ${esc(tr)}</div></div>`}
+  return h}
+function rmTrRender(el){if(!QS.rm||!QS.rmTr)return;const box=el&&el.querySelector('.mus-in');if(!box)return;const P=qpgBuild(),pg=P[QS.gp];if(!pg)return;
+  box.className='mus-in rmtrpg';box.style.removeProperty('--q15');box.innerHTML=rmTrPage(pg);const m=el.querySelector('#mus');if(m)m.classList.remove('fatpg');
+  const d=el.querySelector('details.mtrd');if(d)d.style.display='none';try{QA.hl()}catch(e){}}
+/* page edges: tap to turn (left edge = agla, right edge = pichla — jaise Quran ke safhe) */
+function rmEdges(el){const m=el&&el.querySelector('#mus');if(!m||!QS.rm||m.querySelector('.rmedge'))return;m.style.position='relative';
+  m.insertAdjacentHTML('beforeend',`<button class="rmedge l" data-a="rmnext" aria-label="${T('Agla safha','Next page','اگلا صفحہ','अगला पेज')}">‹</button><button class="rmedge r" data-a="rmprev" aria-label="${T('Pichla safha','Previous page','پچھلا صفحہ','पिछला पेज')}">›</button>`)}
+A.rmnext=()=>A.pgn();A.rmprev=()=>A.pgp();
+/* swipe: dono taraf kaam kare; pehle safhe par koi bhi swipe aage le jaye */
+(function(){let x0=null,y0=0,t0=0;document.addEventListener('touchstart',e=>{if(!QS.rm||!e.target.closest||!e.target.closest('#mus'))return;const t=e.touches[0];x0=t.clientX;y0=t.clientY;t0=Date.now()},{passive:true});
+  document.addEventListener('touchend',e=>{if(x0==null)return;const t=e.changedTouches[0],dx=t.clientX-x0,dy=t.clientY-y0;x0=null;
+    if(Math.abs(dx)<60||Math.abs(dx)<Math.abs(dy)*1.4)return;
+    /* qSwipe already handles dx>0 → next, dx<0 → prev. Sirf pehle safhe par ulta swipe bhi aage le jaye */
+    if((QS.gp||0)===0&&dx<0)setTimeout(()=>{if((QS.gp||0)===0)A.pgn()},60)},{passive:true})})();
+{const _rm2=renderMushaf;renderMushaf=async function(el){await _rm2.apply(this,arguments);try{rmTrRender(el);rmEdges(el)}catch(e){}}}
+{const _tr=A.rmtr;A.rmtr=()=>{_tr();renderMushaf($('#sub'))}}
+(function(){const st=document.createElement('style');st.textContent=`
+.mus-in.rmtrpg{padding:12px 12px 14px!important;min-height:58vh}
+.rmay{padding:10px 4px 12px;border-bottom:1px solid rgba(224,178,74,.22);border-radius:8px}.rmay:last-child{border-bottom:0}
+.rmar{direction:rtl;text-align:right;font-family:IPQ,var(--qf,serif);font-size:24px;line-height:2.15;color:#f3ead2}
+.rmar .qae{color:#d8b45a}
+.rmtr{margin-top:6px;font-size:15.5px;line-height:1.75;color:#cfe3de}.rmtr b{color:#d8b45a;font-weight:700;margin-inline-end:4px}
+.rmtr.urdu{direction:rtl;text-align:right;font-size:17px;line-height:2.1}
+.rmsh{display:flex;justify-content:space-between;align-items:center;margin:8px 0 4px;padding:6px 14px;border:2px double #c9a24a;border-radius:2em;background:linear-gradient(90deg,#3d3510,#6b5a1a 30%,#6b5a1a 70%,#3d3510);color:#ffe9a8;direction:rtl;font-family:Naskh,serif}
+.rmsh b{font-size:20px}.rmsn{text-align:center;font-size:12px;color:#c9b77a;margin-bottom:4px}
+.rmbs{text-align:center;font-family:IPQ,serif;font-size:24px;color:#f3ead2;margin:6px 0 10px}
+.rmedge{position:absolute;top:40%;width:34px;height:74px;border:0;border-radius:14px;background:rgba(212,175,55,.22);color:#ffe9a8;font-size:30px;font-weight:700;z-index:3;cursor:pointer;opacity:.75}
+.rmedge.l{left:-2px}.rmedge.r{right:-2px}.rmedge:active{opacity:1;background:rgba(212,175,55,.45)}
+html[data-mq=light] .rmar,html[data-mq=light] .rmbs{color:#14170c}html[data-mq=light] .rmtr{color:#2b3a36}`;document.head.appendChild(st)})();

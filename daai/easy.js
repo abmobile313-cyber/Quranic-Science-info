@@ -17,7 +17,7 @@ function ezSay(){try{if(typeof TTS==='undefined')return;if(TTS.on){TTS.stop();re
   const v=document.getElementById('dlg')&&document.getElementById('dlg').open?document.getElementById('dlg'):document.getElementById('view');if(!v)return;
   const parts=[];v.querySelectorAll('h1,h2,h3,.eyebrow,.pn,.cd,.ptr,.item b,p,.yrl li').forEach(e=>{if(!e.offsetParent)return;let t=(e.innerText||'').replace(/[\u{1F300}-\u{1FAFF}☀-➿]/gu,'').replace(/\s+/g,' ').trim();if(t&&t.length>1&&!parts.includes(t))parts.push(t)});
   const txt=parts.join('۔ ').slice(0,1400);if(txt)TTS.run([{t:txt}],{lang:ezLang()})}catch(e){}}
-const EZT=()=>[['🕌',T('Namaz','Prayer','نماز','नमाज़'),'deen','namaz'],['📖',T('Quran','Quran','قرآن','क़ुरआन'),'deen','quran'],['📿',T('Tasbeeh aur dua','Tasbih & dua','تسبیح اور دعا','तस्बीह और दुआ'),'deen','azkar'],['🧭',T('Qibla','Qibla','قبلہ','क़िबला'),'tool','qibla'],
+let EZT=()=>[['🕌',T('Namaz','Prayer','نماز','नमाज़'),'deen','namaz'],['📖',T('Quran','Quran','قرآن','क़ुरआन'),'deen','quran'],['📿',T('Tasbeeh aur dua','Tasbih & dua','تسبیح اور دعا','तस्बीह और दुआ'),'deen','azkar'],['🧭',T('Qibla','Qibla','قبلہ','क़िबला'),'tool','qibla'],
   ['🌙',T('Ramzan / Roza','Ramadan / Fasting','رمضان / روزہ','रमज़ान / रोज़ा'),'deen','ramzan'],['📅',T('Saal bhar ke masail','Yearly rulings','سال بھر کے مسائل','साल भर के मसाइल'),'deen','saal'],
   ...(typeof isFem==='function'&&isFem()?[['🧕',T('Khawateen','Women','خواتین','ख़वातीन'),'deen','khawateen']]:[]),['🎙️',T('Bol kar poochhein','Ask by voice','بول کر پوچھیں','बोलकर पूछें'),'more','noor']];
 function ezHome(np,h,d){return`<div class="card"><div class="eztiles">${EZT().map(t=>`<button class="eztile" data-a="ezgo" data-t="${t[2]}" data-s="${t[3]}"><span class="e">${t[0]}</span>${t[1]}</button>`).join('')}</div>
