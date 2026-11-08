@@ -581,8 +581,26 @@ async function viewLesson(id) {
   const L = lockInfo(c, o, id); if (!L.open) { toast(L.why === "time" ? t("waitSlot") + ": " + fmtAt(L.at) : L.why === "buy" ? t("buyFirst") : L.why === "live" ? pick(LIVEX.wait) : t("locked")); location.hash = c; return; }
   let data = null; try { data = await lessonData(id); } catch (e) { if (!S.user) return loginBox(() => route()); }
   if (!data) { toast(t("soon")); location.hash = c; return; }
-  Object.assign(LESSON, { id, data, i: 0, c, meta, o });
-  drawMoment();
+  wuduGate(c, () => { Object.assign(LESSON, { id, data, i: 0, c, meta, o }); drawMoment(); });
+}
+/* wudu is required before every Tajweed / Arabic lesson (same rule as the live classes); asked again after 3 hours */
+const WUDU = { ar: "هَلْ تَوَضَّأْتَ؟", arSub: "لَا يَمَسُّهُۥٓ إِلَّا ٱلْمُطَهَّرُونَ",
+  q: { en: "Have you performed wudu?", ur: "کیا آپ نے وضو کیا ہے؟", hi: "क्या आपने वुज़ू किया है?" },
+  sub: { en: "Wudu is required for the Qur'an and our classes. (Al-Waqi'ah 56:79)", ur: "قرآن اور ہماری کلاس کے لیے وضو ضروری ہے۔ (الواقعہ ۵۶:۷۹)", hi: "क़ुरआन और हमारी क्लास के लिए वुज़ू ज़रूरी है। (अल-वाक़िआ 56:79)" },
+  no: { en: "Please make wudu first, then come back to your lesson.", ur: "براہِ کرم پہلے وضو کیجیے، پھر سبق میں واپس آئیے۔", hi: "मेहरबानी करके पहले वुज़ू कीजिए, फिर सबक़ में वापस आइए।" },
+  yes: { en: "Yes, I have wudu", ur: "جی ہاں، وضو ہے", hi: "जी हाँ, वुज़ू है" }, nope: { en: "No", ur: "نہیں", hi: "नहीं" } };
+function wuduGate(c, go) {
+  let ok = false; try { ok = Date.now() - (+sessionStorage.getItem("qsai-wudu") || 0) < 3 * 3600e3; } catch (e) {}
+  if (ok) return go();
+  const vl = LANG === "en" ? "en" : "hu", say = n => { try { stopAll(); voiceEl = new Audio(`/v-${n}-${vl}.mp3`); voiceEl.play().catch(() => {}); } catch (e) {} };
+  const d = document.createElement("div"); d.className = "wgate";
+  d.innerHTML = `<div class="wbox"><div class="wdrop">💧</div><p class="war">${WUDU.ar}</p><h2>${pick(WUDU.q)}</h2><p class="wsub ar">${WUDU.arSub}</p><p class="mini">${pick(WUDU.sub)}</p>
+    <div class="wbtns"><button class="btn pri" id="wY">✓ ${pick(WUDU.yes)}</button><button class="btn" id="wN">${pick(WUDU.nope)}</button></div></div>`;
+  document.body.appendChild(d); if (S.voice) say("wudu");
+  $("#wY", d).onclick = () => { try { sessionStorage.setItem("qsai-wudu", Date.now()); } catch (e) {} stopAll(); d.remove(); go(); };
+  $("#wN", d).onclick = () => { say("wuduno"); $(".wbox", d).classList.add("warn"); $(".wbox", d).innerHTML = `<div class="wdrop">🚿</div><h2>${pick(WUDU.no)}</h2>`;
+    try { navigator.vibrate && navigator.vibrate([120, 80, 240]); } catch (e) {}
+    setTimeout(() => { d.remove(); location.hash = c; }, 3800); };
 }
 function lessonHead() {
   const { meta, c, data, i } = LESSON;

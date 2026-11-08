@@ -144,6 +144,7 @@ canvas#cv{width:100%;height:auto;border-radius:12px;border:1px solid var(--line)
 .tagf{font:700 11px/1 Outfit;padding:5px 8px;border-radius:999px;background:var(--gold);color:#1c1712;vertical-align:middle;margin-inline-start:6px}
 .hwb{margin-top:16px}.hwrow{padding:12px;border:1px solid var(--line);border-radius:14px;background:var(--card);margin:8px 0}
 html,body{overflow-x:clip}
+.wgate{position:fixed;inset:0;z-index:90;display:grid;place-items:center;padding:16px;background:rgba(5,8,12,.82);backdrop-filter:blur(8px)}.wbox{max-width:440px;width:100%;text-align:center;display:grid;gap:8px;justify-items:center;padding:24px 20px;border-radius:24px;background:linear-gradient(160deg,#122232,#0b141d);border:1px solid rgba(227,170,60,.45);box-shadow:0 30px 80px -30px #000}.wbox h2{margin:0;font-size:22px}.wdrop{font-size:44px}.war{font-family:"Amiri Quran","Noto Naskh Arabic",serif;font-size:34px;line-height:1.7;margin:0;color:var(--gold2)}.wsub{font-family:"Amiri Quran",serif;font-size:22px;margin:0;color:var(--gold2)}.wbtns{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-top:6px}.wbox.warn{border-color:#ef4444;box-shadow:0 0 0 3px #ef444459,0 0 60px #ef444473;animation:wshake .5s 2}@keyframes wshake{20%,60%{transform:translateX(-8px)}40%,80%{transform:translateX(8px)}}
 #mark{position:fixed;inset:0;pointer-events:none;z-index:40;display:flex;flex-wrap:wrap;gap:90px 70px;align-content:space-around;justify-content:space-around;overflow:hidden;opacity:.06;transform:rotate(-18deg) scale(1.3)}
 #mark span{font:600 14px Outfit;color:var(--fg);white-space:nowrap}
 .stage,.bigar,.say{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
@@ -218,6 +219,6 @@ select.btn{appearance:auto}
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <script src="mouth.js?v=2"></script>
 <script src="mouth3d.js?v=1"></script>
-<script src="app.js?v=19"></script>
+<script src="app.js?v=20"></script>
 </body>
 </html>
