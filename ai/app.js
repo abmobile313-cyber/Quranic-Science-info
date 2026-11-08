@@ -246,6 +246,7 @@ function route() {
   if (v === "cert" && a) return viewCert(a);
   if (v === "offline") return viewOffline();
   if (v === "keys") return viewKeys();
+  if (v === "lab") return viewLab();
   return viewHome();
 }
 addEventListener("hashchange", route);
@@ -265,6 +266,7 @@ async function viewHome() {
     <div class="feat"><span>📚 ${t("f1")}</span><span>🔊 ${t("f2")}</span><span>🕋 ${t("f3")}</span><span>🤖 ${t("f4")}</span><span>🎓 ${t("f5")}</span></div></div>
     <div class="orb"><img src="icon-512.png" alt="Quranic Science AI"></div></section>
     ${isOwner() ? `<p class="mini">⭐ ${t("owner")}</p>` : ""}
+    <section class="sec"><a class="cc labcard" href="#lab"><span class="badge">FREE</span><h3>🗣️ ${pick(LABX.title)}</h3><p>${pick(LABX.desc)}</p><span class="btn cy sm">▶ ${pick(LABX.title)}</span></a></section>
     <section class="sec"><h2>${t("courses")}</h2><div class="cards">${card("tajweed", "dT")}${card("arabic", "dA")}${card("combo", "dC")}</div></section>
     <section class="sec"><div class="cards two"><div class="cc"><h3>📅 ${t("dailyT")}</h3><p>${t("dailyD")}</p></div><div class="cc"><h3>⚡ ${t("fullT")}</h3><p>${t("fullD")}</p></div></div></section>`;
   wireBuy(app);
@@ -370,8 +372,8 @@ function visualHTML(v) {
       if (k === "jawf") return `<g class="zon" data-z="${k}"><ellipse cx="${x}" cy="${y}" rx="190" ry="48" class="jawf"/>${many ? "" : `<g class="pill"><rect x="${x - 70}" y="${y - 40}" width="140" height="64" rx="32"/><text x="${x}" y="${y + 6}">${z[2]}</text></g>`}</g>`;
       const lx = ZL[k] ? ZL[k][0] : x, ly = ZL[k] ? ZL[k][1] : y - 90, w = Math.max(90, z[2].replace(/\s/g, "").length * 34 + 50);
       return `<g class="zon" data-z="${k}"><circle cx="${x}" cy="${y}" r="${many ? 16 : 24}" class="zg"/>${many ? "" : `<line x1="${x}" y1="${y}" x2="${lx}" y2="${ly}" class="ld"/><g class="pill"><rect x="${lx - w / 2}" y="${ly - 36}" width="${w}" height="64" rx="32"/><text x="${lx}" y="${ly + 10}">${z[2]}</text></g>`}</g>`; }).join("");
-    return `<figure class="viz mouth"><div class="mk"><img src="makharij.webp" alt="" draggable="false"><svg viewBox="0 0 1000 1000" role="img" aria-label="makharij">${marks}</svg></div>
-      <figcaption><button class="zchip zplay">▶ ${t("playAll")}</button>${[...on].map(k => `<button class="zchip" data-z="${k}"><b class="ar">${ZONES[k][2]}</b><span>${esc(pick(ZONES[k][3]))}</span> 🔊</button>`).join("")}</figcaption></figure>`;
+    return labHTML(on) + `<details class="mkimg"><summary>🖼️ ${pick(LABX.pic)}</summary><figure class="viz mouth"><div class="mk"><img src="makharij.webp" alt="" draggable="false"><svg viewBox="0 0 1000 1000" role="img" aria-label="makharij">${marks}</svg></div>
+      <figcaption><button class="zchip zplay">▶ ${t("playAll")}</button>${[...on].map(k => `<button class="zchip" data-z="${k}"><b class="ar">${ZONES[k][2]}</b><span>${esc(pick(ZONES[k][3]))}</span> 🔊</button>`).join("")}</figcaption></figure></details>`;
   }
   if (v.t === "groups") return `<figure class="viz groups">${v.g.map(g => `<button class="grp" style="--gc:${GCOL[g[4] || 0]}" data-l="${esc(g[3])}"><span class="gl">${esc(pick({ en: g[0], ur: g[1], hi: g[2] }))}</span><b class="ar">${esc(g[3])}</b></button>`).join("")}</figure>`;
   if (v.t === "cards") return `<figure class="viz cards">${v.c.map(c => `<div class="vc"><span class="em">${c[0]}</span><b class="ar">${esc(c[1])}</b><small>${esc(pick({ en: c[2], ur: c[3], hi: c[4] }))}</small></div>`).join("")}</figure>`;
@@ -394,8 +396,76 @@ function wireVisuals(root) {
       g && g.classList.add("hot"); c.classList.add("on"); await playQari(lettersQ(ZONES[z][2]).slice(0, 2), null); g && g.classList.remove("hot"); c.classList.remove("on"); b.classList.add("playing"); }
     b.classList.remove("playing"); });
   $$(".grp", root).forEach(b => b.onclick = () => playQari(lettersQ(b.dataset.l).slice(0, 4), b));
-  $$(".tile.ltr", root).forEach(b => b.onclick = () => playQari(lettersQ(b.dataset.c), b));
+  const LB = wireLab(root);
+  $$(".tile.ltr", root).forEach(b => b.onclick = () => (LB && LB.say(b.dataset.c, b)) || playQari(lettersQ(b.dataset.c), b));
   $$(".tile.qw", root).forEach(b => b.onclick = () => { const [s, a, w] = b.dataset.q.split(",").map(Number); playQari([{ s, a, w }], b); });
+}
+
+/* ============ Makharij Lab: live animation of tongue, lips, jaw, throat and nose ============ */
+const HOW = {
+  jawf: { en: "Mouth open, tongue low. The sound comes from the empty space of mouth and throat; nothing touches.", ur: "منہ کھلا، زبان نیچے۔ آواز منہ اور حلق کے خالی حصے سے نکلتی ہے، کچھ نہیں ٹکراتا۔", hi: "मुँह खुला, ज़बान नीचे। आवाज़ मुँह और हल्क़ के ख़ाली हिस्से से निकलती है, कुछ नहीं टकराता।" },
+  h1: { en: "Nothing moves in the mouth. The sound starts at the voice box, deepest in the throat.", ur: "منہ میں کچھ نہیں ہلتا۔ آواز سب سے گہرے حلق، آواز کی ڈوریوں سے شروع ہوتی ہے۔", hi: "मुँह में कुछ नहीं हिलता। आवाज़ सबसे गहरे हल्क़, आवाज़ की डोरियों से शुरू होती है।" },
+  h2: { en: "Tighten the middle of the throat; the root of the tongue pulls back a little.", ur: "حلق کے درمیان کو تنگ کریں؛ زبان کی جڑ تھوڑی پیچھے جاتی ہے۔", hi: "हल्क़ के बीच को तंग करें; ज़बान की जड़ थोड़ी पीछे जाती है।" },
+  h3: { en: "The back of the tongue rises towards the top of the throat and the air rubs there.", ur: "زبان کا پچھلا حصہ حلق کے اوپری حصے کی طرف اٹھتا ہے اور ہوا وہاں رگڑ کھاتی ہے۔", hi: "ज़बान का पिछला हिस्सा हल्क़ के ऊपरी हिस्से की तरफ़ उठता है और हवा वहाँ रगड़ खाती है।" },
+  l1: { en: "The very back of the tongue presses the soft palate, then lets go.", ur: "زبان کی بالکل جڑ نرم تالو سے لگتی ہے، پھر چھوٹتی ہے۔", hi: "ज़बान की बिल्कुल जड़ नर्म तालू से लगती है, फिर छूटती है।" },
+  l2: { en: "The back of the tongue, a little in front of qaaf, presses the palate.", ur: "زبان کی جڑ، ق سے تھوڑا آگے، تالو سے لگتی ہے۔", hi: "ज़बान की जड़, क़ाफ़ से थोड़ा आगे, तालू से लगती है।" },
+  l3: { en: "The middle of the tongue rises to the middle of the palate.", ur: "زبان کا درمیانی حصہ تالو کے درمیان تک اٹھتا ہے۔", hi: "ज़बान का बीच वाला हिस्सा तालू के बीच तक उठता है।" },
+  l4: { en: "The side of the tongue presses the upper back teeth (left, right or both), and the back of the tongue rises.", ur: "زبان کا کنارہ اوپر کی داڑھوں سے لگتا ہے (بائیں، دائیں یا دونوں)، اور زبان کی جڑ اٹھتی ہے۔", hi: "ज़बान का किनारा ऊपर की दाढ़ों से लगता है (बाएँ, दाएँ या दोनों), और ज़बान की जड़ उठती है।" },
+  l5: { en: "The tip and edge of the tongue touch the gum just above the upper front teeth.", ur: "زبان کی نوک اور کنارہ اوپر کے سامنے والے دانتوں کے مسوڑھے سے لگتے ہیں۔", hi: "ज़बान की नोक और किनारा ऊपर के सामने वाले दाँतों के मसूड़े से लगते हैं।" },
+  l6: { en: "The tip of the tongue presses the roots of the upper front teeth, then releases.", ur: "زبان کی نوک اوپر کے سامنے والے دانتوں کی جڑ سے لگتی ہے، پھر چھوٹتی ہے۔", hi: "ज़बान की नोक ऊपर के सामने वाले दाँतों की जड़ से लगती है, फिर छूटती है।" },
+  l7: { en: "The tip of the tongue stays near the lower front teeth; the air whistles between the teeth.", ur: "زبان کی نوک نیچے کے سامنے والے دانتوں کے پاس، ہوا دانتوں کے بیچ سے سیٹی کی طرح نکلتی ہے۔", hi: "ज़बान की नोक नीचे के सामने वाले दाँतों के पास, हवा दाँतों के बीच से सीटी की तरह निकलती है।" },
+  l8: { en: "The tip of the tongue touches the edges of the upper front teeth; the tongue comes slightly out.", ur: "زبان کی نوک اوپر کے سامنے والے دانتوں کے کناروں سے لگتی ہے؛ زبان تھوڑی باہر آتی ہے۔", hi: "ज़बान की नोक ऊपर के सामने वाले दाँतों के किनारों से लगती है; ज़बान थोड़ी बाहर आती है।" },
+  s1: { en: "The inside of the lower lip touches the edges of the upper front teeth, and air passes.", ur: "نچلے ہونٹ کا اندرونی حصہ اوپر کے دانتوں کے کناروں سے لگتا ہے اور ہوا گزرتی ہے۔", hi: "नीचे वाले होंठ का अंदरूनी हिस्सा ऊपर के दाँतों के किनारों से लगता है और हवा गुज़रती है।" },
+  s2: { en: "Both lips: firmly closed for baa and meem, rounded (not closed) for waw.", ur: "دونوں ہونٹ: ب اور م میں مضبوطی سے بند، و میں گول (بند نہیں)۔", hi: "दोनों होंठ: बा और मीम में मज़बूती से बंद, वाव में गोल (बंद नहीं)।" },
+  kh: { en: "The air goes through the nose. Hold the ghunnah for two counts.", ur: "ہوا ناک سے نکلتی ہے۔ غنہ دو حرکت تک رکھیں۔", hi: "हवा नाक से निकलती है। ग़ुन्ना दो हरकत तक रखें।" } };
+const LABX = {
+  heavy: { en: " Heavy letter: the back of the tongue rises (isti'la).", ur: " پُر حرف: زبان کی جڑ اوپر اٹھتی ہے (استعلاء)۔", hi: " पुर हर्फ़: ज़बान की जड़ ऊपर उठती है (इस्तेअ़्ला)।" },
+  ghunna: { en: " With ghunnah: the soft palate drops and air also flows through the nose.", ur: " غنہ کے ساتھ: نرم تالو نیچے آتا ہے اور ہوا ناک سے بھی نکلتی ہے۔", hi: " ग़ुन्ना के साथ: नर्म तालू नीचे आता है और हवा नाक से भी निकलती है।" },
+  raa: { en: " For raa the tip curls slightly back.", ur: " را میں نوک تھوڑی پیچھے مڑتی ہے۔", hi: " रा में नोक थोड़ी पीछे मुड़ती है।" },
+  tap: { en: "Tap a letter: watch the tongue, lips and throat move, and hear the qari.", ur: "کسی حرف کو دبائیں: زبان، ہونٹ اور حلق کو ہلتے دیکھیں اور قاری صاحب سے سنیں۔", hi: "किसी हर्फ़ को दबाएँ: ज़बान, होंठ और हल्क़ को हिलते देखें और क़ारी साहब से सुनें।" },
+  slow: { en: "Slow", ur: "آہستہ", hi: "आहिस्ता" }, lbl: { en: "Labels", ur: "نام", hi: "नाम" },
+  pic: { en: "Picture view", ur: "تصویر دیکھیں", hi: "तस्वीर देखें" },
+  title: { en: "Makharij Lab", ur: "مخارج لیب", hi: "मख़ारिज लैब" },
+  desc: { en: "A live animation: see where every Arabic letter comes from, how the tongue, lips and throat move, where they touch, and how the air flows. Free for everyone.", ur: "زندہ اینیمیشن: ہر عربی حرف کہاں سے نکلتا ہے، زبان، ہونٹ اور حلق کیسے ہلتے ہیں، کہاں لگتے ہیں اور ہوا کیسے بہتی ہے۔ سب کے لیے مفت۔", hi: "चलती हुई एनिमेशन: हर अरबी हर्फ़ कहाँ से निकलता है, ज़बान, होंठ और हल्क़ कैसे हिलते हैं, कहाँ लगते हैं और हवा कैसे बहती है। सबके लिए मुफ़्त।" } };
+const LAB_ORDER = [["ء","h1"],["ه","h1"],["ع","h2"],["ح","h2"],["غ","h3"],["خ","h3"],["ق","l1"],["ك","l2"],["ج","l3"],["ش","l3"],["ي","l3"],["ض","l4"],["ل","l5"],["ن","l5"],["ر","l5"],["ط","l6"],["د","l6"],["ت","l6"],["ص","l7"],["س","l7"],["ز","l7"],["ظ","l8"],["ذ","l8"],["ث","l8"],["ف","s1"],["ب","s2"],["م","s2"],["و","s2"],["ا","jawf"],["غُنّة","kh"]];
+const LAB_Z = Object.fromEntries(LAB_ORDER.filter(x => x[0].length === 1));
+function labAudio(c) { return c === "غُنّة" ? [{ s: 108, a: 1, w: 1 }] : lettersQ(c); }
+function labHTML(zones) {
+  const items = LAB_ORDER.filter(([, z]) => !zones || zones.has(z));
+  return `<figure class="viz mlab"><div class="mlwrap"><svg class="mlsvg" role="img" aria-label="makharij animation"></svg></div>
+    <div class="mlside"><div class="mlcap"><b class="ar mlch"></b><span class="mlzt"></span><small class="mlhow"></small></div>
+    <div class="mlctl"><button class="zchip mlall">▶ ${t("playAll")}</button><button class="zchip mlslow">🐢 ${pick(LABX.slow)}</button><button class="zchip mllbl on">🏷️ ${pick(LABX.lbl)}</button><button class="zchip mlrep">🔁 ×${S.rep || 1}</button></div>
+    <div class="mlkeys">${items.map(([c, z]) => `<button class="mlk${c.length > 1 ? " wide" : ""}" data-c="${c}" data-z="${z}"><b class="ar">${c}</b></button>`).join("")}</div></div></figure>`;
+}
+function wireLab(root) {
+  const fig = $(".mlab", root); if (!fig || !window.MLab) return null;
+  const lab = MLab.Lab($(".mlsvg", fig), LANG); let slow = false, lbl = true, busy = 0, all = false;
+  const cap = (c, z) => { $(".mlch", fig).textContent = c || "";
+    $(".mlzt", fig).textContent = z ? pick(ZONES[z][3]) : pick(LABX.tap);
+    $(".mlhow", fig).textContent = z ? pick(HOW[z]) + ("خصضغطقظ".includes(c) && c.length === 1 ? pick(LABX.heavy) : "") + ("نم".includes(c) && c.length === 1 ? pick(LABX.ghunna) : "") + (c === "ر" ? pick(LABX.raa) : "") : ""; };
+  cap();
+  async function say(c, z, b) {
+    const my = ++busy; $$(".mlk", fig).forEach(k => k.classList.toggle("on", k === b)); cap(c, z);
+    await lab.to(c, z, slow ? 1500 : 650); if (my !== busy) return;
+    const k = b || $(".mlch", fig); k.classList.add("playing");
+    await playQari(labAudio(c), k); if (my !== busy) return;
+    await new Promise(r => setTimeout(r, slow ? 800 : 350)); if (my !== busy) return;
+    await lab.rest(slow ? 1100 : 500); b && b.classList.remove("on");
+  }
+  $$(".mlk", fig).forEach(b => b.onclick = () => { all = false; $(".mlall", fig).classList.remove("on"); say(b.dataset.c, b.dataset.z, b); });
+  $(".mlall", fig).onclick = async e => { const btn = e.currentTarget; if (all) { all = false; btn.classList.remove("on"); busy++; return; }
+    all = true; btn.classList.add("on");
+    for (const b of $$(".mlk", fig)) { if (!all) break; await say(b.dataset.c, b.dataset.z, b); }
+    all = false; btn.classList.remove("on"); };
+  $(".mlslow", fig).onclick = e => { slow = !slow; e.currentTarget.classList.toggle("on", slow); };
+  $(".mllbl", fig).onclick = e => { lbl = !lbl; e.currentTarget.classList.toggle("on", lbl); lab.labels(lbl, LANG); };
+  $(".mlrep", fig).onclick = e => { S.rep = S.rep === 1 ? 3 : S.rep === 3 ? 5 : 1; LS.set("qsai-rep", S.rep); e.currentTarget.textContent = "🔁 ×" + S.rep; };
+  return { say: (c, b) => LAB_Z[c] ? say(c, LAB_Z[c], b) : null };
+}
+async function viewLab() {
+  const app = $("#app");
+  app.innerHTML = `<section class="sec"><p><a class="btn sm" href="#home">← ${t("back")}</a></p><h2>🗣️ ${pick(LABX.title)}</h2><p class="lead">${pick(LABX.desc)}</p>${labHTML(null)}</section>`;
+  wireLab(app);
 }
 async function playQari(list, btn) {
   stopAll(); btn && btn.classList.add("playing");
