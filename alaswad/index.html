@@ -198,9 +198,9 @@ footer .pol{display:flex;flex-wrap:wrap;justify-content:center;gap:8px 22px;marg
 <section class="notes wrap" id="notes">
   <div class="ntop rv"><div><span class="lbl">Olfactory composition</span><h2 class="disp" style="margin-top:16px">Three <em>movements.</em></h2></div><p>From the first spray to the last trace on your skin, Muznah unfolds in three acts.</p></div>
   <div class="ncols">
-    <article class="nc rv"><figure><img id="n1" src="p/cap.webp" alt="Saffron and bergamot" loading="lazy"></figure><span class="lbl">Top · the opening</span><h4>Saffron &amp; bergamot</h4><p>Bright, spiced and luminous. The first minutes are pure light.</p></article>
-    <article class="nc rv"><figure><img id="n2" src="p/box.webp" alt="Taif rose and oud" loading="lazy"></figure><span class="lbl">Heart · the bloom</span><h4>Taif rose &amp; oud</h4><p>Rose and jasmine open over a vein of oud and warm amber.</p></article>
-    <article class="nc rv"><figure><img id="n3" src="p/case.webp" alt="Ambergris and musk" loading="lazy"></figure><span class="lbl">Base · the trail</span><h4>Ambergris &amp; musk</h4><p>Oud, musk, ambergris and woods. The part they remember.</p></article>
+    <article class="nc rv"><figure><img id="n1" src="p/saffron.webp" alt="Saffron and bergamot" loading="lazy"></figure><span class="lbl">Top · the opening</span><h4>Saffron &amp; bergamot</h4><p>Bright, spiced and luminous. The first minutes are pure light.</p></article>
+    <article class="nc rv"><figure><img id="n2" src="p/rose.webp" alt="Taif rose and oud" loading="lazy"></figure><span class="lbl">Heart · the bloom</span><h4>Taif rose &amp; oud</h4><p>Rose and jasmine open over a vein of oud and warm amber.</p></article>
+    <article class="nc rv"><figure><img id="n3" src="p/amber.webp" alt="Ambergris and musk" loading="lazy"></figure><span class="lbl">Base · the trail</span><h4>Ambergris &amp; musk</h4><p>Oud, musk, ambergris and woods. The part they remember.</p></article>
   </div>
 </section>
 
@@ -267,7 +267,7 @@ const mt=$("#mtext");mt.innerHTML=mt.textContent.split(" ").map(w=>`<span>${H(w)
 const VIEWS=[["bottle","Front"],["left","Left facet"],["cap","The crown"],["back","Back"],["right","Right facet"],["box","The coffret"],["case","Gift case"],["scene","Dubai nights"]];
 const disc=$("#disc"),STEP=19;disc.innerHTML=VIEWS.map((v,i)=>`<div class="it" style="transform:rotate(${i*STEP}deg)"><img src="p/${v[0]}.webp" alt="Muznah – ${v[1]}" loading="lazy" draggable="false"></div>`).join("");
 const its=$$("#disc .it");
-const STRIP=["scene","cap","box","left","case","right","bottle","back"];$("#strip").innerHTML=[...STRIP,...STRIP].map(s=>`<figure><img src="p/${s}.webp" alt="" loading="lazy"></figure>`).join("");
+const STRIP=["scene","saffron","box","oud","case","dubai","bottle","rose","gold","gift","dunes","cap"];$("#strip").innerHTML=[...STRIP,...STRIP].map(s=>`<figure><img src="p/${s}.webp" alt="" loading="lazy"></figure>`).join("");
 function frame(){
   const p=secP(scrub);if(sv.duration){const want=p*(sv.duration-.05);have+=(want-have)*.2;if(Math.abs(sv.currentTime-have)>.03)sv.currentTime=have}
   $("#sbar").style.transform=`scaleX(${p})`;caps.forEach(c=>c.classList.toggle("on",p>=+c.dataset.a&&p<+c.dataset.b));

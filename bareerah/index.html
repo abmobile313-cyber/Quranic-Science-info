@@ -3,292 +3,234 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Bareerah Naturals</title>
-<meta name="description" content="Bareerah Naturals – pure Sunnah foods: raw honey, kalonji, miswak, zaitoon, olive oil and anjeer. Order online and track your parcel.">
-<meta name="theme-color" content="#f4ecdc">
+<title>Bareerah Naturals · Pure Sunnah Foods</title>
+<meta name="description" content="Bareerah Naturals – pure raw honey, kalonji, kalonji oil, zaitoon olive oil, anjeer, Ajwa dates and miswak. The foods of the Sunnah, honestly sourced. Order online and track your parcel.">
+<meta name="theme-color" content="#0f3b2e">
+<meta property="og:title" content="Bareerah Naturals · Pure Sunnah Foods">
+<meta property="og:description" content="Honey, kalonji, zaitoon, anjeer and miswak – the foods of the Sunnah.">
+<meta property="og:image" content="https://quranicscience.info/bareerah/p/honey.webp">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icon-192.png">
 <link rel="apple-touch-icon" href="icon-192.png">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,700;0,9..144,900;1,9..144,500&family=Outfit:wght@400;500;600;700&display=swap">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,400&family=Outfit:wght@300;400;500;600&family=Aref+Ruqaa:wght@400;700&display=swap">
 <style>
-/* Sun-warmed pantry: cream paper, raw honey amber, olive leaf. Solid, edible-looking depth. */
-:root{
-  --paper:#f4ecdc;--paper2:#ebdfc6;--card:#fbf6ec;--ink:#2a2a17;--muted:#6f6a52;--line:rgba(60,55,25,.14);
-  --olive:#4f5d2a;--olive-d:#2f3816;--honey:#e09a1d;--honey-d:#9a5f07;--honey-l:#f6c45a;--date:#6b3a1f;
-  --serif:"Fraunces",Georgia,serif;--sans:"Outfit","Segoe UI",system-ui,sans-serif;
-  --shp-accent:#e09a1d;--shp-accent-ink:#2a1802;--shp-bg:#fbf6ec;--shp-ink:#2a2a17;--shp-card:#f1e7d3;--shp-line:rgba(60,55,25,.16);--shp-muted:#6f6a52;
-  color-scheme:light}
-*{box-sizing:border-box}[hidden]{display:none!important}
-html{scroll-behavior:smooth}
-body{margin:0;background:var(--paper);color:var(--ink);font:400 16px/1.6 var(--sans);overflow-x:hidden;-webkit-font-smoothing:antialiased}
-body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:31;background:var(--paper)}
-.wrap{max-width:1200px;margin:0 auto;padding-left:max(18px,env(safe-area-inset-left,0px));padding-right:max(18px,env(safe-area-inset-right,0px))}
-a{color:inherit}
-h1,h2,h3{font-family:var(--serif);line-height:1;margin:0;text-wrap:balance;letter-spacing:-.02em}
-.eyebrow{font:600 .72rem var(--sans);letter-spacing:.22em;text-transform:uppercase;color:var(--olive);margin:0 0 12px}
-
-/* 3D type */
-.olive3d{color:var(--olive);text-shadow:0 1px 0 #44511f,0 2px 0 #3c4819,0 3px 0 #343f14,0 4px 0 #2c3610,0 5px 0 #242c0b,0 6px 1px rgba(0,0,0,.15),0 14px 22px rgba(60,50,10,.25)}
-.honey3d{color:var(--honey);text-shadow:0 1px 0 #d18d14,0 2px 0 #c2800f,0 3px 0 #b0710b,0 4px 0 #9a5f07,0 5px 0 #814f05,0 6px 1px rgba(0,0,0,.15),0 14px 24px rgba(154,95,7,.3)}
-
-/* chunky 3D buttons */
-.b3{--d:6px;--c:var(--honey);--cd:var(--honey-d);--ci:#2a1802;position:relative;display:inline-flex;align-items:center;justify-content:center;gap:9px;padding:14px 24px;border-radius:999px;border:0;cursor:pointer;white-space:nowrap;
-  font:700 .95rem/1 var(--sans);color:var(--ci);text-decoration:none;background:linear-gradient(180deg,color-mix(in srgb,var(--c) 60%,#fff),var(--c) 60%);
-  box-shadow:0 var(--d) 0 var(--cd),0 calc(var(--d) + 12px) 22px -10px rgba(80,50,0,.45),inset 0 2px 0 rgba(255,255,255,.6);transition:transform .12s,box-shadow .12s}
-.b3:hover{transform:translateY(-2px);box-shadow:0 calc(var(--d) + 2px) 0 var(--cd),0 calc(var(--d) + 16px) 26px -10px rgba(80,50,0,.45),inset 0 2px 0 rgba(255,255,255,.6)}
-.b3:active{transform:translateY(var(--d));box-shadow:0 0 0 var(--cd),0 4px 10px -6px rgba(80,50,0,.5),inset 0 2px 0 rgba(255,255,255,.5)}
-.b3:focus-visible{outline:2px solid var(--olive);outline-offset:5px}
-.b3.olive{--c:var(--olive);--cd:var(--olive-d);--ci:#f7f1df;background:linear-gradient(180deg,#6b7a3c,#4f5d2a 60%)}
-.b3.cream{--c:#fbf6ec;--cd:#cbbd9c;--ci:var(--ink);background:linear-gradient(180deg,#fff,#f3ead7)}
-.b3.sm{padding:10px 16px;font-size:.84rem;--d:4px}
-.b3[disabled]{opacity:.55;cursor:not-allowed}
-
-/* paper grain */
-.grain{position:fixed;inset:0;z-index:-1;pointer-events:none;background:radial-gradient(circle at 85% 10%,rgba(224,154,29,.18),transparent 40%),radial-gradient(circle at 5% 70%,rgba(79,93,42,.12),transparent 40%)}
-
-header{position:sticky;top:env(safe-area-inset-top,0px);z-index:30;padding-block:12px}
-.nav{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:8px 8px 8px 16px;border-radius:999px;background:rgba(251,246,236,.85);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border:1px solid var(--line);box-shadow:0 5px 0 -1px #e2d4b4,0 20px 30px -24px rgba(60,50,10,.5)}
-.logo{display:flex;align-items:center;gap:10px;font:700 1.2rem var(--serif);text-decoration:none}
-.logo i{width:34px;height:34px;border-radius:50% 50% 50% 8px;transform:rotate(-45deg);background:linear-gradient(135deg,#7d8c47,var(--olive));box-shadow:0 3px 0 var(--olive-d),inset 0 1px 0 rgba(255,255,255,.4)}
-.nav nav{display:flex;gap:2px}
-.nav nav a{padding:8px 13px;border-radius:999px;text-decoration:none;font-size:.9rem;color:var(--muted);font-weight:500}
-.nav nav a:hover,.nav nav a:focus-visible{background:var(--paper2);color:var(--ink);outline:none}
-.acts{display:flex;gap:8px}
-.cartb{position:relative}.cartb .shp-badge{position:absolute;top:-8px;right:-6px;background:var(--olive);color:#fff}
-
+:root{--cream:#f6efe2;--cream2:#ece2cf;--paper:#fbf7ef;--em:#0f3b2e;--em2:#164c3c;--em3:#0a2a21;--gold:#c79a3b;--gold2:#e7c27a;--honey:#e09a1d;--ink:#1d2420;--mut:#5f665f;--line:rgba(15,59,46,.16);
+--F:"Fraunces",Georgia,serif;--O:"Outfit",system-ui,sans-serif;--A:"Amiri",serif;--R:"Aref Ruqaa","Amiri",serif;color-scheme:light}
+*{box-sizing:border-box}html{scroll-behavior:smooth;overflow-x:clip}
+body{margin:0;background:var(--cream);color:var(--ink);font:400 16px/1.7 var(--O);-webkit-font-smoothing:antialiased}
+img,video{display:block;max-width:100%}a{color:inherit}button{font:inherit;color:inherit;cursor:pointer}
+.wrap{max-width:1200px;margin:0 auto;padding-left:max(20px,env(safe-area-inset-left,0px));padding-right:max(20px,env(safe-area-inset-right,0px))}
+.ey{font:600 11px var(--O);letter-spacing:.3em;text-transform:uppercase;color:var(--gold)}
+.ar{font-family:var(--A);direction:rtl}
+.h2{font:400 clamp(34px,4.8vw,62px)/1.06 var(--F);margin:12px 0 14px;text-wrap:balance;color:var(--em)}.h2 em{font-style:italic;color:var(--honey)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:14px 26px;border-radius:999px;border:0;text-decoration:none;font:500 15px var(--O);transition:transform .25s,box-shadow .25s}
+.btn.em{background:var(--em);color:var(--cream);box-shadow:0 14px 30px -14px rgba(15,59,46,.7)}
+.btn.gd{background:linear-gradient(135deg,#f4cf7f,#d9a441 55%,#b97f1f);color:#2a1a04;box-shadow:0 14px 30px -14px rgba(185,127,31,.8),inset 0 1px 0 rgba(255,255,255,.6)}
+.btn.ln{background:transparent;color:var(--em);box-shadow:inset 0 0 0 1.5px var(--em)}
+.btn:hover{transform:translateY(-2px)}.btn.sm{padding:10px 18px;font-size:14px}
+/* geometric pattern */
+.geo{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'%3E%3Cg fill='none' stroke='%23c79a3b' stroke-width='1' opacity='.35'%3E%3Cpath d='M40 4l10 26 26 10-26 10-10 26-10-26L4 40l26-10z'/%3E%3Ccircle cx='40' cy='40' r='9'/%3E%3Cpath d='M0 0l20 20M80 0L60 20M0 80l20-20M80 80L60 60'/%3E%3C/g%3E%3C/svg%3E")}
+/* top bar */
+.bis{background:var(--em3);color:var(--gold2);text-align:center;padding:8px 16px;padding-top:max(8px,env(safe-area-inset-top,0px));font:400 20px var(--A)}
+header{position:sticky;top:0;z-index:30;background:rgba(246,239,226,.86);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
+.nav{display:flex;align-items:center;gap:18px;padding:12px 0}
+.brand{display:flex;align-items:center;gap:12px;text-decoration:none}
+.seal{width:46px;height:46px;border-radius:50%;display:grid;place-items:center;background:var(--em);color:var(--gold2);font:700 22px var(--A);box-shadow:inset 0 0 0 2px var(--gold),0 6px 14px -6px rgba(15,59,46,.6)}
+.brand b{display:block;font:600 20px var(--F);color:var(--em);line-height:1}.brand small{font:500 10px var(--O);letter-spacing:.32em;color:var(--gold)}
+.nav nav{margin-left:auto;display:flex;gap:22px}.nav nav a{text-decoration:none;font-size:14px;color:var(--mut)}.nav nav a:hover{color:var(--em)}
+.acts{display:flex;gap:8px;align-items:center}.bag{position:relative}.shp-badge{position:absolute;top:-6px;right:-6px;min-width:20px;height:20px;border-radius:10px;background:var(--honey);color:#fff;font:600 11px/20px var(--O);text-align:center;padding:0 5px}
+@media(max-width:900px){.nav nav{display:none}.acts{margin-left:auto}.acts .ig{display:none}}
 /* hero */
-.hero{display:grid;grid-template-columns:1.05fr .95fr;gap:30px;align-items:center;padding-block:40px 70px;min-height:min(86vh,820px)}
-.hero h1{font-size:clamp(3rem,7.4vw,6.2rem);font-weight:900}
-.hero h1 span{display:block}
-.lede{max-width:46ch;color:var(--muted);font-size:1.1rem;margin:24px 0 28px}
-.cta{display:flex;gap:14px;flex-wrap:wrap}
-.trust{display:flex;gap:12px;flex-wrap:wrap;margin-top:32px}
-.trust span{padding:8px 14px;border-radius:999px;background:var(--card);border:1px solid var(--line);font-size:.84rem;font-weight:500;box-shadow:0 3px 0 #e2d4b4}
-
-/* signature: a glass honey jar built from slices, wooden lid, cloth tie, dipper */
-.stage{position:relative;height:min(560px,72vw);min-height:400px;perspective:1100px;display:grid;place-items:center}
-.sun{position:absolute;width:76%;max-width:440px;aspect-ratio:1;border-radius:50%;background:radial-gradient(circle,#f8d27a,#f0b54a 45%,rgba(240,181,74,0) 70%);opacity:.55}
-.board{position:absolute;bottom:9%;left:50%;width:70%;max-width:400px;height:60px;transform:translateX(-50%) rotateX(74deg);border-radius:50%;background:radial-gradient(closest-side,#a77744,#7a5128);box-shadow:0 20px 0 #5a3a1a,0 0 0 6px rgba(122,81,40,.3)}
-.jar{position:relative;width:min(180px,38vw);aspect-ratio:1/1.15;transform-style:preserve-3d;animation:spin 18s linear infinite;margin-bottom:12%}
-.stage:hover .jar{animation-play-state:paused}
-@keyframes spin{from{transform:rotateX(-12deg) rotateY(0)}to{transform:rotateX(-12deg) rotateY(360deg)}}
-.js{position:absolute;inset:0;border-radius:22% 22% 26% 26%/14% 14% 18% 18%;background:linear-gradient(180deg,rgba(255,255,255,.25) 0 10%,rgba(246,196,90,.75) 10%,rgba(224,154,29,.9) 60%,rgba(154,95,7,.95));border:1px solid rgba(255,230,170,.4)}
-.js.face{background:linear-gradient(110deg,rgba(255,255,255,.7),rgba(255,255,255,.1) 24%,transparent 40%),linear-gradient(180deg,rgba(255,255,255,.35) 0 10%,rgba(246,196,90,.8) 10%,rgba(224,154,29,.92) 60%,rgba(130,78,5,.97));box-shadow:inset 0 0 0 2px rgba(255,240,200,.6),inset 0 -26px 30px rgba(110,60,0,.35)}
-.lab{position:absolute;left:14%;right:14%;top:38%;padding:12px 6px;border-radius:6px;text-align:center;background:linear-gradient(180deg,#fbf6ec,#ebdfc6);color:var(--olive-d);font:900 clamp(.72rem,2.4vw,1rem)/1 var(--serif);box-shadow:0 2px 0 #c9b88f,0 6px 10px rgba(0,0,0,.25)}
-.lab small{display:block;font:600 .48rem var(--sans);letter-spacing:.22em;margin-top:5px;color:var(--honey-d)}
-.lid{position:absolute;left:50%;top:-16%;width:82%;height:16%;transform:translateX(-50%);transform-style:preserve-3d}
-.lid i{position:absolute;inset:0;border-radius:6px;background:repeating-linear-gradient(90deg,#8a5a2b 0 6px,#7a4d22 6px 12px),#7a4d22;box-shadow:inset 0 -3px 0 rgba(0,0,0,.25)}
-.lid i.top{transform:rotateX(90deg) translateZ(var(--hz))!important;border-radius:50%;background:repeating-radial-gradient(circle,#9a6833 0 5px,#86592a 5px 9px)}
-.chip{position:absolute;padding:10px 14px;border-radius:18px;background:var(--card);border:1px solid var(--line);box-shadow:0 5px 0 #e2d4b4,0 24px 30px -20px rgba(60,50,10,.5);font-size:.82rem;display:flex;align-items:center;gap:10px;animation:bob 6s ease-in-out infinite;z-index:2}
-.chip b{display:block;font:700 .98rem var(--serif)}
-.chip small{color:var(--muted)}
-.chip .dot{width:30px;height:30px;border-radius:50%;box-shadow:inset 0 -4px 0 rgba(0,0,0,.2),inset 0 2px 0 rgba(255,255,255,.4)}
-.c1{left:7%;top:22%}.c2{right:5%;top:46%;animation-delay:-2s}.c3{left:8%;bottom:12%;animation-delay:-4s}
-@keyframes bob{50%{transform:translateY(-12px)}}
-
-section{padding-block:80px}
-.sh{display:flex;justify-content:space-between;align-items:end;gap:20px;flex-wrap:wrap;margin-bottom:26px}
-.sh h2{font-size:clamp(2.3rem,5vw,3.8rem);font-weight:900}
-.sh p{max-width:42ch;color:var(--muted);margin:0}
-
-/* category keys */
-.keys{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:32px}
-.key{display:inline-flex;align-items:center;gap:10px;padding:10px 16px 10px 10px;border-radius:999px;border:1px solid var(--line);background:var(--card);cursor:pointer;font:600 .92rem var(--sans);color:var(--ink);box-shadow:0 5px 0 #dccdab,0 14px 18px -14px rgba(60,50,10,.5);transition:transform .12s,box-shadow .12s}
-.key .em{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;background:var(--t);font-size:.95rem;box-shadow:inset 0 -3px 0 rgba(0,0,0,.18),inset 0 2px 0 rgba(255,255,255,.4)}
-.key em{font-style:normal;color:var(--muted);font-size:.78rem}
-.key:hover{transform:translateY(-1px)}
-.key[aria-pressed="true"]{transform:translateY(4px);box-shadow:0 1px 0 #dccdab,inset 0 0 0 2px var(--olive);background:#fff}
-.key:focus-visible{outline:2px solid var(--olive);outline-offset:3px}
-
-/* product cards: jars on a shelf, tilt in 3D */
-.shelf{display:grid;grid-template-columns:repeat(auto-fill,minmax(235px,1fr));gap:26px;perspective:1400px}
-.pc{position:relative;padding:14px;border-radius:28px;background:var(--card);border:1px solid var(--line);display:flex;flex-direction:column;gap:10px;transform-style:preserve-3d;transition:transform .4s cubic-bezier(.2,.8,.2,1);
-  box-shadow:inset 0 2px 0 #fff,0 8px 0 -2px #dccdab,0 40px 50px -34px rgba(60,50,10,.55)}
-.pc .media{position:relative;aspect-ratio:1/1;max-width:100%;border-radius:20px;overflow:hidden;transform:translateZ(40px);background:radial-gradient(circle at 50% 80%,color-mix(in srgb,var(--t) 55%,transparent),transparent 65%),linear-gradient(180deg,#f6eedd,#e8dbbf);box-shadow:inset 0 0 0 1px var(--line),0 16px 24px -16px rgba(60,50,10,.5)}
-.pc .media img{width:100%;height:100%;object-fit:cover}
-.mj{position:absolute;left:50%;bottom:16%;width:36%;aspect-ratio:1/1.15;transform:translateX(-50%);border-radius:22% 22% 26% 26%/14% 14% 18% 18%;
-  background:linear-gradient(110deg,rgba(255,255,255,.65),transparent 34%),linear-gradient(180deg,rgba(255,255,255,.3) 0 12%,var(--t) 12%,color-mix(in srgb,var(--t) 60%,#3a2000));box-shadow:inset 0 0 0 2px rgba(255,255,255,.5),0 22px 22px -12px rgba(60,40,0,.6)}
-.mj::before{content:"";position:absolute;left:50%;top:-20%;width:84%;height:18%;transform:translateX(-50%);border-radius:5px;background:repeating-linear-gradient(90deg,#8a5a2b 0 5px,#7a4d22 5px 10px)}
-.pc .pill{position:absolute;top:24px;left:24px;transform:translateZ(60px);font-size:.72rem;font-weight:700;padding:5px 11px;border-radius:999px;background:var(--olive);color:#f7f1df;box-shadow:0 3px 0 var(--olive-d)}
-.pc .meta{font-size:.76rem;color:var(--muted);letter-spacing:.06em;text-transform:uppercase;font-weight:600}
-.pc h3{font-size:1.35rem;font-weight:700;transform:translateZ(22px)}
-.pc p{margin:0;color:var(--muted);font-size:.9rem;transform:translateZ(14px)}
-.pc .row{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-top:auto;transform:translateZ(30px)}
-.price{font:900 1.35rem var(--serif);color:var(--olive-d)}
-.price s{font:500 .82rem var(--sans);color:var(--muted);margin-left:6px}
-.empty{grid-column:1/-1;text-align:center;color:var(--muted);padding:30px}
-
-/* promise band (olive) */
-.band{background:linear-gradient(180deg,#4f5d2a,#3b4720);color:#f7f1df;border-radius:40px;margin-inline:max(10px,env(safe-area-inset-left,0px));box-shadow:0 10px 0 #2a3311,0 40px 60px -40px rgba(30,30,0,.8)}
-.band .eyebrow{color:var(--honey-l)}
-.band h2{font-size:clamp(2.3rem,5vw,4rem);font-weight:900;color:#f7f1df;text-shadow:0 1px 0 #d8d1b4,0 2px 0 #b9b293,0 3px 0 #9a9474,0 4px 1px rgba(0,0,0,.3),0 12px 20px rgba(0,0,0,.35);margin-bottom:34px}
-.band h2 em{color:var(--honey-l);font-style:italic}
-.tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:18px}
-.tile{padding:22px;border-radius:24px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);box-shadow:inset 0 1px 0 rgba(255,255,255,.12),0 6px 0 rgba(0,0,0,.18)}
-.tile .ic{width:46px;height:46px;border-radius:14px;display:grid;place-items:center;font-size:1.4rem;margin-bottom:12px;background:linear-gradient(180deg,#f8d27a,var(--honey));box-shadow:0 4px 0 var(--honey-d),inset 0 2px 0 rgba(255,255,255,.5)}
-.tile b{display:block;font:700 1.15rem var(--serif);margin-bottom:6px}
-.tile p{margin:0;color:#d8d3bc;font-size:.9rem}
-
-.steps{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;counter-reset:s}
-.step{padding:22px;border-radius:24px;background:var(--card);border:1px solid var(--line);box-shadow:0 6px 0 -1px #dccdab,0 26px 30px -26px rgba(60,50,10,.5)}
-.step::before{counter-increment:s;content:counter(s);display:grid;place-items:center;width:46px;height:46px;border-radius:50%;margin-bottom:12px;font:900 1.3rem var(--serif);color:#2a1802;background:linear-gradient(180deg,#f8d27a,var(--honey));box-shadow:0 4px 0 var(--honey-d),inset 0 2px 0 rgba(255,255,255,.5)}
-.step b{display:block;font:700 1.15rem var(--serif);margin-bottom:6px}
-.step p{margin:0;color:var(--muted);font-size:.92rem}
-.bar{display:flex;flex-wrap:wrap;gap:14px;justify-content:space-between;align-items:center;margin-top:22px;padding:22px 24px;border-radius:26px;background:var(--card);border:1px solid var(--line);box-shadow:0 6px 0 -1px #dccdab}
-.bar b{font:700 1.25rem var(--serif)}
-.bar p{margin:2px 0 0;color:var(--muted);font-size:.9rem}
-.num{font:900 clamp(1.4rem,4vw,2rem) var(--serif);user-select:all}
-footer{padding-block:40px calc(60px + env(safe-area-inset-bottom,0px));display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;color:var(--muted);font-size:.85rem}
-footer .big{width:100%;font:900 clamp(3rem,13vw,10rem)/.9 var(--serif);letter-spacing:-.04em;color:#e9dcbf;text-shadow:0 1px 0 #ddcda9,0 2px 0 #d3c19b,0 3px 0 #c9b58d,0 4px 0 #bfa97f,0 16px 26px rgba(60,50,10,.25)}
-
-/* Islamic layer: girih star pattern, mihrab arches, calligraphy */
-.grain{background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'%3E%3Cg fill='none' stroke='%234f5d2a' stroke-opacity='.13' stroke-width='1.2'%3E%3Cpath d='M40 8l9 23 23 9-23 9-9 23-9-23-23-9 23-9z'/%3E%3Crect x='22' y='22' width='36' height='36' transform='rotate(45 40 40)'/%3E%3Crect x='22' y='22' width='36' height='36'/%3E%3C/g%3E%3C/svg%3E") 0 0/80px 80px,radial-gradient(circle at 85% 10%,rgba(224,154,29,.18),transparent 40%),radial-gradient(circle at 5% 70%,rgba(79,93,42,.12),transparent 40%)}
-.ayah{text-align:left;font:700 clamp(1.8rem,4vw,2.8rem)/1.6 "Amiri",serif;color:var(--olive-d);direction:rtl;margin:0 0 4px;text-shadow:0 2px 0 #e2d4b4}
-.ayah-t{font:500 .86rem var(--sans);color:var(--honey-d);letter-spacing:.06em;margin:0 0 18px}
-.mihrab{position:relative;height:min(600px,78vw);min-height:420px;border-radius:50% 50% 24px 24px/34% 34% 24px 24px;background:linear-gradient(180deg,#fbf6ec,#efe2c4);border:2px solid #c9b07a;
-  box-shadow:inset 0 0 0 10px #f4ecdc,inset 0 0 0 12px #c9b07a,0 10px 0 #d8c69c,0 40px 60px -30px rgba(80,60,10,.5);overflow:hidden}
-.mihrab::before{content:"";position:absolute;inset:0;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'%3E%3Cg fill='none' stroke='%234f5d2a' stroke-opacity='.13' stroke-width='1.2'%3E%3Cpath d='M40 8l9 23 23 9-23 9-9 23-9-23-23-9 23-9z'/%3E%3Crect x='22' y='22' width='36' height='36' transform='rotate(45 40 40)'/%3E%3Crect x='22' y='22' width='36' height='36'/%3E%3C/g%3E%3C/svg%3E") center/64px 64px;opacity:.9}
-.mihrab .stage{position:absolute;inset:0;height:auto;min-height:0}
-.lamp{position:absolute;left:50%;top:12%;width:2px;height:12%;background:#9a7a3a;transform:translateX(-50%)}
-.lamp::after{content:"";position:absolute;left:50%;bottom:-26px;width:30px;height:30px;transform:translateX(-50%);border-radius:50% 50% 40% 40%;background:radial-gradient(circle at 50% 40%,#fff3c4,#f0b54a 60%,#9a5f07);box-shadow:0 0 30px 10px rgba(246,196,90,.5)}
-.gband{height:24px;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='48' height='24' viewBox='0 0 48 24'%3E%3Cpath d='M0 12l12-12 12 12-12 12zM24 12l12-12 12 12-12 12z' fill='none' stroke='%23e09a1d' stroke-width='1.5'/%3E%3Ccircle cx='24' cy='12' r='2.5' fill='%234f5d2a'/%3E%3C/svg%3E") center/48px 24px repeat-x;margin-block:10px;opacity:.9}
-.pc .media{border-radius:50% 50% 16px 16px/30% 30% 16px 16px}
-.band{background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'%3E%3Cg fill='none' stroke='%23f6c45a' stroke-opacity='.12' stroke-width='1.2'%3E%3Cpath d='M40 8l9 23 23 9-23 9-9 23-9-23-23-9 23-9z'/%3E%3Crect x='22' y='22' width='36' height='36' transform='rotate(45 40 40)'/%3E%3Crect x='22' y='22' width='36' height='36'/%3E%3C/g%3E%3C/svg%3E") 0 0/80px 80px,linear-gradient(180deg,#4f5d2a,#3b4720)}
-.basmala{text-align:center;font:400 clamp(1.6rem,3.4vw,2.4rem) "Amiri",serif;color:var(--olive);padding-top:18px;direction:rtl}
-
-.rv{opacity:0;transform:translateY(24px);transition:opacity .8s,transform .8s cubic-bezier(.2,.8,.2,1)}
-.rv.in{opacity:1;transform:none}
-@media (max-width:980px){.tiles,.steps{grid-template-columns:1fr 1fr}}
-@media (max-width:860px){.hero{grid-template-columns:1fr;min-height:0;padding-block:10px 40px}.mihrab{order:-1;height:420px;min-height:0}.jar{width:min(130px,32vw)}.nav nav{display:none}}
-@media (max-width:520px){.tiles,.steps{grid-template-columns:1fr}.c2{display:none}.acts .wa{display:none}.band{border-radius:28px}}
-@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important;scroll-behavior:auto!important}.rv{opacity:1;transform:none}}
-footer .pol-links{width:100%;font-size:.8rem;letter-spacing:0}footer .pol-links a{color:inherit}
+.hero{position:relative;overflow:hidden;background:var(--em);color:var(--cream)}
+.hero::before{content:"";position:absolute;inset:0;opacity:.5}
+.hero .wrap{position:relative;display:grid;grid-template-columns:1.05fr .95fr;gap:40px;align-items:center;padding-top:70px;padding-bottom:90px}
+.hero h1{font:400 clamp(44px,6.4vw,88px)/1 var(--F);margin:14px 0 20px;text-wrap:balance}.hero h1 em{color:var(--gold2)}
+.hero .q{font:400 clamp(26px,3vw,38px)/1.6 var(--A);color:var(--gold2);margin:0}
+.hero .qt{font:italic 400 16px var(--F);color:rgba(246,239,226,.75);margin:4px 0 28px}
+.hero .cta{display:flex;flex-wrap:wrap;gap:12px}
+.hero .btn.ln{color:var(--cream);box-shadow:inset 0 0 0 1.5px rgba(246,239,226,.6)}
+.archf{position:relative;aspect-ratio:4/5;max-width:470px;margin-left:auto;width:100%}
+.archf .fr{position:absolute;inset:0;border-radius:240px 240px 16px 16px;overflow:hidden;box-shadow:0 0 0 10px rgba(199,154,59,.18),0 0 0 11px rgba(199,154,59,.5),0 40px 80px -30px #000}
+.archf img{width:100%;height:100%;object-fit:cover}
+.archf .drip{position:absolute;left:0;right:0;top:0;height:140px;pointer-events:none;z-index:2}
+.badge{position:absolute;left:-18px;bottom:40px;z-index:3;padding:14px 18px;border-radius:18px;background:var(--cream);color:var(--em);box-shadow:0 20px 40px -20px #000;display:grid;gap:2px}
+.badge b{font:600 22px var(--F)}.badge span{font-size:12px;color:var(--mut)}
+@media(max-width:900px){.hero .wrap{grid-template-columns:1fr;padding-top:40px}.archf{margin:10px auto 0}.badge{left:8px}}
+/* honey drip svg animation */
+.drip path{fill:url(#hg);animation:dr 6s ease-in-out infinite}.drip path:nth-child(2){animation-delay:-2s}.drip path:nth-child(3){animation-delay:-4s}
+@keyframes dr{0%,100%{transform:scaleY(.55)}50%{transform:scaleY(1)}}
+/* trust */
+.trust{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:-46px;position:relative;z-index:2}
+.tcard{background:var(--paper);border-radius:20px;padding:20px;box-shadow:0 20px 40px -26px rgba(15,59,46,.5);border:1px solid var(--line)}
+.tcard b{display:block;font:600 17px var(--F);color:var(--em)}.tcard span{font-size:13px;color:var(--mut)}
+@media(max-width:900px){.trust{grid-template-columns:1fr 1fr}}
+section{padding:100px 0 20px}
+.sh{text-align:center;max-width:720px;margin:0 auto 46px}.sh p{color:var(--mut);margin:0}
+/* sunnah six (circular) */
+.six{position:relative;display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.sc{position:relative;border:0;padding:0;background:var(--paper);border-radius:200px 200px 22px 22px;overflow:hidden;text-align:left;box-shadow:0 26px 50px -30px rgba(15,59,46,.55);border:1px solid var(--line);transition:transform .4s}
+.sc:hover{transform:translateY(-6px)}
+.sc figure{margin:0;aspect-ratio:1;overflow:hidden}.sc img{width:100%;height:100%;object-fit:cover;transition:transform 1.2s}.sc:hover img{transform:scale(1.06)}
+.sc .bd{padding:18px 20px 22px}.sc .bd .ar{font-size:24px;color:var(--gold);float:right;line-height:1}
+.sc h3{font:600 22px var(--F);margin:0 0 6px;color:var(--em)}.sc p{margin:0;font-size:14px;color:var(--mut)}
+@media(max-width:900px){.six{grid-template-columns:1fr 1fr}}@media(max-width:520px){.six{grid-template-columns:1fr}}
+/* verse band */
+.verse{background:var(--em3);color:var(--cream);text-align:center;padding:90px 20px;margin-top:100px;position:relative;overflow:hidden}
+.verse .ar{font:400 clamp(30px,4.6vw,56px)/1.8 var(--A);color:var(--gold2);display:block;max-width:900px;margin:0 auto}
+.verse p{font:italic 400 clamp(18px,2vw,24px) var(--F);max-width:640px;margin:14px auto 6px;color:rgba(246,239,226,.9)}
+.verse small{letter-spacing:.24em;text-transform:uppercase;font-size:11px;color:var(--gold)}
+/* shop */
+.keys{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-bottom:28px}
+.key{border:0;padding:10px 18px;border-radius:999px;background:var(--paper);box-shadow:inset 0 0 0 1px var(--line);font-size:14px;color:var(--mut)}.key[aria-pressed=true]{background:var(--em);color:var(--cream);box-shadow:none}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:22px}
+.pc{background:var(--paper);border-radius:22px;overflow:hidden;border:1px solid var(--line);display:flex;flex-direction:column;box-shadow:0 20px 40px -30px rgba(15,59,46,.5)}
+.pc .media{aspect-ratio:1;overflow:hidden;background:var(--cream2)}.pc .media img{width:100%;height:100%;object-fit:cover;transition:transform .8s}.pc:hover .media img{transform:scale(1.05)}
+.pc .bd{padding:16px 18px 18px;display:flex;flex-direction:column;gap:6px;flex:1}
+.pc .cat{font:600 11px var(--O);letter-spacing:.2em;text-transform:uppercase;color:var(--gold)}
+.pc h3{margin:0;font:600 20px var(--F);color:var(--em)}.pc p{margin:0;font-size:14px;color:var(--mut)}
+.row{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:auto;padding-top:10px}
+.price{font:600 19px var(--O);color:var(--em)}.price s{font-size:13px;color:var(--mut);font-weight:400;margin-left:6px}
+/* hadith + steps */
+.split{display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:center}
+.ph{border-radius:24px;overflow:hidden;aspect-ratio:4/3;box-shadow:0 30px 60px -30px rgba(15,59,46,.6)}.ph img{width:100%;height:100%;object-fit:cover}
+.hcard{background:var(--paper);border:1px solid var(--line);border-radius:22px;padding:26px;margin-top:20px}
+.hcard .ar{font-size:26px;color:var(--em);line-height:1.8;display:block}.hcard p{margin:8px 0 4px;font:italic 400 17px var(--F)}.hcard small{color:var(--gold);letter-spacing:.14em;text-transform:uppercase;font-size:11px}
+@media(max-width:900px){.split{grid-template-columns:1fr}}
+.steps{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;counter-reset:s}
+.step{background:var(--paper);border:1px solid var(--line);border-radius:22px;padding:22px}.step::before{counter-increment:s;content:counter(s,arabic-indic);display:block;font:700 34px var(--A);color:var(--gold)}
+.step b{font:600 18px var(--F);color:var(--em)}.step p{margin:6px 0 0;font-size:14px;color:var(--mut)}
+@media(max-width:900px){.steps{grid-template-columns:1fr 1fr}}
+.con{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:40px}.con>div{background:var(--em);color:var(--cream);border-radius:22px;padding:24px;display:grid;gap:10px;align-content:start}
+.con span{font:600 11px var(--O);letter-spacing:.24em;text-transform:uppercase;color:var(--gold2)}.con b{font:600 20px var(--F);word-break:break-word}
+.con .btn{justify-self:start}
+@media(max-width:900px){.con{grid-template-columns:1fr}}
+footer{margin-top:90px;background:var(--em3);color:rgba(246,239,226,.75);padding:60px 0 40px;text-align:center;font-size:14px}
+footer .seal{margin:0 auto 14px;width:64px;height:64px;font-size:30px}
+footer .ar{font-size:24px;color:var(--gold2);display:block;margin:12px 0}
+footer .pol{display:flex;flex-wrap:wrap;justify-content:center;gap:6px 16px;margin-top:12px}footer a{color:var(--gold2)}
+.lb{position:fixed;inset:0;z-index:60;display:grid;place-items:center;padding:20px;background:rgba(10,42,33,.85);backdrop-filter:blur(8px)}
+.lb figure{margin:0;max-width:min(560px,100%);background:var(--paper);border-radius:22px;overflow:hidden}.lb figcaption{padding:16px 18px}.lb figcaption b{font:600 22px var(--F);color:var(--em)}
+.lb .x{position:absolute;top:max(16px,env(safe-area-inset-top,0px));right:16px;width:46px;height:46px;border-radius:50%;border:0;background:var(--cream)}
+.rv{opacity:0;transform:translateY(36px);transition:opacity 1s,transform 1s cubic-bezier(.2,.9,.2,1)}.rv.in{opacity:1;transform:none}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}.rv{opacity:1;transform:none}}
 </style>
 </head>
 <body>
-<div class="grain" aria-hidden="true"></div>
-
-<header><div class="wrap"><div class="nav">
-  <a class="logo" href="#top"><i></i>Bareerah Naturals</a>
-  <nav aria-label="Sections"><a href="#shop">Shop</a><a href="#why">Why us</a><a href="#how">How it works</a><a href="#" data-shop-orders>Track order</a></nav>
-  <div class="acts">
-    <a class="b3 cream sm wa" href="https://wa.me/919370417863?text=Assalamu%20Alaikum%20Bareerah%20Naturals" target="_blank" rel="noopener">WhatsApp</a>
-    <button class="b3 sm cartb" type="button" data-shop-cart aria-label="Cart">Cart<span class="shp-badge" data-shp-count hidden>0</span></button>
-  </div>
-</div></div></header>
+<div class="bis" lang="ar">بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ</div>
+<header><div class="wrap nav">
+  <a class="brand" href="#top" aria-label="Bareerah Naturals home"><span class="seal" lang="ar">ب</span><span><b>Bareerah</b><small>NATURALS</small></span></a>
+  <nav aria-label="Sections"><a href="#sunnah">Sunnah foods</a><a href="#shop">Shop</a><a href="#why">Why us</a><a href="#" data-shop-orders>My orders</a></nav>
+  <div class="acts"><a class="btn ln sm ig" href="https://instagram.com/bareerahnaturals" target="_blank" rel="noopener">Instagram</a><button class="btn em sm bag" type="button" data-shop-cart aria-label="Cart">Cart<span class="shp-badge" data-shp-count hidden>0</span></button></div>
+</div></header>
 
 <main id="top">
-<p class="basmala" lang="ar">بِسْمِ ٱللَّٰهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ</p>
-<div class="wrap hero">
-  <div>
-    <p class="eyebrow">Bareerah Naturals · Sunnah foods</p>
-    <p class="ayah" lang="ar">فِيهِ شِفَاءٌ لِّلنَّاسِ</p><p class="ayah-t">“In it is healing for people.” · Surah An-Nahl 16:69</p>
-    <h1><span class="olive3d">Pure Sunnah</span><span class="olive3d">foods, made</span><span class="honey3d">with ikhlas.</span></h1>
-    <p class="lede">Raw honey, kalonji, miswak, zaitoon, olive oil and anjeer. The foods of the Sunnah, sourced with care and packed fresh for your family.</p>
-    <div class="cta"><a class="b3" href="#shop">Shop Sunnah foods</a><button class="b3 olive" type="button" data-shop-orders>Track my order</button></div>
-    <div class="trust"><span>🍯 No added sugar</span><span>🌿 Natural, unprocessed</span><span>📦 Delivered across India</span></div>
-  </div>
-  <div class="mihrab" aria-hidden="true"><div class="lamp"></div><div class="stage" id="stage">
-    <div class="sun"></div><div class="board"></div>
-    <div class="jar" id="jar"></div>
-    <div class="chip c1"><span class="dot" style="background:#2b2622"></span><div><b>Kalonji</b><small>Black seed</small></div></div>
-    <div class="chip c2"><span class="dot" style="background:#7d8c47"></span><div><b>Zaitoon</b><small>Olive oil</small></div></div>
-    <div class="chip c3"><span class="dot" style="background:#a0623a"></span><div><b>Anjeer</b><small>Dried figs</small></div></div>
-  </div>
+<div class="hero"><div class="geo" style="position:absolute;inset:0;opacity:.35" aria-hidden="true"></div>
+  <div class="wrap">
+    <div class="rv in">
+      <span class="ey">The foods of the Sunnah</span>
+      <h1>Pure, honest, <em>blessed.</em></h1>
+      <p class="q ar" lang="ar">فِيهِ شِفَاءٌ لِّلنَّاسِ</p>
+      <p class="qt">“In it there is healing for people.” · Surah An-Nahl 16:69</p>
+      <div class="cta"><a class="btn gd" href="#shop">Shop now</a><a class="btn ln" href="#sunnah">Explore the Sunnah foods</a></div>
+    </div>
+    <div class="archf rv in">
+      <div class="fr"><img src="p/honey.webp" alt="Bareerah Naturals raw honey with honeycomb and dipper"></div>
+      <svg class="drip" viewBox="0 0 470 140" preserveAspectRatio="none" aria-hidden="true"><defs><linearGradient id="hg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f6c45a"/><stop offset="1" stop-color="#c47a12"/></linearGradient></defs>
+        <path style="transform-origin:120px 0" d="M100 0h40v70c0 18-8 30-20 30s-20-12-20-30z"/><path style="transform-origin:250px 0" d="M236 0h28v95c0 13-6 22-14 22s-14-9-14-22z"/><path style="transform-origin:360px 0" d="M344 0h32v55c0 15-7 25-16 25s-16-10-16-25z"/></svg>
+      <div class="badge"><b>100% pure</b><span>No sugar · No mixing · Lab-checked</span></div>
+    </div>
   </div>
 </div>
 
-<div class="wrap"><div class="gband" aria-hidden="true"></div></div>
+<div class="wrap"><div class="trust">
+  <div class="tcard rv"><b>Halal &amp; pure</b><span>Nothing added, nothing removed</span></div>
+  <div class="tcard rv"><b>Sunnah inspired</b><span>Foods the Prophet ﷺ loved</span></div>
+  <div class="tcard rv"><b>Pan-India delivery</b><span>Leak-proof, tracked parcels</span></div>
+  <div class="tcard rv"><b>Pay securely</b><span>Online or on WhatsApp</span></div>
+</div></div>
+
+<section id="sunnah"><div class="wrap">
+  <div class="sh rv"><span class="ey">Sunnah collection</span><h2 class="h2">Six gifts of the <em>Sunnah.</em></h2><p>Each one is mentioned in the Qur'an or loved by the Prophet ﷺ. Tap any to see it up close.</p></div>
+  <div class="six" id="six"></div>
+</div></section>
+
+<div class="verse geo"><span class="ar" lang="ar">إِنَّ فِي ٱلْحَبَّةِ ٱلسَّوْدَاءِ شِفَاءً مِنْ كُلِّ دَاءٍ إِلَّا ٱلسَّامَ</span>
+  <p>“In the black seed there is healing for every disease, except death.”</p><small>Sahih al-Bukhari 5688</small></div>
+
 <section id="shop"><div class="wrap">
-  <div class="sh rv"><div><p class="eyebrow">The pantry</p><h2 class="olive3d" id="shTitle">Everything</h2></div>
-    <p>Add to cart, pay online and follow your parcel here. You can also order any item on WhatsApp.</p></div>
+  <div class="sh rv"><span class="ey">Shop</span><h2 class="h2">Order with <em>barakah.</em></h2><p>Add to cart, pay securely and follow your parcel. Prefer WhatsApp? Every product can be ordered there too.</p></div>
   <div class="keys" id="keys" role="group" aria-label="Category"></div>
-  <div class="shelf" id="grid"><p class="empty">Opening the pantry…</p></div>
+  <div class="grid" id="grid"><p style="text-align:center;color:var(--mut)">Loading…</p></div>
 </div></section>
 
-<section class="band rv" id="why"><div class="wrap">
-  <p class="eyebrow">Why Bareerah</p>
-  <h2>Sunnah foods, <em>honestly made.</em></h2>
-  <div class="tiles">
-    <div class="tile"><span class="ic">🍯</span><b>Raw and pure</b><p>No sugar syrup, no mixing. Honey the way the bees made it.</p></div>
-    <div class="tile"><span class="ic">🌿</span><b>From the Sunnah</b><p>Foods mentioned in the Quran and Hadith, for daily barakah.</p></div>
-    <div class="tile"><span class="ic">🔒</span><b>Safe payment</b><p>UPI, cards and netbanking through a secure checkout.</p></div>
-    <div class="tile"><span class="ic">📦</span><b>Live tracking</b><p>Every order gets a link to see packed, shipped and delivered.</p></div>
+<section id="why"><div class="wrap split">
+  <div class="ph rv"><img id="whyImg" src="p/dates.webp" alt="Ajwa dates and Bareerah honey" loading="lazy"></div>
+  <div class="rv"><span class="ey">Why Bareerah</span><h2 class="h2">Named after a <em>companion</em> of the house of the Prophet ﷺ.</h2>
+    <p style="color:var(--mut)">Barirah (رضي الله عنها) was known for her honesty. That is our promise too: honey that is only honey, oil that is only oil, seeds that are clean and whole.</p>
+    <div class="hcard"><span class="ar" lang="ar">كَانَ رَسُولُ ٱللَّهِ ﷺ يُحِبُّ ٱلْحَلْوَاءَ وَٱلْعَسَلَ</span><p>“The Messenger of Allah ﷺ loved sweet things and honey.”</p><small>Sahih al-Bukhari 5431</small></div>
   </div>
 </div></section>
 
-<section id="how"><div class="wrap">
-  <div class="sh rv"><div><p class="eyebrow">How it works</p><h2 class="olive3d">Four steps to your kitchen.</h2></div></div>
+<section><div class="wrap">
+  <div class="sh rv"><span class="ey">How it works</span><h2 class="h2">From our shelf to your <em>dastarkhwan.</em></h2></div>
   <div class="steps">
-    <div class="step rv"><b>Choose</b><p>Pick your items and add them to the cart.</p></div>
-    <div class="step rv"><b>Address</b><p>Name, phone and delivery address. Saved for next time.</p></div>
-    <div class="step rv"><b>Pay</b><p>Pay online, or confirm with us on WhatsApp.</p></div>
-    <div class="step rv"><b>Track</b><p>Follow your parcel any time from "Track order".</p></div>
+    <div class="step rv"><b>Choose</b><p>Pick your Sunnah foods and add them to the cart.</p></div>
+    <div class="step rv"><b>Address</b><p>Anywhere in India. We remember it for next time.</p></div>
+    <div class="step rv"><b>Pay</b><p>Pay online securely, or confirm on WhatsApp.</p></div>
+    <div class="step rv"><b>Track</b><p>See packed, shipped and delivered under “My orders”.</p></div>
   </div>
-  <div class="bar rv"><div><b>Already ordered?</b><p>Your orders and tracking links are saved on this phone.</p></div><button class="b3" type="button" data-shop-orders>📦 My orders &amp; tracking</button></div>
-  <div class="bar rv"><div><p class="eyebrow" style="margin:0 0 4px">WhatsApp &amp; calls</p><span class="num" id="num">+91 93704 17863</span><p>Email: <span style="user-select:all">bareerahnaturals@gmail.com</span></p></div>
-    <div style="display:flex;gap:10px;flex-wrap:wrap"><button class="b3 cream" id="copyBtn" type="button">Copy number</button><a class="b3 olive" href="https://wa.me/919370417863?text=Assalamu%20Alaikum%20Bareerah%20Naturals" target="_blank" rel="noopener">Open WhatsApp</a></div></div>
+  <div class="con">
+    <div class="rv"><span>WhatsApp</span><b id="num">+91 93704 17863</b><button class="btn gd sm" type="button" id="copyBtn">Copy number</button></div>
+    <div class="rv"><span>Instagram</span><b>@bareerahnaturals</b><a class="btn gd sm" href="https://instagram.com/bareerahnaturals" target="_blank" rel="noopener">Visit Instagram</a></div>
+    <div class="rv"><span>Email</span><b>bareerahnaturals@gmail.com</b><button class="btn gd sm" type="button" data-shop-orders>My orders</button></div>
+  </div>
 </div></section>
 </main>
 
-<div class="wrap"><footer>
-  <div class="big" aria-hidden="true">Bareerah</div>
-  <span>Bareerah Naturals · Pure Sunnah foods</span><span>© <span id="yr"></span> Bareerah Naturals · <a href="#" data-shop-orders>Track order</a></span>
-<span class="pol-links"><a href="contact.html">Contact</a> · <a href="terms.html">Terms</a> · <a href="privacy.html">Privacy</a> · <a href="refund.html">Refund &amp; cancellation</a> · <a href="shipping.html">Shipping</a> · Operated by Arsalan Ahmed Shaikh</span>
-</footer></div>
+<footer><div class="wrap">
+  <span class="seal" lang="ar">ب</span>
+  <div>Bareerah Naturals · Pure Sunnah foods · Made with ihsan in India</div>
+  <span class="ar" lang="ar">جَزَاكُمُ ٱللَّهُ خَيْرًا</span>
+  <div>© <span id="yr"></span> Bareerah Naturals · <a href="#" data-shop-orders>Track order</a></div>
+  <div class="pol"><a href="contact.html">Contact</a><a href="terms.html">Terms</a><a href="privacy.html">Privacy</a><a href="refund.html">Refund &amp; cancellation</a><a href="shipping.html">Shipping</a><a href="https://instagram.com/bareerahnaturals" target="_blank" rel="noopener">Instagram</a></div>
+</div></footer>
 
 <script src="https://quranicscience.info/shop-engine.js"></script>
 <script>
-const WA="919370417863";
-/* categories are matched from the Category text set in Shop Admin */
-const CATS=[
-  {id:"all",name:"Everything",em:"✦",t:"#f0c86a"},
-  {id:"honey",name:"Honey",em:"🍯",t:"#e09a1d",k:/honey|shahad|shehad/i},
-  {id:"kalonji",name:"Kalonji",em:"⚫",t:"#3a3430",k:/kalonji|black ?seed|habba/i},
-  {id:"olive",name:"Zaitoon & oil",em:"🫒",t:"#7d8c47",k:/olive|zaitoon|zaytun/i},
-  {id:"anjeer",name:"Anjeer & dates",em:"🟤",t:"#a0623a",k:/anjeer|fig|date|khajur|ajwa/i},
-  {id:"miswak",name:"Miswak",em:"🌿",t:"#c9b07a",k:/miswak|siwak/i}];
-const catOf=it=>CATS.find(c=>c.k&&c.k.test((it.cat||"")+" "+it.name))||{id:"other",t:"#e09a1d"};
+const WA="919370417863",$=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
 const H=s=>String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const rs=v=>"₹"+(+v||0).toLocaleString("en-IN");
-let cur="all",items=[];
-function drawKeys(){document.getElementById("keys").innerHTML=CATS.map(c=>{const n=c.id==="all"?items.length:items.filter(i=>catOf(i).id===c.id).length;
-  return `<button class="key" type="button" data-c="${c.id}" aria-pressed="${c.id===cur}" style="--t:${c.t}"><span class="em">${c.em}</span>${c.name}<em>${n}</em></button>`}).join("")}
-function drawGrid(){const c=CATS.find(x=>x.id===cur);document.getElementById("shTitle").textContent=c.name;
-  const list=cur==="all"?items:items.filter(i=>catOf(i).id===cur);
-  document.getElementById("grid").innerHTML=list.length?list.map(it=>{const t=catOf(it).t,live=!it.demo&&+it.price>0;
-    const wa=`https://wa.me/${WA}?text=${encodeURIComponent("Assalamu Alaikum Bareerah Naturals, please share price for: "+it.name)}`;
-    const buy=live?(it.stock===0?`<button class="b3 sm" disabled>Sold out</button>`:`<button class="b3 sm" type="button" data-shop-add="${H(it.id)}">Add to cart</button>`):`<a class="b3 olive sm" href="${wa}" target="_blank" rel="noopener">Ask on WhatsApp</a>`;
-    return `<article class="pc" style="--t:${t}"><div class="media">${it.img?`<img src="${H(it.img)}" alt="${H(it.name)}" loading="lazy">`:`<span class="mj"></span>`}</div>
-      ${it.tag?`<span class="pill">${H(it.tag)}</span>`:""}<span class="meta">${H([it.cat,it.size].filter(Boolean).join(" · "))}</span>
-      <h3>${H(it.name)}</h3>${it.desc?`<p>${H(it.desc)}</p>`:""}
-      <div class="row"><span class="price">${live?rs(it.price)+(+it.mrp>+it.price?`<s>${rs(it.mrp)}</s>`:""):"Ask price"}</span>${buy}</div></article>`}).join("")
-    :`<p class="empty">Coming soon in this section. <a href="https://wa.me/${WA}" target="_blank" rel="noopener">Ask us on WhatsApp</a>.</p>`;
-  tilt()}
-document.getElementById("keys").addEventListener("click",e=>{const b=e.target.closest(".key");if(!b)return;cur=b.dataset.c;drawKeys();drawGrid()});
-document.addEventListener("shop:items",e=>{items=e.detail||[];drawKeys();drawGrid()});
-
-/* honey jar: 14 glass slices with label on the front, wooden lid */
-(function(){const j=document.getElementById("jar");let h="";const N=14;
-  for(let i=0;i<N;i++){const z=(i-(N-1)/2)*3.4;h+=`<div class="js${i===N-1||i===0?" face":""}" style="transform:translateZ(${z}px)${i===0?" rotateY(180deg)":""}">${i===N-1?'<div class="lab">BAREERAH<small>PURE RAW HONEY</small></div>':""}</div>`}
-  h+=`<div class="lid" style="--hz:26px">${[0,90,180,270].map(r=>`<i style="transform:rotateY(${r}deg) translateZ(var(--hz))"></i>`).join("")}<i class="top"></i></div>`;j.innerHTML=h})();
-
-const fine=matchMedia("(pointer:fine)").matches&&!matchMedia("(prefers-reduced-motion:reduce)").matches;
-function tilt(){if(!fine)return;document.querySelectorAll(".pc").forEach(c=>{c.onpointermove=e=>{const r=c.getBoundingClientRect(),x=(e.clientX-r.left)/r.width-.5,y=(e.clientY-r.top)/r.height-.5;c.style.transform=`rotateY(${x*14}deg) rotateX(${-y*12}deg) translateY(-6px)`};c.onpointerleave=()=>c.style.transform=""})}
-const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add("in");io.unobserve(e.target)}}),{threshold:.1});
-document.querySelectorAll(".rv").forEach(el=>io.observe(el));
-document.getElementById("yr").textContent=new Date().getFullYear();
-document.getElementById("copyBtn").addEventListener("click",async e=>{try{await navigator.clipboard.writeText("+919370417863");e.target.textContent="Copied ✓"}
-  catch(_){const r=document.createRange();r.selectNodeContents(document.getElementById("num"));const s=getSelection();s.removeAllRanges();s.addRange(r);e.target.textContent="Selected"}});
-
-Shop.init({brand:"bareerah",name:"Bareerah Naturals",whatsapp:WA,color:"#e09a1d",fab:false,
-  fallbackItems:[
-    {id:"b1",name:"Pure raw honey",cat:"Honey",desc:"Unprocessed honey with no added sugar.",kind:"product"},
-    {id:"b2",name:"Kalonji (black seed)",cat:"Kalonji",desc:"Clean whole black seed for daily use.",kind:"product"},
-    {id:"b3",name:"Extra virgin olive oil",cat:"Zaitoon / olive oil",desc:"Cold-pressed zaitoon oil for food and hair.",kind:"product"},
-    {id:"b4",name:"Original anjeer",cat:"Anjeer",desc:"Soft, naturally sweet dried figs.",kind:"product"},
-    {id:"b5",name:"Miswak",cat:"Miswak",desc:"Fresh Sunnah tooth stick, individually packed.",kind:"product"}]});
+const P=[
+ {id:"honey",name:"Pure raw honey",ar:"عَسَل",cat:"Honey",img:"p/honey.webp",desc:"Unprocessed, unheated honey with no added sugar. “In it there is healing.”"},
+ {id:"kalonji",name:"Kalonji (black seed)",ar:"حَبَّة سَوْدَاء",cat:"Kalonji",img:"p/kalonji.webp",desc:"Clean, whole nigella seeds for daily use, the Prophetic “black seed”."},
+ {id:"kalonji-oil",name:"Kalonji oil",ar:"زَيْت ٱلْحَبَّة",cat:"Kalonji",img:"p/kalonji-oil.webp",desc:"Cold-pressed black seed oil for food, hair and skin."},
+ {id:"olive",name:"Extra virgin zaitoon oil",ar:"زَيْت ٱلزَّيْتُون",cat:"Zaitoon / olive oil",img:"p/olive.webp",desc:"“From a blessed tree, an olive.” Cold-pressed, for food and hair."},
+ {id:"anjeer",name:"Original anjeer",ar:"تِين",cat:"Anjeer",img:"p/anjeer.webp",desc:"Soft, naturally sweet dried figs. “By the fig and the olive.”"},
+ {id:"miswak",name:"Miswak",ar:"سِوَاك",cat:"Miswak",img:"p/miswak.webp",desc:"Fresh peelu tooth stick, individually packed. A beloved Sunnah."},
+ {id:"dates",name:"Ajwa dates",ar:"عَجْوَة",cat:"Dates",img:"p/dates.webp",desc:"Soft Madinah Ajwa dates, the date of the Prophet's ﷺ city."},
+ {id:"hamper",name:"Sunnah gift hamper",ar:"هَدِيَّة",cat:"Gift hampers",img:"p/hamper.webp",desc:"Honey, kalonji oil, zaitoon, anjeer and miswak in one gift."}];
+const imgFor=it=>{if(it.img)return it.img;const n=String(it.name||"").toLowerCase();const m=P.find(p=>n.includes(p.id.replace("-"," "))||n.includes(p.name.toLowerCase().split(" ")[0])||(it.cat&&p.cat===it.cat));return m?m.img:"p/honey.webp"};
+function show(p){const d=document.createElement("div");d.className="lb";d.setAttribute("role","dialog");d.setAttribute("aria-modal","true");
+  d.innerHTML=`<button class="x" type="button" aria-label="Close">✕</button><figure><img src="${p.img}" alt="${H(p.name)}"><figcaption><span class="ey">${H(p.cat)}</span> <span class="ar" style="float:right;font-size:24px;color:var(--gold)">${p.ar}</span><br><b>${H(p.name)}</b><p style="color:var(--mut);margin:6px 0 12px">${H(p.desc)}</p><a class="btn em sm" href="#shop">See price &amp; order</a></figcaption></figure>`;
+  d.addEventListener("click",e=>{if(e.target===d||e.target.closest(".x,a"))d.remove()});document.body.appendChild(d)}
+$("#six").innerHTML=P.slice(0,6).map((p,i)=>`<button class="sc rv" type="button" data-i="${i}"><figure><img src="${p.img}" alt="${H(p.name)}" loading="lazy"></figure><div class="bd"><span class="ar" lang="ar">${p.ar}</span><h3>${H(p.name)}</h3><p>${H(p.desc)}</p></div></button>`).join("");
+$("#six").addEventListener("click",e=>{const b=e.target.closest(".sc");if(b)show(P[+b.dataset.i])});
+let items=[],cur="All";
+function draw(){const cats=["All",...new Set(items.map(i=>i.cat).filter(Boolean))];
+  $("#keys").innerHTML=cats.map(c=>`<button class="key" type="button" data-c="${H(c)}" aria-pressed="${c===cur}">${H(c)}</button>`).join("");
+  const list=cur==="All"?items:items.filter(i=>i.cat===cur);
+  $("#grid").innerHTML=list.map(it=>{const live=!it.demo&&+it.price>0,wa=`https://wa.me/${WA}?text=${encodeURIComponent("Assalamu Alaikum Bareerah Naturals, I want to order: "+it.name)}`;
+    const buy=live?(it.stock===0?`<button class="btn ln sm" disabled>Sold out</button>`:`<button class="btn em sm" type="button" data-shop-add="${H(it.id)}">Add to cart</button>`):`<a class="btn gd sm" href="${wa}" target="_blank" rel="noopener">Order on WhatsApp</a>`;
+    return `<article class="pc rv in"><div class="media"><img src="${H(imgFor(it))}" alt="${H(it.name)}" loading="lazy"></div><div class="bd"><span class="cat">${H([it.cat,it.size].filter(Boolean).join(" · "))}</span><h3>${H(it.name)}</h3>${it.desc?`<p>${H(it.desc)}</p>`:""}
+      <div class="row"><span class="price">${live?rs(it.price)+(+it.mrp>+it.price?`<s>${rs(it.mrp)}</s>`:""):"Ask price"}</span>${buy}</div></div></article>`}).join("")||`<p style="text-align:center">New products soon, in sha Allah.</p>`}
+$("#keys").addEventListener("click",e=>{const b=e.target.closest(".key");if(b){cur=b.dataset.c;draw()}});
+document.addEventListener("shop:items",e=>{items=e.detail||[];draw()});
+const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add("in");io.unobserve(e.target)}}),{threshold:.12});$$(".rv").forEach(el=>io.observe(el));
+$("#yr").textContent=new Date().getFullYear();
+$("#copyBtn").addEventListener("click",async e=>{try{await navigator.clipboard.writeText("+919370417863");e.target.textContent="Copied"}catch(_){const r=document.createRange();r.selectNodeContents($("#num"));const s=getSelection();s.removeAllRanges();s.addRange(r);e.target.textContent="Selected"}});
+Shop.init({brand:"bareerah",name:"Bareerah Naturals",whatsapp:WA,color:"#0f3b2e",fab:false,
+  fallbackItems:P.map(p=>({id:"b-"+p.id,name:p.name,cat:p.cat,desc:p.desc,img:p.img,kind:"product"}))});
 if("serviceWorker" in navigator)navigator.serviceWorker.register("sw.js").catch(()=>{});
 </script>
 </body>
