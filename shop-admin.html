@@ -37,6 +37,8 @@ input,select,textarea{font:inherit;font-size:.88rem;color:var(--text);background
 .login{max-width:420px;margin:15vh auto;text-align:center}
 .toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#1d1216;border:1px solid var(--line);padding:10px 16px;border-radius:999px;z-index:9}
 @media (max-width:760px){.row{grid-template-columns:1fr}.grid2{grid-template-columns:1fr}}
+.chat{display:grid;gap:8px;max-height:340px;overflow:auto;padding:10px;border-radius:12px;background:rgba(255,255,255,.03)}
+.msg{max-width:80%;padding:10px 12px;border-radius:12px;background:rgba(255,255,255,.07);display:grid;gap:4px;white-space:pre-wrap}.msg.o{justify-self:end;background:rgba(227,170,60,.18)}.msg small{opacity:.6;font-size:11px}
 </style>
 </head>
 <body>
@@ -74,7 +76,7 @@ const STEPS={awaiting_payment:"Awaiting payment",paid:"Paid",processing:"Prepari
 firebase.initializeApp({apiKey:"AIzaSyCCoqjw2BzgWcal6OVBqONYOB7x--WP12g",authDomain:"quranicscience-682ff.firebaseapp.com",projectId:"quranicscience-682ff",appId:"1:573259128290:web:ac11b77238e1bd7354edbb"});
 const auth=firebase.auth(),$=id=>document.getElementById(id);
 const H=s=>String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
-const CURS={alaswad:"$"};const sym=()=>CURS[brand]||"₹";const rs=v=>sym()+(+v||0).toLocaleString(sym()==="₹"?"en-IN":"en-US");
+const CURS={};const sym=()=>CURS[brand]||"₹";const rs=v=>sym()+(+v||0).toLocaleString(sym()==="₹"?"en-IN":"en-US");
 const when=t=>t?new Date(t).toLocaleString("en-IN",{day:"numeric",month:"short",hour:"2-digit",minute:"2-digit"}):"";
 const wa=(ph,msg)=>`https://wa.me/${String(ph||"").replace(/\D/g,"").replace(/^(\d{10})$/,"91$1")}?text=${encodeURIComponent(msg)}`;
 function toast(t){const e=$("toast");e.textContent=t;e.hidden=false;clearTimeout(toast.t);toast.t=setTimeout(()=>e.hidden=true,2500)}
@@ -101,12 +103,13 @@ async function load(){
         <button class="btn gold" type="button" data-save="${o.id}">Update</button>
         <a class="btn" target="_blank" rel="noopener" href="${wa(c.phone,`Assalamu Alaikum ${c.name}, update on your ${BRANDS[brand].name} order ${o.id}: ${STEPS[o.status]||o.status}.\nTrack here: ${link}`)}">WhatsApp customer</a></div></div>`}).join(""):`<p class="muted">No orders yet.</p>`;
   $("qCount").textContent=D.quotes.length+" total";
-  $("quotes").innerHTML=D.quotes.length?D.quotes.map(q=>{const c=q.customer||{},link=`${site}/#quote=${q.id}.${q.key}`;
-    return `<div class="row"><div><b>${H(q.service)} <span class="pill ${q.status}">${H(q.status)}</span></b><small>${H(q.brief)}</small><br><small>${H(q.budget)} · ${H(q.deadline)} · ${when(q.ts)}</small></div>
-      <div><b>${H(c.name)}</b><small>${H(c.phone)} ${c.email?"· "+H(c.email):""}</small></div>
-      <div class="ctl" style="min-width:210px"><input type="number" min="0" data-qp="${q.id}" placeholder="Your price ${sym()}" value="${q.price||""}"><textarea rows="2" data-qn="${q.id}" placeholder="What is included, delivery time">${H(q.ownerNote||"")}</textarea>
-        <button class="btn gold" type="button" data-qsave="${q.id}">Send price</button>
-        <a class="btn" target="_blank" rel="noopener" href="${wa(c.phone,`Assalamu Alaikum ${c.name}, your ${BRANDS[brand].name} quote for ${q.service} is ready${q.price?": "+sym()+q.price:""}.\nSee details and pay here: ${link}`)}">WhatsApp customer</a></div></div>`}).join(""):`<p class="muted">No quote requests yet.</p>`;
+  $("quotes").innerHTML=D.quotes.length?D.quotes.map(q=>{const c=q.customer||{},link=`${site}/#quote=${q.id}.${q.key}`,msgs=q.msgs||[{f:"c",t:q.brief,ts:q.ts}].concat(q.ownerNote?[{f:"o",t:q.ownerNote,ts:q.quotedAt}]:[]);
+    return `<div class="row qrow"><div style="grid-column:1/-1;display:flex;flex-wrap:wrap;gap:10px;justify-content:space-between"><b>${H(q.service)} <span class="pill ${q.status}">${H(q.status)}</span>${q.newC?' <span class="pill" style="background:#e3aa3c;color:#1a1206">New message</span>':""}</b><small>${H(c.name)} · ${H(c.phone)} ${c.email?"· "+H(c.email):""} · ${H(q.budget)} · ${H(q.deadline)} · ${when(q.ts)}</small></div>
+      <div class="chat" style="grid-column:1/-1">${msgs.map(m=>`<div class="msg ${m.f}"><span>${H(m.t)}</span>${m.price?`<b> · ${rs(m.price)}</b>`:""}<small>${m.f==="o"?"You":H(c.name||"Client")} · ${when(m.ts)}</small></div>`).join("")}</div>
+      <div class="ctl" style="grid-column:1/-1"><textarea rows="3" data-qn="${q.id}" placeholder="Write your answer or quotation (what is included, delivery time)…"></textarea>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center"><input type="number" min="0" data-qp="${q.id}" placeholder="Price ${sym()} (optional)" value="${q.price||""}" style="max-width:180px">
+        <button class="btn gold" type="button" data-qsave="${q.id}">Send reply (site + WhatsApp)</button>
+        <a class="btn" target="_blank" rel="noopener" href="${link}">Open client view</a></div></div></div>`}).join(""):`<p class="muted">No quote requests yet.</p>`;
   $("items").innerHTML=D.items.length?D.items.map(i=>`<div class="item ${i.active===false?"off":""}"><b>${H(i.name)}</b><small class="muted">${H(i.kind)} · ${i.price?rs(i.price):"quote"}${i.size?" · "+H(i.size):""}${i.cat?" · "+H(i.cat):""}${i.stock>=0?" · stock "+i.stock:""}</small>
     <div style="display:flex;gap:6px;flex-wrap:wrap"><button class="btn" type="button" data-edit="${i.id}">Edit</button><button class="btn" type="button" data-hide="${i.id}" data-act="${i.active===false}">${i.active===false?"Show":"Hide"}</button></div></div>`).join(""):`<p class="muted">No products yet. Tap “+ Add”.</p>`;
   const cfg=(D.config||{})[brand]||{};$("sShip").value=cfg.ship||0;$("sFree").value=cfg.freeShipAbove||"";
@@ -116,7 +119,9 @@ document.addEventListener("click",async e=>{
   const t=e.target;
   try{
     if(t.dataset.save){const id=t.dataset.save,q=s=>document.querySelector(`[data-${s}="${id}"]`).value;await call("POST",{action:"orderStatus",id,status:q("st"),tracking:{carrier:q("car"),no:q("no"),url:q("url")}});toast("Order updated ✓");load()}
-    if(t.dataset.qsave){const id=t.dataset.qsave;await call("POST",{action:"quotePrice",id,price:document.querySelector(`[data-qp="${id}"]`).value,note:document.querySelector(`[data-qn="${id}"]`).value});toast("Price saved ✓ – now tap WhatsApp customer");load()}
+    if(t.dataset.qsave){const id=t.dataset.qsave,note=document.querySelector(`[data-qn="${id}"]`).value.trim(),price=document.querySelector(`[data-qp="${id}"]`).value;if(!note&&!(+price>0)){toast("Write a reply or a price");return}
+      t.disabled=true;t.textContent="Sending…";const r=await call("POST",{action:"quoteReply",id,price,note});
+      if(r.wa)toast("Sent ✓ on the website and on WhatsApp");else{const d=document.createElement("div");d.style.cssText="position:fixed;left:50%;bottom:24px;transform:translateX(-50%);z-index:99;background:#111;border:1px solid #e3aa3c;border-radius:14px;padding:14px 16px;display:flex;gap:10px;align-items:center;max-width:94vw";d.innerHTML=`<span>Saved on the website ✓. WhatsApp did not go automatically (client has not messaged in 24 h).</span><a class="btn gold" target="_blank" rel="noopener" href="https://wa.me/${r.waTo}?text=${encodeURIComponent(r.waText)}">Send on WhatsApp</a><button class="btn" type="button">✕</button>`;d.onclick=e=>{if(e.target.closest("a,button"))d.remove()};document.body.appendChild(d)}load()}
     if(t.dataset.hide){await call("POST",{action:"hideItem",id:t.dataset.hide,active:t.dataset.act==="true"});load()}
     if(t.dataset.edit){const i=D.items.find(x=>x.id===t.dataset.edit);fill(i)}
   }catch(x){toast("Error: "+x.message)}

@@ -594,7 +594,8 @@ export async function waSubscribe(env, extra = "", fetchImpl = fetch) {
 export const SHOP_BRANDS = { flowstudio: "Flow Studio", scentkart: "ScentKart", alaswad: "Al Aswad Dubai", bareerah: "Bareerah Naturals" };
 /* each shop has its own currency and (later) its own Razorpay account: plain variable RAZORPAY_KEY_SCENTKART, RAZORPAY_KEY_FLOWSTUDIO, …
    The Quranic Science (education) key is never used for the shops. */
-export const SHOP_CUR = { alaswad: "USD" };
+export const SHOP_CUR = {};
+export const SHOP_SITE = { flowstudio: "https://pixelflowstudio.agency/", scentkart: "https://scentkart.store/", alaswad: "https://quranicscience.info/alaswad/", bareerah: "https://quranicscience.info/bareerah/" };
 export const shopCur = b => SHOP_CUR[b] || "INR";
 export const shopKey = (env, b) => (env && env["RAZORPAY_KEY_" + String(b).toUpperCase()]) || "";
 export const ORDER_STEPS = ["awaiting_payment", "paid", "processing", "shipped", "delivered"];
@@ -664,13 +665,19 @@ export async function shopRoute(req, env, url) {
       const brand = String(body.brand || ""); if (!SHOP_BRANDS[brand]) return out({ error: "unknown shop" }, 400);
       const cust = cleanCustomer(body.customer); if (!cust.name || cust.phone.replace(/\D/g, "").length < 10) return out({ error: "Please give your name and a valid mobile number." }, 400);
       const now = Date.now(), id = "Q" + new Date(now + 330 * 60000).toISOString().slice(2, 10).replace(/-/g, "") + "-" + rid(5).toUpperCase(), key = rid(16);
-      const rec = { brand, key, customer: cust, service: clip(body.service, 80), brief: clip(body.brief, 1500), budget: clip(body.budget, 40), deadline: clip(body.deadline, 40), status: "requested", ts: now };
+      const rec = { brand, key, customer: cust, service: clip(body.service, 80), brief: clip(body.brief, 1500), budget: clip(body.budget, 40), deadline: clip(body.deadline, 40), status: "requested", ts: now, msgs: [{ f: "c", t: clip(body.brief, 1500), ts: now }], newC: true };
       await fs.merge(`quotes/${id}`, rec);
       await ownerAlert(env, fs, { kind: "info", title: `📝 ${SHOP_BRANDS[brand]} quote request`, body: `${cust.name} · ${rec.service} · ${rec.budget || "budget not given"}` }, now).catch(() => {});
       return out({ id, key });
     }
     if (p === "/shop/quote") { const r = await fs.get(`quotes/${q.get("id")}`); if (!r || r.key !== q.get("key")) return out({ error: "Quote not found." }, 404);
-      return out({ id: r.id, brand: r.brand, service: r.service, brief: r.brief, budget: r.budget, deadline: r.deadline, status: r.status, price: r.price || 0, ownerNote: r.ownerNote || "", orderId: r.orderId || "", ts: r.ts }); }
+      return out({ id: r.id, brand: r.brand, service: r.service, brief: r.brief, budget: r.budget, deadline: r.deadline, status: r.status, price: r.price || 0, ownerNote: r.ownerNote || "", orderId: r.orderId || "", ts: r.ts, msgs: r.msgs || [{ f: "c", t: r.brief, ts: r.ts }].concat(r.ownerNote ? [{ f: "o", t: r.ownerNote, ts: r.quotedAt || r.ts }] : []) }); }
+    if (p === "/shop/quote/msg" && req.method === "POST") { const r = await fs.get(`quotes/${clip(body.id, 40)}`); if (!r || r.key !== body.key) return out({ error: "Quote not found." }, 404);
+      const t = clip(body.text, 1500); if (!t) return out({ error: "Please write your message." }, 400); const now = Date.now();
+      const msgs = (r.msgs || [{ f: "c", t: r.brief, ts: r.ts }]).concat([{ f: "c", t, ts: now }]).slice(-80);
+      await fs.merge(`quotes/${r.id}`, { msgs, newC: true, lastC: now });
+      await ownerAlert(env, fs, { kind: "info", title: `💬 ${SHOP_BRANDS[r.brand]} · ${r.customer?.name || "client"} replied`, body: t.slice(0, 120) }, now).catch(() => {});
+      return out({ ok: true, msgs }); }
     if (p.startsWith("/shop/admin")) {
       if (!(await verifyOwner(req, env))) return out({ error: "owner only" }, 401);
       if (req.method === "GET") { const b = q.get("brand");
@@ -687,8 +694,15 @@ export async function shopRoute(req, env, url) {
         const s = clip(body.status, 30), tl = (o.timeline || []).concat([{ s, ts: now, note: clip(body.note, 200) }]), upd = { status: s, timeline: tl };
         if (body.tracking) upd.tracking = { carrier: clip(body.tracking.carrier, 40), no: clip(body.tracking.no, 60), url: clip(body.tracking.url, 300) };
         await fs.merge(`orders/${o.id}`, upd); return out({ ok: true }); }
-      if (a === "quotePrice") { const r = await fs.get(`quotes/${clip(body.id, 40)}`); if (!r) return out({ error: "no quote" }, 404);
-        await fs.merge(`quotes/${r.id}`, { price: Math.max(0, +body.price || 0), ownerNote: clip(body.note, 800), status: +body.price > 0 ? "quoted" : r.status, quotedAt: now }); return out({ ok: true }); }
+      if (a === "quotePrice" || a === "quoteReply") { const r = await fs.get(`quotes/${clip(body.id, 40)}`); if (!r) return out({ error: "no quote" }, 404);
+        const t = clip(body.note || body.text, 1500), price = Math.max(0, +body.price || 0), upd = { quotedAt: now, newC: false };
+        if (price > 0) { upd.price = price; upd.status = r.status === "paid" ? "paid" : "quoted"; }
+        if (t) { upd.ownerNote = t; upd.msgs = (r.msgs || [{ f: "c", t: r.brief, ts: r.ts }]).concat([{ f: "o", t, ts: now, price: price || 0 }]).slice(-80); }
+        await fs.merge(`quotes/${r.id}`, upd);
+        const link = `${SHOP_SITE[r.brand] || ""}#quote=${r.id}.${r.key}`, c = r.customer || {}, pr = price > 0 ? `\nPrice: ${shopCur(r.brand) === "INR" ? "₹" : shopCur(r.brand) + " "}${price.toLocaleString("en-IN")}` : "";
+        const text = `${SHOP_BRANDS[r.brand]} · ${r.service}\n\n${t || "Your quote is ready."}${pr}\n\nReply, see the full chat or pay here: ${link}`;
+        let wa = { skipped: true }; if (body.wa !== false && c.phone) wa = await sendWAText(env, c.phone, text).catch(e => ({ ok: false, error: String(e) }));
+        return out({ ok: true, wa: !!wa.ok, waText: text, waTo: waNumber(c.phone || "") }); }
       if (a === "config") { const b = clip(body.brand, 20); if (!SHOP_BRANDS[b]) return out({ error: "brand" }, 400); await fs.merge("config/shop", { [b]: { ship: Math.max(0, +body.ship || 0), freeShipAbove: Math.max(0, +body.freeShipAbove || 0) } }); return out({ ok: true }); }
       return out({ error: "unknown action" }, 400);
     }
