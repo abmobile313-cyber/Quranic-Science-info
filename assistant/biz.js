@@ -13,11 +13,11 @@ const BIZ=[
 const bdef=id=>BIZ.find(b=>b.id===id);
 /* real courses from the website (quranicscience.info) */
 const COURSES=[
- {n:'All-in-One Creator Course',fee:19999,off:30,usd:175,dur:'3 months',tag:'AI + Video Editing + Content + Graphic Design (free)'},
+ {n:'All-in-One Creator Course',fee:19999,off:30,usd:175,dur:'2 months',tag:'AI + Video Editing + Content + Graphic Design (free)'},
  {n:'Tajweed + Arabic Combo',fee:7499,off:20,usd:75,dur:'3 months (12 weeks)'},
  {n:'AI Masterclass',fee:1499,off:0,usd:19,dur:''},
- {n:'Video Editing Course',fee:9999,off:40,usd:75,dur:'2 months'},
- {n:'Content Creation: Zero to Pro',fee:9999,off:40,usd:75,dur:'1 month'},
+ {n:'Video Editing Course',fee:9999,off:40,usd:75,dur:'40 days'},
+ {n:'Content Creation: Zero to Pro',fee:9999,off:40,usd:75,dur:'20 days'},
  {n:'Tajweed Class',fee:2100,off:0,usd:26,dur:'3 months (12 weeks)'},
  {n:'Arabic Speaking Class',fee:6000,off:0,usd:75,dur:'3 months (12 weeks)'}];
 const BATCH={opens:'2026-11-01T00:00:00+05:30',closes:'2026-11-30T23:59:59+05:30',first:'2026-12-01T00:00:00+05:30',enrolText:'1 – 30 November 2026',startText:'1 December 2026'};
