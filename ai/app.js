@@ -45,7 +45,7 @@ const TX = {
   hwVoice: "Record voice", hwPhoto: "Photo", hwVideo: "Short video", hwSending: "Uploading…", hwSent: "Homework sent ✓", hwChecking: "AI Ustad is checking…", hwMine: "My homework", hwNone: "No homework sent yet.",
   hwBig: "File is too big (max 10 MB).", fb: "Feedback", offline: "Offline", offH: "Offline lessons", offP: "Full Access students can save whole courses inside this app and study without internet. Saved lessons can only be opened here.",
   offDl: "Save for offline", offDone: "Saved for offline ✓", offNone: "Nothing saved yet.", offNeed: "Offline saving is for Full Access students.", saving: "Saving…",
-  photoL: "Your photo (for the certificate)", photoBtn: "Choose photo", fullBadge: "Full Access", certReady: "Your certificate is ready", protect: "Lessons are protected and can only be played inside Quranic Science.", arVoice: "Arabic pronunciation", repeat: "Repeat", tapLetter: "Tap a letter to hear the qari" },
+  photoL: "Your photo (for the certificate)", photoBtn: "Choose photo", fullBadge: "Full Access", certReady: "Your certificate is ready", protect: "Lessons are protected and can only be played inside Quranic Science.", arVoice: "Arabic pronunciation", repeat: "Repeat", playAll: "Play all, step by step", tapLetter: "Tap a letter to hear the qari" },
  ur: { tag: "تجوید · عربی · اے آئی استاد", heroEy: "نیا · اپنی رفتار سے", hero1: "تجوید اور عربی سیکھیں اپنے", hero2: "اے آئی استاد کے ساتھ",
   heroP: "آپ کی زبان میں آواز والے چھوٹے اسباق، اصل قاری کی تلاوت، اپنی آواز ریکارڈ کر کے مشق، اے آئی سے ہوم ورک کی جانچ، ہر سبق کے بعد تین سوال، نظر آنے والی پروگریس، اور آخر میں سرٹیفکیٹ۔",
   f1: "ہر کورس میں ۷۲ اسباق", f2: "ہر قدم پر آواز", f3: "اصل قاری کی آواز", f4: "اے آئی ہوم ورک چیک کرتا ہے", f5: "سرٹیفکیٹ",
@@ -73,7 +73,7 @@ const TX = {
   hwVoice: "آواز ریکارڈ کریں", hwPhoto: "تصویر", hwVideo: "چھوٹی ویڈیو", hwSending: "بھیجا جا رہا ہے…", hwSent: "ہوم ورک بھیج دیا ✓", hwChecking: "اے آئی استاد چیک کر رہا ہے…", hwMine: "میرا ہوم ورک", hwNone: "ابھی کوئی ہوم ورک نہیں بھیجا۔",
   hwBig: "فائل بہت بڑی ہے (زیادہ سے زیادہ ۱۰ ایم بی)۔", fb: "رائے", offline: "آف لائن", offH: "آف لائن اسباق", offP: "فل ایکسیس والے طلبہ پورا کورس اسی ایپ میں محفوظ کر کے بغیر انٹرنیٹ پڑھ سکتے ہیں۔ محفوظ اسباق صرف یہیں کھلیں گے۔",
   offDl: "آف لائن محفوظ کریں", offDone: "آف لائن محفوظ ✓", offNone: "ابھی کچھ محفوظ نہیں۔", offNeed: "آف لائن محفوظ کرنا فل ایکسیس والوں کے لیے ہے۔", saving: "محفوظ ہو رہا ہے…",
-  photoL: "آپ کی تصویر (سرٹیفکیٹ کے لیے)", photoBtn: "تصویر چنیں", fullBadge: "فل ایکسیس", certReady: "آپ کا سرٹیفکیٹ تیار ہے", protect: "اسباق محفوظ ہیں اور صرف قرآنک سائنس کے اندر چلتے ہیں۔", arVoice: "عربی تلفظ سنیں", repeat: "دہرائیں", tapLetter: "حرف پر ٹیپ کریں، قاری کی آواز سنیں" },
+  photoL: "آپ کی تصویر (سرٹیفکیٹ کے لیے)", photoBtn: "تصویر چنیں", fullBadge: "فل ایکسیس", certReady: "آپ کا سرٹیفکیٹ تیار ہے", protect: "اسباق محفوظ ہیں اور صرف قرآنک سائنس کے اندر چلتے ہیں۔", arVoice: "عربی تلفظ سنیں", repeat: "دہرائیں", playAll: "سب ترتیب سے سنیں", tapLetter: "حرف پر ٹیپ کریں، قاری کی آواز سنیں" },
  hi: { tag: "तजवीद · अरबी · ए आई उस्ताद", heroEy: "नया · अपनी रफ़्तार से", hero1: "तजवीद और अरबी सीखें अपने", hero2: "ए आई उस्ताद के साथ",
   heroP: "आपकी ज़बान में आवाज़ वाले छोटे सबक़, असली क़ारी की तिलावत, अपनी आवाज़ रिकॉर्ड करके मश्क़, ए आई से होमवर्क की जाँच, हर सबक़ के बाद तीन सवाल, नज़र आने वाली प्रोग्रेस, और आख़िर में सर्टिफ़िकेट।",
   f1: "हर कोर्स में 72 सबक़", f2: "हर क़दम पर आवाज़", f3: "असली क़ारी की आवाज़", f4: "ए आई होमवर्क चेक करता है", f5: "सर्टिफ़िकेट",
@@ -101,7 +101,7 @@ const TX = {
   hwVoice: "आवाज़ रिकॉर्ड करें", hwPhoto: "फ़ोटो", hwVideo: "छोटी वीडियो", hwSending: "भेजा जा रहा है…", hwSent: "होमवर्क भेज दिया ✓", hwChecking: "ए आई उस्ताद चेक कर रहा है…", hwMine: "मेरा होमवर्क", hwNone: "अभी कोई होमवर्क नहीं भेजा।",
   hwBig: "फ़ाइल बहुत बड़ी है (ज़्यादा से ज़्यादा 10 MB)।", fb: "राय", offline: "ऑफ़लाइन", offH: "ऑफ़लाइन सबक़", offP: "फ़ुल ऐक्सेस वाले तलबा पूरा कोर्स इसी ऐप में महफ़ूज़ करके बिना इंटरनेट पढ़ सकते हैं। महफ़ूज़ सबक़ सिर्फ़ यहीं खुलेंगे।",
   offDl: "ऑफ़लाइन महफ़ूज़ करें", offDone: "ऑफ़लाइन महफ़ूज़ ✓", offNone: "अभी कुछ महफ़ूज़ नहीं।", offNeed: "ऑफ़लाइन महफ़ूज़ करना फ़ुल ऐक्सेस वालों के लिए है।", saving: "महफ़ूज़ हो रहा है…",
-  photoL: "आपकी फ़ोटो (सर्टिफ़िकेट के लिए)", photoBtn: "फ़ोटो चुनें", fullBadge: "फ़ुल ऐक्सेस", certReady: "आपका सर्टिफ़िकेट तैयार है", protect: "सबक़ महफ़ूज़ हैं और सिर्फ़ क़ुरआनिक साइंस के अंदर चलते हैं।", arVoice: "अरबी तलफ़्फ़ुज़ सुनें", repeat: "दोहराएँ", tapLetter: "हर्फ़ पर टैप करें, क़ारी की आवाज़ सुनें" }
+  photoL: "आपकी फ़ोटो (सर्टिफ़िकेट के लिए)", photoBtn: "फ़ोटो चुनें", fullBadge: "फ़ुल ऐक्सेस", certReady: "आपका सर्टिफ़िकेट तैयार है", protect: "सबक़ महफ़ूज़ हैं और सिर्फ़ क़ुरआनिक साइंस के अंदर चलते हैं।", arVoice: "अरबी तलफ़्फ़ुज़ सुनें", repeat: "दोहराएँ", playAll: "सब तरतीब से सुनें", tapLetter: "हर्फ़ पर टैप करें, क़ारी की आवाज़ सुनें" }
 };
 const LS = { get(k, d) { try { const v = localStorage.getItem(k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } }, set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} } };
 let LANG = LS.get("qsai-lang", "ur");
@@ -366,12 +366,12 @@ function visualHTML(v) {
   if (v.t === "mouth") {
     const on = new Set(v.on), many = on.size > 4;
     const marks = Object.entries(ZONES).map(([k, z]) => { const [x, y] = ZXY[k];
-      if (!on.has(k)) return `<circle cx="${x}" cy="${y}" r="9" class="zd"/>`;
+      if (!on.has(k)) return `<g class="zon" data-z="${k}"><circle cx="${x}" cy="${y}" r="26" class="zhit"/><circle cx="${x}" cy="${y}" r="9" class="zd"/></g>`;
       if (k === "jawf") return `<g class="zon" data-z="${k}"><ellipse cx="${x}" cy="${y}" rx="190" ry="48" class="jawf"/>${many ? "" : `<g class="pill"><rect x="${x - 70}" y="${y - 40}" width="140" height="64" rx="32"/><text x="${x}" y="${y + 6}">${z[2]}</text></g>`}</g>`;
       const lx = ZL[k] ? ZL[k][0] : x, ly = ZL[k] ? ZL[k][1] : y - 90, w = Math.max(90, z[2].replace(/\s/g, "").length * 34 + 50);
       return `<g class="zon" data-z="${k}"><circle cx="${x}" cy="${y}" r="${many ? 16 : 24}" class="zg"/>${many ? "" : `<line x1="${x}" y1="${y}" x2="${lx}" y2="${ly}" class="ld"/><g class="pill"><rect x="${lx - w / 2}" y="${ly - 36}" width="${w}" height="64" rx="32"/><text x="${lx}" y="${ly + 10}">${z[2]}</text></g>`}</g>`; }).join("");
     return `<figure class="viz mouth"><div class="mk"><img src="makharij.webp" alt="" draggable="false"><svg viewBox="0 0 1000 1000" role="img" aria-label="makharij">${marks}</svg></div>
-      <figcaption>${[...on].map(k => `<button class="zchip" data-z="${k}"><b class="ar">${ZONES[k][2]}</b><span>${esc(pick(ZONES[k][3]))}</span> 🔊</button>`).join("")}</figcaption></figure>`;
+      <figcaption><button class="zchip zplay">▶ ${t("playAll")}</button>${[...on].map(k => `<button class="zchip" data-z="${k}"><b class="ar">${ZONES[k][2]}</b><span>${esc(pick(ZONES[k][3]))}</span> 🔊</button>`).join("")}</figcaption></figure>`;
   }
   if (v.t === "groups") return `<figure class="viz groups">${v.g.map(g => `<button class="grp" style="--gc:${GCOL[g[4] || 0]}" data-l="${esc(g[3])}"><span class="gl">${esc(pick({ en: g[0], ur: g[1], hi: g[2] }))}</span><b class="ar">${esc(g[3])}</b></button>`).join("")}</figure>`;
   if (v.t === "cards") return `<figure class="viz cards">${v.c.map(c => `<div class="vc"><span class="em">${c[0]}</span><b class="ar">${esc(c[1])}</b><small>${esc(pick({ en: c[2], ur: c[3], hi: c[4] }))}</small></div>`).join("")}</figure>`;
@@ -381,7 +381,12 @@ function tilesHTML(ar) {
   return `<div class="bigar">${ar.split("\n").map(line => `<div class="trow">${line.split(/\s*·\s*/).map(p => { const one = p.trim().replace(/[\u064B-\u0652\u0670]/g, ""); return LETTER[one] ? `<button class="tile ltr" data-c="${one}">${esc(p.trim())}</button>` : `<span class="tile">${esc(p.trim())}</span>`; }).join("")}</div>`).join("")}</div>`;
 }
 function wireVisuals(root) {
-  $$(".zchip,.zon", root).forEach(b => b.onclick = e => playQari(lettersQ(ZONES[b.dataset.z][2]).slice(0, 3), b.classList.contains("zchip") ? b : null));
+  $$(".zchip[data-z],.zon", root).forEach(b => b.onclick = async () => { const z = b.dataset.z, g = $(`.zon[data-z="${z}"]`, root);
+    g && g.classList.add("hot"); await playQari(lettersQ(ZONES[z][2]).slice(0, 3), b.classList.contains("zchip") ? b : null); g && g.classList.remove("hot"); });
+  $$(".zplay", root).forEach(b => b.onclick = async () => { b.classList.add("playing");
+    for (const c of $$(".zchip[data-z]", root)) { if (!b.classList.contains("playing")) break; const z = c.dataset.z, g = $(`.zon[data-z="${z}"]`, root);
+      g && g.classList.add("hot"); c.classList.add("on"); await playQari(lettersQ(ZONES[z][2]).slice(0, 2), null); g && g.classList.remove("hot"); c.classList.remove("on"); b.classList.add("playing"); }
+    b.classList.remove("playing"); });
   $$(".grp", root).forEach(b => b.onclick = () => playQari(lettersQ(b.dataset.l).slice(0, 4), b));
   $$(".tile.ltr", root).forEach(b => b.onclick = () => playQari(lettersQ(b.dataset.c), b));
 }
