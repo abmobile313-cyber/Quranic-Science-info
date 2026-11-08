@@ -484,7 +484,8 @@ function viewKeys() {
     <p>Choose the file <b>qs-ai-keys.json</b> that Claude sent you. It is saved safely on the server, then you can delete the file.</p>
     <label class="btn pri">📄 Choose qs-ai-keys.json<input type="file" accept=".json,application/json" id="kf" hidden></label><p id="ks" class="mini" style="margin-top:12px"></p></section>`;
   $("#kf").onchange = async e => { const f = e.target.files[0]; if (!f) return; const st = $("#ks"); st.textContent = "Saving…";
-    try { const body = await f.text(); JSON.parse(body);
+    try { if (f.size > 1000 || !/qs-ai-keys/i.test(f.name)) throw new Error("Wrong file. Please choose qs-ai-keys.json (from Downloads).");
+      const body = await f.text(), j = JSON.parse(body); if (!/^[0-9a-f]{64}$/.test(j.tajweed || "") || Object.keys(j).length !== 2) throw new Error("Wrong file. Please choose qs-ai-keys.json.");
       const r = await fetch(`${W}/ai/setkeys`, { method: "POST", headers: { authorization: "Bearer " + await token(), "content-type": "application/json" }, body }).then(r => r.json());
       if (!r.ok) throw new Error(r.error || "failed"); S.keys = {};
       const k = await fetch(`${W}/ai/key?course=tajweed`, { headers: { authorization: "Bearer " + await token() } }).then(r => r.json());
