@@ -176,7 +176,7 @@ export async function ownerAlert(env, fs, msg, now = Date.now(), fetchImpl = fet
 /* ---------- payment → classes ---------- */
 /* course short forms, same as the website: student code ARS863M + TAJ = ARS863M-TAJ */
 /* combo courses: paying for the combo also opens each course inside it, so combo students join the same live batches */
-export const COMBOS = { "tajweed-arabic-combo": ["tajweed-class", "arabic-speaking-class"], "ai-tajweed-arabic-combo": ["ai-tajweed", "ai-arabic"], "ai-combo-full": ["ai-tajweed-full", "ai-arabic-full", "ai-tajweed", "ai-arabic"], "ai-tajweed-full": ["ai-tajweed"], "ai-arabic-full": ["ai-arabic"], "all-in-one-creator-course": ["ai-masterclass", "video-editing-course", "content-creation-zero-to-pro"] };
+export const COMBOS = { "ai-combo-live": ["ai-tajweed-live", "ai-arabic-live"], "tajweed-arabic-combo": ["tajweed-class", "arabic-speaking-class"], "ai-tajweed-arabic-combo": ["ai-tajweed", "ai-arabic"], "ai-combo-full": ["ai-tajweed-full", "ai-arabic-full", "ai-tajweed", "ai-arabic"], "ai-tajweed-full": ["ai-tajweed"], "ai-arabic-full": ["ai-arabic"], "all-in-one-creator-course": ["ai-masterclass", "video-editing-course", "content-creation-zero-to-pro"] };
 export const SHORT = { "all-in-one-creator-course": "AIO", "tajweed-arabic-combo": "TAC", "ai-masterclass": "AIM", "video-editing-course": "VED", "content-creation-zero-to-pro": "CCP", "tajweed-class": "TAJ", "arabic-speaking-class": "ARB", "ai-tajweed": "AIT", "ai-arabic": "AIA", "ai-tajweed-arabic-combo": "AIC", "ai-tajweed-full": "AITF", "ai-arabic-full": "AIAF", "ai-combo-full": "AICF" };
 export const courseCode = (code, course) => code ? code + (SHORT[course] ? "-" + SHORT[course] : "") : "-";
 const slug = s => String(s || "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
@@ -726,7 +726,9 @@ async function whoAmI(req, env) {
   const email = String(me.email || "").toLowerCase();
   return { uid: me.localId, email, verified: !!me.emailVerified, owner: !!me.emailVerified && ownerEmails(env).includes(email) };
 }
-const AI_COURSE = { tajweed: ["ai-tajweed", "ai-tajweed-arabic-combo", "ai-tajweed-full", "ai-combo-full", "tajweed-class", "tajweed-arabic-combo"], arabic: ["ai-arabic", "ai-tajweed-arabic-combo", "ai-arabic-full", "ai-combo-full", "arabic-speaking-class", "tajweed-arabic-combo"] };
+const AI_COURSE = { tajweed: ["ai-tajweed", "ai-tajweed-arabic-combo", "ai-tajweed-full", "ai-combo-full"], arabic: ["ai-arabic", "ai-tajweed-arabic-combo", "ai-arabic-full", "ai-combo-full"] };
+/* paid AI add-on for live-class students only (live key + add-on key) */
+const AI_ADDON = { tajweed: ["ai-tajweed-live", "ai-combo-live"], arabic: ["ai-arabic-live", "ai-combo-live"] };
 const AI_LIVE = { tajweed: "tajweed-class", arabic: "arabic-speaking-class" };
 export async function aiRoute(req, env, url) {
   const cors = { "access-control-allow-origin": "*", "access-control-allow-headers": "authorization,content-type", "access-control-allow-methods": "GET,POST,OPTIONS", "content-type": "application/json", "cache-control": "no-store" };
@@ -742,7 +744,8 @@ export async function aiRoute(req, env, url) {
       await fs.merge("secrets/aiKeys", k); return out({ ok: true, saved: Object.keys(k) }); }
     if (p === "/ai/key") { const c = q.get("course"); if (!AI_COURSE[c]) return out({ error: "course" }, 400);
       const tch = me.verified ? await fs.get(`teachers/${me.email}`).catch(() => null) : null, isT = !!(tch && (tch.course === AI_LIVE[c] || tch.course === "tajweed-arabic-combo"));
-      if (!me.owner && !isT && !AI_COURSE[c].some(k => acc[k])) return out({ error: "not enrolled" }, 403);
+      const liveAddon = (acc[AI_LIVE[c]] === true || acc["tajweed-arabic-combo"] === true) && AI_ADDON[c].some(k => acc[k] === true);
+      if (!me.owner && !isT && !liveAddon && !AI_COURSE[c].some(k => acc[k])) return out({ error: "not enrolled" }, 403);
       const keys = (await fs.get("secrets/aiKeys")) || {}; if (!keys[c]) return out({ error: "key missing" }, 500);
       return out({ key: keys[c], teacher: isT, full: me.owner || isT || acc["ai-" + c + "-full"] === true || acc["ai-combo-full"] === true }); }
     const teacher = me.verified ? await fs.get(`teachers/${me.email}`).catch(() => null) : null;

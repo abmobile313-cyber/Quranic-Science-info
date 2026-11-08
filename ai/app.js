@@ -8,9 +8,9 @@ const RECAPTCHA = "6Lf3gQsuAAAAACWh2Tym8DMJoLbh5RLxNjbokYDx", AI_MODEL = "gemini
 const WA = "919272527913";
 const FREE = ["t-w01d1", "a-w01d1"];
 const COURSES = {
-  tajweed: { key: "ai-tajweed", full: "ai-tajweed-full", live: "tajweed-class", k: "t", ar: "التَّجْوِيدُ", inr: 1499, usd: 18, fInr: 999, fUsd: 12, pay: "", payIntl: "", payFull: "", payFullIntl: "" },
-  arabic:  { key: "ai-arabic",  full: "ai-arabic-full", live: "arabic-speaking-class",  k: "a", ar: "اللُّغَةُ الْعَرَبِيَّةُ", inr: 2999, usd: 36, fInr: 999, fUsd: 12, pay: "", payIntl: "", payFull: "", payFullIntl: "" },
-  combo:   { key: "ai-tajweed-arabic-combo", full: "ai-combo-full", live: "tajweed-arabic-combo", k: "c", ar: "التَّجْوِيدُ + الْعَرَبِيَّةُ", inr: 3999, usd: 48, fInr: 1499, fUsd: 18, pay: "", payIntl: "", payFull: "", payFullIntl: "" }
+  tajweed: { key: "ai-tajweed", full: "ai-tajweed-full", live: "tajweed-class", addon: "ai-tajweed-live", aInr: 699, aUsd: 9, k: "t", ar: "التَّجْوِيدُ", inr: 1499, usd: 18, fInr: 999, fUsd: 12, pay: "", payIntl: "", payFull: "", payFullIntl: "" },
+  arabic:  { key: "ai-arabic",  full: "ai-arabic-full", live: "arabic-speaking-class", addon: "ai-arabic-live", aInr: 999, aUsd: 12,  k: "a", ar: "اللُّغَةُ الْعَرَبِيَّةُ", inr: 2999, usd: 36, fInr: 999, fUsd: 12, pay: "", payIntl: "", payFull: "", payFullIntl: "" },
+  combo:   { key: "ai-tajweed-arabic-combo", full: "ai-combo-full", live: "tajweed-arabic-combo", addon: "ai-combo-live", aInr: 1499, aUsd: 18, k: "c", ar: "التَّجْوِيدُ + الْعَرَبِيَّةُ", inr: 3999, usd: 48, fInr: 1499, fUsd: 18, pay: "", payIntl: "", payFull: "", payFullIntl: "" }
 };
 const QARI_AYAH = (s, a) => `https://everyayah.com/data/Husary_128kbps/${String(s).padStart(3, "0")}${String(a).padStart(3, "0")}.mp3`;
 const QARI_WORD = (s, a, w) => `https://audio.qurancdn.com/wbw/${String(s).padStart(3, "0")}_${String(a).padStart(3, "0")}_${String(w).padStart(3, "0")}.mp3`;
@@ -127,7 +127,9 @@ const buyer = c => isOwner() || !!(acc()[COURSES[c].key] || acc()[COURSES.combo.
 /* a live-class (teacher) student: the same lessons open together with their live classes */
 const liveOf = c => c !== "combo" && !!(acc()[COURSES[c].live] || acc()[COURSES.combo.live]);
 const isTeacherOf = c => !!(S.tch && (S.tch.course === (COURSES[c] || {}).live || S.tch.course === COURSES.combo.live));
-const has = c => c === "combo" ? buyer(c) || (liveOf("tajweed") && liveOf("arabic")) : buyer(c) || liveOf(c) || isTeacherOf(c);
+/* a live student who paid the AI add-on: the AI lesson of each class day opens with that class */
+const liveAI = c => c !== "combo" && liveOf(c) && !!(acc()[COURSES[c].addon] || acc()[COURSES.combo.addon]);
+const has = c => c === "combo" ? buyer(c) || (liveAI("tajweed") && liveAI("arabic")) : buyer(c) || liveAI(c) || isTeacherOf(c);
 const isFull = c => isOwner() || isTeacherOf(c) || !!(acc()[COURSES[c].full] || acc()[COURSES.combo.full] || S.full[c]);
 const progOf = () => Object.assign({}, S.prog, (S.doc.ai || {}));
 const slot = () => S.doc.aiSlot || null;
@@ -202,7 +204,7 @@ function slotTimeAfter(ts) {
 }
 /* which AI lessons are open for a live student: the lesson of every live class that has started */
 async function liveOpen(c) {
-  if (S.live[c] || !db || !liveOf(c)) return S.live[c] || new Set();
+  if (S.live[c] || !db || !liveAI(c)) return S.live[c] || new Set();
   const set = new Set(), o = await outline(c), ids = allIds(o), b = S.doc.batch, now = Date.now();
   try { const q = await db.collection("classes").where("course", "==", COURSES[c].live).get();
     q.docs.map(d => d.data()).filter(k => !b || !k.batch || k.batch === b || k.batch === "ALL").forEach(k => {
@@ -215,7 +217,7 @@ function lockInfo(c, o, id) {
   if (i === 0) return { open: true };
   if (!has(c)) return { open: false, why: "buy" };
   if (isFull(c) || P[id]) return { open: true };
-  if (!buyer(c) && liveOf(c)) return (S.live[c] || new Set()).has(id) ? { open: true } : { open: false, why: "live" };
+  if (!buyer(c) && liveAI(c)) return (S.live[c] || new Set()).has(id) ? { open: true } : { open: false, why: "live" };
   const prev = P[ids[i - 1]]; if (!prev) return { open: false, why: "prev" };
   if (!slot()) return { open: false, why: "slot" };
   const at = slotTimeAfter(prev.ts || 0); return at <= Date.now() ? { open: true } : { open: false, why: "time", at };
@@ -278,6 +280,7 @@ async function viewHome() {
     const s = st[c], own = c === "combo" ? (has("tajweed") && has("arabic")) : has(c), full = c === "combo" ? isFull("tajweed") && isFull("arabic") : isFull(c);
     return `<article class="cc">${c === "combo" ? `<span class="badge">${t("best")}</span>` : full && own ? `<span class="badge">${t("fullBadge")}</span>` : ""}<div class="arT">${COURSES[c].ar}</div><h3>${t(c)}</h3><p>${t(desc)}</p>${priceHTML(c)}
       <p class="mini">➕ ${t("fullT")}: +${rupee(COURSES[c].fInr)} · <bdi dir="ltr">+$${COURSES[c].fUsd}</bdi></p>
+      ${c !== "combo" && liveOf(c) && !has(c) ? `<p class="mini">🎓 ${pick(ADDX.h)}: <b>${rupee(COURSES[c].aInr)}</b> · <bdi dir="ltr">$${COURSES[c].aUsd}</bdi> <button class="btn sm pri" data-addon="${c}">${pick(ADDX.b)}</button></p>` : ""}
       ${s && s.done ? `<div class="bar"><i style="width:${s.pct}%"></i></div><span class="mini">${t("progress")} ${num(s.pct)}% · ${t("score")} ${num(s.score)}%</span>` : ""}
       <div class="acts">${c !== "combo" ? `<a class="btn ${own || s.done ? "pri" : "cy"}" href="#${c}">${own || s.done ? t("open") : t("start")}</a>` : ""}${own ? (full ? "" : `<button class="btn" data-buy="${c}" data-full="1">${t("addFull")}</button>`) : `<button class="btn ${c === "combo" ? "pri" : ""}" data-buy="${c}">${t("enroll")}</button>`}</div></article>`;
   };
@@ -317,10 +320,10 @@ function slotBox(after) {
 async function viewCourse(c) {
   const app = $("#app"), o = await outline(c), P = progOf(), ids = allIds(o);
   if (has(c) && S.user) { try { await courseKey(c); } catch (e) {} }
-  if (liveOf(c) && !buyer(c)) await liveOpen(c);
+  if (liveAI(c) && !buyer(c)) await liveOpen(c);
   if (buyer(c) && !isFull(c) && !isOwner() && !slot()) slotBox(() => route());
   const s = stats(c, o), cur = ids.find(id => !P[id]), sl = slot();
-  app.innerHTML = (liveOf(c) && !buyer(c) ? `<p class="livenote">🎓 ${pick(LIVEX.note)}</p>` : "") + (isTeacherOf(c) || isOwner() ? `<p class="livenote"><a href="#plan=${c}">📘 ${pick(LIVEX.plan)}</a></p>` : "") + `<div class="chead"><div class="ring" style="--p:${s.pct}"><span>${num(s.pct)}%</span></div>
+  app.innerHTML = (liveAI(c) && !buyer(c) ? `<p class="livenote">🎓 ${pick(LIVEX.note)}</p>` : liveOf(c) && !has(c) ? addonHTML(c) : "") + (isTeacherOf(c) || isOwner() ? `<p class="livenote"><a href="#plan=${c}">📘 ${pick(LIVEX.plan)}</a></p>` : "") + `<div class="chead"><div class="ring" style="--p:${s.pct}"><span>${num(s.pct)}%</span></div>
     <div style="flex:1;min-width:200px"><div class="arT ar" style="font-size:24px;color:var(--gold2)">${COURSES[c].ar}</div><h2 style="margin:0">${t(c)} ${isFull(c) && has(c) ? `<span class="tagf">${t("fullBadge")}</span>` : ""}</h2>
     <div class="stats" style="margin-top:8px"><div class="stat"><b>${num(s.done)}/${num(s.total)}</b><small>${t("lessons")}</small></div><div class="stat"><b>${num(s.score)}%</b><small>${t("score")}</small></div>
     <a class="stat" href="#cert=${c}" style="text-decoration:none;color:inherit"><b>🎓</b><small>${t("cert")}</small></a>
@@ -425,7 +428,7 @@ function wireVisuals(root) {
 const LIVEX = {
   wait: { en: "This lesson opens on the day of your live class.", ur: "یہ سبق آپ کی لائیو کلاس کے دن کھلے گا۔", hi: "यह सबक़ आपकी लाइव क्लास के दिन खुलेगा।" },
   short: { en: "with live class", ur: "لائیو کلاس کے ساتھ", hi: "लाइव क्लास के साथ" },
-  note: { en: "You are in our live class. The same lesson as your class opens here on the same day: practise with the qari, the quiz and homework.", ur: "آپ ہماری لائیو کلاس میں ہیں۔ آپ کی کلاس والا سبق اسی دن یہاں کھلتا ہے: قاری صاحب کے ساتھ مشق، سوال اور ہوم ورک۔", hi: "आप हमारी लाइव क्लास में हैं। आपकी क्लास वाला सबक़ उसी दिन यहाँ खुलता है: क़ारी साहब के साथ मश्क़, सवाल और होमवर्क।" },
+  note: { en: "You are in our live class with AI practice. The same lesson as your class opens here on the same day: practise with the qari, the quiz and homework.", ur: "آپ ہماری لائیو کلاس میں ہیں۔ آپ کی کلاس والا سبق اسی دن یہاں کھلتا ہے: قاری صاحب کے ساتھ مشق، سوال اور ہوم ورک۔", hi: "आप हमारी लाइव क्लास में हैं। आपकी क्लास वाला सबक़ उसी दिन यहाँ खुलता है: क़ारी साहब के साथ मश्क़, सवाल और होमवर्क।" },
   plan: { en: "Teacher's lesson plan", ur: "استاد کا سبق پلان", hi: "उस्ताद का सबक़ प्लान" },
   planP: { en: "Teach each live class from the AI lesson of the same day, so live and AI students learn exactly the same thing. Open a day to see its points, Arabic, qari references, questions and homework.", ur: "ہر لائیو کلاس اسی دن کے AI سبق سے پڑھائیں، تاکہ لائیو اور AI دونوں طالب علم بالکل ایک ہی چیز سیکھیں۔ کوئی دن کھولیں: نکات، عربی، قاری کے حوالے، سوال اور ہوم ورک۔", hi: "हर लाइव क्लास उसी दिन के AI सबक़ से पढ़ाएँ, ताकि लाइव और AI दोनों तालिब-ए-इल्म बिल्कुल एक ही चीज़ सीखें। कोई दिन खोलें: नुक़्ते, अरबी, क़ारी के हवाले, सवाल और होमवर्क।" },
   cls: { en: "Live class", ur: "لائیو کلاس", hi: "लाइव क्लास" }, ans: { en: "Answer", ur: "جواب", hi: "जवाब" },
@@ -448,6 +451,23 @@ async function viewPlan(c) {
       <p><a class="btn sm cy" href="#lesson=${L.id}">▶ ${t("open")}</a></p>`;
   });
 }
+
+const ADDX = {
+  h: { en: "For our live-class students", ur: "ہماری لائیو کلاس کے طلبہ کے لیے", hi: "हमारी लाइव क्लास के तलबा के लिए" },
+  p: { en: "Add AI practice to your live class: the same lesson as your class opens here on the same day, with the qari, the Makharij animation, quizzes and homework that goes to your teacher.", ur: "اپنی لائیو کلاس کے ساتھ AI مشق جوڑیں: آپ کی کلاس والا سبق اسی دن یہاں کھلے گا، قاری صاحب، مخارج اینیمیشن، سوالات اور ہوم ورک کے ساتھ جو آپ کے استاد کو جائے گا۔", hi: "अपनी लाइव क्लास के साथ AI मश्क़ जोड़ें: आपकी क्लास वाला सबक़ उसी दिन यहाँ खुलेगा, क़ारी साहब, मख़ारिज एनिमेशन, सवालात और होमवर्क के साथ जो आपके उस्ताद को जाएगा।" },
+  b: { en: "Add AI practice", ur: "AI مشق شامل کریں", hi: "AI मश्क़ शामिल करें" },
+  both: { en: "Both courses (Tajweed + Arabic)", ur: "دونوں کورس (تجوید + عربی)", hi: "दोनों कोर्स (तजवीद + अरबी)" } };
+function addonHTML(c) { const C = COURSES[c];
+  return `<div class="livenote"><b>🎓 ${pick(ADDX.h)}</b><p style="margin:6px 0">${pick(ADDX.p)}</p><p style="margin:0 0 8px"><b>${rupee(C.aInr)}</b> · <bdi dir="ltr">$${C.aUsd}</bdi></p><button class="btn pri sm" data-addon="${c}">${pick(ADDX.b)}</button></div>`; }
+function buyAddon(c) {
+  const go = () => { const both = liveOf("tajweed") && liveOf("arabic");
+    const line = (k, label) => { const C = COURSES[k]; return `<div class="opt"><b>${label}</b><span>${rupee(C.aInr)} · <bdi dir="ltr">$${C.aUsd}</bdi></span>
+      <a class="btn cy sm" target="_blank" rel="noopener" href="https://wa.me/${WA}?text=${encodeURIComponent(`Assalamu Alaikum, I am a live-class student. I want the AI practice add-on: ${label} (₹${C.aInr} / $${C.aUsd}). My email: ${S.user ? S.user.email || "" : ""}`)}">${t("payWa")}</a></div>`; };
+    modal(`<h3>🎓 ${pick(ADDX.b)}</h3><p class="mini">${pick(ADDX.p)}</p><div style="display:grid;gap:10px;margin-top:10px">${line(c, t(c))}${both ? line("combo", pick(ADDX.both)) : ""}</div>`);
+    if (S.user && db) db.collection("users").doc(S.user.uid).set({ lastEnroll: { course: COURSES[c].addon, ts: Date.now() } }, { merge: true }).catch(() => {}); };
+  S.user ? go() : loginBox(go);
+}
+document.addEventListener("click", e => { const b = e.target.closest && e.target.closest("[data-addon]"); if (b) buyAddon(b.dataset.addon); });
 
 /* ============ Makharij Lab: live animation of tongue, lips, jaw, throat and nose ============ */
 const HOW = {
@@ -542,7 +562,7 @@ async function viewLesson(id) {
   const c = courseOf(id), o = await outline(c);
   const meta = o.weeks.flatMap((w, wi) => w.days.map((d, di) => Object.assign({ wi, di }, d))).find(d => d.id === id);
   if (!meta || !meta.ready) { toast(t("soon")); location.hash = c; return; }
-  if (liveOf(c) && !buyer(c)) await liveOpen(c);
+  if (liveAI(c) && !buyer(c)) await liveOpen(c);
   const L = lockInfo(c, o, id); if (!L.open) { toast(L.why === "time" ? t("waitSlot") + ": " + fmtAt(L.at) : L.why === "buy" ? t("buyFirst") : L.why === "live" ? pick(LIVEX.wait) : t("locked")); location.hash = c; return; }
   let data = null; try { data = await lessonData(id); } catch (e) { if (!S.user) return loginBox(() => route()); }
   if (!data) { toast(t("soon")); location.hash = c; return; }
@@ -623,7 +643,7 @@ function wireHw(c, lessonId) {
     status.innerHTML = `<p class="mini">⏳ ${t("hwSending")}</p>`;
     const data = await b64(blob), mime = blob.type || (kind === "voice" ? "audio/webm" : kind === "photo" ? "image/jpeg" : "video/mp4");
     const r = await fetch(`${W}/hw/upload`, { method: "POST", headers: { authorization: "Bearer " + await token(), "content-type": "application/json" },
-      body: JSON.stringify({ course: !buyer(c) && liveOf(c) ? COURSES[c].live : COURSES[c].key, lesson: lessonId, kind, mime, data, note: "" }) }).then(r => r.json()).catch(() => ({ error: "network" }));
+      body: JSON.stringify({ course: !buyer(c) && liveAI(c) ? COURSES[c].live : COURSES[c].key, lesson: lessonId, kind, mime, data, note: "" }) }).then(r => r.json()).catch(() => ({ error: "network" }));
     if (!r.ok) { status.innerHTML = `<p class="mini" style="color:var(--bad)">${esc(r.error || "Error")}</p>`; return; }
     status.innerHTML = `<p class="mini">✓ ${t("hwSent")}</p><p class="why" id="hwfb">🤖 ${t("hwChecking")}</p>`;
     const fb = await aiCheckHomework(lessonId, kind, mime, data);
