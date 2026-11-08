@@ -749,6 +749,9 @@ export async function aiRoute(req, env, url) {
     if (p === "/hw/upload" && req.method === "POST") {
       const data = String(body.data || ""), mime = clip(body.mime, 60), kind = ["voice", "photo", "video"].includes(body.kind) ? body.kind : "";
       if (!kind || !data) return out({ error: "file missing" }, 400);
+      /* AI-only students never reach a live teacher: a live-course homework needs that live course (or its combo) */
+      const hc = clip(body.course, 60);
+      if (!me.owner && !hc.startsWith("ai-") && !(acc[hc] === true || (["tajweed-class", "arabic-speaking-class"].includes(hc) && acc["tajweed-arabic-combo"] === true) || Object.keys(acc).some(k => acc[k] === true && k === hc))) return out({ error: "This homework is only for live-class students." }, 403);
       if (data.length > 14e6) return out({ error: "File is too big. Please keep it under 10 MB (short video, clear photo or voice note)." }, 413);
       const now = Date.now(), id = "H" + new Date(now + 330 * 60000).toISOString().slice(2, 10).replace(/-/g, "") + "-" + rid(6).toUpperCase(), CH = 700000, n = Math.ceil(data.length / CH);
       for (let i = 0; i < n; i++) await fs.merge(`hwData/${id}_${i}`, { d: data.slice(i * CH, (i + 1) * CH) });
