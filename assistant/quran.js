@@ -201,7 +201,7 @@ async function renderMushaf(el){if(!el)return;const P=qpgBuild();QS.gp=Math.max(
    <details class="mtrd"><summary>${T('Is safhe ka tarjuma','Translation of this page','اس صفحے کا ترجمہ','इस पेज का अनुवाद')}</summary>${tr.join('')}</details>
    <div class="mpbar"><button data-a="mpspd"><b>${spd}x</b><small>${T('Raftaar','Speed','رفتار','रफ़्तार')}</small></button><button data-a="pgp" ${QS.gp<=0?'disabled':''}>◀<small>${T('Pichla','Prev','پچھلا','पिछला')}</small></button><button class="mpl" data-a="mppl" id="mpgP">${playing?'⏸':'▶'}<small>${T('Suno','Play','سنیں','सुनें')}</small></button><button data-a="pgn" ${QS.gp>=P.length-1?'disabled':''}>▶<small>${T('Agla','Next','اگلا','अगला')}</small></button><button data-a="mprep"><b>${rep===0?'∞':rep}</b><small>${T('Dohrana','Repeat','دہرائیں','दोहराएँ')}</small></button></div>`;
   mpFit();setTimeout(mpFit,120);
-  const gi=$('#mpgn');gi.onchange=()=>{const n=Math.max(3,Math.min(P.length+2,+gi.value||pg.n));QS.gp=n-3;QPA.left=1;saveQS();renderMushaf(el)};
+  if(!el.isConnected||!$('#mpgn'))return;const gi=$('#mpgn');if(gi)gi.onchange=()=>{const n=Math.max(3,Math.min(P.length+2,+gi.value||pg.n));QS.gp=n-3;QPA.left=1;saveQS();renderMushaf(el)};
   const qi=$('#qsearch');qi.oninput=debounce(()=>{QS.q=qi.value;saveQS();doQSearch()},250);if(QS.q&&!$('#mpsbox').hidden)doQSearch();
   if(QS.mpS){$('#mpsbox').hidden=false;doQSearch()}
   const m=$('#mus');if(m){m.classList.remove('mflip');void m.offsetWidth;m.classList.add('mflip')}
