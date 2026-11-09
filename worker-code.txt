@@ -644,7 +644,7 @@ export async function shopPaid(env, fs, info, fetchImpl = fetch) {
   await fs.merge(`orders/${id}`, { status: ok ? "paid" : "check_payment", payId: info.id, paidAmount: info.amount, timeline: tl });
   if (o.projectId && ok) { const pr = await fs.get(`projects/${o.projectId}`).catch(() => null); if (pr) { const adv = o.projectStage === "advance", u = adv ? { advancePaid: true, advanceAt: now } : o.projectStage === "full" ? { advancePaid: true, advanceAt: now, balancePaid: true, balanceAt: now } : { balancePaid: true, balanceAt: now };
       if (adv && ["requested", "quoted"].includes(pr.status)) u.status = "assets"; if (!adv && pr.finalReady) { u.status = "delivered"; u.deliveredAt = pr.deliveredAt || now; }
-      u.msgs = fsMsg(pr, adv ? "💜 Advance received — thank you! Please upload your samples, logo and assets here so we can start." : "🎉 Balance received — thank you! Your final files are unlocked. Download them in any format."); u.upd = now; await fs.merge(`projects/${pr.pid}`, u); } }
+      u.msgs = fsMsg(pr, adv ? "💜 Advance received — thank you! Please upload your samples, logo and assets here so we can start." : "🎉 Balance received — thank you! Your final files are unlocked. Download them in any format."); u.upd = now; await fs.merge(`projects/${pr.pid}`, u); await fsNote(fs, ["owner", "c:" + pr.code, pr.assignee ? "t:" + pr.assignee : ""], `💳 Payment received online for ${pr.title}`, pr.pid, now); } }
   if (o.quoteId) await fs.merge(`quotes/${o.quoteId}`, !ok ? { status: "check_payment", orderId: id } : o.quoteStage === "advance" ? { status: "advance_paid", advancePaid: +o.total, advanceOrder: id, orderId: id } : { status: "paid", orderId: id }).catch(() => {});
   await ownerAlert(env, fs, { kind: ok ? "pay" : "needs", title: ok ? `🛒 ${SHOP_BRANDS[o.brand]} order paid – ${o.currency || "INR"} ${o.total}` : `⚠️ ${SHOP_BRANDS[o.brand]} payment amount mismatch`, body: `${o.customer?.name || ""} · ${id} · ${(o.items || []).map(l => l.name + " ×" + l.qty).join(", ").slice(0, 140)}` }, now, fetchImpl).catch(() => {});
   return { shop: ok ? "paid" : "mismatch", id };
@@ -797,6 +797,14 @@ async function fsClientBundle(fs, code) {
   const billed = docs.filter(d => d.type === "invoice").reduce((t, d) => t + (+d.total || 0), 0), quoted = docs.filter(d => d.type === "quote").reduce((t, d) => t + (+d.total || 0), 0);
   return { client, projects: projects.map(fsClientProject), docs, totals: { projects: projects.length, delivered: projects.filter(p => ["delivered", "closed"].includes(p.status)).length, billed, quoted } };
 }
+/* in-dashboard notifications: notes/{auto} { to: "owner" | "c:<client code>" | "t:<employee code>", text, pid, ts, read } */
+const FS_CAT = { Video: /shoot|video editing|commercial video|ugc|music|religious|political/i, Design: /graphic|brand identity|pitch deck|visiting card/i, "Social media": /social media|email & whatsapp|personal branding/i, Website: /landing|website|e-commerce|seo/i, "Apps & software": /app|software|dashboard/i, "AI studio": /^ai |chatbot|voiceover|online course/i };
+const fsCatOf = svc => (Object.entries(FS_CAT).find(([, re]) => re.test(svc || "")) || ["Video"])[0];
+async function fsNote(fs, keys, text, pid = "", now = Date.now()) {
+  const uniq = [...new Set(keys.filter(Boolean))];
+  await Promise.all(uniq.map(to => fs.add("notes", { to, text: String(text).slice(0, 300), pid, ts: now, read: false }).catch(() => {})));
+}
+async function fsCatStaff(fs, svc) { const cat = fsCatOf(svc); const st = await fs.query("staff", [], 300).catch(() => []); return st.filter(x => x.active !== false && (!x.dept || /all/i.test(x.dept) || String(x.dept).toLowerCase() === cat.toLowerCase())).map(x => "t:" + x.tid); }
 const fsMsg = (pr, t, by = "Flow Studio") => (pr.msgs || []).concat([{ f: "o", t, ts: Date.now(), by, sys: true }]).slice(-150);
 const fsAmt = pr => { const a = +pr.amount || 0, adv = Math.round(a * 0.4); return { total: a, advance: adv, balance: a - adv }; };
 /* what a client may see of a project: final files stay locked until the balance is paid */
@@ -843,6 +851,7 @@ export async function fsRoute(req, env, url) {
       const pid = "P" + new Date(now + 330 * 60000).toISOString().slice(2, 10).replace(/-/g, "") + "-" + rid(4).toUpperCase();
       await fs.merge(`projects/${pid}`, { pid, code: me.code, client: me.client.business, service, title: clip(body.title, 120) || service, brief, budget: clip(body.budget, 40), deadline: clip(body.deadline, 40), status: "requested", assignee: "", assigneeName: "", amount: 0, ts: now, upd: now, newC: true, msgs: [{ f: "c", t: brief, ts: now, by: me.name }, { f: "o", t: `🙏 Thank you, ${me.name.split(" ")[0]}! We received your request for ${service}. Our team will send your quotation here shortly.`, ts: now + 1, by: "Flow Studio", sys: true }] });
       await ownerAlert(env, fs, { kind: "info", title: `📝 ${me.client.business} (${me.code}) booked ${service}`, body: brief.slice(0, 140) }, now).catch(() => {});
+      await fsNote(fs, ["owner", ...(await fsCatStaff(fs, service))], `📝 New request: ${me.client.business} wants ${service}`, pid, now);
       return out({ ok: true, pid }); }
     /* ----- messages (client on own project, team on any) ----- */
     if (p === "/fs/msg" && req.method === "POST") { const pr = await fs.get(`projects/${clip(body.pid, 30)}`); if (!pr || (!team && pr.code !== me.code)) return out({ error: "Project not found." }, 404);
@@ -850,8 +859,14 @@ export async function fsRoute(req, env, url) {
       const msgs = (pr.msgs || []).concat([{ f: team ? "o" : "c", t, ts: now, by: team ? by : me.name }]).slice(-120);
       await fs.merge(`projects/${pr.pid}`, Object.assign({ msgs, upd: now }, team ? { newC: false, newT: true } : { newC: true }));
       if (!team) await ownerAlert(env, fs, { kind: "info", title: `💬 ${pr.client} (${pr.code}) · ${pr.service}`, body: t.slice(0, 120) }, now).catch(() => {});
+      await fsNote(fs, team ? ["c:" + pr.code, me.role === "staff" ? "owner" : ""] : ["owner", pr.assignee ? "t:" + pr.assignee : ""], `💬 ${team ? "Flow Studio" : pr.client}: ${t.slice(0, 90)}`, pr.pid, now);
       return out({ ok: true, msgs }); }
     if (p === "/fs/doc") { const d = await fs.get(`docs/${clip(q.get("id"), 40)}`); if (!d || (!team && d.code !== me.code)) return out({ error: "Document not found." }, 404); return out(d); }
+    if (p === "/fs/notes") { const key = me.role === "owner" ? "owner" : me.role === "staff" ? "t:" + me.tid : me.role === "client" ? "c:" + me.code : "";
+      if (!key) return out({ notes: [] });
+      if (req.method === "POST") { const L = (await fs.query("notes", [["to", "EQUAL", key]], 300).catch(() => [])).filter(n => !n.read && (body.all || (body.ids || []).includes(n.id))).slice(0, 80);
+        await Promise.all(L.map(n => fs.merge(`notes/${n.id}`, { read: true }).catch(() => {}))); return out({ ok: true, n: L.length }); }
+      const L = (await fs.query("notes", [["to", "EQUAL", key]], 300).catch(() => [])).sort((a, b) => (b.ts || 0) - (a.ts || 0)).slice(0, 60); return out({ notes: L, unread: L.filter(n => !n.read).length }); }
     /* ----- files: Drive uploads (via the Flow Studio Drive uploader) ----- */
     const canProj = pr => pr && (team || pr.code === me.code);
     if (p === "/fs/upload-ok") { const pr = await fs.get(`projects/${clip(q.get("pid"), 30)}`), kind = clip(q.get("kind"), 12);
@@ -873,6 +888,7 @@ export async function fsRoute(req, env, url) {
       if (kind === "draft") { upd.status = "draft"; upd.msgs = fsMsg(pr, `🎬 Your first draft “${f.name}” is ready! It is a low-quality preview with the Flow Studio watermark. Please check it and tell us any changes here.`, by); }
       if (kind === "final") { upd.finalReady = true; if (pr.balancePaid) upd.status = "delivered"; upd.msgs = fsMsg(pr, pr.balancePaid ? `✅ Final files are ready! Download them in every format from your dashboard. Thank you for choosing Flow Studio 💜` : `✅ Your final files are ready. Pay the remaining 60% balance and the downloads unlock instantly.`, by); if (pr.balancePaid && !pr.deliveredAt) { upd.deliveredAt = now; upd.deliveredBy = pr.assignee || me.tid || "owner"; upd.deliveredByName = pr.assigneeName || me.name; } }
       await fs.merge(`projects/${pr.pid}`, upd);
+      await fsNote(fs, team ? ["c:" + pr.code, me.role === "staff" ? "owner" : ""] : ["owner", pr.assignee ? "t:" + pr.assignee : ""], { asset: `📎 ${team ? "Flow Studio" : pr.client} uploaded “${f.name}”`, payproof: `🧾 ${pr.client} sent a payment proof — please confirm`, draft: `🎬 Your first draft is ready: ${pr.title}`, final: `✅ Final files are ready: ${pr.title}` }[kind], pr.pid, now);
       if (!team) await ownerAlert(env, fs, { kind: "info", title: `📎 ${pr.client} (${pr.code}) uploaded ${kind === "payproof" ? "payment proof" : "a file"}`, body: `${pr.title} · ${f.name}` }, now).catch(() => {});
       return out({ ok: true, file: f }); }
     /* ----- payments: 40% advance, 60% balance before final delivery ----- */
@@ -914,7 +930,12 @@ export async function fsRoute(req, env, url) {
       if (body.status === "delivered" && !pr.balancePaid && !(upd.balancePaid)) return out({ error: "Final delivery opens after the 60% balance is paid." }, 400);
       if (upd.status && upd.status !== pr.status && !upd.msgs) { const M = { quoted: "📄 Your quotation is ready in Documents.", assets: "📎 Please upload your samples, logo and assets here.", in_progress: "🚀 Work has started on your project!", draft: "🎬 Your first draft is ready to review.", delivered: "✅ Delivered! Thank you for choosing Flow Studio 💜", closed: "🙏 Project closed. It was a pleasure working with you!" }; if (M[upd.status]) upd.msgs = fsMsg(pr, M[upd.status], by); }
       if (body.deadline != null) upd.deadline = clip(body.deadline, 40);
-      upd.log = log; await fs.merge(`projects/${pr.pid}`, upd); return out({ ok: true }); }
+      upd.log = log; await fs.merge(`projects/${pr.pid}`, upd);
+      if (upd.assignee && upd.assignee !== pr.assignee && upd.assignee !== me.tid) await fsNote(fs, ["t:" + upd.assignee], `👤 New project for you: ${pr.client} · ${pr.title}`, pr.pid, now);
+      if (upd.advancePaid && !pr.advancePaid) await fsNote(fs, ["c:" + pr.code, pr.assignee ? "t:" + pr.assignee : ""], `💜 Advance received for ${pr.title}`, pr.pid, now);
+      if (upd.balancePaid && !pr.balancePaid) await fsNote(fs, ["c:" + pr.code, pr.assignee ? "t:" + pr.assignee : ""], `🎉 Payment complete for ${pr.title} — final files unlocked`, pr.pid, now);
+      if (upd.status && upd.status !== pr.status) await fsNote(fs, ["c:" + pr.code, me.role === "staff" ? "owner" : ""], `📍 ${pr.title}: ${{ quoted: "quotation ready", assets: "please upload your files", in_progress: "work started", draft: "first draft ready", delivered: "delivered", closed: "closed" }[upd.status] || upd.status}`, pr.pid, now);
+      return out({ ok: true }); }
     if (p === "/fs/doc/new" && req.method === "POST") { const c = await fs.get(`clients/${clip(body.code, 24).toUpperCase()}`); if (!c) return out({ error: "Client code not found." }, 404);
       const d = body.data || {}; if (!["quote", "invoice"].includes(d.type) || !(d.items || []).length) return out({ error: "Add at least one service line." }, 400);
       const cfgP = (await fs.get("config/flowstudio").catch(() => null)) || {}; d.pay = d.pay || {}; if (!d.pay.upi && cfgP.upi) d.pay.upi = cfgP.upi; if (!d.pay.name && cfgP.payName) d.pay.name = cfgP.payName; d.cur = d.cur === "USD" ? "USD" : "INR";
@@ -924,6 +945,7 @@ export async function fsRoute(req, env, url) {
         const u = { upd: now, status: st, cur: d.cur, amount: d.type === "quote" ? total : (pr.amount || total), msgs: (pr.msgs || []).concat([{ f: "o", t: `${d.type === "quote" ? "📄 Quotation" : "🧾 Bill"} ${d.no || ""} added to your dashboard · ${d.cur === "USD" ? "$" + total.toLocaleString("en-US") : "₹" + total.toLocaleString("en-IN")}${d.type === "quote" ? " · scan the QR on it to pay the 40% advance" : ""}`, ts: now, by }]).slice(-120) };
         if (st === "delivered" && pr.status !== "delivered") { u.deliveredAt = now; u.deliveredBy = pr.assignee || me.tid || "owner"; u.deliveredByName = pr.assigneeName || me.name; }
         await fs.merge(`projects/${pid}`, u); } }
+      await fsNote(fs, ["c:" + c.code, me.role === "staff" ? "owner" : ""], `${d.type === "quote" ? "📄 New quotation" : "🧾 New bill"} ${d.no || ""} · ${d.cur === "USD" ? "$" : "₹"}${total.toLocaleString(d.cur === "USD" ? "en-US" : "en-IN")}`, pid, now);
       const text = `Flow Studio · ${d.type === "quote" ? "Quotation" : "Bill"} ${d.no || ""}\nHi ${c.name}, your ${d.type === "quote" ? "quotation" : "bill"} of ${d.cur === "USD" ? "$" + total.toLocaleString("en-US") : "₹" + total.toLocaleString("en-IN")} is in your dashboard.\nOpen: https://pixelflowstudio.agency/portal.html (your client code: ${c.code})`;
       let wa = { skipped: true }; if (body.wa && c.phone) wa = await sendWAText(env, c.phone, text).catch(e => ({ ok: false, error: String(e) }));
       return out({ ok: true, did, total, wa: !!wa.ok, waText: text, waTo: waNumber(c.phone || "") }); }
