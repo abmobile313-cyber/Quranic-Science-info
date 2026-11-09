@@ -891,7 +891,7 @@ export async function fsRoute(req, env, url) {
       const [projects, clients, docs, staff, att] = await Promise.all([fs.query("projects", [], 1000).catch(() => []), fs.query("clients", [], 1000).catch(() => []), fs.query("docs", [], 1000).catch(() => []),
         me.role === "owner" ? fs.query("staff", [], 200).catch(() => []) : Promise.resolve([me.staff]),
         me.role === "owner" ? fs.query("attendance", [], 4000).catch(() => []) : fs.query("attendance", [["tid", "EQUAL", me.tid]], 400).catch(() => [])]);
-      const fscfg = me.role === "owner" ? ((await fs.get("config/flowstudio").catch(() => null)) || {}) : {};
+      const fscfg0 = (await fs.get("config/flowstudio").catch(() => null)) || {}, fscfg = me.role === "owner" ? fscfg0 : { upi: fscfg0.upi || "", payName: fscfg0.payName || "" };
       const slips = me.role === "owner" ? await fs.query("slips", [], 2000).catch(() => []) : await fs.query("slips", [["tid", "EQUAL", me.tid]], 200).catch(() => []);
       const cl = clients.map(c => me.role === "owner" ? c : { code: c.code, name: c.name, business: c.business, phone: c.phone, email: c.email, city: c.city, ts: c.ts });
       return out({ me: Object.assign({}, me, { staff: undefined }), staffRec: me.staff || null, month: mon, year: yr, projects: projects.sort((a, b) => (b.upd || b.ts || 0) - (a.upd || a.ts || 0)), clients: cl.sort((a, b) => (b.ts || 0) - (a.ts || 0)), docs: docs.sort((a, b) => (b.ts || 0) - (a.ts || 0)).map(d => Object.assign({}, d, { data: undefined })), staff: staff.filter(Boolean), att: att.filter(a => String(a.day || "").startsWith(yr)), slips: slips.sort((a, b) => String(b.month).localeCompare(String(a.month))), config: fscfg }); }
@@ -915,13 +915,14 @@ export async function fsRoute(req, env, url) {
       upd.log = log; await fs.merge(`projects/${pr.pid}`, upd); return out({ ok: true }); }
     if (p === "/fs/doc/new" && req.method === "POST") { const c = await fs.get(`clients/${clip(body.code, 24).toUpperCase()}`); if (!c) return out({ error: "Client code not found." }, 404);
       const d = body.data || {}; if (!["quote", "invoice"].includes(d.type) || !(d.items || []).length) return out({ error: "Add at least one service line." }, 400);
+      const cfgP = (await fs.get("config/flowstudio").catch(() => null)) || {}; d.pay = d.pay || {}; if (!d.pay.upi && cfgP.upi) d.pay.upi = cfgP.upi; if (!d.pay.name && cfgP.payName) d.pay.name = cfgP.payName; d.cur = d.cur === "USD" ? "USD" : "INR";
       const did = "D" + rid(10).toUpperCase(), total = fsTotal(d), pid = clip(body.pid, 30);
-      await fs.merge(`docs/${did}`, { did, code: c.code, pid, type: d.type, no: clip(d.no, 40), total, data: JSON.stringify(d).slice(0, 60000), ts: now, by, status: "sent" });
+      await fs.merge(`docs/${did}`, { did, code: c.code, pid, type: d.type, cur: d.cur, no: clip(d.no, 40), total, data: JSON.stringify(d).slice(0, 60000), ts: now, by, status: "sent" });
       if (pid) { const pr = await fs.get(`projects/${pid}`); if (pr && pr.code === c.code) { const st = d.type === "quote" ? (["requested"].includes(pr.status) ? "quoted" : pr.status) : (["delivered", "closed"].includes(pr.status) ? pr.status : "delivered");
-        const u = { upd: now, status: st, amount: d.type === "quote" ? total : (pr.amount || total), msgs: (pr.msgs || []).concat([{ f: "o", t: `${d.type === "quote" ? "📄 Quotation" : "🧾 Bill"} ${d.no || ""} added to your dashboard · ₹${total.toLocaleString("en-IN")}`, ts: now, by }]).slice(-120) };
+        const u = { upd: now, status: st, cur: d.cur, amount: d.type === "quote" ? total : (pr.amount || total), msgs: (pr.msgs || []).concat([{ f: "o", t: `${d.type === "quote" ? "📄 Quotation" : "🧾 Bill"} ${d.no || ""} added to your dashboard · ${d.cur === "USD" ? "$" + total.toLocaleString("en-US") : "₹" + total.toLocaleString("en-IN")}${d.type === "quote" ? " · scan the QR on it to pay the 40% advance" : ""}`, ts: now, by }]).slice(-120) };
         if (st === "delivered" && pr.status !== "delivered") { u.deliveredAt = now; u.deliveredBy = pr.assignee || me.tid || "owner"; u.deliveredByName = pr.assigneeName || me.name; }
         await fs.merge(`projects/${pid}`, u); } }
-      const text = `Flow Studio · ${d.type === "quote" ? "Quotation" : "Bill"} ${d.no || ""}\nHi ${c.name}, your ${d.type === "quote" ? "quotation" : "bill"} of ₹${total.toLocaleString("en-IN")} is in your dashboard.\nOpen: https://pixelflowstudio.agency/portal.html (your client code: ${c.code})`;
+      const text = `Flow Studio · ${d.type === "quote" ? "Quotation" : "Bill"} ${d.no || ""}\nHi ${c.name}, your ${d.type === "quote" ? "quotation" : "bill"} of ${d.cur === "USD" ? "$" + total.toLocaleString("en-US") : "₹" + total.toLocaleString("en-IN")} is in your dashboard.\nOpen: https://pixelflowstudio.agency/portal.html (your client code: ${c.code})`;
       let wa = { skipped: true }; if (body.wa && c.phone) wa = await sendWAText(env, c.phone, text).catch(e => ({ ok: false, error: String(e) }));
       return out({ ok: true, did, total, wa: !!wa.ok, waText: text, waTo: waNumber(c.phone || "") }); }
     if (p === "/fs/file/remove" && req.method === "POST") { const pr = await fs.get(`projects/${clip(body.pid, 30)}`); if (!pr) return out({ error: "Project not found." }, 404);
