@@ -662,7 +662,8 @@ async function verifyStaff(req, env, fs) {
   const u = (who.users || [])[0] || {}; const email = String(u.email || "").toLowerCase(); if (!u.emailVerified || !email) return null;
   if (ownerEmails(env).includes(email)) return { email, owner: true };
   const t = await fs.get("config/team").catch(() => null);
-  return t && (t.emails || []).includes(email) ? { email, owner: false } : null;
+  const k = email.replace(/\./g, "_");
+  return t && (t.emails || []).includes(email) ? { email, owner: false, name: (t.names || {})[k] || email.split("@")[0], tid: (t.ids || {})[k] || "" } : null;
 }
 export async function shopRoute(req, env, url) {
   const cors = { "access-control-allow-origin": "*", "access-control-allow-headers": "authorization,content-type", "access-control-allow-methods": "GET,POST,OPTIONS", "content-type": "application/json", "cache-control": "no-store" };
@@ -696,11 +697,14 @@ export async function shopRoute(req, env, url) {
       const OWN = ["saveItem", "hideItem", "config", "team"];
       if (req.method === "POST" && OWN.includes(body.action) && !me.owner) return out({ error: "Only the owner can do this." }, 403);
       if (req.method === "POST" && body.action === "team") { const emails = [...new Set((body.emails || []).map(e => clip(e, 120).toLowerCase()).filter(e => /^[^@\s]+@[^@\s]+\.[a-z]{2,}$/.test(e)))].slice(0, 30);
-        const names = {}; for (const e of emails) names[e.replace(/\./g, "_")] = clip((body.names || {})[e], 60); await fs.merge("config/team", { emails, names, upd: Date.now() }); return out({ ok: true, emails }); }
+        const prev = (await fs.get("config/team").catch(() => null)) || {}, ids = Object.assign({}, prev.ids || {}), names = {};
+        let n = Object.values(ids).reduce((m, v) => Math.max(m, +String(v).replace(/\D/g, "") || 0), 0);
+        for (const e of emails) { const k = e.replace(/\./g, "_"); names[k] = clip((body.names || {})[e], 60); if (!ids[k]) ids[k] = "FS-T" + String(++n).padStart(3, "0"); }
+        await fs.merge("config/team", { emails, names, ids, upd: Date.now() }); return out({ ok: true, emails }); }
       if (req.method === "GET") { const b = q.get("brand");
         const [items, orders, quotes, cfg] = await Promise.all([fs.query("shopItems", b ? [["brand", "EQUAL", b]] : [], 500), fs.query("orders", b ? [["brand", "EQUAL", b]] : [], 500), fs.query("quotes", b ? [["brand", "EQUAL", b]] : [], 300), fs.get("config/shop")]);
         const team = me.owner ? ((await fs.get("config/team").catch(() => null)) || {}) : {};
-        return out({ me: { email: me.email, owner: me.owner }, team: me.owner ? { emails: team.emails || [], names: team.names || {} } : undefined, items: items.sort((a, c) => (a.sort || 0) - (c.sort || 0)), orders: orders.sort((a, c) => (c.ts || 0) - (a.ts || 0)), quotes: quotes.sort((a, c) => (c.ts || 0) - (a.ts || 0)), config: cfg || {}, rzpKey: Object.keys(SHOP_BRANDS).filter(b => shopKey(env, b)), currency: SHOP_CUR }); }
+        return out({ me, team: me.owner ? { emails: team.emails || [], names: team.names || {}, ids: team.ids || {} } : undefined, items: items.sort((a, c) => (a.sort || 0) - (c.sort || 0)), orders: orders.sort((a, c) => (c.ts || 0) - (a.ts || 0)), quotes: quotes.sort((a, c) => (c.ts || 0) - (a.ts || 0)), config: cfg || {}, rzpKey: Object.keys(SHOP_BRANDS).filter(b => shopKey(env, b)), currency: SHOP_CUR }); }
       const a = body.action, now = Date.now();
       if (a === "saveItem") { const it = body.item || {}; if (!SHOP_BRANDS[it.brand] || !clip(it.name)) return out({ error: "brand and name needed" }, 400);
         const id = it.id || (it.brand + "__" + clip(it.name, 60).toLowerCase().replace(/[^a-z0-9]+/g, "-") + "-" + rid(3));
@@ -709,7 +713,7 @@ export async function shopRoute(req, env, url) {
         await fs.merge(`shopItems/${id}`, rec); return out({ ok: true, id }); }
       if (a === "hideItem") { await fs.merge(`shopItems/${clip(body.id, 120)}`, { active: !!body.active, upd: now }); return out({ ok: true }); }
       if (a === "orderStatus") { const o = await fs.get(`orders/${clip(body.id, 40)}`); if (!o) return out({ error: "no order" }, 404);
-        const s = clip(body.status, 30), tl = (o.timeline || []).concat([{ s, ts: now, note: clip(body.note, 200) }]), upd = { status: s, timeline: tl };
+        const s = clip(body.status, 30), tl = (o.timeline || []).concat([{ s, ts: now, note: clip(body.note, 200), by: me.owner ? "owner" : `${me.name} · ${me.tid}` }]), upd = { status: s, timeline: tl };
         if (body.tracking) upd.tracking = { carrier: clip(body.tracking.carrier, 40), no: clip(body.tracking.no, 60), url: clip(body.tracking.url, 300) };
         await fs.merge(`orders/${o.id}`, upd);
         if (o.quoteId && s === "paid") await fs.merge(`quotes/${o.quoteId}`, o.quoteStage === "advance" ? { status: "advance_paid", advancePaid: +o.total, advanceOrder: o.id, orderId: o.id } : { status: "paid", orderId: o.id }).catch(() => {});
@@ -717,7 +721,8 @@ export async function shopRoute(req, env, url) {
       if (a === "quotePrice" || a === "quoteReply") { const r = await fs.get(`quotes/${clip(body.id, 40)}`); if (!r) return out({ error: "no quote" }, 404);
         const t = clip(body.note || body.text, 1500), price = Math.max(0, +body.price || 0), upd = { quotedAt: now, newC: false };
         if (price > 0) { upd.price = price; upd.status = ["paid", "advance_paid"].includes(r.status) ? r.status : "quoted"; }
-        if (t) { upd.ownerNote = t; upd.msgs = (r.msgs || [{ f: "c", t: r.brief, ts: r.ts }]).concat([{ f: "o", t, ts: now, price: price || 0 }]).slice(-80); }
+        if (t) { upd.ownerNote = t; upd.msgs = (r.msgs || [{ f: "c", t: r.brief, ts: r.ts }]).concat([{ f: "o", t, ts: now, price: price || 0, by: me.owner ? "" : `${me.name} (${me.tid})` }]).slice(-80); }
+        upd.lastBy = me.owner ? "owner" : `${me.name} · ${me.tid}`;
         await fs.merge(`quotes/${r.id}`, upd);
         const link = `${SHOP_SITE[r.brand] || ""}#quote=${r.id}.${r.key}`, c = r.customer || {}, pr = price > 0 ? `\nPrice: ${shopCur(r.brand) === "INR" ? "₹" : shopCur(r.brand) + " "}${price.toLocaleString("en-IN")}` : "";
         const text = `${SHOP_BRANDS[r.brand]} · ${r.service}\n\n${t || "Your quote is ready."}${pr}\n\nReply, see the full chat or pay here: ${link}`;

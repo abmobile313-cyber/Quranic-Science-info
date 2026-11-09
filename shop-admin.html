@@ -111,9 +111,10 @@ $("ref").onclick=load;
 async function load(){
   $("sub").textContent="Loading "+BRANDS[brand].name+"…";
   try{D=await call("GET");}catch(e){$("sub").textContent=/team only|401/.test(e.message)?"This Google account ("+(auth.currentUser||{}).email+") is not on the team yet. Ask the owner to add it, then refresh.":"Could not load: "+e.message;return}
-  ME=D.me||{owner:true};$("teamBox").hidden=!ME.owner;$("qmBox").hidden=brand!=="flowstudio";document.querySelectorAll(".ownerOnly").forEach(x=>x.hidden=!ME.owner);
+  ME=D.me||{owner:true};document.querySelector(".top h1").textContent=ME.owner?"Shop Admin":"Team Panel";
+  if(!ME.owner)$("sub").textContent=`${ME.name||ME.email} · ID ${ME.tid||"—"} · `+BRANDS[brand].name;$("teamBox").hidden=!ME.owner;$("qmBox").hidden=brand!=="flowstudio";document.querySelectorAll(".ownerOnly").forEach(x=>x.hidden=!ME.owner);
   if(ME.owner)drawTeam();
-  $("sub").textContent=BRANDS[brand].name+" · "+BRANDS[brand].site.replace("https://","");
+  $("sub").textContent=(ME.owner?"":`${ME.name||ME.email} · ID ${ME.tid||"—"} · `)+BRANDS[brand].name+" · "+BRANDS[brand].site.replace("https://","");
   document.querySelectorAll(".cur").forEach(e=>e.textContent=sym());
   const site=BRANDS[brand].site;
   $("oCount").textContent=D.orders.length+" total";
@@ -128,7 +129,7 @@ async function load(){
   $("qCount").textContent=D.quotes.length+" total";
   $("quotes").innerHTML=D.quotes.length?D.quotes.map(q=>{const c=q.customer||{},link=`${site}/#quote=${q.id}.${q.key}`,msgs=q.msgs||[{f:"c",t:q.brief,ts:q.ts}].concat(q.ownerNote?[{f:"o",t:q.ownerNote,ts:q.quotedAt}]:[]);
     return `<div class="row qrow"><div style="grid-column:1/-1;display:flex;flex-wrap:wrap;gap:10px;justify-content:space-between"><b>${H(q.service)} <span class="pill ${q.status}">${H(q.status)}</span>${q.newC?' <span class="pill" style="background:#e3aa3c;color:#1a1206">New message</span>':""}</b><small>${H(c.name)} · ${H(c.phone)} ${c.email?"· "+H(c.email):""} · ${H(q.budget)} · ${H(q.deadline)} · ${when(q.ts)}</small></div>
-      <div class="chat" style="grid-column:1/-1">${msgs.map(m=>`<div class="msg ${m.f}"><span>${H(m.t)}</span>${m.price?`<b> · ${rs(m.price)}</b>`:""}<small>${m.f==="o"?"You":H(c.name||"Client")} · ${when(m.ts)}</small></div>`).join("")}</div>
+      <div class="chat" style="grid-column:1/-1">${msgs.map(m=>`<div class="msg ${m.f}"><span>${H(m.t)}</span>${m.price?`<b> · ${rs(m.price)}</b>`:""}<small>${m.f==="o"?(m.by?H(m.by):"Studio"):H(c.name||"Client")} · ${when(m.ts)}</small></div>`).join("")}</div>
       <div class="ctl" style="grid-column:1/-1"><textarea rows="3" data-qn="${q.id}" placeholder="Write your answer or quotation (what is included, delivery time)…"></textarea>
         <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center"><input type="number" min="0" data-qp="${q.id}" placeholder="Price ${sym()} (optional)" value="${q.price||""}" style="max-width:180px">
         <button class="btn gold" type="button" data-qsave="${q.id}">Send reply (site + WhatsApp)</button>
@@ -194,7 +195,7 @@ document.addEventListener("click",e=>{const b=e.target.closest("[data-qmake]");i
   qReset({qName:c.name||"",qPhone:c.phone||"",qProj:q.service||"",qFor:q.id,item:{service:SVC.find(s=>s.toLowerCase()===String(q.service||"").toLowerCase())||q.service||"",desc:String(q.brief||"").slice(0,90),qty:1,rate:q.price||""}});
   $("qHint").textContent="Linked to "+(c.name||"this client")+"'s request: sending will also post it in their quote chat and set the price they pay online.";$("qmBox").scrollIntoView({behavior:"smooth"})});
 /* ---------- team (owner only) ---------- */
-function drawTeam(){const t=D.team||{emails:[],names:{}};$("teamL").innerHTML=t.emails.length?t.emails.map(m=>`<div class="row" style="grid-template-columns:1fr auto"><div><b>${H(t.names[m.replace(/\./g,"_")]||m.split("@")[0])}</b><small>${H(m)}</small></div><button class="btn" type="button" data-trm="${H(m)}">Remove</button></div>`).join(""):`<p class="muted">No team members yet. Only you can sign in.</p>`}
+function drawTeam(){const t=D.team||{emails:[],names:{}};$("teamL").innerHTML=t.emails.length?t.emails.map(m=>`<div class="row" style="grid-template-columns:1fr auto"><div><b>${H(t.names[m.replace(/\./g,"_")]||m.split("@")[0])} <span class="pill">${H((t.ids||{})[m.replace(/\./g,"_")]||"new")}</span></b><small>${H(m)}</small></div><button class="btn" type="button" data-trm="${H(m)}">Remove</button></div>`).join(""):`<p class="muted">No team members yet. Only you can sign in.</p>`}
 async function saveTeam(emails,names){const r=await call("POST",{action:"team",emails,names});toast("Team saved ✓");load()}
 $("tAdd").onclick=async()=>{const m=$("tMail").value.trim().toLowerCase(),n=$("tName").value.trim();if(!/^[^@\s]+@[^@\s]+\.[a-z]{2,}$/.test(m)){toast("Write a valid Gmail address");return}
   const t=D.team||{emails:[],names:{}},names={};t.emails.forEach(x=>names[x]=t.names[x.replace(/\./g,"_")]||"");names[m]=n;try{await saveTeam([...new Set(t.emails.concat(m))],names);$("tMail").value="";$("tName").value=""}catch(x){toast("Error: "+x.message)}};
