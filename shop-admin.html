@@ -95,7 +95,7 @@ table.att{width:100%;border-collapse:collapse;font-size:.85rem;min-width:620px}t
   </div>
   <div class="box" id="teamBox" hidden><h2>Team &amp; attendance <span class="muted">add workers, see who is on duty, monthly hours and overtime</span></h2>
     <div class="stl" id="stL"></div>
-    <div style="display:flex;gap:8px;flex-wrap:wrap;margin:12px 0"><button class="btn gold" type="button" id="stNew">+ Add worker</button></div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin:12px 0"><button class="btn gold" type="button" id="stNew">+ Add worker</button><button class="btn" type="button" id="ownCard">👑 My founder ID card</button></div>
     <form id="stF" class="box" hidden style="background:rgba(0,0,0,.25)">
       <input type="hidden" id="sTid">
       <div class="stfw"><label class="phup" title="Photo"><input type="file" accept="image/*" id="sPhF" hidden><span id="sPhP">+ Photo</span></label>
@@ -314,6 +314,21 @@ function idCard(s){let m=$("idm");if(!m){m=document.createElement("div");m.id="i
  m.innerHTML=`<style>${CARD_CSS}</style><div><div class="cards">${cardHTML(s)}</div><div class="ctl2"><button class="btn gold" type="button" id="idPr">🖨 Print / Save PDF (physical card)</button><button class="btn" type="button" id="idX">Close</button></div><p class="muted" style="text-align:center;font-size:.8rem">Standard ID card size 54 × 86 mm (CR80). Print front and back, laminate or give to a PVC card printer.</p></div>`;
  m.hidden=false;$("idX").onclick=()=>m.remove();m.onclick=e=>{if(e.target===m)m.remove()};
  $("idPr").onclick=()=>{const w=window.open("","_blank");if(!w){toast("Allow pop-ups to print");return}w.document.write(`<!doctype html><html><head><meta charset="utf-8"><title>ID card ${H(s.tid||"")}</title><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap"><style>@page{size:A4;margin:12mm}body{margin:0;background:#fff;display:flex;gap:8mm;flex-wrap:wrap;align-content:flex-start}${CARD_CSS}.idc{box-shadow:none;outline:.2mm dashed #bbb;outline-offset:1.5mm}</style></head><body>${cardHTML(s)}<script>setTimeout(()=>print(),900)<\/script></body></html>`);w.document.close()}}
+
+/* owner's founder card: black + gold */
+const OWN_CSS=`.idc.own{background:radial-gradient(circle at 80% 0%,rgba(212,175,55,.35),transparent 50%),radial-gradient(circle at 0% 100%,rgba(122,31,51,.75),transparent 55%),linear-gradient(160deg,#1a0b10,#07040a 60%);border:.5mm solid transparent;background-clip:padding-box}
+.idc.own:after{content:"";position:absolute;inset:0;border-radius:3.2mm;padding:.45mm;background:linear-gradient(135deg,#f6e27a,#b8860b,#fff3b0,#8a6d1d,#f6e27a);-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;pointer-events:none}
+.idc.own .rb{background:linear-gradient(90deg,#8a6d1d,#f6e27a,#fff3b0,#f6e27a,#8a6d1d)}.idc.own .ring{background:conic-gradient(#f6e27a,#8a6d1d,#fff3b0,#b8860b,#f6e27a);padding:1mm}
+.idc.own .ring img{border-color:#12070b;background:radial-gradient(circle at 30% 20%,#7a1f33,#12070b)}.idc.own .rl{background:linear-gradient(90deg,#f6e27a,#fff3b0,#d4af37);-webkit-background-clip:text;color:transparent}
+.idc.own .tid{background:linear-gradient(90deg,#8a6d1d,#d4af37);color:#1a0b10;border:0}.idc.own .crown{font:700 1.9mm ui-monospace,monospace;letter-spacing:.6mm;color:#f6e27a;margin-top:2.6mm}
+.idc.own .bc i{background:#f6e27a}.idc.own.b .sg b{border-color:rgba(246,226,122,.5)}.idc.own .hd small{color:#d9c27a}`;
+function ownerCardHTML(){const s={tid:"FS-001",name:"Arsalan Ahmed Shaikh",role:"Founder & Managing Director",dept:"All departments",phone:"+91 93704 17863",joined:"",blood:"",photo:"https://quranicscience.info/img-founder.webp"};
+ let h=cardHTML(s).replace(/class="idc f"/,'class="idc f own"').replace(/class="idc b"/,'class="idc b own"').replace("STAFF IDENTITY CARD","FOUNDER IDENTITY CARD");
+ h=h.replace(/<span>Joined<\/span><b>[^<]*<\/b><span>Blood<\/span><b>[^<]*<\/b>/,'<span>Access</span><b>All areas</b><span>Since</span><b>Founder</b>').replace('<div class="bc">','<div class="crown">★ FOUNDER ★</div><div class="bc">').replace("Valid while employed · ID FS-001","Founder · Flow Studio · ID FS-001");return h}
+$("ownCard").onclick=()=>{let m=$("idm");if(!m){m=document.createElement("div");m.id="idm";m.className="idm";document.body.appendChild(m)}
+ m.innerHTML=`<style>${CARD_CSS}${OWN_CSS}</style><div><div class="cards">${ownerCardHTML()}</div><div class="ctl2"><button class="btn gold" type="button" id="idPr">🖨 Print / Save PDF</button><button class="btn" type="button" id="idX">Close</button></div></div>`;
+ $("idX").onclick=()=>m.remove();m.onclick=e=>{if(e.target===m)m.remove()};
+ $("idPr").onclick=()=>{const w=window.open("","_blank");if(!w){toast("Allow pop-ups to print");return}w.document.write(`<!doctype html><html><head><meta charset="utf-8"><title>Founder ID card</title><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap"><style>@page{size:A4;margin:12mm}body{margin:0;background:#fff;display:flex;gap:8mm;flex-wrap:wrap;align-content:flex-start}${CARD_CSS}${OWN_CSS}.idc{box-shadow:none;outline:.2mm dashed #bbb;outline-offset:1.5mm}</style></head><body>${ownerCardHTML()}<script>setTimeout(()=>print(),1200)<\/script></body></html>`);w.document.close()}};
 </script>
 <script data-goatcounter="https://deensaathi.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
 </body>
