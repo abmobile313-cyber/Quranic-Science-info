@@ -791,7 +791,7 @@ async function drawCert(cv, d) {
   x.strokeStyle = "#7a1424"; x.lineWidth = 26; x.strokeRect(30, 30, W2 - 60, H - 60);
   x.strokeStyle = "#c79a3c"; x.lineWidth = 4; x.strokeRect(70, 70, W2 - 140, H - 140); x.strokeRect(84, 84, W2 - 168, H - 168);
   for (const [cx, cy] of [[84, 84], [W2 - 84, 84], [84, H - 84], [W2 - 84, H - 84]]) { x.fillStyle = "#c79a3c"; x.beginPath(); x.arc(cx, cy, 16, 0, 7); x.fill(); }
-  const [logo, sig, ic, founder, stu] = await Promise.all([img("/logo.png"), img("/a-sig.png"), img("icon-512.png"), img("/img-founder.webp"), img(d.photo)]);
+  const [logo, sig, ic, founder, stu] = await Promise.all([img("/logo.png"), img("/a-sig.png?v=5"), img("icon-512.png"), img("/img-founder.webp"), img(d.photo)]);
   if (logo) x.drawImage(logo, W2 / 2 - 75, 115, 150, 150);
   x.textAlign = "center"; x.fillStyle = "#7a1424"; x.font = "700 30px Outfit"; x.fillText("QURANIC SCIENCE ACADEMY", W2 / 2, 318);
   x.fillStyle = "#1c1712"; x.font = "800 88px Outfit"; x.fillText("Certificate of Completion", W2 / 2, 430);
