@@ -805,6 +805,17 @@ async function fsNote(fs, keys, text, pid = "", now = Date.now()) {
   await Promise.all(uniq.map(to => fs.add("notes", { to, text: String(text).slice(0, 300), pid, ts: now, read: false }).catch(() => {})));
 }
 async function fsCatStaff(fs, svc) { const cat = fsCatOf(svc); const st = await fs.query("staff", [], 300).catch(() => []); return st.filter(x => x.active !== false && (!x.dept || /all/i.test(x.dept) || String(x.dept).toLowerCase() === cat.toLowerCase())).map(x => "t:" + x.tid); }
+/* team chat guard: no phone numbers, emails, links, @IDs or social-media contact swaps */
+function fsContactBlock(s) { const t = String(s), low = t.toLowerCase().replace(/[​-‏]/g, "");
+  const digits = low.replace(/[०-९]/g, d => "0123456789"["०१२३४५६७८९".indexOf(d)]);
+  if (/(?:\d[\s.()+_]*){8,}/.test(digits)) return "a phone number";
+  if (/[a-z0-9._%+-]+\s*(@|\(at\)|\[at\])\s*[a-z0-9-]+\s*(\.|dot)\s*[a-z]{2,}/i.test(low)) return "an email address";
+  if (/(https?:\/\/|www\.|\b[a-z0-9-]+\.(com|in|net|org|me|io|co|ly|gg|link|app|site|xyz|info|agency)\b|wa\.me|t\.me|bit\.ly|instagr\.am|fb\.com|youtu\.be)/i.test(low)) return "a link";
+  if (/(^|\s)@[a-z0-9._]{3,}/i.test(low)) return "a social media ID";
+  if (/\b(whats\s*app|whatsap+|watsap+|wtsp|wp no|telegram|snap\s*chat|signal app|imo app|skype)\b/i.test(low) && !/whats\s*app\s*(marketing|automation|campaign|chatbot|business api|template)/i.test(low)) return "a messaging app contact";
+  if (/\b(insta(gram)?|ig|fb|facebook|youtube|yt|linkedin|twitter|x\.com|threads|snap|telegram)\s*(id|handle|account|username|user name|profile|page link)\b/i.test(low)) return "a social media ID";
+  if (/\b(my|mera|meri|mere|apna|apni|apne|your|tera|teri|tumhara|aapka)\s*(number|no\.?|num|contact|mobile|phone|insta|id)\b|\b(number|contact|id)\s*(do|de|dedo|bhejo|send|share|dena)\b|\b(dm|inbox|follow|add)\s*(me|karo|kar)\b|व्हाट्सएप|इंस्टा|नंबर|واٹس|نمبر|انسٹا/i.test(low)) return "personal contact details";
+  return ""; }
 const fsMsg = (pr, t, by = "Flow Studio") => (pr.msgs || []).concat([{ f: "o", t, ts: Date.now(), by, sys: true }]).slice(-150);
 const fsAmt = pr => { const a = +pr.amount || 0, adv = Math.round(a * 0.4); return { total: a, advance: adv, balance: a - adv }; };
 /* what a client may see of a project: final files stay locked until the balance is paid */
@@ -933,6 +944,50 @@ export async function fsRoute(req, env, url) {
         return out({ mode: "razorpay", stage, id, amount, rzpKey: key, name: "Flow Studio", customer: { name: (me.client || {}).name || "", email: me.email, phone: (me.client || {}).phone || "" } }); }
       return out({ mode: "upi", stage, amount, upi: cfg.upi || "", payee: cfg.payName || "Flow Studio", bank: cfg.bank || "", note: `${pr.pid} ${stage}` }); }
     if (!team) return out({ error: "Team only." }, 403);
+    /* ----- only the owner can delete a message (team chat, client tickets, project chat); every delete is logged ----- */
+    if (p === "/fs/owner/msgdel" && req.method === "POST") { if (me.role !== "owner") return out({ error: "Only the owner can delete messages." }, 403);
+      const where = body.where, id = clip(body.id, 40), ts = +body.ts; let removed = null;
+      if (where === "tchat") { const path = `tchat/${id.replace(/[^a-z0-9]/gi, "_")}`, d = await fs.get(path); if (!d) return out({ error: "Not found." }, 404);
+        removed = (d.msgs || []).find(m => m.ts === ts); const u = { msgs: (d.msgs || []).filter(m => m.ts !== ts) }; if (d.pin && d.pin.ts === ts) u.pin = null; await fs.merge(path, u); }
+      else if (where === "ticket") { const d = await fs.get(`tickets/${id}`); if (!d) return out({ error: "Not found." }, 404);
+        if (d.ts === ts && !(d.replies || []).some(r => r.ts === ts)) { removed = { t: d.text, by: d.client }; await fs.merge(`tickets/${id}`, { text: "" }); }
+        else { removed = (d.replies || []).find(m => m.ts === ts); await fs.merge(`tickets/${id}`, { replies: (d.replies || []).filter(m => m.ts !== ts) }); } }
+      else if (where === "project") { const d = await fs.get(`projects/${id}`); if (!d) return out({ error: "Not found." }, 404);
+        removed = (d.msgs || []).find(m => m.ts === ts); await fs.merge(`projects/${id}`, { msgs: (d.msgs || []).filter(m => m.ts !== ts) }); }
+      else return out({ error: "Unknown place." }, 400);
+      if (removed) await fs.add("msgDeleted", { where, id, ts, by: removed.by || "", text: String(removed.t || "").slice(0, 500), at: now }).catch(() => {});
+      return out({ ok: true }); }
+    /* ----- team chat: one group for everyone + one per category; no delete; contact details blocked ----- */
+    if (p === "/fs/tchat") { const cats = Object.keys(FS_CAT), dept = String((me.staff || {}).dept || "");
+      const mineCats = me.role === "owner" || !dept || /all/i.test(dept) ? cats : cats.filter(c => c.toLowerCase() === dept.toLowerCase());
+      const allowed = ["all", ...mineCats.map(c => "cat:" + c)];
+      const cfg = (await fs.get("config/flowstudio").catch(() => null)) || {}, heads = cfg.heads || {};
+      const isAdmin = g0 => me.role === "owner" || (g0 !== "all" && heads[g0.slice(4)] === me.tid);
+      const gid = g0 => `tchat/${g0.replace(/[^a-z0-9]/gi, "_")}`;
+      if (req.method === "POST" && body.action === "head") { if (me.role !== "owner") return out({ error: "Only the owner sets heads." }, 403); const c = clip(body.cat, 30); if (!cats.includes(c)) return out({ error: "Unknown category." }, 400);
+        const nh = Object.assign({}, heads, { [c]: clip(body.tid, 24) }); await fs.merge("config/flowstudio", { heads: nh });
+        if (body.tid) await fsNote(fs, ["t:" + clip(body.tid, 24)], `👑 You are now the head & admin of the ${c} group.`, "", now); return out({ ok: true, heads: nh }); }
+      if (req.method === "POST" && (body.action === "pin" || body.action === "lock")) { const g = clip(body.g, 40); if (!allowed.includes(g) || !isAdmin(g)) return out({ error: "Only the group admin can do this." }, 403);
+        const doc = (await fs.get(gid(g)).catch(() => null)) || {}; const u = { g, upd: now };
+        if (body.action === "pin") { const m = (doc.msgs || []).find(x => x.ts === +body.ts); u.pin = m ? Object.assign({}, m, { pinBy: me.role === "owner" ? "Owner" : me.name }) : null; }
+        else u.lock = !!body.on;
+        u.msgs = (doc.msgs || []).concat([{ by: "System", code: "", t: body.action === "pin" ? (u.pin ? "📌 Message pinned by admin" : "📌 Pin removed") : (u.lock ? "🔒 Only admins can send messages now" : "🔓 Everyone can send messages again"), ts: now, r: "sys" }]).slice(-400);
+        await fs.merge(gid(g), u); return out({ ok: true }); }
+      if (req.method === "POST") { const g = clip(body.g, 40); if (!allowed.includes(g)) return out({ error: "You are not in this group." }, 403);
+        const gdoc = (await fs.get(gid(g)).catch(() => null)) || {}; if (gdoc.lock && !isAdmin(g)) return out({ error: "🔒 Only the group admin can send messages right now." }, 403);
+        const t = clip(body.text, 1500).trim(); if (!t) return out({ error: "Write a message." }, 400);
+        const bad = fsContactBlock(t); const who = me.role === "owner" ? "Owner" : me.name, code = me.role === "owner" ? "FS-001" : me.tid;
+        if (bad) { await fs.add("chatBlocked", { g, by: who, code, text: t.slice(0, 300), why: bad, ts: now }).catch(() => {}); if (me.role !== "owner") await fsNote(fs, ["owner", g !== "all" && heads[g.slice(4)] && heads[g.slice(4)] !== me.tid ? "t:" + heads[g.slice(4)] : ""], `🚫 ${who} (${code}) tried to share ${bad} in team chat — it was not sent.`, "", now); return out({ error: "🚫 Not sent — " + bad + " is not allowed in team chat. Talk about work only.", blocked: true }, 400); }
+        const doc = (await fs.get(`tchat/${g.replace(/[^a-z0-9]/gi, "_")}`).catch(() => null)) || {};
+        const msgs = (doc.msgs || []).concat([{ by: who, code, t, ts: now, r: me.role }]).slice(-400);
+        await fs.merge(`tchat/${g.replace(/[^a-z0-9]/gi, "_")}`, { g, msgs, upd: now, last: `${who}: ${t.slice(0, 60)}` });
+        return out({ ok: true, msgs }); }
+      const g = q.get("g") || "all"; if (!allowed.includes(g)) return out({ error: "You are not in this group." }, 403);
+      const docs = await Promise.all(allowed.map(x => fs.get(gid(x)).catch(() => null))), cur = docs[allowed.indexOf(g)] || {};
+      const st = await fs.query("staff", [], 300).catch(() => []), nm = id => (st.find(s => s.tid === id) || {}).name || "";
+      const members = g === "all" ? st.filter(s => s.active !== false).map(s => ({ tid: s.tid, name: s.name, dept: s.dept || "" })) : st.filter(s => s.active !== false && (!s.dept || /all/i.test(s.dept) || String(s.dept).toLowerCase() === g.slice(4).toLowerCase())).map(s => ({ tid: s.tid, name: s.name, dept: s.dept || "" }));
+      return out({ groups: allowed.map((x, i) => ({ g: x, name: x === "all" ? "Everyone" : x.slice(4), upd: (docs[i] || {}).upd || 0, last: (docs[i] || {}).last || "", admin: x === "all" ? "Owner" : (heads[x.slice(4)] ? nm(heads[x.slice(4)]) + " (head)" : "Owner") })),
+        g, msgs: cur.msgs || [], pin: cur.pin || null, lock: !!cur.lock, admin: isAdmin(g), heads, members }); }
     /* ----- team (owner + employees) ----- */
     if (p === "/fs/team") {
       const mon = istDay(now).slice(0, 7), yr = mon.slice(0, 4);
