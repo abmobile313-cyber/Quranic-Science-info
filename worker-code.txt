@@ -739,6 +739,7 @@ export async function shopRoute(req, env, url) {
         const ev = cur.events || [], last = ev.length ? ev[ev.length - 1].t : "out";
         const okNext = { in: ["out"], bin: ["in", "bout"], bout: ["bin"], out: ["in", "bout"] };
         if (!okNext[t] || !okNext[t].includes(last)) return out({ error: "Not allowed right now." }, 400);
+        if ((t === "bin" || t === "out") && !body.approved) return out({ error: "Break and check-out need approval — use the Ask buttons.", needApproval: true }, 400);
         ev.push({ t, ts: now }); await fs.merge(`attendance/${id}`, { tid: me.tid, name: me.name, day, month: day.slice(0, 7), events: ev, upd: now });
         const lbl = { in: "🟢 checked in", bin: "☕ started break", bout: "▶️ back from break", out: "🔴 checked out" }[t];
         if (t === "in" || t === "out") await ownerAlert(env, fs, { kind: "info", title: `${me.name} (${me.tid}) ${lbl}`, body: new Date(now).toLocaleTimeString("en-IN", { timeZone: "Asia/Kolkata", hour: "2-digit", minute: "2-digit" }) }, now).catch(() => {});
@@ -944,6 +945,50 @@ export async function fsRoute(req, env, url) {
         return out({ mode: "razorpay", stage, id, amount, rzpKey: key, name: "Flow Studio", customer: { name: (me.client || {}).name || "", email: me.email, phone: (me.client || {}).phone || "" } }); }
       return out({ mode: "upi", stage, amount, upi: cfg.upi || "", payee: cfg.payName || "Flow Studio", bank: cfg.bank || "", note: `${pr.pid} ${stage}` }); }
     if (!team) return out({ error: "Team only." }, 403);
+    /* ----- break / check-out approval (category head or owner) + complaint box ----- */
+    if (p === "/fs/attreq" || p === "/fs/attreq/decide" || p === "/fs/complaint" || p === "/fs/complaint/reply" || p === "/fs/hr") {
+      const cfg = (await fs.get("config/flowstudio").catch(() => null)) || {}, heads = cfg.heads || {};
+      const catOfStaff = s => { const d = String((s || {}).dept || ""); return Object.keys(FS_CAT).find(c => c.toLowerCase() === d.toLowerCase()) || ""; };
+      const myCats = me.role === "staff" ? Object.keys(heads).filter(c => heads[c] === me.tid) : [];
+      const canDecide = r => me.role === "owner" || (me.role === "staff" && r.tid !== me.tid && r.cat && myCats.includes(r.cat));
+      if (p === "/fs/attreq" && req.method === "POST") { if (me.role !== "staff") return out({ error: "Team members only." }, 403);
+        const type = body.type === "out" ? "out" : "bin", day = istDay(now), cur = (await fs.get(`attendance/${me.tid}_${day}`).catch(() => null)) || { events: [] };
+        const last = (cur.events || []).length ? cur.events[cur.events.length - 1].t : "out";
+        if (!({ bin: ["in", "bout"], out: ["in", "bout"] })[type].includes(last)) return out({ error: "You need to be checked in first." }, 400);
+        const open = await fs.query("attReq", [["tid", "EQUAL", me.tid]], 50).catch(() => []); if (open.some(r => r.status === "pending")) return out({ error: "You already have a request waiting." }, 400);
+        const cat = catOfStaff(me.staff), id = "A" + now + "-" + rid(4), r = { id, tid: me.tid, name: me.name, role: (me.staff || {}).role || "", cat, type, note: clip(body.note, 300), ts: now, day, status: "pending" };
+        await fs.merge(`attReq/${id}`, r);
+        await fsNote(fs, ["owner", cat && heads[cat] && heads[cat] !== me.tid ? "t:" + heads[cat] : ""], `${type === "out" ? "🔴 Check-out" : "☕ Break"} request: ${me.name} (${me.tid})${r.note ? " — " + r.note.slice(0, 60) : ""}`, "", now);
+        return out({ ok: true, req: r }); }
+      if (p === "/fs/attreq/decide" && req.method === "POST") { const r = await fs.get(`attReq/${clip(body.id, 40)}`); if (!r || r.status !== "pending") return out({ error: "Request not found or already decided." }, 404);
+        if (!canDecide(r)) return out({ error: "Only the owner or the " + (r.cat || "category") + " head can decide." }, 403);
+        const ok = !!body.ok, u = { status: ok ? "approved" : "rejected", by: me.role === "owner" ? "Owner" : me.name, at: now, reply: clip(body.reply, 200) };
+        if (ok) { const id = `${r.tid}_${r.day}`, cur = (await fs.get(`attendance/${id}`).catch(() => null)) || { tid: r.tid, name: r.name, day: r.day, month: r.day.slice(0, 7), events: [] };
+          const ev = cur.events || [], last = ev.length ? ev[ev.length - 1].t : "out";
+          if (["in", "bout"].includes(last)) { ev.push({ t: r.type, ts: r.ts, ok: u.by }); await fs.merge(`attendance/${id}`, { tid: r.tid, name: r.name, day: r.day, month: r.day.slice(0, 7), events: ev, upd: now }); } }
+        await fs.merge(`attReq/${r.id}`, u);
+        await fsNote(fs, ["t:" + r.tid], ok ? `✅ ${r.type === "out" ? "Check-out" : "Break"} approved by ${u.by}${r.type === "out" ? " — see you tomorrow!" : " — enjoy your break ☕"}` : `❌ ${r.type === "out" ? "Check-out" : "Break"} not approved by ${u.by}${u.reply ? ": " + u.reply : ""}`, "", now);
+        return out({ ok: true }); }
+      if (p === "/fs/complaint" && req.method === "POST") { if (me.role !== "staff") return out({ error: "Team members only." }, 403);
+        const text = clip(body.text, 2000); if (!text) return out({ error: "Write your complaint." }, 400);
+        const to = body.to === "head" ? "head" : "owner", cat = catOfStaff(me.staff), head = heads[cat] && heads[cat] !== me.tid ? heads[cat] : "";
+        const id = "C" + now + "-" + rid(4), c = { id, tid: me.tid, name: me.name, cat, to: to === "head" && head ? "head" : "owner", head: to === "head" ? head : "", about: clip(body.about, 40), subject: clip(body.subject, 120), text, ts: now, upd: now, status: "open", replies: [] };
+        await fs.merge(`complaints/${id}`, c);
+        await fsNote(fs, ["owner", c.head ? "t:" + c.head : ""], `📣 Complaint from ${me.name} (${me.tid}): ${c.subject || text.slice(0, 60)}`, "", now);
+        return out({ ok: true }); }
+      if (p === "/fs/complaint/reply" && req.method === "POST") { const c = await fs.get(`complaints/${clip(body.id, 40)}`); if (!c) return out({ error: "Not found." }, 404);
+        const mine = c.tid === me.tid, judge = me.role === "owner" || (c.head && c.head === me.tid); if (!mine && !judge) return out({ error: "Not allowed." }, 403);
+        const u = { upd: now }, t = clip(body.text, 1500); if (t) u.replies = (c.replies || []).concat([{ by: me.role === "owner" ? "Owner" : me.name, t, ts: now }]).slice(-60);
+        if (judge && ["open", "resolved"].includes(body.status)) u.status = body.status;
+        await fs.merge(`complaints/${c.id}`, u);
+        await fsNote(fs, mine ? ["owner", c.head ? "t:" + c.head : ""] : ["t:" + c.tid], mine ? `📣 ${c.name} replied on complaint: ${(t || "").slice(0, 60)}` : `📣 Your complaint: ${u.status === "resolved" ? "marked resolved ✓" : "new reply"}`, "", now);
+        return out({ ok: true }); }
+      if (p === "/fs/hr") { /* lists for the approvals & complaints pages */
+        const reqs = await fs.query("attReq", me.role === "owner" ? [] : [["day", "EQUAL", istDay(now)]], 600).catch(() => []), cs = await fs.query("complaints", me.role === "staff" ? [] : [], 600).catch(() => []);
+        const R = reqs.filter(r => me.role === "owner" || r.tid === me.tid || (r.cat && myCats.includes(r.cat))).sort((a, b) => b.ts - a.ts).slice(0, 200);
+        const C = cs.filter(c => me.role === "owner" || c.tid === me.tid || (c.head && c.head === me.tid)).sort((a, b) => (b.upd || b.ts) - (a.upd || a.ts)).slice(0, 200);
+        return out({ reqs: R, complaints: C, myCats }); }
+    }
     /* ----- only the owner can delete a message (team chat, client tickets, project chat); every delete is logged ----- */
     if (p === "/fs/owner/msgdel" && req.method === "POST") { if (me.role !== "owner") return out({ error: "Only the owner can delete messages." }, 403);
       const where = body.where, id = clip(body.id, 40), ts = +body.ts; let removed = null;
