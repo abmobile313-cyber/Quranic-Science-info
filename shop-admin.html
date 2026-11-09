@@ -131,6 +131,8 @@ table.att{width:100%;border-collapse:collapse;font-size:.85rem;min-width:620px}t
 </div>
 </div>
 <div class="toast" id="toast" hidden></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script>
@@ -311,7 +313,7 @@ const CARD_CSS=`.idc{width:54mm;height:85.6mm;border-radius:3.2mm;position:relat
 .idc .bc{margin-top:auto;display:flex;gap:.55mm;height:4mm;align-items:stretch;opacity:.85}.idc .bc i{background:#fff;display:block}
 .idc.b .tx{font-size:2.3mm;line-height:1.5;color:#d9d6ea;margin-top:4mm;text-align:center}.idc.b .ct{display:grid;gap:1mm;font-size:2.2mm;margin-top:3mm;text-align:center}.idc.b .sg{margin-top:auto;text-align:center;display:grid;justify-items:center}.idc.b .sg img{height:11mm;width:auto}.idc.b .sg b{font-size:2.6mm;border-top:.2mm solid rgba(255,255,255,.3);padding-top:.8mm;margin-top:.4mm}.idc.b .sg small{font-size:1.75mm;color:#a7a3bd}.idc.b .vd{font-size:1.8mm;color:#a7a3bd;margin-top:2mm;letter-spacing:.2mm}`;
 function idCard(s){let m=$("idm");if(!m){m=document.createElement("div");m.id="idm";m.className="idm";document.body.appendChild(m)}
- m.innerHTML=`<style>${CARD_CSS}</style><div><div class="cards">${cardHTML(s)}</div><div class="ctl2"><button class="btn gold" type="button" id="idPr">🖨 Print / Save PDF (physical card)</button><button class="btn" type="button" id="idX">Close</button></div><p class="muted" style="text-align:center;font-size:.8rem">Standard ID card size 54 × 86 mm (CR80). Print front and back, laminate or give to a PVC card printer.</p></div>`;
+ m.innerHTML=`<style>${CARD_CSS}</style><div><div class="cards">${cardHTML(s)}</div><div class="ctl2"><button class="btn gold" type="button" id="idPdf" data-f="${H((s.tid||"ID")+"-"+(s.name||"card").replace(/\s+/g,"-"))}.pdf">⬇ Download HD PDF</button><button class="btn" type="button" id="idPr">🖨 Print</button><button class="btn" type="button" id="idX">Close</button></div><p class="muted" style="text-align:center;font-size:.8rem">Standard ID card size 54 × 86 mm (CR80). Print front and back, laminate or give to a PVC card printer.</p></div>`;
  m.hidden=false;$("idX").onclick=()=>m.remove();m.onclick=e=>{if(e.target===m)m.remove()};
  $("idPr").onclick=()=>{const w=window.open("","_blank");if(!w){toast("Allow pop-ups to print");return}w.document.write(`<!doctype html><html><head><meta charset="utf-8"><title>ID card ${H(s.tid||"")}</title><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap"><style>@page{size:A4;margin:12mm}body{margin:0;background:#fff;display:flex;gap:8mm;flex-wrap:wrap;align-content:flex-start}${CARD_CSS}.idc{box-shadow:none;outline:.2mm dashed #bbb;outline-offset:1.5mm}</style></head><body>${cardHTML(s)}<script>setTimeout(()=>print(),900)<\/script></body></html>`);w.document.close()}}
 
@@ -326,9 +328,19 @@ function ownerCardHTML(){const s={tid:"FS-001",name:"Arsalan Ahmed Shaikh",role:
  let h=cardHTML(s).replace(/class="idc f"/,'class="idc f own"').replace(/class="idc b"/,'class="idc b own"').replace("STAFF IDENTITY CARD","FOUNDER IDENTITY CARD");
  h=h.replace(/<span>Joined<\/span><b>[^<]*<\/b><span>Blood<\/span><b>[^<]*<\/b>/,'<span>Access</span><b>All areas</b><span>Since</span><b>Founder</b>').replace('<div class="bc">','<div class="crown">★ FOUNDER ★</div><div class="bc">').replace("Valid while employed · ID FS-001","Founder · Flow Studio · ID FS-001");return h}
 $("ownCard").onclick=()=>{let m=$("idm");if(!m){m=document.createElement("div");m.id="idm";m.className="idm";document.body.appendChild(m)}
- m.innerHTML=`<style>${CARD_CSS}${OWN_CSS}</style><div><div class="cards">${ownerCardHTML()}</div><div class="ctl2"><button class="btn gold" type="button" id="idPr">🖨 Print / Save PDF</button><button class="btn" type="button" id="idX">Close</button></div></div>`;
+ m.innerHTML=`<style>${CARD_CSS}${OWN_CSS}</style><div><div class="cards">${ownerCardHTML()}</div><div class="ctl2"><button class="btn gold" type="button" id="idPdf" data-f="FS-001-Founder-ID-card.pdf">⬇ Download HD PDF</button><button class="btn" type="button" id="idPr">🖨 Print</button><button class="btn" type="button" id="idX">Close</button></div></div>`;
  $("idX").onclick=()=>m.remove();m.onclick=e=>{if(e.target===m)m.remove()};
  $("idPr").onclick=()=>{const w=window.open("","_blank");if(!w){toast("Allow pop-ups to print");return}w.document.write(`<!doctype html><html><head><meta charset="utf-8"><title>Founder ID card</title><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap"><style>@page{size:A4;margin:12mm}body{margin:0;background:#fff;display:flex;gap:8mm;flex-wrap:wrap;align-content:flex-start}${CARD_CSS}${OWN_CSS}.idc{box-shadow:none;outline:.2mm dashed #bbb;outline-offset:1.5mm}</style></head><body>${ownerCardHTML()}<script>setTimeout(()=>print(),1200)<\/script></body></html>`);w.document.close()}};
+
+/* High-quality PDF download of ID cards (front + back, exact CR80 size 54 × 85.6 mm, 600 dpi) */
+async function cardPdf(root,fname){if(!window.html2canvas||!window.jspdf){toast("PDF tool is loading, try again in a moment");return}
+ toast("Making high-quality PDF…");const cards=[...root.querySelectorAll(".idc")],{jsPDF}=window.jspdf;
+ const pdf=new jsPDF({unit:"mm",format:[54,85.6],orientation:"portrait"});
+ for(let i=0;i<cards.length;i++){const c=cards[i],sh=c.style.boxShadow;c.style.boxShadow="none";
+  const cv=await html2canvas(c,{scale:6,useCORS:true,backgroundColor:null,logging:false});c.style.boxShadow=sh;
+  if(i)pdf.addPage([54,85.6],"portrait");pdf.addImage(cv.toDataURL("image/png"),"PNG",0,0,54,85.6,undefined,"FAST")}
+ pdf.save(fname);toast("PDF downloaded ✓")}
+document.addEventListener("click",e=>{const b=e.target.closest("#idPdf");if(!b)return;const m=$("idm");cardPdf(m,b.dataset.f||"ID-card.pdf")});
 </script>
 <script data-goatcounter="https://deensaathi.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
 </body>
