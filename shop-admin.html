@@ -338,7 +338,7 @@ async function cardPdf(root,fname){if(!window.html2canvas||!window.jspdf){toast(
  const pdf=new jsPDF({unit:"mm",format:[54,85.6],orientation:"portrait"});
  for(let i=0;i<cards.length;i++){const c=cards[i],sh=c.style.boxShadow;c.style.boxShadow="none";
   const cv=await html2canvas(c,{scale:6,useCORS:true,backgroundColor:null,logging:false});c.style.boxShadow=sh;
-  if(i)pdf.addPage([54,85.6],"portrait");pdf.addImage(cv.toDataURL("image/png"),"PNG",0,0,54,85.6,undefined,"FAST")}
+  if(i)pdf.addPage([54,85.6],"portrait");pdf.addImage(cv.toDataURL("image/jpeg",.95),"JPEG",0,0,54,85.6,undefined,"FAST")}
  pdf.save(fname);toast("PDF downloaded ✓")}
 document.addEventListener("click",e=>{const b=e.target.closest("#idPdf");if(!b)return;const m=$("idm");cardPdf(m,b.dataset.f||"ID-card.pdf")});
 </script>
