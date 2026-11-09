@@ -39,6 +39,24 @@ input,select,textarea{font:inherit;font-size:.88rem;color:var(--text);background
 @media (max-width:760px){.row{grid-template-columns:1fr}.grid2{grid-template-columns:1fr}.qi{grid-template-columns:1fr 1fr!important}.qi>input:nth-child(2){grid-column:1/-1;order:-1}}
 .chat{display:grid;gap:8px;max-height:340px;overflow:auto;padding:10px;border-radius:12px;background:rgba(255,255,255,.03)}
 .msg{max-width:80%;padding:10px 12px;border-radius:12px;background:rgba(255,255,255,.07);display:grid;gap:4px;white-space:pre-wrap}.msg.o{justify-self:end;background:rgba(227,170,60,.18)}.msg small{opacity:.6;font-size:11px}
+
+.h3{font:700 1rem "Fraunces",Georgia,serif;margin:0 0 8px}
+.duty .me{display:flex;gap:18px;align-items:center;flex-wrap:wrap}.mph,.sc .ph{flex:none;width:96px;height:96px;border-radius:50%;padding:3px;background:conic-gradient(from 0deg,#e3aa3c,#2cc4f2,#c0428a,#e3aa3c);box-shadow:0 0 30px rgba(227,170,60,.35)}
+.mph img,.sc .ph img{width:100%;height:100%;border-radius:50%;object-fit:cover;display:block;border:3px solid var(--ink);background:#2a1b20}
+.min{flex:1;min-width:200px}.min small{letter-spacing:.2em;color:var(--muted);font-size:.7rem}.min b{display:block;font:600 1.6rem "Fraunces",Georgia,serif}.min span{color:var(--gold);font-weight:600}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}.chips i{font-style:normal;font-size:.75rem;padding:4px 10px;border-radius:999px;background:rgba(255,255,255,.07);border:1px solid var(--line)}
+.dstat{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:16px 0 10px;padding:10px 14px;border-radius:14px;background:rgba(255,255,255,.04)}.dstat .dot{width:12px;height:12px;border-radius:50%;background:#777}.dstat.in .dot{background:var(--good);box-shadow:0 0 0 6px rgba(88,214,141,.18)}.dstat.bin .dot{background:var(--gold);box-shadow:0 0 0 6px rgba(227,170,60,.18)}
+.timers{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}.timers>div{padding:14px;border-radius:16px;border:1px solid var(--line);background:rgba(255,255,255,.03)}.timers small{font-size:.68rem;letter-spacing:.16em;color:var(--muted)}.timers b{display:block;font:700 1.7rem/1.1 ui-monospace,Menlo,monospace;margin:6px 0 2px;font-variant-numeric:tabular-nums}.timers em{font-style:normal;color:var(--muted);font-size:.78rem}.timers .ot b{color:var(--cyan)}
+.bar{position:relative;height:10px;border-radius:99px;background:rgba(255,255,255,.07);margin:14px 0;overflow:hidden}.bar i{position:absolute;inset:0 auto 0 0;width:0;background:linear-gradient(90deg,var(--gold),var(--good));border-radius:99px;transition:width .6s}.bar span{position:absolute;inset:0 0 0 auto;width:0;background:var(--cyan)}
+.pbtns{display:flex;gap:8px;flex-wrap:wrap}.btn.big{padding:13px 20px;font-size:.95rem}.btn.red{background:rgba(255,107,107,.15);border-color:rgba(255,107,107,.4)}.btn:disabled{opacity:.35;cursor:not-allowed}
+.log{display:grid;gap:6px}.log div{display:flex;justify-content:space-between;padding:8px 12px;border-radius:10px;background:rgba(255,255,255,.04);font-size:.88rem}
+.msum{display:grid;grid-template-columns:1fr 1fr;gap:8px}.msum div{padding:10px 12px;border-radius:12px;background:rgba(255,255,255,.04)}.msum b{display:block;font-size:1.2rem}.msum small{color:var(--muted)}
+.stl{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:12px}.sc{border:1px solid var(--line);border-radius:18px;padding:14px;display:grid;gap:10px;background:rgba(255,255,255,.03)}.sc .top{display:flex;gap:12px;align-items:center}.sc .ph{width:64px;height:64px}.sc b{display:block}.sc .acts{display:flex;gap:6px;flex-wrap:wrap}.sc .acts .btn{padding:6px 11px;font-size:.78rem}
+.st-in{color:var(--good)}.st-bin{color:var(--gold)}.st-out{color:var(--muted)}
+.stfw{display:flex;gap:14px;align-items:flex-start;margin-bottom:8px}.phup{flex:none;width:96px;height:96px;border-radius:50%;border:2px dashed var(--line);display:grid;place-items:center;cursor:pointer;overflow:hidden;color:var(--muted);font-size:.8rem;text-align:center}.phup img{width:100%;height:100%;object-fit:cover}
+table.att{width:100%;border-collapse:collapse;font-size:.85rem;min-width:620px}table.att th,table.att td{padding:8px 10px;border-bottom:1px solid rgba(255,255,255,.07);text-align:left;white-space:nowrap}table.att th{color:var(--muted);font-weight:600;font-size:.75rem;letter-spacing:.06em}
+.idm{position:fixed;inset:0;z-index:50;background:rgba(5,3,4,.85);backdrop-filter:blur(10px);display:grid;place-items:center;padding:18px;overflow:auto}.idm .cards{display:flex;gap:22px;flex-wrap:wrap;justify-content:center}.idm .ctl2{display:flex;gap:8px;justify-content:center;margin-top:16px;flex-wrap:wrap}
+@media (max-width:760px){.timers{grid-template-columns:1fr 1fr}.timers b{font-size:1.35rem}}
 </style>
 </head>
 <body>
@@ -47,6 +65,20 @@ input,select,textarea{font:inherit;font-size:.88rem;color:var(--text);background
 <div id="app" hidden>
   <div class="top"><div><h1>Shop Admin</h1><div class="muted" id="sub">Loading…</div></div><div style="display:flex;gap:8px;flex-wrap:wrap"><a class="btn" href="/hub.html">← Command Center</a><button class="btn" id="ref" type="button">↻ Refresh</button><button class="btn" id="logout" type="button">Sign out</button></div></div>
   <div class="tabs" id="tabs"></div>
+  <div class="box duty" id="dutyBox" hidden>
+    <div class="me"><div class="mph" id="dPh"></div><div class="min"><small>FLOW STUDIO · TEAM</small><b id="dName"></b><span id="dRole"></span><div class="chips"><i id="dTid"></i><i id="dShift"></i></div></div>
+      <div class="mbtn"><button class="btn" type="button" id="dCard">🪪 My ID card</button></div></div>
+    <div class="dstat"><span class="dot" id="dDot"></span><b id="dState">Off duty</b><span class="muted" id="dSince"></span><span class="muted" id="dClock" style="margin-left:auto"></span></div>
+    <div class="timers">
+      <div><small>DUTY TODAY</small><b id="tWork">00:00:00</b><em id="tWorkS">of shift</em></div>
+      <div><small id="tLeftL">SHIFT ENDS IN</small><b id="tLeft">—</b><em id="tLeftS"></em></div>
+      <div><small>BREAK USED</small><b id="tBrk">00:00</b><em id="tBrkS"></em></div>
+      <div class="ot"><small>OVERTIME</small><b id="tOt">00:00:00</b><em>after full shift</em></div>
+    </div>
+    <div class="bar"><i id="dBar"></i><span id="dBarOt"></span></div>
+    <div class="pbtns"><button class="btn gold big" type="button" data-punch="in">▶ Check in</button><button class="btn big" type="button" data-punch="bin">☕ Start break</button><button class="btn big" type="button" data-punch="bout">↩ End break</button><button class="btn big red" type="button" data-punch="out">■ Check out</button></div>
+    <div class="grid2" style="margin-top:12px"><div><h3 class="h3">Today</h3><div id="dLog" class="log"></div></div><div><h3 class="h3">This month</h3><div id="dMon" class="msum"></div></div></div>
+  </div>
   <div class="box" id="qmBox" hidden><h2>Quotation &amp; bill maker <span class="muted">Flow Studio format · sends a link the client can open and download as PDF</span></h2>
     <div class="grid2"><label class="ctl">Type<select id="qType"><option value="quote">Quotation</option><option value="invoice">Bill / Invoice</option></select></label><label class="ctl">Number<input id="qNo"></label></div>
     <div class="grid2"><label class="ctl">Client / business name<input id="qName" placeholder="e.g. Noor Bakers"></label><label class="ctl">Client WhatsApp number<input id="qPhone" placeholder="+91 90000 00000" inputmode="tel"></label></div>
@@ -61,11 +93,23 @@ input,select,textarea{font:inherit;font-size:.88rem;color:var(--text);background
     <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px"><a class="btn" id="qPrev" target="_blank" rel="noopener" href="#">👁 Preview / PDF</a><button class="btn gold" type="button" id="qSend">Send on WhatsApp</button><button class="btn" type="button" id="qReset">Clear</button></div>
     <p class="muted" id="qHint" style="margin:8px 0 0"></p>
   </div>
-  <div class="box" id="teamBox" hidden><h2>Team <span class="muted">people who can reply to orders and send quotations</span></h2>
-    <div id="teamL"></div>
-    <div class="grid2" style="margin-top:10px"><input id="tName" placeholder="Name (e.g. Sameer)"><input id="tMail" placeholder="Their Gmail (e.g. sameer@gmail.com)" inputmode="email"></div>
-    <button class="btn gold" type="button" id="tAdd" style="margin-top:8px">+ Add to team</button>
-    <p class="muted" style="margin:8px 0 0">They open <b>quranicscience.info/shop-admin.html</b> (or Team login on pixelflowstudio.agency) and sign in with that Gmail. Team members can see orders, update status, reply to quotes and send quotations. Only you can change products, prices, delivery charge and the team.</p>
+  <div class="box" id="teamBox" hidden><h2>Team &amp; attendance <span class="muted">add workers, see who is on duty, monthly hours and overtime</span></h2>
+    <div class="stl" id="stL"></div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin:12px 0"><button class="btn gold" type="button" id="stNew">+ Add worker</button></div>
+    <form id="stF" class="box" hidden style="background:rgba(0,0,0,.25)">
+      <input type="hidden" id="sTid">
+      <div class="stfw"><label class="phup" title="Photo"><input type="file" accept="image/*" id="sPhF" hidden><span id="sPhP">+ Photo</span></label>
+      <div style="display:grid;gap:8px;flex:1;min-width:0">
+        <div class="grid2"><label class="ctl">Full name<input id="sName" required></label><label class="ctl">Gmail (used to log in)<input id="sMail" type="email" required placeholder="name@gmail.com"></label></div>
+        <div class="grid2"><label class="ctl">Mobile / WhatsApp<input id="sPhone" inputmode="tel" placeholder="+91 …"></label><label class="ctl">Designation<input id="sRole" placeholder="e.g. Video Editor"></label></div>
+      </div></div>
+      <div class="grid2"><label class="ctl">Department<input id="sDept" placeholder="e.g. Editing, Design, Web"></label><label class="ctl">Joining date<input id="sJoin" type="date"></label></div>
+      <div class="grid2"><div class="grid2"><label class="ctl">Shift start<input id="sS" type="time" value="10:00"></label><label class="ctl">Shift end<input id="sE" type="time" value="19:00"></label></div><div class="grid2"><label class="ctl">Break (minutes/day)<input id="sB" type="number" min="0" value="60"></label><label class="ctl">Blood group<input id="sBl" placeholder="e.g. B+"></label></div></div>
+      <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap"><button class="btn gold" type="submit">Save worker</button><button class="btn" type="button" id="stCancel">Cancel</button></div>
+      <p class="muted" style="margin:8px 0 0">Each worker gets a unique ID (FS-T001, FS-T002…) automatically. Only you (owner) can add or remove workers. The worker logs in at <b>quranicscience.info/shop-admin.html</b> with this Gmail.</p>
+    </form>
+    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:6px"><h3 class="h3" style="margin:0">Monthly report</h3><input type="month" id="attM" style="max-width:180px"><button class="btn" type="button" id="attCsv">⬇ Download CSV</button></div>
+    <div style="overflow-x:auto;margin-top:8px"><table class="att" id="attT"></table></div>
   </div>
   <div class="box"><h2>Orders <span class="muted" id="oCount"></span></h2><div id="orders"></div></div>
   <div class="box"><h2>Quote requests <span class="muted" id="qCount"></span></h2><div id="quotes"></div></div>
@@ -100,11 +144,11 @@ const CURS={};const sym=()=>CURS[brand]||"₹";const rs=v=>sym()+(+v||0).toLocal
 const when=t=>t?new Date(t).toLocaleString("en-IN",{day:"numeric",month:"short",hour:"2-digit",minute:"2-digit"}):"";
 const wa=(ph,msg)=>`https://wa.me/${String(ph||"").replace(/\D/g,"").replace(/^(\d{10})$/,"91$1")}?text=${encodeURIComponent(msg)}`;
 function toast(t){const e=$("toast");e.textContent=t;e.hidden=false;clearTimeout(toast.t);toast.t=setTimeout(()=>e.hidden=true,2500)}
-let ME={};let brand=(()=>{try{return localStorage.getItem("sa-brand")||"flowstudio"}catch(e){return"flowstudio"}})(),D={};
+let ME={},MON=(d=>new Date(d+19800000).toISOString().slice(0,7))(Date.now());let brand=(()=>{try{return localStorage.getItem("sa-brand")||"flowstudio"}catch(e){return"flowstudio"}})(),D={};
 $("loginB").onclick=()=>auth.signInWithPopup(new firebase.auth.GoogleAuthProvider()).catch(()=>auth.signInWithRedirect(new firebase.auth.GoogleAuthProvider()));
 auth.onAuthStateChanged(u=>{$("loginV").hidden=!!u;$("app").hidden=!u;if(u){tabs();load()}});
 $("logout").onclick=()=>auth.signOut();
-async function call(method,body){const t=await auth.currentUser.getIdToken();const r=await fetch(API+(method==="GET"?"?brand="+brand:""),{method,headers:{authorization:"Bearer "+t,"content-type":"application/json"},body:body?JSON.stringify(body):undefined});const j=await r.json();if(!r.ok||j.error)throw new Error(j.error||r.status);return j}
+async function call(method,body){const t=await auth.currentUser.getIdToken();const r=await fetch(API+(method==="GET"?"?brand="+brand+"&m="+MON:""),{method,headers:{authorization:"Bearer "+t,"content-type":"application/json"},body:body?JSON.stringify(body):undefined});const j=await r.json();if(!r.ok||j.error)throw new Error(j.error||r.status);return j}
 function tabs(){$("tabs").innerHTML=Object.entries(BRANDS).map(([k,b])=>`<button type="button" data-b="${k}" aria-pressed="${k===brand}">${b.name}</button>`).join("");}
 $("tabs").onclick=e=>{const b=e.target.closest("[data-b]");if(!b)return;brand=b.dataset.b;try{localStorage.setItem("sa-brand",brand)}catch(x){}tabs();load()};
 $("ref").onclick=load;
@@ -113,7 +157,7 @@ async function load(){
   try{D=await call("GET");}catch(e){$("sub").textContent=/team only|401/.test(e.message)?"This Google account ("+(auth.currentUser||{}).email+") is not on the team yet. Ask the owner to add it, then refresh.":"Could not load: "+e.message;return}
   ME=D.me||{owner:true};document.querySelector(".top h1").textContent=ME.owner?"Shop Admin":"Team Panel";
   if(!ME.owner)$("sub").textContent=`${ME.name||ME.email} · ID ${ME.tid||"—"} · `+BRANDS[brand].name;$("teamBox").hidden=!ME.owner;$("qmBox").hidden=brand!=="flowstudio";document.querySelectorAll(".ownerOnly").forEach(x=>x.hidden=!ME.owner);
-  if(ME.owner)drawTeam();
+  $("dutyBox").hidden=ME.owner||!ME.tid;if(ME.owner)drawStaff();else if(ME.tid)drawDuty();
   $("sub").textContent=(ME.owner?"":`${ME.name||ME.email} · ID ${ME.tid||"—"} · `)+BRANDS[brand].name+" · "+BRANDS[brand].site.replace("https://","");
   document.querySelectorAll(".cur").forEach(e=>e.textContent=sym());
   const site=BRANDS[brand].site;
@@ -194,12 +238,82 @@ $("qSend").onclick=async()=>{const d=qData();if(!d.client.name||!d.items.length)
 document.addEventListener("click",e=>{const b=e.target.closest("[data-qmake]");if(!b)return;const q=D.quotes.find(x=>x.id===b.dataset.qmake);if(!q)return;const c=q.customer||{};
   qReset({qName:c.name||"",qPhone:c.phone||"",qProj:q.service||"",qFor:q.id,item:{service:SVC.find(s=>s.toLowerCase()===String(q.service||"").toLowerCase())||q.service||"",desc:String(q.brief||"").slice(0,90),qty:1,rate:q.price||""}});
   $("qHint").textContent="Linked to "+(c.name||"this client")+"'s request: sending will also post it in their quote chat and set the price they pay online.";$("qmBox").scrollIntoView({behavior:"smooth"})});
-/* ---------- team (owner only) ---------- */
-function drawTeam(){const t=D.team||{emails:[],names:{}};$("teamL").innerHTML=t.emails.length?t.emails.map(m=>`<div class="row" style="grid-template-columns:1fr auto"><div><b>${H(t.names[m.replace(/\./g,"_")]||m.split("@")[0])} <span class="pill">${H((t.ids||{})[m.replace(/\./g,"_")]||"new")}</span></b><small>${H(m)}</small></div><button class="btn" type="button" data-trm="${H(m)}">Remove</button></div>`).join(""):`<p class="muted">No team members yet. Only you can sign in.</p>`}
-async function saveTeam(emails,names){const r=await call("POST",{action:"team",emails,names});toast("Team saved ✓");load()}
-$("tAdd").onclick=async()=>{const m=$("tMail").value.trim().toLowerCase(),n=$("tName").value.trim();if(!/^[^@\s]+@[^@\s]+\.[a-z]{2,}$/.test(m)){toast("Write a valid Gmail address");return}
-  const t=D.team||{emails:[],names:{}},names={};t.emails.forEach(x=>names[x]=t.names[x.replace(/\./g,"_")]||"");names[m]=n;try{await saveTeam([...new Set(t.emails.concat(m))],names);$("tMail").value="";$("tName").value=""}catch(x){toast("Error: "+x.message)}};
-$("teamL").onclick=async e=>{const b=e.target.closest("[data-trm]");if(!b)return;const t=D.team,names={};t.emails.forEach(x=>names[x]=t.names[x.replace(/\./g,"_")]||"");try{await saveTeam(t.emails.filter(x=>x!==b.dataset.trm),names)}catch(x){toast("Error: "+x.message)}};
+/* ---------- team: duty clock, attendance, ID cards ---------- */
+const TZ=19800000,dayKey=ts=>new Date(ts+TZ).toISOString().slice(0,10);
+const hms=ms=>{ms=Math.max(0,ms);const s=Math.floor(ms/1000);return[Math.floor(s/3600),Math.floor(s%3600/60),s%60].map(x=>String(x).padStart(2,"0")).join(":")};
+const hm=ms=>{ms=Math.max(0,ms);const m=Math.round(ms/60000);return Math.floor(m/60)+"h "+String(m%60).padStart(2,"0")+"m"};
+const tOf=ts=>new Date(ts).toLocaleTimeString("en-IN",{hour:"2-digit",minute:"2-digit",timeZone:"Asia/Kolkata"});
+const mins=t=>{const[a,b]=String(t||"10:00").split(":");return +a*60+ +b};
+const shiftMs=s=>{let d=mins(s.shiftEnd||"19:00")-mins(s.shiftStart||"10:00");if(d<=0)d+=1440;return d*60000};
+function calc(ev,now){let work=0,brk=0,st="out",ti=0,tb=0;(ev||[]).forEach(e=>{if(e.t==="in"){st="in";ti=e.ts}else if(e.t==="bin"){work+=e.ts-ti;st="bin";tb=e.ts}else if(e.t==="bout"){brk+=e.ts-tb;st="in";ti=e.ts}else if(e.t==="out"){if(st==="in")work+=e.ts-ti;if(st==="bin")brk+=e.ts-tb;st="out"}});
+  if(st==="in")work+=now-ti;if(st==="bin")brk+=now-tb;return{work,brk,st,first:(ev||[])[0]?.ts||0,last:(ev||[]).slice(-1)[0]}}
+const lateOf=(a,s)=>{const f=(a.events||[]).find(e=>e.t==="in");if(!f)return false;const d=new Date(f.ts+TZ);return d.getUTCHours()*60+d.getUTCMinutes()>mins(s.shiftStart)+10};
+function phImg(p,n){return p?`<img src="${p}" alt="">`:`<img alt="" src="data:image/svg+xml,${encodeURIComponent(`<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='#3a2329'/><text x='50' y='62' font-size='40' text-anchor='middle' fill='#e3aa3c' font-family='Georgia'>${H((n||"?")[0])}</text></svg>`)}">`}
+let dutyT=null;
+function drawDuty(){const s=ME.staff||{};$("dPh").innerHTML=phImg(s.photo,s.name);$("dName").textContent=s.name||ME.name;$("dRole").textContent=[s.role,s.dept].filter(Boolean).join(" · ")||"Team member";
+  $("dTid").textContent="ID "+ME.tid;$("dShift").textContent=`Shift ${s.shiftStart||"10:00"}–${s.shiftEnd||"19:00"} · break ${s.breakMin??60} min`;
+  const today=(D.att||[]).find(a=>a.day===dayKey(Date.now()))||{events:[]};window.TODAY=today;
+  const ms=shiftMs(s),list=(D.att||[]).filter(a=>a.tid===ME.tid);let tw=0,to=0,late=0;list.forEach(a=>{const c=calc(a.events,a.day===dayKey(Date.now())?Date.now():(a.events.slice(-1)[0]||{}).ts||0);tw+=c.work;to+=Math.max(0,c.work-ms);if(lateOf(a,s))late++});
+  $("dMon").innerHTML=`<div><small>Days present</small><b>${list.length}</b></div><div><small>Total duty</small><b>${hm(tw)}</b></div><div><small>Overtime</small><b>${hm(to)}</b></div><div><small>Late check-ins</small><b>${late}</b></div>`;
+  clearInterval(dutyT);tick();dutyT=setInterval(tick,1000)}
+function tick(){const s=ME.staff||{},t=window.TODAY||{events:[]},now=Date.now(),c=calc(t.events,now),ms=shiftMs(s),bm=(s.breakMin??60)*60000;
+  const L={out:"Off duty",in:"On duty",bin:"On break"};$("dState").textContent=L[c.st];$(".dstat")?.classList?.toggle("in",c.st==="in");document.querySelector(".dstat").className="dstat "+c.st;
+  $("dSince").textContent=c.last?(c.st==="out"?"checked out at ":"since ")+tOf(c.last.ts):"Tap Check in when you start work";$("dClock").textContent=new Date().toLocaleTimeString("en-IN",{timeZone:"Asia/Kolkata"});
+  $("tWork").textContent=hms(c.work);$("tWorkS").textContent="of "+hm(ms)+" shift";
+  if(c.work<ms){$("tLeftL").textContent="SHIFT COMPLETE IN";$("tLeft").textContent=hms(ms-c.work);$("tLeftS").textContent=c.st==="in"?"countdown running":"paused"}else{$("tLeftL").textContent="SHIFT";$("tLeft").textContent="Done ✓";$("tLeftS").textContent="full shift completed"}
+  $("tBrk").textContent=hms(c.brk).slice(3);$("tBrkS").textContent=c.brk<=bm?hm(bm-c.brk)+" break left":"over by "+hm(c.brk-bm);$("tBrk").style.color=c.brk>bm?"var(--bad)":"";
+  $("tOt").textContent=hms(c.work-ms);$("dBar").style.width=Math.min(100,c.work/ms*100)+"%";$("dBarOt").style.width=Math.min(40,Math.max(0,(c.work-ms)/ms*100))+"%";
+  const next={out:["in"],in:["bin","out"],bin:["bout"]}[c.st];document.querySelectorAll("[data-punch]").forEach(b=>b.disabled=!next.includes(b.dataset.punch));
+  const N={in:"Checked in",bin:"Break started",bout:"Back from break",out:"Checked out"};$("dLog").innerHTML=(t.events||[]).map(e=>`<div><span>${N[e.t]}</span><b>${tOf(e.ts)}</b></div>`).join("")||'<p class="muted">No entries yet today.</p>'}
+document.addEventListener("click",async e=>{const b=e.target.closest("[data-punch]");if(!b)return;b.disabled=true;try{const r=await call("POST",{action:"punch",type:b.dataset.punch});
+  window.TODAY=r.att;const i=(D.att||[]).findIndex(a=>a.day===r.att.day);if(i>=0)D.att[i]=Object.assign(D.att[i],r.att);else(D.att=D.att||[]).push(r.att);toast({in:"Checked in ✓ Have a good day",bin:"Break started ☕",bout:"Welcome back ✓",out:"Checked out ✓ Thank you"}[b.dataset.punch]);drawDuty()}catch(x){toast("Error: "+x.message);tick()}});
+$("dCard").onclick=()=>idCard(ME.staff||{});
+/* owner: staff list, form, report */
+function drawStaff(){const L=(D.staff||[]).filter(s=>s.active!==false).sort((a,b)=>a.tid<b.tid?-1:1),today=dayKey(Date.now());
+  $("stL").innerHTML=L.map(s=>{const a=(D.att||[]).find(x=>x.tid===s.tid&&x.day===today),c=calc(a&&a.events,Date.now()),lbl={in:"● On duty",bin:"● On break",out:a?"● Checked out":"○ Not in yet"}[c.st];
+    return `<div class="sc"><div class="top"><div class="ph">${phImg(s.photo,s.name)}</div><div style="min-width:0"><b>${H(s.name)}</b><small class="muted">${H(s.role||"Team member")} · ${H(s.tid)}</small><br><small class="st-${c.st}">${lbl}${a?" · "+hm(c.work)+" today":""}</small></div></div>
+      <div class="acts"><button class="btn" type="button" data-sted="${s.tid}">Edit</button><button class="btn" type="button" data-stid="${s.tid}">🪪 ID card</button><a class="btn" target="_blank" rel="noopener" href="${wa(s.phone,welcomeMsg(s))}">💬 Welcome</a><button class="btn" type="button" data-strm="${s.tid}">Remove</button></div></div>`}).join("")||'<p class="muted">No workers yet. Tap “+ Add worker”.</p>';
+  $("attM").value=MON;drawReport()}
+function welcomeMsg(s){return `Assalamu Alaikum ${s.name},\n\nWelcome to the Flow Studio team! 🎉\nYour staff ID: ${s.tid}\nDesignation: ${s.role||"Team member"}\nShift: ${s.shiftStart||"10:00"}–${s.shiftEnd||"19:00"} (break ${s.breakMin??60} min)\n\nHow to log in:\n1. Open https://quranicscience.info/shop-admin.html (or "Team login" at the bottom of pixelflowstudio.agency)\n2. Tap "Sign in with Google" and choose ${s.email}\n3. Tap "Check in" when you start work, "Start break" / "End break" for breaks, and "Check out" when you finish.\n\nYour digital ID card is inside the panel ("My ID card").`}
+function reportRows(){const ms=s=>shiftMs(s);return(D.staff||[]).filter(s=>s.active!==false).map(s=>{const list=(D.att||[]).filter(a=>a.tid===s.tid);let tw=0,to=0,late=0,br=0;
+  list.forEach(a=>{const end=a.day===dayKey(Date.now())?Date.now():((a.events||[]).slice(-1)[0]||{}).ts||0,c=calc(a.events,end);tw+=c.work;br+=c.brk;to+=Math.max(0,c.work-ms(s));if(lateOf(a,s))late++});
+  return{s,days:list.length,tw,to,late,br,list}})}
+function drawReport(){const R=reportRows();$("attT").innerHTML=`<tr><th>Worker</th><th>ID</th><th>Days present</th><th>Total duty</th><th>Overtime</th><th>Breaks</th><th>Late check-ins</th></tr>`+R.map(r=>`<tr><td>${H(r.s.name)}</td><td>${H(r.s.tid)}</td><td>${r.days}</td><td>${hm(r.tw)}</td><td>${hm(r.to)}</td><td>${hm(r.br)}</td><td>${r.late}</td></tr>`).join("")}
+$("attM").onchange=e=>{MON=e.target.value||MON;load()};
+$("attCsv").onclick=()=>{const rows=[["Worker","ID","Date","Check in","Check out","Duty (h)","Break (min)","Overtime (h)","Late"]];reportRows().forEach(r=>r.list.sort((a,b)=>a.day<b.day?-1:1).forEach(a=>{const ev=a.events||[],c=calc(ev,(ev.slice(-1)[0]||{}).ts||0),i=ev.find(e=>e.t==="in"),o=[...ev].reverse().find(e=>e.t==="out");
+  rows.push([r.s.name,r.s.tid,a.day,i?tOf(i.ts):"",o?tOf(o.ts):"",(c.work/36e5).toFixed(2),Math.round(c.brk/6e4),(Math.max(0,c.work-shiftMs(r.s))/36e5).toFixed(2),lateOf(a,r.s)?"yes":""])}));
+  const b=new Blob([rows.map(r=>r.map(x=>`"${String(x).replace(/"/g,'""')}"`).join(",")).join("\n")],{type:"text/csv"}),a=document.createElement("a");a.href=URL.createObjectURL(b);a.download=`flow-studio-attendance-${MON}.csv`;a.click()};
+let PHOTO="";
+function stFill(s={}){$("stF").hidden=false;$("sTid").value=s.tid||"";$("sName").value=s.name||"";$("sMail").value=s.email||"";$("sMail").readOnly=!!s.tid;$("sPhone").value=s.phone||"";$("sRole").value=s.role||"";$("sDept").value=s.dept||"";$("sJoin").value=s.joined||new Date().toISOString().slice(0,10);$("sS").value=s.shiftStart||"10:00";$("sE").value=s.shiftEnd||"19:00";$("sB").value=s.breakMin??60;$("sBl").value=s.blood||"";PHOTO=s.photo||"";$("sPhP").innerHTML=PHOTO?`<img src="${PHOTO}" alt="">`:"+ Photo";$("sName").focus()}
+$("stNew").onclick=()=>stFill();$("stCancel").onclick=()=>$("stF").hidden=true;
+$("sPhF").onchange=async e=>{const f=e.target.files[0];if(!f)return;const bm=await createImageBitmap(f),z=Math.min(bm.width,bm.height),c=document.createElement("canvas");c.width=c.height=360;c.getContext("2d").drawImage(bm,(bm.width-z)/2,(bm.height-z)/3,z,z,0,0,360,360);PHOTO=c.toDataURL("image/jpeg",.82);$("sPhP").innerHTML=`<img src="${PHOTO}" alt="">`};
+$("stF").onsubmit=async e=>{e.preventDefault();try{const s={tid:$("sTid").value,name:$("sName").value,email:$("sMail").value,phone:$("sPhone").value,role:$("sRole").value,dept:$("sDept").value,joined:$("sJoin").value,shiftStart:$("sS").value,shiftEnd:$("sE").value,breakMin:$("sB").value,blood:$("sBl").value,photo:PHOTO};
+  const r=await call("POST",{action:"staffSave",staff:s});$("stF").hidden=true;toast("Saved ✓ ID "+r.tid);s.tid=r.tid;if(!$("sTid").value&&s.phone)setTimeout(()=>{if(confirm)window.open(wa(s.phone,welcomeMsg(s)),"_blank","noopener")},300);load()}catch(x){toast("Error: "+x.message)}};
+document.addEventListener("click",async e=>{const t=e.target.closest("[data-sted],[data-stid],[data-strm]");if(!t)return;const s=(D.staff||[]).find(x=>x.tid===(t.dataset.sted||t.dataset.stid||t.dataset.strm));if(!s)return;
+  if(t.dataset.sted)stFill(s);if(t.dataset.stid)idCard(s);if(t.dataset.strm){if(t.dataset.sure!=="1"){t.dataset.sure="1";t.textContent="Tap again to remove";return}try{await call("POST",{action:"staffRemove",tid:s.tid});toast("Removed");load()}catch(x){toast("Error: "+x.message)}}});
+/* ID card (CR80, 54 × 85.6 mm) — on screen and print-ready */
+const FS="https://pixelflowstudio.agency/";
+function cardHTML(s){const bars=[...String(s.tid||"FS")+String(s.phone||"")].map((ch,i)=>`<i style="width:${(ch.charCodeAt(0)%3)+1}px"></i>`).join("");
+ return `<div class="idc f"><div class="rb"></div><div class="hd"><img src="${FS}logo.webp" alt=""><div><b>Flow Studio</b><small>STAFF IDENTITY CARD</small></div></div>
+  <div class="pr"><div class="ring">${phImg(s.photo,s.name)}</div></div><div class="nm">${H(s.name||"")}</div><div class="rl">${H(s.role||"Team member")}</div><div class="tid">${H(s.tid||"")}</div>
+  <div class="kv"><span>Dept</span><b>${H(s.dept||"—")}</b><span>Mobile</span><b>${H(s.phone||"—")}</b><span>Joined</span><b>${H(s.joined?new Date(s.joined).toLocaleDateString("en-GB",{day:"2-digit",month:"short",year:"numeric"}):"—")}</b><span>Blood</span><b>${H(s.blood||"—")}</b></div>
+  <div class="bc">${bars}</div></div>
+ <div class="idc b"><div class="rb"></div><div class="hd"><img src="${FS}logo.webp" alt=""><div><b>Flow Studio</b><small>TURN YOUR DREAMS INTO VISUALS</small></div></div>
+  <p class="tx">This card is the property of <b>Flow Studio</b> and must be carried on duty. It is not transferable. If found, please return it or contact us:</p>
+  <div class="ct"><span>🌐 pixelflowstudio.agency</span><span>💬 +91 93704 17863</span><span>✉ flowstudio91@gmail.com</span></div>
+  <div class="sg"><img src="${FS}sig-white.png" alt=""><b>Arsalan Ahmed Shaikh</b><small>Founder &amp; Managing Director · Authorised signatory</small></div>
+  <div class="vd">Valid while employed · ID ${H(s.tid||"")}</div></div>`}
+const CARD_CSS=`.idc{width:54mm;height:85.6mm;border-radius:3.2mm;position:relative;overflow:hidden;background:radial-gradient(circle at 85% 8%,rgba(155,92,255,.55),transparent 45%),radial-gradient(circle at 0% 100%,rgba(255,61,154,.4),transparent 45%),#0b0912;color:#f4f2ff;font-family:Inter,system-ui,sans-serif;box-shadow:0 18px 50px rgba(0,0,0,.5);display:flex;flex-direction:column;align-items:center;padding:4.2mm 3.6mm 3mm;box-sizing:border-box;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.idc .rb{position:absolute;top:0;left:0;right:0;height:1.6mm;background:linear-gradient(90deg,#3b82ff,#9b5cff,#ff3d9a,#ff8a1f,#ffd43b,#22d37f)}.idc .hd{display:flex;gap:2mm;align-items:center;align-self:stretch}.idc .hd img{width:7.5mm;height:7.5mm;border-radius:2mm}.idc .hd b{display:block;font-size:3.6mm;font-weight:800;letter-spacing:-.1mm}.idc .hd small{display:block;font-size:1.7mm;letter-spacing:.35mm;color:#a7a3bd}
+.idc .pr{margin-top:3.4mm}.idc .ring{width:25mm;height:25mm;border-radius:50%;padding:.8mm;background:conic-gradient(#3b82ff,#9b5cff,#ff3d9a,#ff8a1f,#ffd43b,#22d37f,#3b82ff)}.idc .ring img{width:100%;height:100%;border-radius:50%;object-fit:cover;border:.7mm solid #0b0912;box-sizing:border-box;display:block}
+.idc .nm{margin-top:2.4mm;font-size:4.1mm;font-weight:800;text-align:center;line-height:1.1}.idc .rl{font-size:2.5mm;font-weight:700;background:linear-gradient(90deg,#ff3d9a,#ff8a1f,#ffd43b);-webkit-background-clip:text;color:transparent;margin-top:.6mm}.idc .tid{margin-top:1.6mm;font:700 2.6mm ui-monospace,Menlo,monospace;letter-spacing:.4mm;padding:.8mm 2.4mm;border-radius:2mm;background:rgba(255,255,255,.1);border:.2mm solid rgba(255,255,255,.25)}
+.idc .kv{display:grid;grid-template-columns:auto 1fr;gap:.6mm 2.4mm;font-size:2.15mm;margin-top:2.4mm;align-self:stretch;padding:0 1.5mm}.idc .kv span{color:#a7a3bd}.idc .kv b{text-align:right;font-weight:600}
+.idc .bc{margin-top:auto;display:flex;gap:.55mm;height:4mm;align-items:stretch;opacity:.85}.idc .bc i{background:#fff;display:block}
+.idc.b .tx{font-size:2.3mm;line-height:1.5;color:#d9d6ea;margin-top:4mm;text-align:center}.idc.b .ct{display:grid;gap:1mm;font-size:2.2mm;margin-top:3mm;text-align:center}.idc.b .sg{margin-top:auto;text-align:center;display:grid;justify-items:center}.idc.b .sg img{height:11mm;width:auto}.idc.b .sg b{font-size:2.6mm;border-top:.2mm solid rgba(255,255,255,.3);padding-top:.8mm;margin-top:.4mm}.idc.b .sg small{font-size:1.75mm;color:#a7a3bd}.idc.b .vd{font-size:1.8mm;color:#a7a3bd;margin-top:2mm;letter-spacing:.2mm}`;
+function idCard(s){let m=$("idm");if(!m){m=document.createElement("div");m.id="idm";m.className="idm";document.body.appendChild(m)}
+ m.innerHTML=`<style>${CARD_CSS}</style><div><div class="cards">${cardHTML(s)}</div><div class="ctl2"><button class="btn gold" type="button" id="idPr">🖨 Print / Save PDF (physical card)</button><button class="btn" type="button" id="idX">Close</button></div><p class="muted" style="text-align:center;font-size:.8rem">Standard ID card size 54 × 86 mm (CR80). Print front and back, laminate or give to a PVC card printer.</p></div>`;
+ m.hidden=false;$("idX").onclick=()=>m.remove();m.onclick=e=>{if(e.target===m)m.remove()};
+ $("idPr").onclick=()=>{const w=window.open("","_blank");if(!w){toast("Allow pop-ups to print");return}w.document.write(`<!doctype html><html><head><meta charset="utf-8"><title>ID card ${H(s.tid||"")}</title><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap"><style>@page{size:A4;margin:12mm}body{margin:0;background:#fff;display:flex;gap:8mm;flex-wrap:wrap;align-content:flex-start}${CARD_CSS}.idc{box-shadow:none;outline:.2mm dashed #bbb;outline-offset:1.5mm}</style></head><body>${cardHTML(s)}<script>setTimeout(()=>print(),900)<\/script></body></html>`);w.document.close()}}
 </script>
 <script data-goatcounter="https://deensaathi.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
 </body>

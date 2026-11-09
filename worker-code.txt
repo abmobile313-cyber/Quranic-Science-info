@@ -656,11 +656,14 @@ async function verifyOwner(req, env) {
   const me = (who.users || [])[0] || {};
   return !!me.emailVerified && ownerEmails(env).includes(String(me.email || "").toLowerCase());
 }
+const istDay = ts => new Date(ts + 5.5 * 3600e3).toISOString().slice(0, 10);
 async function verifyStaff(req, env, fs) {
   const tok = (req.headers.get("authorization") || "").replace(/^Bearer\s+/i, ""); if (!tok) return null;
   const who = await fetch(`https://identitytoolkit.googleapis.com/v1/accounts:lookup?key=${env.FIREBASE_WEB_KEY || "AIzaSyCCoqjw2BzgWcal6OVBqONYOB7x--WP12g"}`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ idToken: tok }) }).then(r => r.json()).catch(() => ({}));
   const u = (who.users || [])[0] || {}; const email = String(u.email || "").toLowerCase(); if (!u.emailVerified || !email) return null;
   if (ownerEmails(env).includes(email)) return { email, owner: true };
+  const st = (await fs.query("staff", [["email", "EQUAL", email]], 3).catch(() => [])).find(s => s.active !== false);
+  if (st) return { email, owner: false, name: st.name || email.split("@")[0], tid: st.tid, staff: st };
   const t = await fs.get("config/team").catch(() => null);
   const k = email.replace(/\./g, "_");
   return t && (t.emails || []).includes(email) ? { email, owner: false, name: (t.names || {})[k] || email.split("@")[0], tid: (t.ids || {})[k] || "" } : null;
@@ -694,7 +697,7 @@ export async function shopRoute(req, env, url) {
       return out({ ok: true, msgs }); }
     if (p.startsWith("/shop/admin")) {
       const me = await verifyStaff(req, env, fs); if (!me) return out({ error: "team only" }, 401);
-      const OWN = ["saveItem", "hideItem", "config", "team"];
+      const OWN = ["saveItem", "hideItem", "config", "team", "staffSave", "staffRemove"];
       if (req.method === "POST" && OWN.includes(body.action) && !me.owner) return out({ error: "Only the owner can do this." }, 403);
       if (req.method === "POST" && body.action === "team") { const emails = [...new Set((body.emails || []).map(e => clip(e, 120).toLowerCase()).filter(e => /^[^@\s]+@[^@\s]+\.[a-z]{2,}$/.test(e)))].slice(0, 30);
         const prev = (await fs.get("config/team").catch(() => null)) || {}, ids = Object.assign({}, prev.ids || {}), names = {};
@@ -704,8 +707,30 @@ export async function shopRoute(req, env, url) {
       if (req.method === "GET") { const b = q.get("brand");
         const [items, orders, quotes, cfg] = await Promise.all([fs.query("shopItems", b ? [["brand", "EQUAL", b]] : [], 500), fs.query("orders", b ? [["brand", "EQUAL", b]] : [], 500), fs.query("quotes", b ? [["brand", "EQUAL", b]] : [], 300), fs.get("config/shop")]);
         const team = me.owner ? ((await fs.get("config/team").catch(() => null)) || {}) : {};
-        return out({ me, team: me.owner ? { emails: team.emails || [], names: team.names || {}, ids: team.ids || {} } : undefined, items: items.sort((a, c) => (a.sort || 0) - (c.sort || 0)), orders: orders.sort((a, c) => (c.ts || 0) - (a.ts || 0)), quotes: quotes.sort((a, c) => (c.ts || 0) - (a.ts || 0)), config: cfg || {}, rzpKey: Object.keys(SHOP_BRANDS).filter(b => shopKey(env, b)), currency: SHOP_CUR }); }
+        const mon = /^\d{4}-\d{2}$/.test(q.get("m") || "") ? q.get("m") : istDay(Date.now()).slice(0, 7);
+        const att = (await fs.query("attendance", [["month", "EQUAL", mon]], 2000).catch(() => [])).filter(a => me.owner || a.tid === me.tid);
+        const staff = me.owner ? await fs.query("staff", [], 200).catch(() => []) : [];
+        return out({ me, staff, att, month: mon, team: me.owner ? { emails: team.emails || [], names: team.names || {}, ids: team.ids || {} } : undefined, items: items.sort((a, c) => (a.sort || 0) - (c.sort || 0)), orders: orders.sort((a, c) => (c.ts || 0) - (a.ts || 0)), quotes: quotes.sort((a, c) => (c.ts || 0) - (a.ts || 0)), config: cfg || {}, rzpKey: Object.keys(SHOP_BRANDS).filter(b => shopKey(env, b)), currency: SHOP_CUR }); }
       const a = body.action, now = Date.now();
+      if (a === "staffSave") { const s = body.staff || {}, email = clip(s.email, 120).toLowerCase(); if (!clip(s.name) || !/^[^@\s]+@[^@\s]+\.[a-z]{2,}$/.test(email)) return out({ error: "Name and a valid Gmail are needed." }, 400);
+        let tid = clip(s.tid, 12);
+        if (!tid) { const all = await fs.query("staff", [], 500).catch(() => []); if (all.some(x => x.email === email && x.active !== false)) return out({ error: "This Gmail is already on the team." }, 400);
+          const n = all.reduce((m, x) => Math.max(m, +String(x.tid || "").replace(/\D/g, "") || 0), 0); tid = "FS-T" + String(n + 1).padStart(3, "0"); }
+        const photo = String(s.photo || ""); const rec = { tid, email, name: clip(s.name, 60), phone: clip(s.phone, 20), role: clip(s.role, 60), dept: clip(s.dept, 40),
+          shiftStart: /^\d{2}:\d{2}$/.test(s.shiftStart) ? s.shiftStart : "10:00", shiftEnd: /^\d{2}:\d{2}$/.test(s.shiftEnd) ? s.shiftEnd : "19:00", breakMin: Math.min(240, Math.max(0, +s.breakMin || 60)),
+          joined: clip(s.joined, 20), blood: clip(s.blood, 5), active: s.active !== false, upd: now };
+        if (photo.startsWith("data:image/") && photo.length < 400000) rec.photo = photo;
+        await fs.merge(`staff/${tid}`, rec); return out({ ok: true, tid }); }
+      if (a === "staffRemove") { await fs.merge(`staff/${clip(body.tid, 12)}`, { active: false, upd: now }); return out({ ok: true }); }
+      if (a === "punch") { if (me.owner || !me.tid) return out({ error: "Only team members punch in." }, 400);
+        const t = body.type, day = istDay(now), id = `${me.tid}_${day}`, cur = (await fs.get(`attendance/${id}`).catch(() => null)) || { tid: me.tid, name: me.name, day, month: day.slice(0, 7), events: [] };
+        const ev = cur.events || [], last = ev.length ? ev[ev.length - 1].t : "out";
+        const okNext = { in: ["out"], bin: ["in", "bout"], bout: ["bin"], out: ["in", "bout"] };
+        if (!okNext[t] || !okNext[t].includes(last)) return out({ error: "Not allowed right now." }, 400);
+        ev.push({ t, ts: now }); await fs.merge(`attendance/${id}`, { tid: me.tid, name: me.name, day, month: day.slice(0, 7), events: ev, upd: now });
+        const lbl = { in: "🟢 checked in", bin: "☕ started break", bout: "▶️ back from break", out: "🔴 checked out" }[t];
+        if (t === "in" || t === "out") await ownerAlert(env, fs, { kind: "info", title: `${me.name} (${me.tid}) ${lbl}`, body: new Date(now).toLocaleTimeString("en-IN", { timeZone: "Asia/Kolkata", hour: "2-digit", minute: "2-digit" }) }, now).catch(() => {});
+        return out({ ok: true, att: { tid: me.tid, day, month: day.slice(0, 7), events: ev } }); }
       if (a === "saveItem") { const it = body.item || {}; if (!SHOP_BRANDS[it.brand] || !clip(it.name)) return out({ error: "brand and name needed" }, 400);
         const id = it.id || (it.brand + "__" + clip(it.name, 60).toLowerCase().replace(/[^a-z0-9]+/g, "-") + "-" + rid(3));
         const rec = { brand: it.brand, name: clip(it.name, 100), price: Math.max(0, +it.price || 0), mrp: Math.max(0, +it.mrp || 0), kind: ["product", "service", "quote"].includes(it.kind) ? it.kind : "product",
