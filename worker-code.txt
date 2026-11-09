@@ -896,6 +896,28 @@ export async function fsRoute(req, env, url) {
       else await fsNote(fs, ["c:" + t.code], body.call ? `📞 ${me.role === "owner" ? "The owner" : "Your designer"} is waiting on the call — open Contact team and tap Join call` : `🎫 Reply from ${me.role === "owner" ? "the owner" : "your designer"}: ${(txt || (u.status === "closed" ? "ticket closed" : "")).slice(0, 90)}`, t.pid, now);
       return out({ ok: true, ticket: Object.assign({}, t, u) }); }
     /* ----- messages (client on own project, team on any) ----- */
+    /* ----- voice notes (team chat, project chat, client tickets) ----- */
+    if (p === "/fs/voice") { const where = req.method === "POST" ? body.where : q.get("where"), id = clip(req.method === "POST" ? body.id : q.get("id"), 40);
+      const cfg = (await fs.get("config/flowstudio").catch(() => null)) || {}, heads = cfg.heads || {};
+      let ok = false, target = null;
+      if (where === "tchat") { const cats = Object.keys(FS_CAT), dept = String((me.staff || {}).dept || ""); if (team) { const mc = me.role === "owner" || !dept || /all/i.test(dept) ? cats : cats.filter(c => c.toLowerCase() === dept.toLowerCase()); ok = ["all", ...mc.map(c => "cat:" + c)].includes(id); } }
+      else if (where === "project") { target = await fs.get(`projects/${id}`); ok = !!target && (team || target.code === me.code); }
+      else if (where === "ticket") { target = await fs.get(`tickets/${id}`); ok = !!target && (me.role === "client" ? target.code === me.code : me.role === "owner" || (me.role === "staff" && target.to === "t:" + me.tid)); }
+      if (!ok) return out({ error: "Not allowed." }, 403);
+      if (req.method !== "POST") { const v = await fs.get(`voice/${clip(q.get("v"), 40)}`); if (!v || v.where !== where || v.id !== id) return out({ error: "Not found." }, 404); return out({ data: v.data, mime: v.mime, dur: v.dur }); }
+      const data = String(body.data || ""); if (!data || data.length > 900000) return out({ error: "Voice note is too long (max about 2 minutes)." }, 400);
+      const dur = Math.min(600, Math.max(1, Math.round(+body.dur || 1))), vid = "V" + now + rid(5), mime = /^audio\/[\w.+-]+(;.*)?$/.test(body.mime || "") ? String(body.mime).slice(0, 60) : "audio/webm";
+      const who = me.role === "owner" ? "Owner" : me.role === "staff" ? me.name : (me.name || me.client.business), code = me.role === "owner" ? "FS-001" : me.role === "staff" ? me.tid : me.code;
+      await fs.merge(`voice/${vid}`, { data, mime, dur, where, id, by: who, code, ts: now });
+      const label = `🎤 Voice note (${Math.floor(dur / 60)}:${String(dur % 60).padStart(2, "0")})`;
+      if (where === "tchat") { const path = `tchat/${id.replace(/[^a-z0-9]/gi, "_")}`, d = (await fs.get(path).catch(() => null)) || {};
+        if (d.lock && !(me.role === "owner" || (id !== "all" && heads[id.slice(4)] === me.tid))) return out({ error: "🔒 Only the group admin can send messages right now." }, 403);
+        const msgs = (d.msgs || []).concat([{ by: who, code, t: label, v: vid, dur, ts: now, r: me.role }]).slice(-400); await fs.merge(path, { g: id, msgs, upd: now, last: `${who}: 🎤 voice note` }); return out({ ok: true, msgs }); }
+      if (where === "project") { const msgs = (target.msgs || []).concat([{ f: team ? "o" : "c", t: label, v: vid, dur, ts: now, by: team ? by : me.name }]).slice(-120); await fs.merge(`projects/${id}`, Object.assign({ msgs, upd: now }, team ? { newC: false, newT: true } : { newC: true }));
+        await fsNote(fs, team ? ["c:" + target.code] : ["owner", target.assignee ? "t:" + target.assignee : ""], `🎤 ${team ? "Flow Studio" : target.client} sent a voice note`, id, now); return out({ ok: true }); }
+      const replies = (target.replies || []).concat([{ f: me.role === "client" ? "c" : "o", t: label, v: vid, dur, by: me.role === "client" ? (me.name || "Client") : me.role === "owner" ? "Owner" : me.name, ts: now }]).slice(-80);
+      await fs.merge(`tickets/${id}`, { replies, upd: now, status: me.role === "client" ? "open" : "answered" });
+      await fsNote(fs, me.role === "client" ? [target.to, "owner"] : ["c:" + target.code], `🎤 Voice note on ticket ${id}`, target.pid || "", now); return out({ ok: true }); }
     if (p === "/fs/msg" && req.method === "POST") { const pr = await fs.get(`projects/${clip(body.pid, 30)}`); if (!pr || (!team && pr.code !== me.code)) return out({ error: "Project not found." }, 404);
       const t = clip(body.text, 2000); if (!t) return out({ error: "Write a message." }, 400);
       const msgs = (pr.msgs || []).concat([{ f: team ? "o" : "c", t, ts: now, by: team ? by : me.name }]).slice(-120);
@@ -946,11 +968,20 @@ export async function fsRoute(req, env, url) {
       return out({ mode: "upi", stage, amount, upi: cfg.upi || "", payee: cfg.payName || "Flow Studio", bank: cfg.bank || "", note: `${pr.pid} ${stage}` }); }
     if (!team) return out({ error: "Team only." }, 403);
     /* ----- break / check-out approval (category head or owner) + complaint box ----- */
-    if (p === "/fs/attreq" || p === "/fs/attreq/decide" || p === "/fs/complaint" || p === "/fs/complaint/reply" || p === "/fs/hr") {
+    if (p === "/fs/attreq" || p === "/fs/attreq/decide" || p === "/fs/complaint" || p === "/fs/complaint/reply" || p === "/fs/hr" || p === "/fs/alert" || p === "/fs/alert/ack") {
       const cfg = (await fs.get("config/flowstudio").catch(() => null)) || {}, heads = cfg.heads || {};
       const catOfStaff = s => { const d = String((s || {}).dept || ""); return Object.keys(FS_CAT).find(c => c.toLowerCase() === d.toLowerCase()) || ""; };
       const myCats = me.role === "staff" ? Object.keys(heads).filter(c => heads[c] === me.tid) : [];
       const canDecide = r => me.role === "owner" || (me.role === "staff" && r.tid !== me.tid && r.cat && myCats.includes(r.cat));
+      if (p === "/fs/attreq" && req.method === "POST" && body.type === "leave") { if (me.role !== "staff") return out({ error: "Team members only." }, 403);
+        const from = clip(body.from, 10), to = clip(body.to || body.from, 10), reason = clip(body.note, 300);
+        if (!/^\d{4}-\d{2}-\d{2}$/.test(from) || !/^\d{4}-\d{2}-\d{2}$/.test(to) || to < from) return out({ error: "Choose the leave dates." }, 400);
+        if (!reason) return out({ error: "Write the reason for leave." }, 400);
+        const days = Math.round((Date.parse(to) - Date.parse(from)) / 864e5) + 1; if (days > 31) return out({ error: "Too many days." }, 400);
+        const cat = catOfStaff(me.staff), id = "L" + now + "-" + rid(4), r = { id, tid: me.tid, name: me.name, role: (me.staff || {}).role || "", cat, type: "leave", from, to, days, note: reason, ts: now, day: istDay(now), status: "pending" };
+        await fs.merge(`attReq/${id}`, r);
+        await fsNote(fs, ["owner", cat && heads[cat] && heads[cat] !== me.tid ? "t:" + heads[cat] : ""], `🏖️ Leave request: ${me.name} (${me.tid}) · ${from}${to !== from ? " → " + to : ""} — ${reason.slice(0, 60)}`, "", now);
+        return out({ ok: true, req: r }); }
       if (p === "/fs/attreq" && req.method === "POST") { if (me.role !== "staff") return out({ error: "Team members only." }, 403);
         const type = body.type === "out" ? "out" : "bin", day = istDay(now), cur = (await fs.get(`attendance/${me.tid}_${day}`).catch(() => null)) || { events: [] };
         const last = (cur.events || []).length ? cur.events[cur.events.length - 1].t : "out";
@@ -963,11 +994,12 @@ export async function fsRoute(req, env, url) {
       if (p === "/fs/attreq/decide" && req.method === "POST") { const r = await fs.get(`attReq/${clip(body.id, 40)}`); if (!r || r.status !== "pending") return out({ error: "Request not found or already decided." }, 404);
         if (!canDecide(r)) return out({ error: "Only the owner or the " + (r.cat || "category") + " head can decide." }, 403);
         const ok = !!body.ok, u = { status: ok ? "approved" : "rejected", by: me.role === "owner" ? "Owner" : me.name, at: now, reply: clip(body.reply, 200) };
-        if (ok) { const id = `${r.tid}_${r.day}`, cur = (await fs.get(`attendance/${id}`).catch(() => null)) || { tid: r.tid, name: r.name, day: r.day, month: r.day.slice(0, 7), events: [] };
+        if (!ok && !u.reply) return out({ error: "Please write the reason — the employee will see it." }, 400);
+        if (ok && r.type !== "leave") { const id = `${r.tid}_${r.day}`, cur = (await fs.get(`attendance/${id}`).catch(() => null)) || { tid: r.tid, name: r.name, day: r.day, month: r.day.slice(0, 7), events: [] };
           const ev = cur.events || [], last = ev.length ? ev[ev.length - 1].t : "out";
           if (["in", "bout"].includes(last)) { ev.push({ t: r.type, ts: r.ts, ok: u.by }); await fs.merge(`attendance/${id}`, { tid: r.tid, name: r.name, day: r.day, month: r.day.slice(0, 7), events: ev, upd: now }); } }
         await fs.merge(`attReq/${r.id}`, u);
-        await fsNote(fs, ["t:" + r.tid], ok ? `✅ ${r.type === "out" ? "Check-out" : "Break"} approved by ${u.by}${r.type === "out" ? " — see you tomorrow!" : " — enjoy your break ☕"}` : `❌ ${r.type === "out" ? "Check-out" : "Break"} not approved by ${u.by}${u.reply ? ": " + u.reply : ""}`, "", now);
+        await fsNote(fs, ["t:" + r.tid], ok ? `✅ ${r.type === "out" ? "Check-out" : r.type === "leave" ? "Leave (" + r.from + (r.to !== r.from ? " → " + r.to : "") + ")" : "Break"} approved by ${u.by}${r.type === "out" ? " — see you tomorrow!" : r.type === "leave" ? " 🏖️" : " — enjoy your break ☕"}${u.reply ? " · " + u.reply : ""}` : `❌ ${r.type === "out" ? "Check-out" : r.type === "leave" ? "Leave" : "Break"} not approved by ${u.by} — reason: ${u.reply}`, "", now);
         return out({ ok: true }); }
       if (p === "/fs/complaint" && req.method === "POST") { if (me.role !== "staff") return out({ error: "Team members only." }, 403);
         const text = clip(body.text, 2000); if (!text) return out({ error: "Write your complaint." }, 400);
@@ -983,12 +1015,68 @@ export async function fsRoute(req, env, url) {
         await fs.merge(`complaints/${c.id}`, u);
         await fsNote(fs, mine ? ["owner", c.head ? "t:" + c.head : ""] : ["t:" + c.tid], mine ? `📣 ${c.name} replied on complaint: ${(t || "").slice(0, 60)}` : `📣 Your complaint: ${u.status === "resolved" ? "marked resolved ✓" : "new reply"}`, "", now);
         return out({ ok: true }); }
+      /* important notices: stay on top of the dashboard until read (or answered) */
+      const forMe = a => me.role === "owner" ? false : a.to === "all" || a.to === "t:" + me.tid || (a.to.startsWith("cat:") && a.to.slice(4).toLowerCase() === String((me.staff || {}).dept || "").toLowerCase());
+      if (p === "/fs/alert" && req.method === "POST") { const to = clip(body.to, 40), text = clip(body.text, 1500); if (!text) return out({ error: "Write the notice." }, 400);
+        const isOwner = me.role === "owner", okHead = me.role === "staff" && to.startsWith("cat:") && myCats.includes(to.slice(4)) || me.role === "staff" && to.startsWith("t:") && myCats.length;
+        if (!isOwner && !okHead) return out({ error: "Only the owner or a category head can send notices." }, 403);
+        if (!(to === "all" || /^cat:/.test(to) || /^t:FS-/.test(to))) return out({ error: "Choose who gets it." }, 400);
+        const id = "N" + now + rid(4), a = { id, to, text, needReply: !!body.needReply, ts: now, by: isOwner ? "Owner" : me.name + " (Head)", byCode: isOwner ? "FS-001" : me.tid, acks: {} };
+        await fs.merge(`alerts/${id}`, a);
+        const st = await fs.query("staff", [], 300).catch(() => []), rcv = st.filter(s => s.active !== false && (to === "all" || to === "t:" + s.tid || (to.startsWith("cat:") && to.slice(4).toLowerCase() === String(s.dept || "").toLowerCase()))).map(s => "t:" + s.tid);
+        await fsNote(fs, rcv, `🚨 IMPORTANT from ${a.by}: ${text.slice(0, 120)}`, "", now); return out({ ok: true, count: rcv.length }); }
+      if (p === "/fs/alert/ack" && req.method === "POST") { const a = await fs.get(`alerts/${clip(body.id, 40)}`); if (!a || !forMe(a)) return out({ error: "Not found." }, 404);
+        const reply = clip(body.reply, 1000); if (a.needReply && !reply) return out({ error: "This notice needs your reply." }, 400);
+        const acks = Object.assign({}, a.acks, { [me.tid]: { name: me.name, seen: now, reply } }); await fs.merge(`alerts/${a.id}`, { acks });
+        await fsNote(fs, [a.byCode === "FS-001" ? "owner" : "t:" + a.byCode], `✅ ${me.name} ${reply ? "replied to" : "read"} your notice${reply ? ": " + reply.slice(0, 80) : ""}`, "", now); return out({ ok: true }); }
       if (p === "/fs/hr") { /* lists for the approvals & complaints pages */
-        const reqs = await fs.query("attReq", me.role === "owner" ? [] : [["day", "EQUAL", istDay(now)]], 600).catch(() => []), cs = await fs.query("complaints", me.role === "staff" ? [] : [], 600).catch(() => []);
+        const reqs = (await fs.query("attReq", [], 1500).catch(() => [])).filter(r => me.role === "owner" || r.day === istDay(now) || r.type === "leave" && String(r.day).slice(0, 7) >= istDay(now - 40 * 864e5).slice(0, 7) || r.status === "pending"), cs = await fs.query("complaints", me.role === "staff" ? [] : [], 600).catch(() => []);
         const R = reqs.filter(r => me.role === "owner" || r.tid === me.tid || (r.cat && myCats.includes(r.cat))).sort((a, b) => b.ts - a.ts).slice(0, 200);
         const C = cs.filter(c => me.role === "owner" || c.tid === me.tid || (c.head && c.head === me.tid)).sort((a, b) => (b.upd || b.ts) - (a.upd || a.ts)).slice(0, 200);
-        return out({ reqs: R, complaints: C, myCats }); }
+        const al = (await fs.query("alerts", [], 400).catch(() => [])).sort((a, b) => b.ts - a.ts);
+        const alerts = me.role === "owner" ? al.slice(0, 60) : al.filter(a => a.byCode === me.tid).slice(0, 40), mine = al.filter(a => forMe(a) && !(a.acks || {})[me.tid]);
+        return out({ reqs: R, complaints: C, myCats, alerts, myAlerts: mine }); }
     }
+    /* ----- stars & remarks: client ⇄ employee, head/owner → employee; performance & rankings ----- */
+    if (p === "/fs/rate" && req.method === "POST") { const stars = Math.round(+body.stars); if (!(stars >= 1 && stars <= 5)) return out({ error: "Choose 1 to 5 stars." }, 400);
+      const text = clip(body.text, 500), cfg = (await fs.get("config/flowstudio").catch(() => null)) || {}, heads = cfg.heads || {};
+      if (me.role === "client" || (me.role === "staff" && body.pid)) { const pr = await fs.get(`projects/${clip(body.pid, 30)}`); if (!pr) return out({ error: "Project not found." }, 404);
+        if (!["delivered", "closed"].includes(pr.status)) return out({ error: "You can rate after delivery." }, 400);
+        if (me.role === "client") { if (pr.code !== me.code || !pr.assignee) return out({ error: "Not allowed." }, 403);
+          const r = { id: `c_${pr.pid}`, kind: "c2s", pid: pr.pid, to: pr.assignee, toName: pr.assigneeName, from: me.code, fromName: me.client.business, stars, text, ts: now, cat: fsCatOf(pr.service) };
+          await fs.merge(`ratings/${r.id}`, r); await fs.merge(`projects/${pr.pid}`, { cRate: stars, cRemark: text });
+          await fsNote(fs, ["t:" + pr.assignee, "owner"], `⭐ ${me.client.business} gave ${stars}★ for ${pr.title}${text ? ": " + text.slice(0, 60) : ""}`, pr.pid, now); return out({ ok: true }); }
+        if (pr.assignee !== me.tid) return out({ error: "Only the person who did the project can rate this client." }, 403);
+        const r = { id: `s_${pr.pid}`, kind: "s2c", pid: pr.pid, to: pr.code, toName: pr.client, from: me.tid, fromName: me.name, stars, text, ts: now };
+        await fs.merge(`ratings/${r.id}`, r); await fs.merge(`projects/${pr.pid}`, { sRate: stars, sRemark: text }); return out({ ok: true }); }
+      const tid = clip(body.to, 24), s = await fs.get(`staff/${tid}`); if (!s) return out({ error: "Employee not found." }, 404);
+      const cat = Object.keys(FS_CAT).find(c => c.toLowerCase() === String(s.dept || "").toLowerCase()) || "";
+      if (!(me.role === "owner" || (me.role === "staff" && cat && heads[cat] === me.tid && tid !== me.tid))) return out({ error: "Only the owner or the category head can give remarks." }, 403);
+      if (!text) return out({ error: "Write a short remark." }, 400);
+      const r = { id: "h" + now + rid(3), kind: "h2s", to: tid, toName: s.name, from: me.role === "owner" ? "owner" : me.tid, fromName: me.role === "owner" ? "Owner" : me.name + " (Head)", stars, text, ts: now, cat };
+      await fs.merge(`ratings/${r.id}`, r); await fsNote(fs, ["t:" + tid], `🎖️ ${r.fromName} gave you ${stars}★: ${text.slice(0, 80)}`, "", now); return out({ ok: true }); }
+    if (p === "/fs/perf") { if (me.role === "client") return out({ error: "Team only." }, 403);
+      const [staff, projects, ratings, att, reqs] = await Promise.all([fs.query("staff", [], 300).catch(() => []), fs.query("projects", [], 1500).catch(() => []), fs.query("ratings", [], 3000).catch(() => []), fs.query("attendance", [["month", "EQUAL", istDay(now).slice(0, 7)]], 3000).catch(() => []), fs.query("attReq", [], 1500).catch(() => [])]);
+      const cfg = (await fs.get("config/flowstudio").catch(() => null)) || {}, heads = cfg.heads || {}, mon = istDay(now).slice(0, 7);
+      const catOf = s => Object.keys(FS_CAT).find(c => c.toLowerCase() === String(s.dept || "").toLowerCase()) || "All";
+      const act = staff.filter(s => s.active !== false), d30 = now - 30 * 864e5, d90 = now - 90 * 864e5;
+      const out30 = s => projects.filter(p => p.assignee === s.tid && (p.deliveredAt || 0) > d30).length, maxOut = Math.max(1, ...act.map(out30));
+      const workDaysSoFar = s => { const off = s.weekOff == null ? 0 : +s.weekOff, [y, m] = mon.split("-").map(Number), lim = +istDay(now).slice(8, 10); let w = 0; for (let d = 1; d <= lim; d++) if (new Date(Date.UTC(y, m - 1, d)).getUTCDay() !== off) w++; return Math.max(1, w); };
+      const list = act.map(s => { const cat = catOf(s), mine = projects.filter(p => p.assignee === s.tid), del = mine.filter(p => (p.deliveredAt || 0) > d90);
+        const cR = ratings.filter(r => r.kind === "c2s" && r.to === s.tid), hR = ratings.filter(r => r.kind === "h2s" && r.to === s.tid), avg = a => a.length ? a.reduce((t, r) => t + r.stars, 0) / a.length : 0;
+        const sp = del.map(p => { const days = ((p.deliveredAt || now) - (p.assignedAt || p.ts || now)) / 864e5; let v = days <= 2 ? 100 : days <= 5 ? 88 : days <= 10 ? 72 : days <= 20 ? 58 : 45; if (p.deadline && istDay(p.deliveredAt) > String(p.deadline).slice(0, 10)) v -= 20; return Math.max(20, v); });
+        const present = att.filter(a => a.tid === s.tid && (a.events || []).some(e => e.t === "in")).length, leaves = reqs.filter(r => r.tid === s.tid && r.type === "leave" && r.status === "approved" && String(r.from).slice(0, 7) === mon).reduce((t, r) => t + (r.days || 1), 0);
+        const parts = { client: cR.length ? avg(cR) / 5 * 100 : 70, head: hR.length ? avg(hR) / 5 * 100 : 70, speed: sp.length ? sp.reduce((a, b) => a + b, 0) / sp.length : 70, output: out30(s) / maxOut * 100, att: Math.min(100, (present + Math.min(leaves, 1)) / workDaysSoFar(s) * 100) };
+        const score = Math.round(parts.client * .3 + parts.head * .2 + parts.speed * .2 + parts.output * .15 + parts.att * .15);
+        Object.keys(parts).forEach(k => parts[k] = Math.round(parts[k]));
+        return { tid: s.tid, name: s.name, role: s.role || "", dept: s.dept || "", cat, photo: s.photo || "", head: heads[cat] === s.tid, score, grade: score >= 80 ? "A" : score >= 65 ? "B" : score >= 50 ? "C" : "D", parts, load: mine.filter(p => !["delivered", "closed"].includes(p.status)).length, delivered30: out30(s), deliveredAll: mine.filter(p => p.deliveredAt).length, cAvg: +avg(cR).toFixed(1), cN: cR.length, hAvg: +avg(hR).toFixed(1), hN: hR.length, present, leaves };
+      }).sort((a, b) => b.score - a.score);
+      list.forEach((x, i) => x.rank = i + 1); const catRank = {}; list.forEach(x => { catRank[x.cat] = (catRank[x.cat] || 0) + 1; x.catRank = catRank[x.cat]; });
+      const cats = Object.keys(FS_CAT).map(c => { const m = list.filter(x => x.cat === c); return { cat: c, members: m.length, score: m.length ? Math.round(m.reduce((t, x) => t + x.score, 0) / m.length) : 0, delivered30: m.reduce((t, x) => t + x.delivered30, 0), load: m.reduce((t, x) => t + x.load, 0), cAvg: (() => { const r = ratings.filter(r => r.kind === "c2s" && r.cat === c); return r.length ? +(r.reduce((t, x) => t + x.stars, 0) / r.length).toFixed(1) : 0; })(), head: heads[c] || "" }; }).filter(c => c.members).sort((a, b) => b.score - a.score);
+      const myCats = me.role === "staff" ? Object.keys(heads).filter(c => heads[c] === me.tid) : [];
+      const visibleRemarks = ratings.filter(r => me.role === "owner" || r.to === me.tid || (r.kind !== "s2c" && myCats.includes(r.cat))).sort((a, b) => b.ts - a.ts).slice(0, 300);
+      const clientStars = me.role === "owner" ? ratings.filter(r => r.kind === "s2c") : [];
+      return out({ list, cats, remarks: visibleRemarks, clientStars, myCats }); }
     /* ----- only the owner can delete a message (team chat, client tickets, project chat); every delete is logged ----- */
     if (p === "/fs/owner/msgdel" && req.method === "POST") { if (me.role !== "owner") return out({ error: "Only the owner can delete messages." }, 403);
       const where = body.where, id = clip(body.id, 40), ts = +body.ts; let removed = null;
@@ -1002,6 +1090,7 @@ export async function fsRoute(req, env, url) {
       else return out({ error: "Unknown place." }, 400);
       if (removed) await fs.add("msgDeleted", { where, id, ts, by: removed.by || "", text: String(removed.t || "").slice(0, 500), at: now }).catch(() => {});
       return out({ ok: true }); }
+    if (p === "/fs/me/pref" && req.method === "POST") { if (me.role !== "staff") return out({ error: "Team members only." }, 403); await fs.merge(`staff/${me.tid}`, { hidePhoto: !!body.hidePhoto }); return out({ ok: true }); }
     /* ----- team chat: one group for everyone + one per category; no delete; contact details blocked ----- */
     if (p === "/fs/tchat") { const cats = Object.keys(FS_CAT), dept = String((me.staff || {}).dept || "");
       const mineCats = me.role === "owner" || !dept || /all/i.test(dept) ? cats : cats.filter(c => c.toLowerCase() === dept.toLowerCase());
@@ -1030,7 +1119,7 @@ export async function fsRoute(req, env, url) {
       const g = q.get("g") || "all"; if (!allowed.includes(g)) return out({ error: "You are not in this group." }, 403);
       const docs = await Promise.all(allowed.map(x => fs.get(gid(x)).catch(() => null))), cur = docs[allowed.indexOf(g)] || {};
       const st = await fs.query("staff", [], 300).catch(() => []), nm = id => (st.find(s => s.tid === id) || {}).name || "";
-      const members = g === "all" ? st.filter(s => s.active !== false).map(s => ({ tid: s.tid, name: s.name, dept: s.dept || "" })) : st.filter(s => s.active !== false && (!s.dept || /all/i.test(s.dept) || String(s.dept).toLowerCase() === g.slice(4).toLowerCase())).map(s => ({ tid: s.tid, name: s.name, dept: s.dept || "" }));
+      const members = g === "all" ? st.filter(s => s.active !== false).map(s => ({ tid: s.tid, name: s.name, dept: s.dept || "", photo: s.hidePhoto ? "" : (s.photo || ""), hid: !!s.hidePhoto })) : st.filter(s => s.active !== false && (!s.dept || /all/i.test(s.dept) || String(s.dept).toLowerCase() === g.slice(4).toLowerCase())).map(s => ({ tid: s.tid, name: s.name, dept: s.dept || "", photo: s.hidePhoto ? "" : (s.photo || ""), hid: !!s.hidePhoto }));
       return out({ groups: allowed.map((x, i) => ({ g: x, name: x === "all" ? "Everyone" : x.slice(4), upd: (docs[i] || {}).upd || 0, last: (docs[i] || {}).last || "", admin: x === "all" ? "Owner" : (heads[x.slice(4)] ? nm(heads[x.slice(4)]) + " (head)" : "Owner") })),
         g, msgs: cur.msgs || [], pin: cur.pin || null, lock: !!cur.lock, admin: isAdmin(g), heads, members }); }
     /* ----- team (owner + employees) ----- */
@@ -1057,7 +1146,7 @@ export async function fsRoute(req, env, url) {
       if (body.assignee != null) { const cat = fsCatOf(pr.service), hcfg = (await fs.get("config/flowstudio").catch(() => null)) || {}, isHead = me.role === "staff" && (hcfg.heads || {})[cat] === me.tid;
         if (me.role !== "owner" && !isHead) return out({ error: "Only the owner or the " + cat + " head can assign this project." }, 403);
         const s = body.assignee ? await fs.get(`staff/${clip(body.assignee, 20)}`) : null;
-        if (isHead && s && !(String(s.dept || "").toLowerCase() === cat.toLowerCase() || /all/i.test(s.dept || ""))) return out({ error: "You can assign only people from the " + cat + " team." }, 403); upd.assignee = s ? s.tid : ""; upd.assigneeName = s ? s.name : ""; }
+        if (isHead && s && !(String(s.dept || "").toLowerCase() === cat.toLowerCase() || /all/i.test(s.dept || ""))) return out({ error: "You can assign only people from the " + cat + " team." }, 403); upd.assignee = s ? s.tid : ""; upd.assigneeName = s ? s.name : ""; upd.assignedAt = now; }
       if (body.amount != null && me.role === "owner") upd.amount = Math.max(0, +body.amount || 0);
       if (me.role === "owner" && body.advancePaid != null) { upd.advancePaid = !!body.advancePaid; if (upd.advancePaid) { upd.advanceAt = now; upd.payClaim = null; upd.msgs = fsMsg(pr, "💜 Advance received — thank you! Please upload your samples, logo and assets here so we can start."); if (["requested", "quoted"].includes(pr.status)) upd.status = "assets"; } }
       if (me.role === "owner" && body.balancePaid != null) { upd.balancePaid = !!body.balancePaid; if (upd.balancePaid) { upd.balanceAt = now; if (!pr.advancePaid && !upd.advancePaid) { upd.advancePaid = true; upd.advanceAt = now; } upd.payClaim = null; upd.msgs = fsMsg(upd.msgs ? { msgs: upd.msgs } : pr, "🎉 Balance received — thank you! Your final files are unlocked. Download them in any format."); if (pr.finalReady) { upd.status = "delivered"; upd.deliveredAt = pr.deliveredAt || now; } } }
