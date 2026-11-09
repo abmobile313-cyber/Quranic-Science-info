@@ -713,15 +713,15 @@ export async function shopRoute(req, env, url) {
         return out({ me, staff, att, month: mon, team: me.owner ? { emails: team.emails || [], names: team.names || {}, ids: team.ids || {} } : undefined, items: items.sort((a, c) => (a.sort || 0) - (c.sort || 0)), orders: orders.sort((a, c) => (c.ts || 0) - (a.ts || 0)), quotes: quotes.sort((a, c) => (c.ts || 0) - (a.ts || 0)), config: cfg || {}, rzpKey: Object.keys(SHOP_BRANDS).filter(b => shopKey(env, b)), currency: SHOP_CUR }); }
       const a = body.action, now = Date.now();
       if (a === "staffSave") { const s = body.staff || {}, email = clip(s.email, 120).toLowerCase(); if (!clip(s.name) || !/^[^@\s]+@[^@\s]+\.[a-z]{2,}$/.test(email)) return out({ error: "Name and a valid Gmail are needed." }, 400);
-        let tid = clip(s.tid, 12);
+        let tid = clip(s.tid, 16);
         if (!tid) { const all = await fs.query("staff", [], 500).catch(() => []); if (all.some(x => x.email === email && x.active !== false)) return out({ error: "This Gmail is already on the team." }, 400);
-          const n = all.reduce((m, x) => Math.max(m, +String(x.tid || "").replace(/\D/g, "") || 0), 0); tid = "FS-T" + String(n + 1).padStart(3, "0"); }
+          const base = "FS-E" + (clip(s.name).toUpperCase().replace(/[^A-Z]/g, "") + "XXX").slice(0, 3) + "-" + String(s.phone || "").replace(/\D/g, "").slice(-4).padStart(4, "0"); tid = base; let k = 0; while (all.some(x => x.tid === tid)) tid = base + "ABCDEFGHJKLMNPQRSTUVWXYZ"[k++ % 24]; }
         const photo = String(s.photo || ""); const rec = { tid, email, name: clip(s.name, 60), phone: clip(s.phone, 20), role: clip(s.role, 60), dept: clip(s.dept, 40),
           shiftStart: /^\d{2}:\d{2}$/.test(s.shiftStart) ? s.shiftStart : "10:00", shiftEnd: /^\d{2}:\d{2}$/.test(s.shiftEnd) ? s.shiftEnd : "19:00", breakMin: Math.min(240, Math.max(0, +s.breakMin || 60)),
           joined: clip(s.joined, 20), blood: clip(s.blood, 5), active: s.active !== false, upd: now };
         if (photo.startsWith("data:image/") && photo.length < 400000) rec.photo = photo;
         await fs.merge(`staff/${tid}`, rec); return out({ ok: true, tid }); }
-      if (a === "staffRemove") { await fs.merge(`staff/${clip(body.tid, 12)}`, { active: false, upd: now }); return out({ ok: true }); }
+      if (a === "staffRemove") { await fs.merge(`staff/${clip(body.tid, 16)}`, { active: false, upd: now }); return out({ ok: true }); }
       if (a === "punch") { if (me.owner || !me.tid) return out({ error: "Only team members punch in." }, 400);
         const t = body.type, day = istDay(now), id = `${me.tid}_${day}`, cur = (await fs.get(`attendance/${id}`).catch(() => null)) || { tid: me.tid, name: me.name, day, month: day.slice(0, 7), events: [] };
         const ev = cur.events || [], last = ev.length ? ev[ev.length - 1].t : "out";
@@ -756,6 +756,144 @@ export async function shopRoute(req, env, url) {
       if (a === "config") { const b = clip(body.brand, 20); if (!SHOP_BRANDS[b]) return out({ error: "brand" }, 400); await fs.merge("config/shop", { [b]: { ship: Math.max(0, +body.ship || 0), freeShipAbove: Math.max(0, +body.freeShipAbove || 0) } }); return out({ ok: true }); }
       return out({ error: "unknown action" }, 400);
     }
+    return out({ error: "not found" }, 404);
+  } catch (e) { return out({ error: String(e.message || e).slice(0, 200) }, 500); }
+}
+
+/* ---------- Flow Studio portal: client · employee · owner dashboards (pixelflowstudio.agency/portal.html) ----------
+   clients/{code}   permanent client code (FS-<business>-<last 4 digits>) with the full history
+   projects/{pid}   each service a client books: brief, status, who works on it, messages
+   docs/{did}       quotations and bills issued to a client (the quote.html JSON), shown in the client dashboard */
+const FS_STAGES = ["requested", "quoted", "in_progress", "review", "delivered", "closed"];
+const fsCode = (biz, phone) => { const a = (String(biz || "").toUpperCase().replace(/[^A-Z]/g, "") + "XXX").slice(0, 3), d = String(phone || "").replace(/\D/g, "").slice(-4).padStart(4, "0"); return `FS-${a}-${d}`; };
+async function fsWho(req, env, fs) {
+  const tok = (req.headers.get("authorization") || "").replace(/^Bearer\s+/i, ""); if (!tok) return null;
+  const who = await fetch(`https://identitytoolkit.googleapis.com/v1/accounts:lookup?key=${env.FIREBASE_WEB_KEY || "AIzaSyCCoqjw2BzgWcal6OVBqONYOB7x--WP12g"}`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ idToken: tok }) }).then(r => r.json()).catch(() => ({}));
+  const u = (who.users || [])[0] || {}; const email = String(u.email || "").toLowerCase(); if (!u.emailVerified || !email) return null;
+  if (ownerEmails(env).includes(email)) return { role: "owner", email, name: "Arsalan Ahmed Shaikh", photo: u.photoUrl || "" };
+  const st = (await fs.query("staff", [["email", "EQUAL", email]], 3).catch(() => [])).find(s => s.active !== false);
+  if (st) return { role: "staff", email, name: st.name, tid: st.tid, staff: st, photo: u.photoUrl || "" };
+  const c = (await fs.query("clients", [["email", "EQUAL", email]], 2).catch(() => []))[0];
+  if (c) return { role: "client", email, name: c.name, code: c.code, client: c, photo: u.photoUrl || "" };
+  return { role: "new", email, name: u.displayName || "", photo: u.photoUrl || "" };
+}
+const fsTotal = d => { const sub = (d.items || []).reduce((t, i) => t + (+i.qty || 0) * (+i.rate || 0), 0); return Math.round(sub + sub * (+d.gst || 0) / 100); };
+async function fsClientBundle(fs, code) {
+  const [client, projects, docs] = await Promise.all([fs.get(`clients/${code}`), fs.query("projects", [["code", "EQUAL", code]], 300).catch(() => []), fs.query("docs", [["code", "EQUAL", code]], 300).catch(() => [])]);
+  if (!client) return null;
+  projects.sort((a, b) => (b.ts || 0) - (a.ts || 0)); docs.sort((a, b) => (b.ts || 0) - (a.ts || 0));
+  const billed = docs.filter(d => d.type === "invoice").reduce((t, d) => t + (+d.total || 0), 0), quoted = docs.filter(d => d.type === "quote").reduce((t, d) => t + (+d.total || 0), 0);
+  return { client, projects, docs, totals: { projects: projects.length, delivered: projects.filter(p => ["delivered", "closed"].includes(p.status)).length, billed, quoted } };
+}
+export async function fsRoute(req, env, url) {
+  const cors = { "access-control-allow-origin": "*", "access-control-allow-headers": "authorization,content-type", "access-control-allow-methods": "GET,POST,OPTIONS", "content-type": "application/json", "cache-control": "no-store" };
+  const out = (o, s = 200) => new Response(JSON.stringify(o), { status: s, headers: cors });
+  if (req.method === "OPTIONS") return new Response(null, { headers: cors });
+  const fs = makeFS(env), p = url.pathname, q = url.searchParams, body = req.method === "POST" ? await req.json().catch(() => ({})) : {}, now = Date.now();
+  try {
+    const me = await fsWho(req, env, fs); if (!me) return out({ error: "Please sign in with Google." }, 401);
+    const team = me.role === "owner" || me.role === "staff", by = me.role === "owner" ? "Owner" : me.role === "staff" ? `${me.name} · ${me.tid}` : "Client";
+    if (p === "/fs/me" || p === "/fs/logout") { /* login history: who signed in or out, when, from where */
+      const k = me.email.replace(/[^a-z0-9]/g, "_"), st = (await fs.get(`loginState/${k}`).catch(() => null)) || {}, out1 = p === "/fs/logout";
+      if (out1 || now - (st.last || 0) > 20 * 60000) {
+        const cf = req.cf || {}, ua = clip(req.headers.get("user-agent"), 160), dev = /iPhone|iPad/.test(ua) ? "iPhone" : /Android/.test(ua) ? "Android" : /Windows/.test(ua) ? "Windows PC" : /Mac/.test(ua) ? "Mac" : "Other";
+        await fs.add("logins", { email: me.email, name: me.name || "", role: me.role, id: me.code || me.tid || (me.role === "owner" ? "FS-001" : ""), ev: out1 ? "logout" : "login", ts: now, city: clip(cf.city, 40), country: clip(cf.country, 4), dev }).catch(() => {});
+      }
+      await fs.merge(`loginState/${k}`, { last: out1 ? 0 : now, email: me.email }).catch(() => {});
+      if (out1) return out({ ok: true });
+    }
+    if (p === "/fs/me") return out({ me: Object.assign({}, me, { staff: undefined, client: undefined }), client: me.client || null, staff: me.staff || null });
+    /* ----- client ----- */
+    if (p === "/fs/register" && req.method === "POST") {
+      if (me.role !== "new") return out({ error: "This Google account already has a dashboard." }, 400);
+      const name = clip(body.name, 80), biz = clip(body.business, 100), phone = clip(String(body.phone || "").replace(/[^\d+]/g, ""), 16);
+      if (!name || !biz || phone.replace(/\D/g, "").length < 10) return out({ error: "Your name, business name and a valid mobile number are needed." }, 400);
+      let code = fsCode(biz, phone), n = 0; while (await fs.get(`clients/${code}`)) code = fsCode(biz, phone) + "ABCDEFGHJKLMNPQRSTUVWXYZ"[n++ % 24];
+      const emailType = body.emailType === "business" ? "business" : body.emailType === "personal" ? "personal" : ""; if (!emailType) return out({ error: "Please tell us if this Gmail is your business or personal email." }, 400);
+      const rec = { code, email: me.email, emailType, name, business: biz, phone, address: clip(body.address, 200), city: clip(body.city, 60), country: clip(body.country || "India", 40), gst: clip(body.gst, 20), photo: me.photo || "", ts: now, upd: now, notes: "", plan: "" };
+      await fs.merge(`clients/${code}`, rec);
+      await ownerAlert(env, fs, { kind: "info", title: `🆕 New Flow Studio client · ${code}`, body: `${name} · ${biz} · ${phone}` }, now).catch(() => {});
+      return out({ ok: true, code });
+    }
+    if (p === "/fs/client") { if (me.role !== "client") return out({ error: "Client dashboard only." }, 403); const b = await fsClientBundle(fs, me.code); b.client.notes = undefined; b.client.plan = undefined; return out(b); }
+    if (p === "/fs/client/profile" && req.method === "POST") { if (me.role !== "client") return out({ error: "Client only." }, 403);
+      const upd = { upd: now }; for (const k of ["name", "business", "address", "city", "country", "gst"]) if (body[k] != null) upd[k] = clip(body[k], k === "address" ? 200 : 100);
+      if (["business", "personal"].includes(body.emailType)) upd.emailType = body.emailType;
+      if (body.phone != null) { const ph = clip(String(body.phone).replace(/[^\d+]/g, ""), 16); if (ph.replace(/\D/g, "").length >= 10) upd.phone = ph; }
+      if (upd.name === "" || upd.business === "") return out({ error: "Name and business name cannot be empty." }, 400);
+      await fs.merge(`clients/${me.code}`, upd); return out({ ok: true }); }
+    if (p === "/fs/client/request" && req.method === "POST") { if (me.role !== "client") return out({ error: "Client only." }, 403);
+      const service = clip(body.service, 80), brief = clip(body.brief, 2000); if (!service || !brief) return out({ error: "Choose a service and write what you need." }, 400);
+      const pid = "P" + new Date(now + 330 * 60000).toISOString().slice(2, 10).replace(/-/g, "") + "-" + rid(4).toUpperCase();
+      await fs.merge(`projects/${pid}`, { pid, code: me.code, client: me.client.business, service, title: clip(body.title, 120) || service, brief, budget: clip(body.budget, 40), deadline: clip(body.deadline, 40), status: "requested", assignee: "", assigneeName: "", amount: 0, ts: now, upd: now, newC: true, msgs: [{ f: "c", t: brief, ts: now, by: me.name }] });
+      await ownerAlert(env, fs, { kind: "info", title: `📝 ${me.client.business} (${me.code}) booked ${service}`, body: brief.slice(0, 140) }, now).catch(() => {});
+      return out({ ok: true, pid }); }
+    /* ----- messages (client on own project, team on any) ----- */
+    if (p === "/fs/msg" && req.method === "POST") { const pr = await fs.get(`projects/${clip(body.pid, 30)}`); if (!pr || (!team && pr.code !== me.code)) return out({ error: "Project not found." }, 404);
+      const t = clip(body.text, 2000); if (!t) return out({ error: "Write a message." }, 400);
+      const msgs = (pr.msgs || []).concat([{ f: team ? "o" : "c", t, ts: now, by: team ? by : me.name }]).slice(-120);
+      await fs.merge(`projects/${pr.pid}`, Object.assign({ msgs, upd: now }, team ? { newC: false, newT: true } : { newC: true }));
+      if (!team) await ownerAlert(env, fs, { kind: "info", title: `💬 ${pr.client} (${pr.code}) · ${pr.service}`, body: t.slice(0, 120) }, now).catch(() => {});
+      return out({ ok: true, msgs }); }
+    if (!team) return out({ error: "Team only." }, 403);
+    /* ----- team (owner + employees) ----- */
+    if (p === "/fs/team") {
+      const mon = istDay(now).slice(0, 7), yr = mon.slice(0, 4);
+      const [projects, clients, docs, staff, att] = await Promise.all([fs.query("projects", [], 1000).catch(() => []), fs.query("clients", [], 1000).catch(() => []), fs.query("docs", [], 1000).catch(() => []),
+        me.role === "owner" ? fs.query("staff", [], 200).catch(() => []) : Promise.resolve([me.staff]),
+        me.role === "owner" ? fs.query("attendance", [], 4000).catch(() => []) : fs.query("attendance", [["tid", "EQUAL", me.tid]], 400).catch(() => [])]);
+      const slips = me.role === "owner" ? await fs.query("slips", [], 2000).catch(() => []) : await fs.query("slips", [["tid", "EQUAL", me.tid]], 200).catch(() => []);
+      const cl = clients.map(c => me.role === "owner" ? c : { code: c.code, name: c.name, business: c.business, phone: c.phone, email: c.email, city: c.city, ts: c.ts });
+      return out({ me: Object.assign({}, me, { staff: undefined }), staffRec: me.staff || null, month: mon, year: yr, projects: projects.sort((a, b) => (b.upd || b.ts || 0) - (a.upd || a.ts || 0)), clients: cl.sort((a, b) => (b.ts || 0) - (a.ts || 0)), docs: docs.sort((a, b) => (b.ts || 0) - (a.ts || 0)).map(d => Object.assign({}, d, { data: undefined })), staff: staff.filter(Boolean), att: att.filter(a => String(a.day || "").startsWith(yr)), slips: slips.sort((a, b) => String(b.month).localeCompare(String(a.month))) }); }
+    if (p === "/fs/lookup") { const code = clip(q.get("code"), 24).toUpperCase(); const b = await fsClientBundle(fs, code); if (!b) return out({ error: "No client with code " + code }, 404);
+      if (me.role !== "owner") { b.client.notes = undefined; b.client.plan = undefined; } return out(b); }
+    if (p === "/fs/doc") { const d = await fs.get(`docs/${clip(q.get("id"), 40)}`); if (!d) return out({ error: "not found" }, 404); return out(d); }
+    if (p === "/fs/project/new" && req.method === "POST") { const c = await fs.get(`clients/${clip(body.code, 24).toUpperCase()}`); if (!c) return out({ error: "Client code not found." }, 404);
+      const pid = "P" + new Date(now + 330 * 60000).toISOString().slice(2, 10).replace(/-/g, "") + "-" + rid(4).toUpperCase(), service = clip(body.service, 80) || "Project";
+      await fs.merge(`projects/${pid}`, { pid, code: c.code, client: c.business, service, title: clip(body.title, 120) || service, brief: clip(body.brief, 2000), budget: "", deadline: clip(body.deadline, 40), status: "in_progress", assignee: me.role === "staff" ? me.tid : "", assigneeName: me.role === "staff" ? me.name : "", amount: Math.max(0, +body.amount || 0), ts: now, upd: now, msgs: [], createdBy: by });
+      return out({ ok: true, pid }); }
+    if (p === "/fs/project" && req.method === "POST") { const pr = await fs.get(`projects/${clip(body.pid, 30)}`); if (!pr) return out({ error: "Project not found." }, 404);
+      const upd = { upd: now }, log = (pr.log || []).slice(-60);
+      if (FS_STAGES.includes(body.status) && body.status !== pr.status) { upd.status = body.status; log.push({ s: body.status, ts: now, by }); if (body.status === "delivered") { upd.deliveredAt = now; upd.deliveredBy = pr.assignee || me.tid || "owner"; upd.deliveredByName = pr.assigneeName || me.name; } }
+      if (body.assignee != null) { if (me.role !== "owner" && body.assignee !== me.tid) return out({ error: "Only the owner can assign work to someone else." }, 403);
+        const s = body.assignee ? await fs.get(`staff/${clip(body.assignee, 20)}`) : null; upd.assignee = s ? s.tid : ""; upd.assigneeName = s ? s.name : ""; }
+      if (body.amount != null && me.role === "owner") upd.amount = Math.max(0, +body.amount || 0);
+      if (body.deadline != null) upd.deadline = clip(body.deadline, 40);
+      upd.log = log; await fs.merge(`projects/${pr.pid}`, upd); return out({ ok: true }); }
+    if (p === "/fs/doc/new" && req.method === "POST") { const c = await fs.get(`clients/${clip(body.code, 24).toUpperCase()}`); if (!c) return out({ error: "Client code not found." }, 404);
+      const d = body.data || {}; if (!["quote", "invoice"].includes(d.type) || !(d.items || []).length) return out({ error: "Add at least one service line." }, 400);
+      const did = "D" + rid(10).toUpperCase(), total = fsTotal(d), pid = clip(body.pid, 30);
+      await fs.merge(`docs/${did}`, { did, code: c.code, pid, type: d.type, no: clip(d.no, 40), total, data: JSON.stringify(d).slice(0, 60000), ts: now, by, status: "sent" });
+      if (pid) { const pr = await fs.get(`projects/${pid}`); if (pr && pr.code === c.code) { const st = d.type === "quote" ? (["requested"].includes(pr.status) ? "quoted" : pr.status) : (["delivered", "closed"].includes(pr.status) ? pr.status : "delivered");
+        const u = { upd: now, status: st, amount: d.type === "quote" ? total : (pr.amount || total), msgs: (pr.msgs || []).concat([{ f: "o", t: `${d.type === "quote" ? "📄 Quotation" : "🧾 Bill"} ${d.no || ""} added to your dashboard · ₹${total.toLocaleString("en-IN")}`, ts: now, by }]).slice(-120) };
+        if (st === "delivered" && pr.status !== "delivered") { u.deliveredAt = now; u.deliveredBy = pr.assignee || me.tid || "owner"; u.deliveredByName = pr.assigneeName || me.name; }
+        await fs.merge(`projects/${pid}`, u); } }
+      const text = `Flow Studio · ${d.type === "quote" ? "Quotation" : "Bill"} ${d.no || ""}\nHi ${c.name}, your ${d.type === "quote" ? "quotation" : "bill"} of ₹${total.toLocaleString("en-IN")} is in your dashboard.\nOpen: https://pixelflowstudio.agency/portal.html (your client code: ${c.code})`;
+      let wa = { skipped: true }; if (body.wa && c.phone) wa = await sendWAText(env, c.phone, text).catch(e => ({ ok: false, error: String(e) }));
+      return out({ ok: true, did, total, wa: !!wa.ok, waText: text, waTo: waNumber(c.phone || "") }); }
+    if (me.role !== "owner") return out({ error: "Only the owner can do this." }, 403);
+    /* ----- owner only ----- */
+    if (p === "/fs/owner/client" && req.method === "POST") { const code = clip(body.code, 24).toUpperCase(); if (!(await fs.get(`clients/${code}`))) return out({ error: "Client code not found." }, 404);
+      const upd = { upd: now }; for (const k of ["notes", "plan", "name", "business", "phone", "address", "city", "gst", "tags"]) if (body[k] != null) upd[k] = clip(body[k], k === "notes" || k === "plan" ? 2000 : 200);
+      await fs.merge(`clients/${code}`, upd); return out({ ok: true }); }
+    /* salary structure, monthly salary slips and the joining letter for each employee */
+    const num = v => Math.max(0, Math.round((+v || 0) * 100) / 100);
+    if (p === "/fs/owner/salary" && req.method === "POST") { const tid = clip(body.tid, 16); if (!(await fs.get(`staff/${tid}`))) return out({ error: "Employee not found." }, 404);
+      const S = body.salary || {}, sal = {}; for (const k of ["basic", "hra", "allow", "travel", "other", "pf", "esi", "pt", "tds", "otRate"]) sal[k] = num(S[k]);
+      sal.bank = clip(S.bank, 60); sal.acno = clip(S.acno, 30); sal.ifsc = clip(S.ifsc, 15); sal.pan = clip(S.pan, 12); sal.uan = clip(S.uan, 20); sal.cutAbsent = S.cutAbsent !== false; sal.upd = now;
+      await fs.merge(`staff/${tid}`, { salary: sal }); return out({ ok: true }); }
+    if (p === "/fs/owner/slip" && req.method === "POST") { const tid = clip(body.tid, 16), month = clip(body.month, 7); if (!/^\d{4}-\d{2}$/.test(month)) return out({ error: "Choose the month." }, 400);
+      const st = await fs.get(`staff/${tid}`); if (!st) return out({ error: "Employee not found." }, 404);
+      const d = body.slip || {}, earn = (d.earn || []).slice(0, 15).map(x => ({ l: clip(x.l, 40), v: num(x.v) })).filter(x => x.l), ded = (d.ded || []).slice(0, 15).map(x => ({ l: clip(x.l, 40), v: num(x.v) })).filter(x => x.l);
+      const gross = earn.reduce((t, x) => t + x.v, 0), dd = ded.reduce((t, x) => t + x.v, 0);
+      const rec = { tid, month, name: st.name, role: st.role || "", dept: st.dept || "", earn, ded, gross: Math.round(gross), deductions: Math.round(dd), net: Math.round(gross - dd), days: clip(d.days, 10), present: clip(d.present, 10), otHours: clip(d.otHours, 10), note: clip(d.note, 300), paidOn: clip(d.paidOn, 20), status: d.status === "paid" ? "paid" : "issued", ts: now };
+      await fs.merge(`slips/${tid}_${month}`, rec); return out({ ok: true, slip: rec }); }
+    if (p === "/fs/owner/slip/remove" && req.method === "POST") { await fs.merge(`slips/${clip(body.id, 30)}`, { status: "removed", ts: now }); return out({ ok: true }); }
+    if (p === "/fs/owner/letter" && req.method === "POST") { const tid = clip(body.tid, 16); if (!(await fs.get(`staff/${tid}`))) return out({ error: "Employee not found." }, 404);
+      const L = body.letter || {}, letter = {}; for (const k of ["ref", "date", "address", "ctc", "probation", "notice", "hours", "place", "terms", "reportTo"]) letter[k] = clip(L[k], k === "terms" ? 3000 : 200); letter.upd = now;
+      await fs.merge(`staff/${tid}`, { letter }); return out({ ok: true }); }
+    if (p === "/fs/owner/logins") { const L = await fs.query("logins", [], 2000).catch(() => []); return out({ logins: L.sort((a, b) => (b.ts || 0) - (a.ts || 0)).slice(0, 800) }); }
+    if (p === "/fs/owner/doc" && req.method === "POST") { await fs.merge(`docs/${clip(body.did, 20)}`, { status: clip(body.status, 20) || "sent", upd: now }); return out({ ok: true }); }
     return out({ error: "not found" }, 404);
   } catch (e) { return out({ error: String(e.message || e).slice(0, 200) }, 500); }
 }
@@ -876,6 +1014,7 @@ export default {
       return new Response(JSON.stringify(await ownerFeed(env)), { headers: cors });
     }
     if (url.pathname.startsWith("/shop/")) return shopRoute(req, env, url);
+    if (url.pathname.startsWith("/fs/")) return fsRoute(req, env, url);
     if (url.pathname.startsWith("/ai/") || url.pathname.startsWith("/hw/")) return aiRoute(req, env, url);
     if (url.pathname === "/wa-subscribe") return json(await waSubscribe(env, url.searchParams.get("waba") || ""));
     /* owner test: sends the 3 approved templates ONLY to the owner's own number (no other number is ever accepted) */
