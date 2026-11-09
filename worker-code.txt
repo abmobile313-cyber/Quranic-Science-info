@@ -847,12 +847,42 @@ export async function fsRoute(req, env, url) {
       if (upd.name === "" || upd.business === "") return out({ error: "Name and business name cannot be empty." }, 400);
       await fs.merge(`clients/${me.code}`, upd); return out({ ok: true }); }
     if (p === "/fs/client/request" && req.method === "POST") { if (me.role !== "client") return out({ error: "Client only." }, 403);
-      const service = clip(body.service, 80), brief = clip(body.brief, 2000); if (!service || !brief) return out({ error: "Choose a service and write what you need." }, 400);
-      const pid = "P" + new Date(now + 330 * 60000).toISOString().slice(2, 10).replace(/-/g, "") + "-" + rid(4).toUpperCase();
-      await fs.merge(`projects/${pid}`, { pid, code: me.code, client: me.client.business, service, title: clip(body.title, 120) || service, brief, budget: clip(body.budget, 40), deadline: clip(body.deadline, 40), status: "requested", assignee: "", assigneeName: "", amount: 0, ts: now, upd: now, newC: true, msgs: [{ f: "c", t: brief, ts: now, by: me.name }, { f: "o", t: `🙏 Thank you, ${me.name.split(" ")[0]}! We received your request for ${service}. Our team will send your quotation here shortly.`, ts: now + 1, by: "Flow Studio", sys: true }] });
-      await ownerAlert(env, fs, { kind: "info", title: `📝 ${me.client.business} (${me.code}) booked ${service}`, body: brief.slice(0, 140) }, now).catch(() => {});
-      await fsNote(fs, ["owner", ...(await fsCatStaff(fs, service))], `📝 New request: ${me.client.business} wants ${service}`, pid, now);
-      return out({ ok: true, pid }); }
+      const list = [...new Set((Array.isArray(body.services) ? body.services : [body.service]).map(s => clip(s, 80)).filter(Boolean))].slice(0, 12), brief = clip(body.brief, 2000), big = !!body.big;
+      if (!list.length || !brief) return out({ error: "Choose a service and write what you need." }, 400);
+      const day = new Date(now + 330 * 60000).toISOString().slice(2, 10).replace(/-/g, ""), group = list.length > 1 ? "G" + day + "-" + rid(4).toUpperCase() : "", pids = [], title0 = clip(body.title, 120);
+      for (const service of list) { const pid = "P" + day + "-" + rid(4).toUpperCase(); pids.push(pid);
+        await fs.merge(`projects/${pid}`, { pid, code: me.code, client: me.client.business, service, title: (title0 ? title0 + (list.length > 1 ? " · " + service : "") : service), brief, budget: clip(body.budget, 40), deadline: clip(body.deadline, 40), status: "requested", assignee: "", assigneeName: "", amount: 0, ts: now, upd: now, group, groupSize: list.length, big, files: [], msgs: [{ f: "o", t: `👋 Thank you, ${me.name || me.client.business}! We received your request for ${service}${list.length > 1 ? ` (part of your ${list.length}-service bundle)` : ""}. Our team will send the quotation here soon.`, ts: now, by: "Flow Studio", sys: true }] });
+        await fsNote(fs, big ? ["owner"] : ["owner", ...(await fsCatStaff(fs, service))], `${big ? "⭐ BIG project" : "📝 New request"}: ${me.client.business} wants ${service}${group ? " (bundle of " + list.length + ")" : ""}`, pid, now); }
+      await ownerAlert(env, fs, { kind: "info", title: `${big ? "⭐ BIG " : "📝 "}${me.client.business} (${me.code}) booked ${list.length > 1 ? list.length + " services" : list[0]}`, body: (list.length > 1 ? list.join(", ") + " — " : "") + brief.slice(0, 140) }, now).catch(() => {});
+      return out({ ok: true, pid: pids[0], pids, group }); }
+    /* ----- contact tickets: client -> owner or the person working on the project (no phone numbers shared) ----- */
+    if (p === "/fs/ticket" && req.method === "POST") { if (me.role !== "client") return out({ error: "Client only." }, 403);
+      const kind = body.kind === "call" ? "call" : "msg", text = clip(body.text, 1500); let to = "owner", toName = "Owner", pid = "", ptitle = "";
+      if (body.to === "team") { const pr = await fs.get(`projects/${clip(body.pid, 30)}`); if (!pr || pr.code !== me.code) return out({ error: "Choose your project." }, 400); pid = pr.pid; ptitle = pr.title;
+        if (pr.assignee) { to = "t:" + pr.assignee; toName = pr.assigneeName || "Your designer"; } else toName = "Team (not assigned yet)"; }
+      if (!text && kind === "msg") return out({ error: "Write your message." }, 400);
+      const id = "T" + new Date(now + 330 * 60000).toISOString().slice(2, 10).replace(/-/g, "") + "-" + rid(5).toUpperCase(), room = kind === "call" ? "FlowStudio-" + id + "-" + rid(8) : "";
+      const t = { id, code: me.code, client: me.client.business, cname: me.name || "", to, toName, pid, ptitle, kind, text, room, status: "open", ts: now, upd: now, replies: [] };
+      await fs.merge(`tickets/${id}`, t);
+      const line = `${kind === "call" ? "📞 CALL request" : "🎫 Ticket"} from ${me.client.business} (${me.code})${ptitle ? " · " + ptitle : ""}: ${(text || "wants to talk").slice(0, 90)}`;
+      await fsNote(fs, [to, "owner"], line, pid, now);
+      await ownerAlert(env, fs, { kind: "info", title: line.slice(0, 120), body: "Open the dashboard → Client tickets" }, now).catch(() => {});
+      return out({ ok: true, ticket: t }); }
+    if (p === "/fs/tickets") { let list;
+      if (me.role === "client") list = await fs.query("tickets", [["code", "EQUAL", me.code]], 200).catch(() => []);
+      else if (me.role === "owner") list = await fs.query("tickets", [], 500).catch(() => []);
+      else if (me.role === "staff") list = await fs.query("tickets", [["to", "EQUAL", "t:" + me.tid]], 300).catch(() => []);
+      else return out({ error: "Not allowed." }, 403);
+      return out({ tickets: list.sort((a, b) => (b.upd || b.ts || 0) - (a.upd || a.ts || 0)) }); }
+    if (p === "/fs/ticket/reply" && req.method === "POST") { const t = await fs.get(`tickets/${clip(body.id, 40)}`); if (!t) return out({ error: "Ticket not found." }, 404);
+      const mine = me.role === "client" ? t.code === me.code : me.role === "owner" || (me.role === "staff" && t.to === "t:" + me.tid); if (!mine) return out({ error: "Not allowed." }, 403);
+      const u = { upd: now }, txt = clip(body.text, 1500); if (txt) u.replies = (t.replies || []).concat([{ f: me.role === "client" ? "c" : "o", t: txt, by: me.role === "client" ? (me.name || "Client") : me.role === "owner" ? "Owner" : me.name, ts: now }]).slice(-80);
+      if (["open", "answered", "closed"].includes(body.status)) u.status = body.status; else if (txt) u.status = me.role === "client" ? "open" : "answered";
+      if (body.call && me.role !== "client") { u.room = t.room || "FlowStudio-" + t.id + "-" + rid(8); u.callAt = now; }
+      await fs.merge(`tickets/${t.id}`, u);
+      if (me.role === "client") await fsNote(fs, [t.to, "owner"], `🎫 ${t.client} replied: ${(txt || "").slice(0, 90)}`, t.pid, now);
+      else await fsNote(fs, ["c:" + t.code], body.call ? `📞 ${me.role === "owner" ? "The owner" : "Your designer"} is waiting on the call — open Contact team and tap Join call` : `🎫 Reply from ${me.role === "owner" ? "the owner" : "your designer"}: ${(txt || (u.status === "closed" ? "ticket closed" : "")).slice(0, 90)}`, t.pid, now);
+      return out({ ok: true, ticket: Object.assign({}, t, u) }); }
     /* ----- messages (client on own project, team on any) ----- */
     if (p === "/fs/msg" && req.method === "POST") { const pr = await fs.get(`projects/${clip(body.pid, 30)}`); if (!pr || (!team && pr.code !== me.code)) return out({ error: "Project not found." }, 404);
       const t = clip(body.text, 2000); if (!t) return out({ error: "Write a message." }, 400);
