@@ -36,20 +36,40 @@ input,select,textarea{font:inherit;font-size:.88rem;color:var(--text);background
 .item.off{opacity:.5}
 .login{max-width:420px;margin:15vh auto;text-align:center}
 .toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#1d1216;border:1px solid var(--line);padding:10px 16px;border-radius:999px;z-index:9}
-@media (max-width:760px){.row{grid-template-columns:1fr}.grid2{grid-template-columns:1fr}}
+@media (max-width:760px){.row{grid-template-columns:1fr}.grid2{grid-template-columns:1fr}.qi{grid-template-columns:1fr 1fr!important}.qi>input:nth-child(2){grid-column:1/-1;order:-1}}
 .chat{display:grid;gap:8px;max-height:340px;overflow:auto;padding:10px;border-radius:12px;background:rgba(255,255,255,.03)}
 .msg{max-width:80%;padding:10px 12px;border-radius:12px;background:rgba(255,255,255,.07);display:grid;gap:4px;white-space:pre-wrap}.msg.o{justify-self:end;background:rgba(227,170,60,.18)}.msg small{opacity:.6;font-size:11px}
 </style>
 </head>
 <body>
 <div class="wrap">
-<div class="login box" id="loginV" hidden><h1>Shop Admin</h1><p class="muted">Orders, quotes and products for all brands. Owner login only.</p><button class="btn gold" id="loginB" type="button">Sign in with Google</button></div>
+<div class="login box" id="loginV" hidden><h1>Shop Admin</h1><p class="muted">Orders, quotes and products for all brands. Sign in with the owner Google account, or a Google account the owner has added to the team.</p><button class="btn gold" id="loginB" type="button">Sign in with Google</button></div>
 <div id="app" hidden>
-  <div class="top"><div><h1>Shop Admin</h1><div class="muted" id="sub">Loading…</div></div><div style="display:flex;gap:8px;flex-wrap:wrap"><a class="btn" href="/hub.html">← Command Center</a><button class="btn" id="ref" type="button">↻ Refresh</button></div></div>
+  <div class="top"><div><h1>Shop Admin</h1><div class="muted" id="sub">Loading…</div></div><div style="display:flex;gap:8px;flex-wrap:wrap"><a class="btn" href="/hub.html">← Command Center</a><button class="btn" id="ref" type="button">↻ Refresh</button><button class="btn" id="logout" type="button">Sign out</button></div></div>
   <div class="tabs" id="tabs"></div>
+  <div class="box" id="qmBox" hidden><h2>Quotation &amp; bill maker <span class="muted">Flow Studio format · sends a link the client can open and download as PDF</span></h2>
+    <div class="grid2"><label class="ctl">Type<select id="qType"><option value="quote">Quotation</option><option value="invoice">Bill / Invoice</option></select></label><label class="ctl">Number<input id="qNo"></label></div>
+    <div class="grid2"><label class="ctl">Client / business name<input id="qName" placeholder="e.g. Noor Bakers"></label><label class="ctl">Client WhatsApp number<input id="qPhone" placeholder="+91 90000 00000" inputmode="tel"></label></div>
+    <div class="grid2"><label class="ctl">Contact person (optional)<input id="qPerson" placeholder="e.g. Ayaan Khan"></label><label class="ctl">Project<input id="qProj" placeholder="e.g. Brand launch: reels, posts &amp; landing page"></label></div>
+    <div class="grid2"><label class="ctl">Date<input id="qDate"></label><label class="ctl"><span id="qVLbl">Valid until</span><input id="qValid"></label></div>
+    <div class="grid2"><label class="ctl" id="qDelW">Delivery time<input id="qDel" value="10–12 working days"></label><label class="ctl">GST % (0 = no GST)<input id="qGst" type="number" min="0" value="0"></label></div>
+    <div id="qItems" style="display:grid;gap:8px;margin:10px 0"></div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center"><button class="btn" type="button" id="qAdd">+ Add service</button><b id="qTot" style="margin-left:auto"></b></div>
+    <div id="qPaidW" hidden style="margin-top:10px"><div class="grid2"><label class="ctl">Already paid ₹ (advance)<input id="qPaid" type="number" min="0"></label><label class="ctl">Paid on<input id="qPaidOn"></label></div><label class="ctl">Quote ref. (optional)<input id="qRef"></label></div>
+    <details style="margin-top:10px"><summary class="muted" style="cursor:pointer">Payment details printed on the quote (saved on this device)</summary><div class="grid2" style="margin-top:8px"><label class="ctl">UPI ID<input id="pUpi"></label><label class="ctl">Bank<input id="pBank"></label><label class="ctl">A/c no.<input id="pAc"></label><label class="ctl">IFSC<input id="pIfsc"></label></div></details>
+    <input type="hidden" id="qFor">
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px"><a class="btn" id="qPrev" target="_blank" rel="noopener" href="#">👁 Preview / PDF</a><button class="btn gold" type="button" id="qSend">Send on WhatsApp</button><button class="btn" type="button" id="qReset">Clear</button></div>
+    <p class="muted" id="qHint" style="margin:8px 0 0"></p>
+  </div>
+  <div class="box" id="teamBox" hidden><h2>Team <span class="muted">people who can reply to orders and send quotations</span></h2>
+    <div id="teamL"></div>
+    <div class="grid2" style="margin-top:10px"><input id="tName" placeholder="Name (e.g. Sameer)"><input id="tMail" placeholder="Their Gmail (e.g. sameer@gmail.com)" inputmode="email"></div>
+    <button class="btn gold" type="button" id="tAdd" style="margin-top:8px">+ Add to team</button>
+    <p class="muted" style="margin:8px 0 0">They open <b>quranicscience.info/shop-admin.html</b> (or Team login on pixelflowstudio.agency) and sign in with that Gmail. Team members can see orders, update status, reply to quotes and send quotations. Only you can change products, prices, delivery charge and the team.</p>
+  </div>
   <div class="box"><h2>Orders <span class="muted" id="oCount"></span></h2><div id="orders"></div></div>
   <div class="box"><h2>Quote requests <span class="muted" id="qCount"></span></h2><div id="quotes"></div></div>
-  <div class="box"><h2>Products & services <button class="btn gold" id="newItem" type="button">+ Add</button></h2>
+  <div class="box"><h2>Products & services <button class="btn gold ownerOnly" id="newItem" type="button">+ Add</button></h2>
     <form id="itemF" class="box" hidden style="background:rgba(0,0,0,.25)">
       <input type="hidden" id="iId">
       <div class="grid2"><label class="ctl">Name<input id="iName" required></label><label class="ctl">Type<select id="iKind"><option value="product">Product (fixed price, add to cart)</option><option value="service">Service (fixed price)</option><option value="quote">Quote only (customer asks for price)</option></select></label></div>
@@ -62,7 +82,7 @@ input,select,textarea{font:inherit;font-size:.88rem;color:var(--text);background
     </form>
     <div class="items" id="items"></div>
   </div>
-  <div class="box"><h2>Delivery charge</h2><form id="shipF" class="grid2"><label class="ctl">Delivery <span class="cur">₹</span> per order<input id="sShip" type="number" min="0"></label><label class="ctl">Free delivery above <span class="cur">₹</span><input id="sFree" type="number" min="0"></label><button class="btn gold" type="submit" style="width:max-content">Save</button></form>
+  <div class="box"><h2>Delivery charge</h2><form id="shipF" class="grid2"><label class="ctl">Delivery <span class="cur">₹</span> per order<input id="sShip" type="number" min="0"></label><label class="ctl">Free delivery above <span class="cur">₹</span><input id="sFree" type="number" min="0"></label><button class="btn gold ownerOnly" type="submit" style="width:max-content">Save</button></form>
     <p class="muted" id="rzp"></p></div>
 </div>
 </div>
@@ -80,16 +100,19 @@ const CURS={};const sym=()=>CURS[brand]||"₹";const rs=v=>sym()+(+v||0).toLocal
 const when=t=>t?new Date(t).toLocaleString("en-IN",{day:"numeric",month:"short",hour:"2-digit",minute:"2-digit"}):"";
 const wa=(ph,msg)=>`https://wa.me/${String(ph||"").replace(/\D/g,"").replace(/^(\d{10})$/,"91$1")}?text=${encodeURIComponent(msg)}`;
 function toast(t){const e=$("toast");e.textContent=t;e.hidden=false;clearTimeout(toast.t);toast.t=setTimeout(()=>e.hidden=true,2500)}
-let brand=(()=>{try{return localStorage.getItem("sa-brand")||"flowstudio"}catch(e){return"flowstudio"}})(),D={};
+let ME={};let brand=(()=>{try{return localStorage.getItem("sa-brand")||"flowstudio"}catch(e){return"flowstudio"}})(),D={};
 $("loginB").onclick=()=>auth.signInWithPopup(new firebase.auth.GoogleAuthProvider()).catch(()=>auth.signInWithRedirect(new firebase.auth.GoogleAuthProvider()));
-auth.onAuthStateChanged(u=>{const ok=u&&u.email==="quranicscience01@gmail.com";$("loginV").hidden=ok;$("app").hidden=!ok;if(ok){tabs();load()}});
+auth.onAuthStateChanged(u=>{$("loginV").hidden=!!u;$("app").hidden=!u;if(u){tabs();load()}});
+$("logout").onclick=()=>auth.signOut();
 async function call(method,body){const t=await auth.currentUser.getIdToken();const r=await fetch(API+(method==="GET"?"?brand="+brand:""),{method,headers:{authorization:"Bearer "+t,"content-type":"application/json"},body:body?JSON.stringify(body):undefined});const j=await r.json();if(!r.ok||j.error)throw new Error(j.error||r.status);return j}
 function tabs(){$("tabs").innerHTML=Object.entries(BRANDS).map(([k,b])=>`<button type="button" data-b="${k}" aria-pressed="${k===brand}">${b.name}</button>`).join("");}
 $("tabs").onclick=e=>{const b=e.target.closest("[data-b]");if(!b)return;brand=b.dataset.b;try{localStorage.setItem("sa-brand",brand)}catch(x){}tabs();load()};
 $("ref").onclick=load;
 async function load(){
   $("sub").textContent="Loading "+BRANDS[brand].name+"…";
-  try{D=await call("GET");}catch(e){$("sub").textContent="Could not load: "+e.message;return}
+  try{D=await call("GET");}catch(e){$("sub").textContent=/team only|401/.test(e.message)?"This Google account ("+(auth.currentUser||{}).email+") is not on the team yet. Ask the owner to add it, then refresh.":"Could not load: "+e.message;return}
+  ME=D.me||{owner:true};$("teamBox").hidden=!ME.owner;$("qmBox").hidden=brand!=="flowstudio";document.querySelectorAll(".ownerOnly").forEach(x=>x.hidden=!ME.owner);
+  if(ME.owner)drawTeam();
   $("sub").textContent=BRANDS[brand].name+" · "+BRANDS[brand].site.replace("https://","");
   document.querySelectorAll(".cur").forEach(e=>e.textContent=sym());
   const site=BRANDS[brand].site;
@@ -109,6 +132,7 @@ async function load(){
       <div class="ctl" style="grid-column:1/-1"><textarea rows="3" data-qn="${q.id}" placeholder="Write your answer or quotation (what is included, delivery time)…"></textarea>
         <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center"><input type="number" min="0" data-qp="${q.id}" placeholder="Price ${sym()} (optional)" value="${q.price||""}" style="max-width:180px">
         <button class="btn gold" type="button" data-qsave="${q.id}">Send reply (site + WhatsApp)</button>
+        ${brand==="flowstudio"?`<button class="btn" type="button" data-qmake="${q.id}">🧾 Make formal quotation</button>`:""}
         <a class="btn" target="_blank" rel="noopener" href="${link}">Open client view</a></div></div></div>`}).join(""):`<p class="muted">No quote requests yet.</p>`;
   $("items").innerHTML=D.items.length?D.items.map(i=>`<div class="item ${i.active===false?"off":""}"><b>${H(i.name)}</b><small class="muted">${H(i.kind)} · ${i.price?rs(i.price):"quote"}${i.size?" · "+H(i.size):""}${i.cat?" · "+H(i.cat):""}${i.stock>=0?" · stock "+i.stock:""}</small>
     <div style="display:flex;gap:6px;flex-wrap:wrap"><button class="btn" type="button" data-edit="${i.id}">Edit</button><button class="btn" type="button" data-hide="${i.id}" data-act="${i.active===false}">${i.active===false?"Show":"Hide"}</button></div></div>`).join(""):`<p class="muted">No products yet. Tap “+ Add”.</p>`;
@@ -131,6 +155,50 @@ $("newItem").onclick=()=>fill();$("iCancel").onclick=()=>$("itemF").hidden=true;
 function img(u){const m=/drive\.google\.com\/(?:file\/d\/|open\?id=)([\w-]{20,})/.exec(u||"");return m?`https://lh3.googleusercontent.com/d/${m[1]}=w1000`:u}
 $("itemF").onsubmit=async e=>{e.preventDefault();try{await call("POST",{action:"saveItem",item:{id:$("iId").value||undefined,brand,name:$("iName").value,kind:$("iKind").value,price:$("iPrice").value,mrp:$("iMrp").value,cat:$("iCat").value,size:$("iSize").value,desc:$("iDesc").value,img:img($("iImg").value),tag:$("iTag").value,stock:$("iStock").value}});$("itemF").hidden=true;toast("Saved ✓");load()}catch(x){toast("Error: "+x.message)}};
 $("shipF").onsubmit=async e=>{e.preventDefault();try{await call("POST",{action:"config",brand,ship:$("sShip").value,freeShipAbove:$("sFree").value});toast("Saved ✓")}catch(x){toast("Error: "+x.message)}};
+
+/* ---------- quotation / bill maker (Flow Studio format, rendered by pixelflowstudio.agency/quote.html) ---------- */
+const QSITE="https://pixelflowstudio.agency/quote.html";
+const SVC=["Shoot + Edit","Video Editing","Commercial Video Editing","Graphic Designing","Commercial Graphic Designing","Social Media Handling","Social Media Management","Landing Page Design","Website Development","PC + Mobile Combo App","Mobile App Development","PC Software","Custom Software & Web Apps","AI Video Ads & Reels","AI Product Photoshoot","AI Films & Storytelling","AI Content Automation","UGC Videos"];
+const fmtD=d=>d.toLocaleDateString("en-GB",{day:"2-digit",month:"short",year:"numeric"});
+const addD=n=>fmtD(new Date(Date.now()+n*864e5));
+function qRow(it={}){const r=document.createElement("div");r.className="qi";r.style.cssText="display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1.6fr) 70px 110px 36px;gap:6px;align-items:center";
+  r.innerHTML=`<input list="svcL" placeholder="Service" value="${H(it.service||"")}" data-k="service"><input placeholder="What is included (e.g. 4 reels · 30–45 sec · 9:16)" value="${H(it.desc||"")}" data-k="desc"><input type="number" min="0" step="any" placeholder="Qty" value="${it.qty||1}" data-k="qty"><input type="number" min="0" step="any" placeholder="Rate ₹" value="${it.rate||""}" data-k="rate"><button class="btn" type="button" title="Remove" data-qdel>✕</button>`;
+  $("qItems").appendChild(r);qCalc()}
+function qData(){const items=[...document.querySelectorAll("#qItems .qi")].map(r=>{const o={};r.querySelectorAll("[data-k]").forEach(i=>o[i.dataset.k]=i.type==="number"?+i.value||0:i.value.trim());return o}).filter(i=>i.service&&i.qty&&i.rate);
+  const inv=$("qType").value==="invoice",ph=$("qPhone").value.trim(),d={type:inv?"invoice":"quote",no:$("qNo").value.trim(),date:$("qDate").value.trim(),client:{name:$("qName").value.trim(),contact:[$("qPerson").value.trim(),ph].filter(Boolean).join(" · "),project:$("qProj").value.trim()},items,gst:+$("qGst").value||0,split:.4,
+    pay:{upi:$("pUpi").value.trim(),bank:$("pBank").value.trim(),acno:$("pAc").value.trim(),ifsc:$("pIfsc").value.trim()}};
+  if(inv){d.due_date=$("qValid").value.trim();d.ref_quote=$("qRef").value.trim();const p=+$("qPaid").value||0;d.paid=p?[{label:"40% advance",date:$("qPaidOn").value.trim(),amount:p}]:[]}else{d.valid_until=$("qValid").value.trim();d.delivery=$("qDel").value.trim()}
+  const qr=D.quotes&&D.quotes.find(x=>x.id===$("qFor").value);if(qr)d.link=`${BRANDS.flowstudio.site}/#quote=${qr.id}.${qr.key}`;
+  return d}
+const enc=o=>{const b=new TextEncoder().encode(JSON.stringify(o));let s="";b.forEach(x=>s+=String.fromCharCode(x));return btoa(s).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"")};
+const qLink=d=>QSITE+"#d="+enc(d);
+function qCalc(){const d=qData(),sub=d.items.reduce((t,i)=>t+i.qty*i.rate,0),g=Math.round(sub*(d.gst||0)/100),tot=sub+g;$("qTot").textContent=d.items.length?`Total ₹${tot.toLocaleString("en-IN")}`+(d.type==="quote"?` · 40% advance ₹${Math.round(tot*.4).toLocaleString("en-IN")}`:""):"";$("qPrev").href=qLink(d);
+  try{localStorage.setItem("qm-pay",JSON.stringify(d.pay))}catch(e){}return tot}
+function qType(){const inv=$("qType").value==="invoice";$("qVLbl").textContent=inv?"Due date":"Valid until";$("qDelW").hidden=inv;$("qPaidW").hidden=!inv;
+  $("qNo").value=(inv?"FS-INV-":"FS-Q-")+new Date().getFullYear()+"-"+String(Date.now()).slice(-4);$("qValid").value=addD(inv?7:14);qCalc()}
+function qReset(pre={}){$("qType").value=pre.type||"quote";$("qDate").value=fmtD(new Date());["qName","qPhone","qPerson","qProj","qPaid","qRef","qFor"].forEach(k=>$(k).value="");$("qPaidOn").value=fmtD(new Date());$("qGst").value=0;$("qItems").innerHTML="";
+  Object.entries(pre).forEach(([k,v])=>{if($(k)&&k!=="type")$(k).value=v});qType();qRow(pre.item||{});$("qHint").textContent=""}
+(function(){const dl=document.createElement("datalist");dl.id="svcL";dl.innerHTML=SVC.map(s=>`<option value="${s}">`).join("");document.body.appendChild(dl);
+  try{const p=JSON.parse(localStorage.getItem("qm-pay")||"{}");$("pUpi").value=p.upi||"";$("pBank").value=p.bank||"";$("pAc").value=p.acno||"";$("pIfsc").value=p.ifsc||""}catch(e){}
+  qReset();$("qmBox").addEventListener("input",qCalc);$("qType").onchange=qType;$("qAdd").onclick=()=>qRow();$("qReset").onclick=()=>qReset();
+  $("qItems").onclick=e=>{if(e.target.closest("[data-qdel]")){e.target.closest(".qi").remove();qCalc()}};})();
+$("qSend").onclick=async()=>{const d=qData();if(!d.client.name||!d.items.length){toast("Add the client name and at least one service with qty and rate");return}
+  const tot=qCalc(),link=qLink(d),inv=d.type==="invoice",nm=d.client.name;
+  const msg=inv?`Assalamu Alaikum ${nm},\n\nYour Flow Studio bill ${d.no} is ready.\nTotal: ₹${tot.toLocaleString("en-IN")}\n\nView and download the PDF here:\n${link}`:`Assalamu Alaikum ${nm},\n\nThank you for choosing Flow Studio. Your quotation ${d.no} is ready.\nTotal: ₹${tot.toLocaleString("en-IN")} (40% advance ₹${Math.round(tot*.4).toLocaleString("en-IN")}, 60% on delivery)\n\nView and download the PDF here:\n${link}\n\nReply "Accepted" to start.`;
+  const qid=$("qFor").value;
+  if(qid&&!inv){try{$("qSend").disabled=true;const r=await call("POST",{action:"quoteReply",id:qid,price:tot,note:`Quotation ${d.no}: ₹${tot.toLocaleString("en-IN")}. Full quotation (PDF): ${link}`});
+      if(r.wa){toast("Sent ✓ on the website and on WhatsApp");$("qHint").textContent="Sent to the client on WhatsApp and in their quote chat. They can pay the 40% advance from the website.";load();return}}catch(x){toast("Error: "+x.message)}finally{$("qSend").disabled=false}}
+  const ph=$("qPhone").value;if(!ph.replace(/\D/g,"")){toast("Add the client's WhatsApp number");return}
+  window.open(wa(ph,msg),"_blank","noopener");$("qHint").textContent="WhatsApp opened with the message and quotation link. Tap Send there."};
+document.addEventListener("click",e=>{const b=e.target.closest("[data-qmake]");if(!b)return;const q=D.quotes.find(x=>x.id===b.dataset.qmake);if(!q)return;const c=q.customer||{};
+  qReset({qName:c.name||"",qPhone:c.phone||"",qProj:q.service||"",qFor:q.id,item:{service:SVC.find(s=>s.toLowerCase()===String(q.service||"").toLowerCase())||q.service||"",desc:String(q.brief||"").slice(0,90),qty:1,rate:q.price||""}});
+  $("qHint").textContent="Linked to "+(c.name||"this client")+"'s request: sending will also post it in their quote chat and set the price they pay online.";$("qmBox").scrollIntoView({behavior:"smooth"})});
+/* ---------- team (owner only) ---------- */
+function drawTeam(){const t=D.team||{emails:[],names:{}};$("teamL").innerHTML=t.emails.length?t.emails.map(m=>`<div class="row" style="grid-template-columns:1fr auto"><div><b>${H(t.names[m.replace(/\./g,"_")]||m.split("@")[0])}</b><small>${H(m)}</small></div><button class="btn" type="button" data-trm="${H(m)}">Remove</button></div>`).join(""):`<p class="muted">No team members yet. Only you can sign in.</p>`}
+async function saveTeam(emails,names){const r=await call("POST",{action:"team",emails,names});toast("Team saved ✓");load()}
+$("tAdd").onclick=async()=>{const m=$("tMail").value.trim().toLowerCase(),n=$("tName").value.trim();if(!/^[^@\s]+@[^@\s]+\.[a-z]{2,}$/.test(m)){toast("Write a valid Gmail address");return}
+  const t=D.team||{emails:[],names:{}},names={};t.emails.forEach(x=>names[x]=t.names[x.replace(/\./g,"_")]||"");names[m]=n;try{await saveTeam([...new Set(t.emails.concat(m))],names);$("tMail").value="";$("tName").value=""}catch(x){toast("Error: "+x.message)}};
+$("teamL").onclick=async e=>{const b=e.target.closest("[data-trm]");if(!b)return;const t=D.team,names={};t.emails.forEach(x=>names[x]=t.names[x.replace(/\./g,"_")]||"");try{await saveTeam(t.emails.filter(x=>x!==b.dataset.trm),names)}catch(x){toast("Error: "+x.message)}};
 </script>
 <script data-goatcounter="https://deensaathi.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
 </body>

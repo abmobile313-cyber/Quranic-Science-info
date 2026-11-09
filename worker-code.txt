@@ -656,6 +656,14 @@ async function verifyOwner(req, env) {
   const me = (who.users || [])[0] || {};
   return !!me.emailVerified && ownerEmails(env).includes(String(me.email || "").toLowerCase());
 }
+async function verifyStaff(req, env, fs) {
+  const tok = (req.headers.get("authorization") || "").replace(/^Bearer\s+/i, ""); if (!tok) return null;
+  const who = await fetch(`https://identitytoolkit.googleapis.com/v1/accounts:lookup?key=${env.FIREBASE_WEB_KEY || "AIzaSyCCoqjw2BzgWcal6OVBqONYOB7x--WP12g"}`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ idToken: tok }) }).then(r => r.json()).catch(() => ({}));
+  const u = (who.users || [])[0] || {}; const email = String(u.email || "").toLowerCase(); if (!u.emailVerified || !email) return null;
+  if (ownerEmails(env).includes(email)) return { email, owner: true };
+  const t = await fs.get("config/team").catch(() => null);
+  return t && (t.emails || []).includes(email) ? { email, owner: false } : null;
+}
 export async function shopRoute(req, env, url) {
   const cors = { "access-control-allow-origin": "*", "access-control-allow-headers": "authorization,content-type", "access-control-allow-methods": "GET,POST,OPTIONS", "content-type": "application/json", "cache-control": "no-store" };
   const out = (o, s = 200) => new Response(JSON.stringify(o), { status: s, headers: cors });
@@ -684,10 +692,15 @@ export async function shopRoute(req, env, url) {
       await ownerAlert(env, fs, { kind: "info", title: `💬 ${SHOP_BRANDS[r.brand]} · ${r.customer?.name || "client"} replied`, body: t.slice(0, 120) }, now).catch(() => {});
       return out({ ok: true, msgs }); }
     if (p.startsWith("/shop/admin")) {
-      if (!(await verifyOwner(req, env))) return out({ error: "owner only" }, 401);
+      const me = await verifyStaff(req, env, fs); if (!me) return out({ error: "team only" }, 401);
+      const OWN = ["saveItem", "hideItem", "config", "team"];
+      if (req.method === "POST" && OWN.includes(body.action) && !me.owner) return out({ error: "Only the owner can do this." }, 403);
+      if (req.method === "POST" && body.action === "team") { const emails = [...new Set((body.emails || []).map(e => clip(e, 120).toLowerCase()).filter(e => /^[^@\s]+@[^@\s]+\.[a-z]{2,}$/.test(e)))].slice(0, 30);
+        const names = {}; for (const e of emails) names[e.replace(/\./g, "_")] = clip((body.names || {})[e], 60); await fs.merge("config/team", { emails, names, upd: Date.now() }); return out({ ok: true, emails }); }
       if (req.method === "GET") { const b = q.get("brand");
         const [items, orders, quotes, cfg] = await Promise.all([fs.query("shopItems", b ? [["brand", "EQUAL", b]] : [], 500), fs.query("orders", b ? [["brand", "EQUAL", b]] : [], 500), fs.query("quotes", b ? [["brand", "EQUAL", b]] : [], 300), fs.get("config/shop")]);
-        return out({ items: items.sort((a, c) => (a.sort || 0) - (c.sort || 0)), orders: orders.sort((a, c) => (c.ts || 0) - (a.ts || 0)), quotes: quotes.sort((a, c) => (c.ts || 0) - (a.ts || 0)), config: cfg || {}, rzpKey: Object.keys(SHOP_BRANDS).filter(b => shopKey(env, b)), currency: SHOP_CUR }); }
+        const team = me.owner ? ((await fs.get("config/team").catch(() => null)) || {}) : {};
+        return out({ me: { email: me.email, owner: me.owner }, team: me.owner ? { emails: team.emails || [], names: team.names || {} } : undefined, items: items.sort((a, c) => (a.sort || 0) - (c.sort || 0)), orders: orders.sort((a, c) => (c.ts || 0) - (a.ts || 0)), quotes: quotes.sort((a, c) => (c.ts || 0) - (a.ts || 0)), config: cfg || {}, rzpKey: Object.keys(SHOP_BRANDS).filter(b => shopKey(env, b)), currency: SHOP_CUR }); }
       const a = body.action, now = Date.now();
       if (a === "saveItem") { const it = body.item || {}; if (!SHOP_BRANDS[it.brand] || !clip(it.name)) return out({ error: "brand and name needed" }, 400);
         const id = it.id || (it.brand + "__" + clip(it.name, 60).toLowerCase().replace(/[^a-z0-9]+/g, "-") + "-" + rid(3));
