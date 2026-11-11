@@ -259,7 +259,7 @@ function loginBox(after) {
 
 /* ============ views ============ */
 function route() {
-  stopAll();
+  stopAll(); if (typeof CL !== "undefined" && !/^#lesson=/.test(location.hash)) { CL.on = false; clearInterval(CL.tick); document.body.classList.remove("incls"); }
   const h = (location.hash || "#home").slice(1), [v, a] = h.split("=");
   if (v === "tajweed" || v === "arabic") return viewCourse(v);
   if (v === "lesson" && a) return viewLesson(a);
@@ -283,12 +283,12 @@ async function viewHome() {
       ${s && s.done ? `<div class="bar"><i style="width:${s.pct}%"></i></div><span class="mini">${t("progress")} ${num(s.pct)}% · ${t("score")} ${num(s.score)}%</span>` : ""}
       <div class="acts">${c !== "combo" ? `<a class="btn ${own || s.done ? "pri" : "cy"}" href="#${c}">${own || s.done ? t("open") : t("start")}</a>` : ""}${own ? "" : `<button class="btn ${c === "combo" ? "pri" : ""}" data-buy="${c}">${t("enroll")}</button>`}${full ? "" : `<button class="btn fullb" data-buy="${c}" data-full="1">${t("addFull")}</button>`}</div></article>`;
   };
-  app.innerHTML = `<section class="hero"><div><span class="eyebrow">✦ ${t("heroEy")}</span><h1>${t("hero1")} <em>${t("hero2")}</em></h1><p class="lead">${t("heroP")}</p>
+  app.innerHTML = (typeof wayHTML === "function" ? wayHTML() : "") + `<section class="hero"><div><span class="eyebrow">✦ ${t("heroEy")}</span><h1>${t("hero1")} <em>${t("hero2")}</em></h1><p class="lead">${t("heroP")}</p>
     <div class="feat"><span>📚 ${t("f1")}</span><span>🔊 ${t("f2")}</span><span>🕋 ${t("f3")}</span><span>🤖 ${t("f4")}</span><span>🎓 ${t("f5")}</span></div></div>
     <div class="orb"><img src="icon-512.png" alt="Quranic Science AI"></div></section>
     ${isOwner() ? `<p class="mini">⭐ ${t("owner")}</p>` : ""}
     <section class="sec"><a class="cc labcard" href="#lab"><span class="badge">FREE</span><h3>🗣️ ${pick(LABX.title)}</h3><p>${pick(LABX.desc)}</p><span class="btn cy sm">▶ ${pick(LABX.title)}</span></a></section>
-    <section class="sec"><h2>${t("courses")}</h2><div class="cards">${card("tajweed", "dT")}${card("arabic", "dA")}${card("combo", "dC")}</div></section>
+    <section class="sec" id="aic"><h2>${t("courses")}</h2><div class="cards">${card("tajweed", "dT")}${card("arabic", "dA")}${card("combo", "dC")}</div></section>
     <section class="sec"><div class="cards two"><div class="cc"><h3>📅 ${t("dailyT")}</h3><p>${t("dailyD")}</p></div><div class="cc"><h3>⚡ ${t("fullT")}</h3><p>${t("fullD")}</p></div></div></section>`;
   wireBuy(app);
 }
@@ -586,7 +586,7 @@ async function viewLesson(id) {
   const L = lockInfo(c, o, id); if (!L.open) { toast(L.why === "time" ? t("waitSlot") + ": " + fmtAt(L.at) : L.why === "buy" ? t("buyFirst") : L.why === "live" ? pick(LIVEX.wait) : t("locked")); location.hash = c; return; }
   let data = null; try { data = await lessonData(id); } catch (e) { if (!S.user) return loginBox(() => route()); }
   if (!data) { toast(t("soon")); location.hash = c; return; }
-  wuduGate(c, () => { Object.assign(LESSON, { id, data, i: 0, c, meta, o }); drawMoment(); });
+  wuduGate(c, () => { Object.assign(LESSON, { id, data, i: 0, c, meta, o }); typeof startClass === "function" ? startClass(id) : drawMoment(); });
 }
 /* wudu is required before every Tajweed / Arabic lesson (same rule as the live classes); asked again after 3 hours */
 const WUDU = { ar: "هَلْ تَوَضَّأْتَ؟", arSub: "لَا يَمَسُّهُۥٓ إِلَّا ٱلْمُطَهَّرُونَ",
@@ -609,20 +609,20 @@ function wuduGate(c, go) {
 }
 function lessonHead() {
   const { meta, c, data, i } = LESSON;
-  return `<div class="lhead"><a class="btn sm" href="#${c}">←</a><h2>${t("week")} ${num(meta.wi + 1)} · ${t("day")} ${num(meta.di + 1)} — ${esc(pick(meta.title))}</h2>
+  return (typeof classBar === "function" ? classBar() : "") + `<div class="lhead"><a class="btn sm" href="#${c}">←</a><h2>${t("week")} ${num(meta.wi + 1)} · ${t("day")} ${num(meta.di + 1)} — ${esc(pick(meta.title))}</h2>
     <button class="btn sm" id="vt">${S.voice ? "🔊 " + t("voiceOn") : "🔇 " + t("voiceOff")}</button></div>
     <div class="dots">${data.moments.map((m, k) => `<i class="${k === i ? "on" : k < i ? "past" : ""}"></i>`).join("")}<i class="${i >= data.moments.length ? "on" : ""}"></i></div>`;
 }
 function drawMoment() {
   const { data, i } = LESSON, m = data.moments[i], app = $("#app");
-  if (!m) return drawQuiz(0, []);
+  if (!m) return typeof CL !== "undefined" && CL.on ? afterMoments() : drawQuiz(0, []);
   app.innerHTML = lessonHead() + `<section class="stage">
     <div class="vo" id="vo"><span class="eq"><i></i><i></i><i></i></span><button class="btn sm" id="rv">↻ ${t("replay")}</button></div>
     <div class="say">${esc(pick(m))}</div>
     ${visualHTML(m.v)}${m.ar ? tilesHTML(m.ar, m.wq, m.aw) : ""}
     ${/^(Homework|Weekly test|Test|Speaking test)\b/.test(m.en || "") ? `<p class="mini hwhint">📤 ${t("hwHint")}</p>` : ""}
     <div class="tools">${m.q ? `<button class="btn cy" id="qb">🕋 ${t("listen")}</button>` : m.wq || m.aw ? `<button class="btn cy" id="qb">🔊 ${t("arVoice")}</button>` : ""}${m.q || m.wq || m.v || m.ar ? `<button class="btn sm" id="rp" title="${t("repeat")}">🔁 ×${S.rep}</button>` : ""}${m.rec ? `<button class="btn rec" id="rb">🎙️ ${t("rec")}</button><button class="btn" id="pb" disabled>▶ ${t("mine")}</button>` : ""}</div>
-  </section><div class="nav"><button class="btn" id="bk" ${i === 0 ? "disabled" : ""}>${t("back")}</button><button class="btn pri" id="nx">${i === data.moments.length - 1 ? t("toQuiz") : t("next")}</button></div>`;
+  </section><div class="nav"><button class="btn big" id="bk" ${i === 0 ? "disabled" : ""}>${t("back")}</button><button class="btn pri big" id="nx">${i === data.moments.length - 1 ? (typeof CL !== "undefined" && CL.on ? t("next") : t("toQuiz")) : t("next")}</button></div>`;
   $("#vt").onclick = () => { S.voice = !S.voice; LS.set("qsai-voice", S.voice); S.voice ? playVoice() : stopAll(); $("#vt").textContent = S.voice ? "🔊 " + t("voiceOn") : "🔇 " + t("voiceOff"); };
   $("#rv").onclick = () => playVoice();
   if ($("#qb")) $("#qb").onclick = e => playQari(m.q || screenSeq(app), e.currentTarget);
@@ -655,10 +655,11 @@ function drawQuiz(k, ans) {
 async function finish(ans) {
   const { id, c, o } = LESSON, s = ans.filter(Boolean).length, n = ans.length;
   await saveProg(id, { s, n, ts: Date.now() });
+  const clsMin = typeof CL !== "undefined" && CL.on ? Math.round((Date.now() - CL.t0) / 60000) : null; if (typeof CL !== "undefined") { CL.on = false; clearInterval(CL.tick); document.body.classList.remove("incls"); try { sessionStorage.removeItem("qsai-cls-" + id); } catch (e) {} }
   const ids = allIds(o), flat = o.weeks.flatMap(w => w.days), nx = flat.find((d, i) => i > ids.indexOf(id) && d.ready);
   const L = nx ? lockInfo(c, o, nx.id) : null;
   $("#app").innerHTML = lessonHead() + `<section class="stage res"><div style="font-size:42px">${s === n ? "🌟" : s >= n / 2 ? "👍" : "📘"}</div><h2>${t("done")}</h2>
-    <div class="big">${num(s)}/${num(n)}</div><p class="mini">${t("yourScore")} · ${t("saved")}</p>${s < n ? `<p class="mini">${t("lowNote")}</p>` : ""}
+    <div class="big">${num(s)}/${num(n)}</div><p class="mini">${t("yourScore")} · ${t("saved")}</p>${clsMin != null ? `<p class="mini">⏱ ${pick(CX.took)}: ${num(clsMin)} ${pick(CX.mins)}</p>` : ""}${s < n ? `<p class="mini">${t("lowNote")}</p>` : ""}
     <div class="tools" style="justify-content:center">${nx && L && L.open ? `<a class="btn pri" href="#lesson=${nx.id}">${t("nextL")} →</a>` : ""}<a class="btn" href="#${c}">${t("toCourse")}</a>
     ${!S.user ? `<button class="btn cy" id="sv">${t("login")}</button>` : ""}</div>
     ${nx && L && L.why === "time" ? `<p class="mini">⏰ ${t("nextAt")}: ${fmtAt(L.at)}</p>` : ""}</section>
