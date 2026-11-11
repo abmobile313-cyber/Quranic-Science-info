@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Homework · Quranic Science</title>
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#120a0d">
+<link rel="icon" href="/icon-192.png">
+<script>try{var tm=localStorage.getItem("qsai-theme");if(tm)document.documentElement.setAttribute("data-theme",tm)}catch(e){}</script>
+<style>
+:root{--bg:#0f0a0c;--bg2:#170e12;--card:#1d1217;--line:rgba(227,170,60,.2);--fg:#f6ece0;--mut:#b9a99b;--gold:#e3aa3c;--gold2:#f6d68a;--ok:#3fcf8e;--bad:#ff6b6b;--cy:#2cc4f2;color-scheme:dark}
+:root[data-theme=light]{--bg:#fbf6ef;--bg2:#fff;--card:#fffaf3;--line:rgba(122,20,36,.16);--fg:#2a1912;--mut:#6c5a4e;--gold:#b5761a;--gold2:#8c5810;--ok:#178a55;--bad:#c63c3c;--cy:#0b7ea3;color-scheme:light}
+@media (prefers-color-scheme:light){:root:not([data-theme=dark]){--bg:#fbf6ef;--bg2:#fff;--card:#fffaf3;--line:rgba(122,20,36,.16);--fg:#2a1912;--mut:#6c5a4e;--gold:#b5761a;--gold2:#8c5810;--ok:#178a55;--bad:#c63c3c;--cy:#0b7ea3;color-scheme:light}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.55 system-ui,"Segoe UI",Roboto,"Noto Nastaliq Urdu",sans-serif}
+.wrap{max-width:900px;margin:0 auto;padding:18px max(16px,env(safe-area-inset-right,0px)) 60px max(16px,env(safe-area-inset-left,0px))}
+header{display:flex;align-items:center;gap:12px;margin-bottom:14px}header img{width:42px;height:42px;border-radius:12px}header h1{font-size:22px;margin:0;flex:1}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:50px;padding:12px 18px;border-radius:14px;border:1px solid var(--line);background:var(--card);color:var(--fg);font:600 16px system-ui;cursor:pointer;text-decoration:none}
+.btn.pri{background:linear-gradient(135deg,var(--gold),#c98a26);color:#1a0f08;border:0}
+.tabs{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}.tabs .btn[aria-pressed=true]{border-color:var(--gold);color:var(--gold2)}
+.row{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:14px;margin:10px 0;display:grid;gap:8px}
+.row .h{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}.row b{font-size:17px}.mut{color:var(--mut);font-size:14px}
+.st{font-size:13px;font-weight:700;padding:4px 10px;border-radius:999px}.st.new{background:rgba(227,170,60,.18);color:var(--gold2)}.st.checked{background:rgba(63,207,142,.16);color:var(--ok)}
+textarea,input{width:100%;border-radius:12px;border:1px solid var(--line);background:var(--bg2);color:var(--fg);padding:10px;font:inherit}
+.media img,.media video{max-width:100%;border-radius:12px}.media audio{width:100%}
+.fb{padding:10px 12px;border-radius:12px;background:rgba(44,196,242,.08);border:1px solid rgba(44,196,242,.3)}
+.center{text-align:center;padding:40px 10px}.thm{width:42px;height:42px;border-radius:50%;border:1px solid var(--line);background:var(--card);font-size:18px;cursor:pointer}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header><img src="/icon-192.png" alt=""><h1>📤 Homework · ہوم ورک</h1><button class="thm" id="thm" aria-label="Theme">🌓</button></header>
+<div id="app" class="center mut">Loading…</div>
+</div>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script>
+"use strict";
+/* Homework review: teachers see their own course, the owner sees everything, students see their own homework and the feedback. */
+const FB = { apiKey: "AIzaSyCCoqjw2BzgWcal6OVBqONYOB7x--WP12g", authDomain: "quranicscience-682ff.firebaseapp.com", projectId: "quranicscience-682ff", appId: "1:573259128290:web:ac11b77238e1bd7354edbb" };
+const W = "https://quranic-science-automation.quranicscience01.workers.dev";
+const $ = s => document.querySelector(s), esc = s => String(s == null ? "" : s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const app = $("#app"); let auth = null, as = "teacher", data = null, filter = "new";
+try { firebase.initializeApp(FB); auth = firebase.auth(); } catch (e) {}
+const tok = () => auth.currentUser.getIdToken();
+const api = async (path, opt = {}) => fetch(W + path, Object.assign({}, opt, { headers: Object.assign({ authorization: "Bearer " + await tok(), "content-type": "application/json" }, opt.headers || {}) })).then(r => r.json()).catch(() => ({ error: "network" }));
+const when = ts => new Date(ts).toLocaleString("en-IN", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" });
+const KIND = { voice: "🎙️ Voice · آواز", photo: "📷 Photo · تصویر", video: "🎥 Video · ویڈیو" };
+function loginView() {
+  app.className = "center";
+  app.innerHTML = `<p>Log in with the same Google account you use on quranicscience.info.<br><span class="mut">اسی گوگل اکاؤنٹ سے لاگ ان کریں جو ویب سائٹ پر استعمال کرتے ہیں۔</span></p><button class="btn pri" id="g">Continue with Google</button>`;
+  $("#g").onclick = async () => { try { await auth.signInWithPopup(new firebase.auth.GoogleAuthProvider()); } catch (e) { alertBox(e.message || "Login failed"); } };
+}
+function alertBox(t) { const p = document.createElement("p"); p.className = "fb"; p.textContent = t; app.prepend(p); setTimeout(() => p.remove(), 5000); }
+async function load() {
+  app.className = ""; app.innerHTML = `<p class="center mut">Loading…</p>`;
+  data = await api("/hw/list?as=" + as);
+  if (data.error) { app.innerHTML = `<p class="fb">${esc(data.error)}</p>`; return; }
+  draw();
+}
+function draw() {
+  const rows = (data.rows || []).filter(r => filter === "all" || (filter === "new" ? r.status !== "checked" : r.status === "checked"));
+  const staff = data.role === "owner" || data.role === "teacher";
+  app.innerHTML = `<p class="mut">${data.role === "owner" ? "Owner · all courses" : data.role === "teacher" ? "Teacher · " + esc(data.teacherCourse) : "My homework · میرا ہوم ورک"} · <a href="#" id="lo" style="color:var(--gold2)">Log out</a></p>
+    <div class="tabs">${[["new", "⏳ To check · باقی"], ["checked", "✓ Checked · چیک ہو گیا"], ["all", "All · سب"]].map(([k, l]) => `<button class="btn" aria-pressed="${filter === k}" data-f="${k}">${l} (${(data.rows || []).filter(r => k === "all" || (k === "new" ? r.status !== "checked" : r.status === "checked")).length})</button>`).join("")}</div>
+    ${rows.length ? rows.map(r => `<article class="row" data-id="${esc(r.id)}"><div class="h"><b>${staff ? esc(r.name || r.email) + (r.code ? " · " + esc(r.code) : "") : esc(r.lesson)}</b><span class="st ${r.status === "checked" ? "checked" : "new"}">${r.status === "checked" ? "✓ checked" : "new"}</span></div>
+      <span class="mut">${staff ? esc(r.course) + " · " + esc(r.lesson) + " · " : ""}${KIND[r.kind] || esc(r.kind)} · ${when(r.ts)}</span>
+      ${r.feedback ? `<div class="fb"><b>${r.by === "ai" ? "🤖 AI Ustad" : "👨‍🏫 Teacher"}${r.marks != null ? " · " + r.marks + "/10" : ""}</b><br>${esc(r.feedback)}</div>` : ""}
+      <div class="media"></div><div><button class="btn op">▶ Open · کھولیں</button></div>
+      ${staff ? `<div class="rv" hidden><textarea rows="3" placeholder="Feedback for the student (they get it in the app / WhatsApp)">${esc(r.feedback || "")}</textarea><p><input type="number" min="0" max="10" placeholder="Marks /10" value="${r.marks == null ? "" : r.marks}" style="max-width:160px"></p><button class="btn pri sv">✓ Save & tell the student</button></div>` : ""}</article>`).join("")
+      : `<p class="center mut">Nothing here yet. · ابھی کچھ نہیں۔</p>`}`;
+  $("#lo").onclick = e => { e.preventDefault(); auth.signOut(); };
+  document.querySelectorAll("[data-f]").forEach(b => b.onclick = () => { filter = b.dataset.f; draw(); });
+  document.querySelectorAll(".row").forEach(el => {
+    const id = el.dataset.id, op = el.querySelector(".op"), sv = el.querySelector(".sv");
+    op.onclick = async () => {
+      op.disabled = true; op.textContent = "…";
+      const f = await api("/hw/file?id=" + encodeURIComponent(id));
+      if (f.error) { op.textContent = f.error; return; }
+      const src = "data:" + f.mime + ";base64," + f.data, m = el.querySelector(".media");
+      m.innerHTML = /^image/.test(f.mime) ? `<img src="${src}" alt="">` : /^video/.test(f.mime) ? `<video src="${src}" controls playsinline></video>` : `<audio src="${src}" controls></audio>`;
+      op.remove(); const rv = el.querySelector(".rv"); if (rv) rv.hidden = false;
+    };
+    if (sv) sv.onclick = async () => {
+      const fb = el.querySelector("textarea").value.trim(), mk = el.querySelector("input").value;
+      if (!fb) return alertBox("Please write feedback first.");
+      sv.disabled = true; const r = await api("/hw/review", { method: "POST", body: JSON.stringify({ id, feedback: fb, marks: mk }) });
+      if (r.error) { sv.disabled = false; return alertBox(r.error); }
+      const row = data.rows.find(x => x.id === id); Object.assign(row, { feedback: fb, marks: mk === "" ? null : +mk, status: "checked", by: data.role }); draw();
+    };
+  });
+}
+if (auth) auth.onAuthStateChanged(async u => { if (!u) return loginView(); as = "teacher"; await load(); if (data && data.role === "student" && !(data.rows || []).length) { /* nothing */ } });
+else app.textContent = "Could not start login. Please refresh.";
+(() => { const b = $("#thm"); const cur = () => document.documentElement.getAttribute("data-theme") || (matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark");
+  const show = () => b.textContent = cur() === "light" ? "🌙" : "☀️"; b.onclick = () => { const n = cur() === "light" ? "dark" : "light"; document.documentElement.setAttribute("data-theme", n); try { localStorage.setItem("qsai-theme", n); } catch (e) {} show(); }; show(); })();
+</script>
+</body>
+</html>
