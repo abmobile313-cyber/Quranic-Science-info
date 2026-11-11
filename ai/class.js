@@ -283,7 +283,7 @@ function phRecord() {
 const WAYX = {
   h: { en: "How do you want to learn?", ur: "آپ کیسے سیکھنا چاہتے ہیں؟", hi: "आप कैसे सीखना चाहते हैं?" },
   ai: { en: "With the AI Ustad", ur: "اے آئی استاد کے ساتھ", hi: "ए आई उस्ताद के साथ" },
-  aiS: { en: "At home, at your own time · 1-hour class every day · from ₹1,499", ur: "گھر بیٹھے، اپنے وقت پر · روز ایک گھنٹے کی کلاس · ₹1,499 سے", hi: "घर बैठे, अपने वक़्त पर · रोज़ एक घंटे की क्लास · ₹1,499 से" },
+  aiS: { en: "At home, at your own time · 1-hour class every day · from ₹1,479", ur: "گھر بیٹھے، اپنے وقت پر · روز ایک گھنٹے کی کلاس · ₹1,479 سے", hi: "घर बैठे, अपने वक़्त पर · रोज़ एक घंटे की क्लास · ₹1,479 से" },
   live: { en: "With a real teacher", ur: "اصل استاد کے ساتھ", hi: "असल उस्ताद के साथ" },
   liveS: { en: "Live Zoom class, morning or evening batch · teacher corrects you", ur: "لائیو زوم کلاس، صبح یا شام کا بیچ · استاد غلطی درست کرتے ہیں", hi: "लाइव ज़ूम क्लास, सुबह या शाम का बैच · उस्ताद ग़लती दुरुस्त करते हैं" },
   both: { en: "Both together", ur: "دونوں ساتھ", hi: "दोनों साथ" },

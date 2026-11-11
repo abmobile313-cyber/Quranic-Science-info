@@ -214,7 +214,15 @@ export const PAGES = {
 };
 /* unique course prices (first-batch price on each Razorpay page); ₹5,999 and $75 are shared by several courses, so those wait for the owner */
 export const AMOUNTS_MULTI = { "INR:5999": ["tajweed-arabic-combo", "video-editing-course", "content-creation-zero-to-pro"], "USD:75": ["tajweed-arabic-combo", "video-editing-course", "content-creation-zero-to-pro", "arabic-speaking-class"] };
-export const AMOUNTS = { "INR:13999": "all-in-one-creator-course", "USD:175": "all-in-one-creator-course", "INR:1499": "ai-masterclass", "USD:19": "ai-masterclass", "INR:2100": "tajweed-class", "USD:26": "tajweed-class", "INR:6000": "arabic-speaking-class", "INR:50": "ref-pdf", "USD:1": "ref-pdf" };
+export const AMOUNTS = {
+  /* every price is now unique per currency (11 Nov 2026), so the amount alone names the course; ₹5,999 / $75 (combo) stay in AMOUNTS_MULTI as a safety net for old links */
+  "INR:13999": "all-in-one-creator-course", "USD:175": "all-in-one-creator-course", "INR:1499": "ai-masterclass", "USD:19": "ai-masterclass", "INR:2100": "tajweed-class", "USD:26": "tajweed-class",
+  "INR:6000": "arabic-speaking-class", "USD:73": "arabic-speaking-class", "INR:5989": "video-editing-course", "USD:74": "video-editing-course", "INR:5979": "content-creation-zero-to-pro", "USD:76": "content-creation-zero-to-pro",
+  "INR:50": "ref-pdf", "USD:1": "ref-pdf",
+  "INR:1479": "ai-tajweed", "USD:18": "ai-tajweed", "INR:2999": "ai-arabic", "USD:36": "ai-arabic", "INR:3999": "ai-tajweed-arabic-combo", "USD:48": "ai-tajweed-arabic-combo",
+  "INR:999": "ai-tajweed-full", "USD:12": "ai-tajweed-full", "INR:1009": "ai-arabic-full", "USD:11": "ai-arabic-full", "INR:1519": "ai-combo-full", "USD:17": "ai-combo-full",
+  "INR:1099": "ai-tajweed-live", "USD:13": "ai-tajweed-live", "INR:2199": "ai-arabic-live", "USD:27": "ai-arabic-live", "INR:3009": "ai-combo-live", "USD:37": "ai-combo-live"
+};
 const TITLE_KEYS = [[/all-in-one/i, "all-in-one-creator-course"], [/tajweed\s*\+\s*arabic|combo/i, "tajweed-arabic-combo"], [/ai masterclass/i, "ai-masterclass"], [/video editing/i, "video-editing-course"], [/content creation/i, "content-creation-zero-to-pro"], [/reference pdf|pdf download/i, "ref-pdf"], [/tajweed/i, "tajweed-class"], [/arabic speaking/i, "arabic-speaking-class"]];
 export async function handlePayment(env, evt, fs, fetchImpl = fetch) {
   const info = paymentInfo(evt);
