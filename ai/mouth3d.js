@@ -9,17 +9,17 @@
   const UVULA = [576, 646], UVUP = [556, 600], VATT = [640, 520];
   const clone = a => a.map(p => p.slice());
   function P(o) {
-    const p = { d: clone(DORSUM), vel: 0, u: [0, 0], l: [0, 0], c: null, glow: null, air: "mouth" };
+    const p = { d: clone(DORSUM), vel: 0, u: [0, 0], l: [0, 0], c: null, glow: null, air: "mouth", thr: 0, tc: [540, 800], lar: 0, jaw: 6, vib: "" };
     if (o.d) for (const [i, v] of Object.entries(o.d)) p.d[i] = v;
-    for (const k of ["vel", "u", "l", "c", "glow", "air"]) if (k in o) p[k] = o[k];
+    for (const k of ["vel", "u", "l", "c", "glow", "air", "thr", "tc", "lar", "jaw", "vib"]) if (k in o) p[k] = o[k];
     return p;
   }
-  const REST = P({ vel: 1, air: null });
+  const REST = P({ vel: 1, air: null, jaw: 0 });
   const Z = {
-    jawf: P({ d: { 2: [900, 596], 3: [850, 586], 4: [800, 582], 5: [750, 582], 6: [700, 588] }, glow: "jawf" }),
-    h1: P({ c: [535, 945] }),
-    h2: P({ d: { 9: [585, 646], 10: [565, 690], 11: [561, 726] }, c: [528, 790] }),
-    h3: P({ d: { 7: [650, 588], 8: [613, 604], 9: [592, 630] }, c: [556, 636] }),
+    jawf: P({ jaw: 16,  d: { 2: [900, 596], 3: [850, 586], 4: [800, 582], 5: [750, 582], 6: [700, 588] }, glow: "jawf" }),
+    h1: P({ c: [535, 945], thr: 1, tc: [538, 935], lar: 14, jaw: 10, vib: "throat" }),
+    h2: P({ d: { 9: [585, 646], 10: [565, 690], 11: [561, 726] }, c: [528, 790], thr: 1, tc: [532, 790], lar: 6, jaw: 10, vib: "throat" }),
+    h3: P({ d: { 7: [650, 588], 8: [613, 604], 9: [592, 630] }, c: [556, 636], thr: .8, tc: [556, 660], lar: 2, jaw: 8, vib: "throat" }),
     l1: P({ d: { 5: [750, 566], 6: [700, 560], 7: [652, 550], 8: [613, 588], 9: [592, 628] }, c: [606, 590] }),
     l2: P({ d: { 4: [800, 560], 5: [750, 550], 6: [700, 537], 7: [656, 545], 8: [619, 582] }, c: [690, 538] }),
     l3: P({ d: { 0: [976, 641], 1: [952, 616], 2: [900, 570], 3: [850, 541], 4: [800, 536], 5: [750, 541], 6: [700, 557] }, c: [818, 537] }),
@@ -28,20 +28,22 @@
     l6: P({ d: { 0: [970, 562], 1: [948, 563], 2: [900, 569], 3: [850, 569] }, c: [972, 560] }),
     l7: P({ d: { 0: [985, 637], 1: [957, 583], 2: [905, 569], 3: [850, 569] }, c: [984, 628], air: "teeth" }),
     l8: P({ d: { 0: [1012, 622], 1: [986, 612], 2: [930, 598], 3: [872, 584] }, c: [1010, 619], air: "teeth" }),
-    s1: P({ l: [-20, -12], c: [1019, 621], air: "lips" }),
-    s2: P({ u: [0, 3], l: [-2, -8], c: [1062, 624], air: null }),
-    kh: P({ vel: 1, u: [0, 3], l: [-2, -8], c: [1000, 425], glow: "nose", air: "nose" })
+    s1: P({ l: [-26, -16], c: [1019, 621], air: "lips", jaw: 2 }),
+    s2: P({ u: [2, 7], l: [-2, -14], c: [1062, 624], air: null, jaw: 0, vib: "lips" }),
+    kh: P({ vel: 1, u: [2, 7], l: [-2, -14], c: [1000, 425], glow: "nose", air: "nose", jaw: 0, vib: "nose" })
   };
-  const HEAVY = "خصضغطقظ";
+  const HEAVY = "خصضغطقظ", HUSH = "فحثهشخصسكت"; // mahmoosah (whispered) letters: the voice box does not buzz
   function letterPose(ch, zone) {
     const p = JSON.parse(JSON.stringify(Z[zone] || REST));
     if (HEAVY.includes(ch) && !["l1", "h3"].includes(zone)) // isti'la: the back of the tongue rises toward the palate
       for (const i of [5, 6, 7]) p.d[i] = [p.d[i][0], Math.max(p.d[i][1] - 20, 546)];
-    if (ch === "ر") { p.d[0] = [953, 551]; p.d[1] = [934, 560]; p.c = [952, 549]; }
+    if (ch === "ر") { p.d[0] = [953, 551]; p.d[1] = [934, 560]; p.c = [952, 549]; p.vib = "trill"; }
     if (ch === "ن") { p.vel = 1; p.air = "nose"; }
     if (ch === "م") { p.vel = 1; p.air = "nose"; }
-    if (ch === "و") { p.u = [12, 2]; p.l = [12, -7]; p.c = [1074, 623]; p.air = "lips"; for (const i of [5, 6, 7]) p.d[i] = [p.d[i][0], p.d[i][1] - 14]; }
-    if (ch === "ب") p.air = "burst";
+    if (ch === "و") { p.jaw = 4; p.u = [18, 3]; p.l = [18, -9]; p.c = [1074, 623]; p.air = "lips"; for (const i of [5, 6, 7]) p.d[i] = [p.d[i][0], p.d[i][1] - 14]; }
+    if (ch === "ب") { p.air = "burst"; p.vib = "burst"; }
+    if (ch === "ق" || ch === "ك") p.vib = "tap";
+    if (!HUSH.includes(ch) && !p.vib) p.vib = "voice";
     if (ch === "ي") p.d[0] = [976, 643];
     return p;
   }
@@ -54,6 +56,7 @@
     soft: { en: "Soft palate", ur: "نرم تالو", hi: "नर्म तालू", at: [600, 450], to: [610, 545] },
     nose: { en: "Nose", ur: "ناک", hi: "नाक", at: [1110, 380], to: [960, 440] },
     throat: { en: "Throat", ur: "حلق", hi: "हल्क़", at: [450, 700], to: [530, 720] },
+    jaw: { en: "Lower jaw", ur: "نچلا جبڑا", hi: "निचला जबड़ा", at: [1120, 860], to: [1010, 790] },
     folds: { en: "Voice box", ur: "آواز کی ڈوریاں", hi: "आवाज़ की डोरियाँ", at: [700, 950], to: [545, 945] }
   };
   const AIR = {
@@ -79,7 +82,8 @@
   const ease = t => t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
   function mix(a, b, t) {
     return { d: a.d.map((p, i) => [lerp(p[0], b.d[i][0], t), lerp(p[1], b.d[i][1], t)]), vel: lerp(a.vel, b.vel, t),
-      u: [lerp(a.u[0], b.u[0], t), lerp(a.u[1], b.u[1], t)], l: [lerp(a.l[0], b.l[0], t), lerp(a.l[1], b.l[1], t)] };
+      u: [lerp(a.u[0], b.u[0], t), lerp(a.u[1], b.u[1], t)], l: [lerp(a.l[0], b.l[0], t), lerp(a.l[1], b.l[1], t)],
+      thr: lerp(a.thr || 0, b.thr || 0, t), tc: [lerp((a.tc || b.tc)[0], b.tc[0], t), lerp((a.tc || b.tc)[1], b.tc[1], t)], lar: lerp(a.lar || 0, b.lar || 0, t), jaw: lerp(a.jaw || 0, b.jaw || 0, t) };
   }
   function ok() { try { const c = document.createElement("canvas"); return !!(c.getContext("webgl") || c.getContext("experimental-webgl")); } catch (e) { return false; } }
   function load(src) { return new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = rej; i.src = src; }); }
@@ -92,7 +96,7 @@
     ov.innerHTML = `<defs><radialGradient id="m3g"><stop offset="0" stop-color="#fff7c2"/><stop offset=".35" stop-color="#ffd23f" stop-opacity=".9"/><stop offset="1" stop-color="#ffb000" stop-opacity="0"/></radialGradient>
       <filter id="m3b" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="6"/></filter>
       <filter id="m3t" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="0" stdDeviation="6" flood-color="#ffb000" flood-opacity=".75"/></filter></defs>
-      <g id="m3air" fill="none" stroke-linecap="round"></g><g id="m3glow"></g><g id="m3lbl" font-family="Outfit,'Noto Sans Devanagari','Noto Nastaliq Urdu',sans-serif" font-size="19" font-weight="600"></g>
+      <style>.m3buzz{animation:m3bz .09s linear infinite alternate;transform-origin:545px 948px}@keyframes m3bz{to{transform:scaleY(1.35)}}</style><g id="m3air" fill="none" stroke-linecap="round"></g><g id="m3glow"></g><g id="m3lbl" font-family="Outfit,'Noto Sans Devanagari','Noto Nastaliq Urdu',sans-serif" font-size="19" font-weight="600"></g>
       <g id="m3pt" opacity="0"><line id="m3ln" stroke="#ffd56a" stroke-width="2.5" stroke-dasharray="1 0" opacity=".9"/><circle r="34" fill="url(#m3g)" class="mlPulse"/><circle r="9" fill="#ffe36a" stroke="#fff8d0" stroke-width="2.5"/><circle r="20" fill="none" stroke="#ffd23f" stroke-width="3" class="mlRing"/></g>
       <text id="m3ch" x="1075" y="1050" text-anchor="middle" font-size="104" fill="#ffe08a" filter="url(#m3t)" font-family="'Amiri Quran','Noto Naskh Arabic',serif"></text>`;
     wrap.append(cv, ov); svgEl.replaceWith(wrap);
@@ -132,11 +136,20 @@
       gl.uniform1i(U.tex, texUnit); gl.uniform1f(U.um, sel ? 1 : 0); gl.uniform3fv(U.sel, sel || [0, 0, 0]);
       gl.drawElements(gl.TRIANGLES, M.I.length, gl.UNSIGNED_SHORT, 0);
     }
-    const QUAD = { V: [[O[0], O[1]], [O[0] + S, O[1]], [O[0], O[1] + S], [O[0] + S, O[1] + S]], I: new Uint16Array([0, 1, 2, 1, 3, 2]) };
+    const MP = grid(O[0], O[1], O[0] + S, O[1] + S, 16);
+    /* the plate itself moves too: throat walls close in (halq letters), the voice box rises, the lower jaw opens */
+    function plateWarp(v, p) {
+      let x = v[0], y = v[1];
+      if (p.thr) { const dx = v[0] - p.tc[0], dy = v[1] - p.tc[1], w = Math.exp(-(dx * dx) / (2 * 60 * 60) - (dy * dy) / (2 * 55 * 55)); x -= dx * .42 * p.thr * w; }
+      if (p.lar) { const dx = v[0] - 545, dy = v[1] - 960, w = Math.exp(-(dx * dx + dy * dy) / (2 * 85 * 85)); y -= p.lar * w; }
+      if (p.jaw) { const w = sm(640, 760, v[1]) * sm(690, 860, v[0]) * (1 - sm(1150, 1200, v[0])); y += p.jaw * w; x -= p.jaw * .25 * w; }
+      return [x, y];
+    }
+    const jawW = v => sm(640, 760, v[1]) * sm(690, 860, v[0]);
     function frame(p) {
       if (!ready) return;
       gl.clearColor(0.04, 0.06, 0.09, 1); gl.clear(gl.COLOR_BUFFER_BIT);
-      drawMesh(QUAD, QUAD.V, 1, null);                                   // plate (tongue, velum and lips removed)
+      drawMesh(MP, MP.V.map(v => plateWarp(v, p)), 1, null);            // plate (tongue, velum and lips removed), warped
       // soft palate: lowered = 1 (breathing / nasal), raised = 0 (closes the nose)
       const dv = [(UVUP[0] - UVULA[0]) * (1 - p.vel), (UVUP[1] - UVULA[1]) * (1 - p.vel)];
       drawMesh(MV, MV.V.map(v => { const w = sm(0, 150, Math.hypot(v[0] - VATT[0], v[1] - VATT[1])); return [v[0] + dv[0] * w, v[1] + dv[1] * w]; }), 0, [0, 0, 1]);
@@ -147,11 +160,12 @@
         for (let i = 0; i < DORSUM.length; i++) { const ex = v[0] - DORSUM[i][0], ey = v[1] - DORSUM[i][1], d2 = ex * ex + ey * ey, w = Math.exp(-d2 / 3200) + 1e-9;
           sw += w; dx += w * D[i][0]; dy += w * D[i][1]; if (d2 < dmin) dmin = d2; }
         const H = 75 + 150 * sm(895, 965, v[0]), f = Math.exp(-dmin / (2 * H * H));
-        return [v[0] + f * dx / sw, v[1] + f * dy / sw];
+        const jw = (p.jaw || 0) * sm(600, 760, v[1]) * .6;
+        return [v[0] + f * dx / sw, v[1] + f * dy / sw + jw];
       }), 0, [1, 0, 0]);
       // lips: the inner edge stays on the teeth, the outer part moves
       drawMesh(MU, MU.V.map(v => { const w = sm(1020, 1085, v[0]); return [v[0] + p.u[0] * w, v[1] + p.u[1] * w * sm(560, 615, v[1])]; }), 0, [0, 1, 0]);
-      drawMesh(ML, ML.V.map(v => { const w = sm(1016, 1080, v[0]) * (0.25 + 0.75 * sm(705, 640, v[1])); return [v[0] + p.l[0] * w, v[1] + p.l[1] * w]; }), 0, [0, 1, 0]);
+      drawMesh(ML, ML.V.map(v => { const w = sm(1016, 1080, v[0]) * (0.25 + 0.75 * sm(705, 640, v[1])); return [v[0] + p.l[0] * w - (p.jaw || 0) * .25, v[1] + p.l[1] * w + (p.jaw || 0)]; }), 0, [0, 1, 0]);
     }
     function overlay(p, ch) {
       const pt = q("m3pt"), chEl = q("m3ch");
@@ -175,9 +189,28 @@
       q("m3pt").style.opacity = 0; q("m3air").innerHTML = ""; q("m3glow").innerHTML = ""; q("m3ch").textContent = ch || "";
       return new Promise(res => {
         const step = now => { const k = Math.min(1, (now - t0) / ms), m = mix(from, target, ease(k)); frame(m);
-          if (k < 1) raf = requestAnimationFrame(step); else { cur = JSON.parse(JSON.stringify(target)); overlay(target, ch); res(); } };
+          if (k < 1) raf = requestAnimationFrame(step); else { cur = JSON.parse(JSON.stringify(target)); overlay(target, ch); alive(target); res(); } };
         raf = requestAnimationFrame(step);
       });
+    }
+    /* after the pose is reached the organs keep moving for a moment, like a real voice:
+       throat walls pulse (halq letters), the voice box buzzes (voiced letters), the tongue tip trills (ر), lips burst (ب) */
+    function alive(T) {
+      const t0 = performance.now(), dur = 1700, v = T.vib || "";
+      const buzz = /voice|throat|trill|nose|lips|burst|tap/.test(v) && !(T.c === null);
+      q("m3glow").insertAdjacentHTML("beforeend", buzz && v !== "tap" ? `<g class="m3buzz"><ellipse cx="545" cy="948" rx="26" ry="11" fill="#ffd23f" opacity=".55" filter="url(#m3b)"/><path d="M515,948 q8,-9 15,0 t15,0 t15,0 t15,0" fill="none" stroke="#ffe48a" stroke-width="2.5"/></g>` : "");
+      const step = now => {
+        const e = (now - t0) / 1000; if (now - t0 > dur) { frame(T); return; }
+        const p = JSON.parse(JSON.stringify(T)), fade = 1 - sm(.7, 1, (now - t0) / dur);
+        if (v === "throat") { p.thr = T.thr * (.78 + .22 * Math.sin(e * 16)); p.lar = (T.lar || 0) + 3 * Math.sin(e * 28) * fade; }
+        if (v === "voice" || v === "nose" || v === "lips") p.lar = (T.lar || 0) + 1.6 * Math.sin(e * 70) * fade;
+        if (v === "trill") { p.d[0] = [T.d[0][0], T.d[0][1] + 7 * Math.sin(e * 48) * fade]; p.d[1] = [T.d[1][0], T.d[1][1] + 4 * Math.sin(e * 48) * fade]; }
+        if (v === "tap") { const k = Math.min(1, e / .18); p.d.forEach((d, i) => { if (i >= 2 && i <= 7) d[1] += 10 * sm(0, 1, k) * fade; }); }
+        if (v === "burst" || v === "lips") { const o = v === "burst" ? sm(.25, .45, e) : (.5 + .5 * Math.sin(e * 9)) * .4; p.u = [T.u[0], T.u[1] - 8 * o]; p.l = [T.l[0], T.l[1] + 14 * o]; p.jaw = (T.jaw || 0) + 6 * o; }
+        if (v === "nose") p.vel = 1;
+        frame(p); raf = requestAnimationFrame(step);
+      };
+      raf = requestAnimationFrame(step);
     }
     labels();
     if (gl) Promise.all([load(base.replace(/mouth3d\.js.*$/, "mk/mkb.webp")), load(base.replace(/mouth3d\.js.*$/, "mk/mkp.webp")), load(base.replace(/mouth3d\.js.*$/, "mk/mkm.png"))]).then(a => setup(...a)).catch(() => {});

@@ -308,3 +308,10 @@ function wayHTML() {
 .wlive{border-color:rgba(227,170,60,.6);background:linear-gradient(180deg,rgba(227,170,60,.16),var(--card))}
 .wboth{border-color:rgba(160,29,52,.7);background:linear-gradient(180deg,rgba(160,29,52,.22),var(--card))}
 `; document.head.appendChild(st); })();
+
+/* ---------- dark / light theme switch (remembered in this browser) ---------- */
+(() => { const b = document.getElementById("thm"); if (!b) return;
+  const cur = () => document.documentElement.getAttribute("data-theme") || (matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark");
+  const show = () => { b.textContent = cur() === "light" ? "🌙" : "☀️"; };
+  b.onclick = () => { const n = cur() === "light" ? "dark" : "light"; document.documentElement.setAttribute("data-theme", n); try { localStorage.setItem("qsai-theme", n); } catch (e) {} show(); };
+  show(); })();

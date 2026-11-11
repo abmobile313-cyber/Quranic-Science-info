@@ -6,6 +6,7 @@
 <title>Learn with Quranic Science AI</title>
 <meta name="description" content="Learn Tajweed and Arabic step by step with your personal AI Ustad: voice lessons, real qari recitation, practice, quizzes, progress and a certificate.">
 <meta name="theme-color" content="#120a0d">
+<script>try{var tm=localStorage.getItem("qsai-theme");if(tm)document.documentElement.setAttribute("data-theme",tm)}catch(e){}</script>
 <link rel="icon" href="icon-192.png">
 <link rel="apple-touch-icon" href="icon-192.png">
 <link rel="manifest" href="manifest.webmanifest">
@@ -193,12 +194,23 @@ select.btn{appearance:auto}
 .mkimg{margin-top:10px}.mkimg summary{cursor:pointer;color:var(--mut);font-size:14px;padding:6px 0}
 .labcard{text-decoration:none;color:var(--fg);border-color:rgba(44,196,242,.35)}.labcard .btn{align-self:flex-start}
 @media (prefers-reduced-motion:reduce){.mlFlow,.mlPulse,.mlRing{animation:none}}
+
+/* light theme (saved per browser; default follows the phone/computer setting) */
+:root[data-theme=light]{--bg:#fbf6ef;--bg2:#ffffff;--card:#fffaf3;--card2:#f7ede1;--line:rgba(122,20,36,.16);--fg:#2a1912;--mut:#6c5a4e;--gold:#b5761a;--gold2:#8c5810;--cy:#0b7ea3;--ok:#178a55;--bad:#c63c3c;color-scheme:light}
+@media (prefers-color-scheme:light){:root:not([data-theme=dark]){--bg:#fbf6ef;--bg2:#ffffff;--card:#fffaf3;--card2:#f7ede1;--line:rgba(122,20,36,.16);--fg:#2a1912;--mut:#6c5a4e;--gold:#b5761a;--gold2:#8c5810;--cy:#0b7ea3;--ok:#178a55;--bad:#c63c3c;color-scheme:light}}
+:root[data-theme=light] body{background:radial-gradient(1200px 600px at 85% -10%,rgba(160,29,52,.12),transparent 60%),radial-gradient(900px 500px at -10% 10%,rgba(44,196,242,.10),transparent 60%),var(--bg)}
+:root[data-theme=light] .top{background:rgba(251,246,239,.88)}:root[data-theme=light] .bigar,:root[data-theme=light] .clk{background:rgba(122,20,36,.05)}
+:root[data-theme=light] .btn.cy{color:#05506a}:root[data-theme=light] .why{color:#0a4a60}:root[data-theme=light] .wai,:root[data-theme=light] .wlive,:root[data-theme=light] .wboth{background:var(--card)}
+:root[data-theme=light] .msg.b,:root[data-theme=light] .modal .box{color:var(--fg)}:root[data-theme=light] #mark span{color:#7a1424}
+@media (prefers-color-scheme:light){:root:not([data-theme=dark]) body{background:var(--bg)}:root:not([data-theme=dark]) .top{background:rgba(251,246,239,.88)}:root:not([data-theme=dark]) .bigar{background:rgba(122,20,36,.05)}}
+.thm{width:38px;height:38px;border-radius:50%;border:1px solid var(--line);background:var(--card2);display:grid;place-items:center;font-size:17px;padding:0;flex:none}
 </style>
 </head>
 <body>
 <header class="top"><div class="wrap">
   <a class="brand" href="#home"><img src="icon-192.png" alt=""><span><b>Learn with Quranic Science AI</b><small data-t="tag"></small></span></a>
   <span class="sp"></span>
+  <button class="thm" id="thm" aria-label="Dark / light theme" title="Dark / light">🌓</button>
   <div class="seg" role="group" aria-label="Language"><button data-lang="en">EN</button><button data-lang="ur">اردو</button><button data-lang="hi">हिंदी</button></div>
   <div class="who" id="who"></div>
 </div></header>
@@ -218,8 +230,8 @@ select.btn{appearance:auto}
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <script src="mouth.js?v=2"></script>
-<script src="mouth3d.js?v=1"></script>
-<script src="class.js?v=1"></script>
-<script src="app.js?v=22"></script>
+<script src="mouth3d.js?v=2"></script>
+<script src="class.js?v=2"></script>
+<script src="app.js?v=23"></script>
 </body>
 </html>
