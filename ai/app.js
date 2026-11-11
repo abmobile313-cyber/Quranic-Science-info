@@ -507,6 +507,8 @@ const HOW = {
   s2: { en: "Both lips: firmly closed for baa and meem, rounded (not closed) for waw.", ur: "دونوں ہونٹ: ب اور م میں مضبوطی سے بند، و میں گول (بند نہیں)۔", hi: "दोनों होंठ: बा और मीम में मज़बूती से बंद, वाव में गोल (बंद नहीं)।" },
   kh: { en: "The air goes through the nose. Hold the ghunnah for two counts.", ur: "ہوا ناک سے نکلتی ہے۔ غنہ دو حرکت تک رکھیں۔", hi: "हवा नाक से निकलती है। ग़ुन्ना दो हरकत तक रखें।" } };
 const LABX = {
+  s1: { en: "Where", ur: "کہاں سے", hi: "कहाँ से" }, s2: { en: "How", ur: "کیسے", hi: "कैसे" }, s3: { en: "Note", ur: "خاص بات", hi: "ख़ास बात" }, s4: { en: "Practice", ur: "مشق", hi: "मश्क़" },
+  prac: { en: "Press Slow, watch the animation once, then say it with the qari 3 times. Check your mouth in a mirror.", ur: "آہستہ دبائیں، اینی میشن ایک بار دیکھیں، پھر قاری کے ساتھ تین بار بولیں۔ آئینے میں اپنا منہ دیکھیں۔", hi: "आहिस्ता दबाएँ, एनीमेशन एक बार देखें, फिर क़ारी के साथ तीन बार बोलें। आईने में अपना मुँह देखें।" },
   heavy: { en: " Heavy letter: the back of the tongue rises (isti'la).", ur: " پُر حرف: زبان کی جڑ اوپر اٹھتی ہے (استعلاء)۔", hi: " पुर हर्फ़: ज़बान की जड़ ऊपर उठती है (इस्तेअ़्ला)।" },
   ghunna: { en: " With ghunnah: the soft palate drops and air also flows through the nose.", ur: " غنہ کے ساتھ: نرم تالو نیچے آتا ہے اور ہوا ناک سے بھی نکلتی ہے۔", hi: " ग़ुन्ना के साथ: नर्म तालू नीचे आता है और हवा नाक से भी निकलती है।" },
   raa: { en: " For raa the tip curls slightly back.", ur: " را میں نوک تھوڑی پیچھے مڑتی ہے۔", hi: " रा में नोक थोड़ी पीछे मुड़ती है।" },
@@ -521,7 +523,7 @@ function labAudio(c) { return c === "غُنّة" ? [{ s: 108, a: 1, w: 1 }] : le
 function labHTML(zones) {
   const items = LAB_ORDER.filter(([, z]) => !zones || zones.has(z));
   return `<figure class="viz mlab"><div class="mlwrap"><svg class="mlsvg" role="img" aria-label="makharij animation"></svg></div>
-    <div class="mlside"><div class="mlcap"><b class="ar mlch"></b><span class="mlzt"></span><small class="mlhow"></small></div>
+    <div class="mlside"><div class="mlcap"><b class="ar mlch"></b><span class="mlzt"></span><div class="mlhow"></div></div>
     <div class="mlctl"><button class="zchip mlall">▶ ${t("playAll")}</button><button class="zchip mlslow">🐢 ${pick(LABX.slow)}</button><button class="zchip mllbl on">🏷️ ${pick(LABX.lbl)}</button><button class="zchip mlrep">🔁 ×${S.rep || 1}</button></div>
     <div class="mlkeys">${items.map(([c, z]) => `<button class="mlk${c.length > 1 ? " wide" : ""}" data-c="${c}" data-z="${z}"><b class="ar">${c}</b></button>`).join("")}</div></div></figure>`;
 }
@@ -530,7 +532,9 @@ function wireLab(root) {
   const lab = (window.MLab3 && MLab3.ok() ? MLab3 : MLab).Lab($(".mlsvg", fig), LANG); let slow = false, lbl = true, busy = 0, all = false;
   const cap = (c, z) => { $(".mlch", fig).textContent = c || "";
     $(".mlzt", fig).textContent = z ? pick(ZONES[z][3]) : pick(LABX.tap);
-    $(".mlhow", fig).textContent = z ? pick(HOW[z]) + ("خصضغطقظ".includes(c) && c.length === 1 ? pick(LABX.heavy) : "") + ("نم".includes(c) && c.length === 1 ? pick(LABX.ghunna) : "") + (c === "ر" ? pick(LABX.raa) : "") : ""; };
+    $(".mlhow", fig).innerHTML = z ? `<ol class="mlsteps">${[["📍", pick(LABX.s1), pick(ZONES[z][3])], ["👅", pick(LABX.s2), pick(HOW[z])]]
+      .concat("خصضغطقظ".includes(c) && c.length === 1 ? [["⬆️", pick(LABX.s3), pick(LABX.heavy).trim()]] : [], "نم".includes(c) && c.length === 1 ? [["👃", pick(LABX.s3), pick(LABX.ghunna).trim()]] : [], c === "ر" ? [["↩️", pick(LABX.s3), pick(LABX.raa).trim()]] : [], [["🔁", pick(LABX.s4), pick(LABX.prac)]])
+      .map(x => `<li><i>${x[0]}</i><span><b>${x[1]}</b> ${x[2]}</span></li>`).join("")}</ol>` : ""; };
   cap();
   async function say(c, z, b) {
     const my = ++busy; $$(".mlk", fig).forEach(k => k.classList.toggle("on", k === b)); cap(c, z);
