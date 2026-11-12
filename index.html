@@ -2183,7 +2183,7 @@ function dockBtn() {
   b.onclick = () => { if (U() || IS_APP) open("home"); else if (/Android/i.test(navigator.userAgent)) location.href = "/download/QuranicScience.apk"; else open("home"); };
   const acct = document.getElementById("dAcct"); dock.insertBefore(b, acct || null);
 }
-const COMBO = { "tajweed-arabic-combo": ["tajweed-class", "arabic-speaking-class"], "all-in-one-creator-course": ["ai-masterclass", "video-editing-course", "content-creation-zero-to-pro"] };
+const COMBO = { "tajweed-arabic-combo": ["tajweed-class", "arabic-speaking-class"], "all-in-one-creator-course": ["ai-masterclass", "video-editing-course", "content-creation-zero-to-pro"], "aio-ai-film-combo": ["all-in-one-creator-course", "ai-masterclass", "video-editing-course", "content-creation-zero-to-pro", "ai-film-ads-video-editing"] };
 window.qsHub = open;
 if (window.QS_DEMO) window.QS_DEMO_OFF_WA = true;   /* sample login: no "send Hi on WhatsApp" popup over the tour */
 /* Google Play build (user agent has "QSPlay"): no payment buttons inside the app, fees are paid on the website only */
@@ -2343,5 +2343,6 @@ window.qsAiCell=function(u,course){var p=P[course];if(!p)return"";var ai=u&&u.ai
 </script>
 <script data-goatcounter="https://deensaathi.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
 <script src="/qs-simple.js?v=2" defer></script>
+<script src="/qs-combo.js?v=1" defer></script>
 </body>
 </html>
