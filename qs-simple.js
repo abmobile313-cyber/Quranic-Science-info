@@ -17,6 +17,14 @@
     ".qse .wa{background:linear-gradient(160deg,rgba(37,211,102,.25),rgba(18,140,126,.2));border-color:rgba(37,211,102,.45)}" +
     "[data-mode=light] .qse{background:rgba(255,255,255,.75)}" +
     /* less noise: hide the decorative scroll cue */
+    ".qcx{margin:6px auto 18px;max-width:1100px;padding:16px;border-radius:24px;background:rgba(255,255,255,.1);border:1px solid rgba(201,154,69,.35);backdrop-filter:blur(14px)}[data-mode=light] .qcx{background:rgba(255,255,255,.78)}" +
+    ".qcx-h{display:flex;flex-wrap:wrap;align-items:center;gap:10px;justify-content:space-between;margin-bottom:12px}.qcx-h b{font-size:clamp(18px,4.6vw,24px)}.qcx-h b span{font-size:.7em;opacity:.6;margin-inline-start:4px}" +
+    ".qcx-in{flex:1 1 220px;max-width:420px;min-height:48px;box-sizing:border-box;padding:0 18px;border-radius:999px;border:1.5px solid rgba(201,154,69,.5);background:rgba(255,255,255,.9);color:#1d1416;font:500 16px system-ui,sans-serif}" +
+    ".qcx-g{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:10px}@media(max-width:640px){.qcx-g{grid-template-columns:1fr 1fr}}" +
+    ".qcx-g button{all:unset;box-sizing:border-box;cursor:pointer;min-height:58px;padding:12px 14px;border-radius:16px;text-align:center;font:700 15.5px/1.3 system-ui,sans-serif;background:linear-gradient(160deg,rgba(201,154,69,.24),rgba(122,20,36,.16));border:1px solid rgba(201,154,69,.45);display:flex;align-items:center;justify-content:center;transition:transform .15s}.qcx-g button:active{transform:scale(.97)}.qcx-g button[hidden]{display:none}" +
+    ".qcx-no{margin:8px 0 0;opacity:.7}.qcx-hit{outline:3px solid #c99a45;outline-offset:4px;border-radius:24px;transition:outline-color 2s}" +
+    /* phone header: the extra courses icon moves out of the way (Courses is in the big bar below) and the icon captions go */
+    "@media(max-width:640px){.topctl .qsmenu-w,.topctl .qh-open-btn{display:none!important}.topctl .ctlw>small,.topctl .ctlw>.cap,.topctl .ctlw>span:not(.ibtn):not(.lang){display:none!important}}" +
     "#app>.cue{display:none!important}[data-sec=learn] #app>.qs-ds,[data-sec=learn] #qsChips{display:none!important}[data-sec=learn] #qsFabC{display:none!important}";
   document.head.appendChild(css);
 
@@ -38,6 +46,23 @@
     });
     return d;
   }
+  /* Courses page: every course name as a big button + a search box; tap or type to jump straight to that course */
+  var CXT = { en: ["All our courses", "Type a course name…", "No course found"], ur: ["ہمارے تمام کورسز", "کورس کا نام لکھیں…", "کوئی کورس نہیں ملا"], hi: ["हमारे सभी कोर्स", "कोर्स का नाम लिखें…", "कोई कोर्स नहीं मिला"], ar: ["جميع دوراتنا", "اكتب اسم الدورة…", "لا توجد دورة"] };
+  function courseIndex() {
+    var cards = [].slice.call(document.querySelectorAll("#app article.ccard")).filter(function (c) { return c.querySelector("h3,h2"); });
+    if (!cards.length) return null;
+    var seen = {}, items = [];
+    cards.forEach(function (c, i) { var n = (c.querySelector("h3,h2").textContent || "").trim(); if (!n || seen[n]) return; seen[n] = 1; c.id = c.id || ("qsc-" + i); items.push([n, c.id]); });
+    var t = CXT[L()] || CXT.en, d = document.createElement("section"); d.id = "qsCx"; d.className = "qcx"; d.setAttribute("dir", /ur|ar/.test(L()) ? "rtl" : "ltr");
+    d.innerHTML = '<div class="qcx-h"><b>' + t[0] + ' <span>' + items.length + '</span></b><input type="search" class="qcx-in" placeholder="' + t[1] + '" aria-label="' + t[1] + '" translate="no"></div><div class="qcx-g">' +
+      items.map(function (x) { return '<button type="button" data-go="' + x[1] + '">' + x[0].replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;") + '</button>'; }).join("") + '</div><p class="qcx-no" hidden>' + t[2] + '</p>';
+    var go = function (id) { var el = document.getElementById(id); if (!el) return; try { if (window.play) play("tap"); } catch (x) {} var y = el.getBoundingClientRect().top + scrollY - 150; scrollTo({ top: y, behavior: "smooth" }); el.classList.add("qcx-hit"); setTimeout(function () { el.classList.remove("qcx-hit"); }, 2200); };
+    d.addEventListener("click", function (e) { var b = e.target.closest("[data-go]"); if (b) go(b.dataset.go); });
+    var inp = d.querySelector(".qcx-in");
+    inp.addEventListener("input", function () { var q = inp.value.trim().toLowerCase(), any = 0; [].forEach.call(d.querySelectorAll("[data-go]"), function (b) { var ok = !q || b.textContent.toLowerCase().indexOf(q) > -1; b.hidden = !ok; if (ok) any++; }); d.querySelector(".qcx-no").hidden = !!any; });
+    inp.addEventListener("keydown", function (e) { if (e.key !== "Enter") return; var b = [].filter.call(d.querySelectorAll("[data-go]"), function (x) { return !x.hidden; })[0]; if (b) { inp.blur(); go(b.dataset.go); } });
+    return d;
+  }
   function place() {
     var app = document.getElementById("app"); if (!app || !app.firstElementChild) return;
     var sec = document.documentElement.dataset.sec, have0 = document.getElementById("qsEasy");
@@ -47,6 +72,9 @@
       if (list && app.firstElementChild !== list) app.insertBefore(list, app.firstElementChild);
       var urg = [].slice.call(app.children).find(function (x) { return x !== list && x.tagName === "SECTION" && x.querySelector("[data-cd]"); });
       if (list && urg && list.nextElementSibling !== urg) app.insertBefore(urg, list.nextElementSibling);
+      var cx = document.getElementById("qsCx");
+      if (!cx) cx = courseIndex();
+      if (cx && app.firstElementChild !== cx) app.insertBefore(cx, app.firstElementChild);
       return; }
     if (sec !== "quran") { if (have0) have0.remove(); return; }
     var have = document.getElementById("qsEasy");
