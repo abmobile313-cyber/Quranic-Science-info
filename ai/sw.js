@@ -1,5 +1,5 @@
 /* Learn with Quranic Science AI — offline shell. Saved courses live in "qsai-off-<course>" caches (encrypted lessons). */
-const V = "qsai-v28", SHELL = ["./", "index.html", "class.js?v=2", "app.js?v=25", "data/qaida.json?v=1", "mouth.js?v=2", "mouth3d.js?v=2", "mk/mkb.webp", "mk/mkp.webp", "mk/mkm.png", "makharij.webp", "icon-192.png", "icon-512.png", "manifest.webmanifest", "data/tajweed.json", "data/arabic.json", "data/free.json"];
+const V = "qsai-v29", SHELL = ["./", "index.html", "class.js?v=2", "app.js?v=26", "data/qaida.json?v=1", "mouth.js?v=2", "mouth3d.js?v=3", "mk/mkb.webp", "mk/mkp.webp", "mk/mkm.png", "makharij.webp", "icon-192.png", "icon-512.png", "manifest.webmanifest", "data/tajweed.json", "data/arabic.json", "data/free.json"];
 self.addEventListener("install", e => { e.waitUntil(caches.open(V).then(c => c.addAll(SHELL)).catch(() => {})); self.skipWaiting(); });
 self.addEventListener("activate", e => { e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => k.startsWith("qsai-v") && k !== V).map(k => caches.delete(k))))); self.clients.claim(); });
 self.addEventListener("fetch", e => {

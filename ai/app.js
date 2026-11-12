@@ -507,6 +507,8 @@ const HOW = {
   s2: { en: "Both lips: firmly closed for baa and meem, rounded (not closed) for waw.", ur: "دونوں ہونٹ: ب اور م میں مضبوطی سے بند، و میں گول (بند نہیں)۔", hi: "दोनों होंठ: बा और मीम में मज़बूती से बंद, वाव में गोल (बंद नहीं)।" },
   kh: { en: "The air goes through the nose. Hold the ghunnah for two counts.", ur: "ہوا ناک سے نکلتی ہے۔ غنہ دو حرکت تک رکھیں۔", hi: "हवा नाक से निकलती है। ग़ुन्ना दो हरकत तक रखें।" } };
 const LABX = {
+  wordT: { en: "Learn a Qur'an word", ur: "قرآن کا لفظ سیکھیں", hi: "क़ुरआन का लफ़्ज़ सीखें" }, oneT: { en: "Or tap one letter", ur: "یا ایک حرف دبائیں", hi: "या एक हर्फ़ दबाएँ" },
+  wordD: { en: "Tap a word: hear the qari, then see where each letter comes from.", ur: "لفظ دبائیں: قاری سے سنیں، پھر دیکھیں ہر حرف کہاں سے نکلتا ہے۔", hi: "लफ़्ज़ दबाएँ: क़ारी से सुनें, फिर देखें हर हर्फ़ कहाँ से निकलता है।" },
   s1: { en: "Where", ur: "کہاں سے", hi: "कहाँ से" }, s2: { en: "How", ur: "کیسے", hi: "कैसे" }, s3: { en: "Note", ur: "خاص بات", hi: "ख़ास बात" }, s4: { en: "Practice", ur: "مشق", hi: "मश्क़" },
   prac: { en: "Press Slow, watch the animation once, then say it with the qari 3 times. Check your mouth in a mirror.", ur: "آہستہ دبائیں، اینی میشن ایک بار دیکھیں، پھر قاری کے ساتھ تین بار بولیں۔ آئینے میں اپنا منہ دیکھیں۔", hi: "आहिस्ता दबाएँ, एनीमेशन एक बार देखें, फिर क़ारी के साथ तीन बार बोलें। आईने में अपना मुँह देखें।" },
   heavy: { en: " Heavy letter: the back of the tongue rises (isti'la).", ur: " پُر حرف: زبان کی جڑ اوپر اٹھتی ہے (استعلاء)۔", hi: " पुर हर्फ़: ज़बान की जड़ ऊपर उठती है (इस्तेअ़्ला)।" },
@@ -519,12 +521,16 @@ const LABX = {
   desc: { en: "A live animation: see where every Arabic letter comes from, how the tongue, lips and throat move, where they touch, and how the air flows. Free for everyone.", ur: "زندہ اینیمیشن: ہر عربی حرف کہاں سے نکلتا ہے، زبان، ہونٹ اور حلق کیسے ہلتے ہیں، کہاں لگتے ہیں اور ہوا کیسے بہتی ہے۔ سب کے لیے مفت۔", hi: "चलती हुई एनिमेशन: हर अरबी हर्फ़ कहाँ से निकलता है, ज़बान, होंठ और हल्क़ कैसे हिलते हैं, कहाँ लगते हैं और हवा कैसे बहती है। सबके लिए मुफ़्त।" } };
 const LAB_ORDER = [["ء","h1"],["ه","h1"],["ع","h2"],["ح","h2"],["غ","h3"],["خ","h3"],["ق","l1"],["ك","l2"],["ج","l3"],["ش","l3"],["ي","l3"],["ض","l4"],["ل","l5"],["ن","l5"],["ر","l5"],["ط","l6"],["د","l6"],["ت","l6"],["ص","l7"],["س","l7"],["ز","l7"],["ظ","l8"],["ذ","l8"],["ث","l8"],["ف","s1"],["ب","s2"],["م","s2"],["و","s2"],["ا","jawf"],["غُنّة","kh"]];
 const LAB_Z = Object.fromEntries(LAB_ORDER.filter(x => x[0].length === 1));
+/* Lafz mode: a real Qur'an word, letter by letter (word audio from the word-by-word qari) */
+const LAB_WORDS = [["بِسْمِ", 1, 1, 1, "بسم"], ["ٱلرَّحْمَٰنِ", 1, 1, 3, "رحمان"], ["ٱلْحَمْدُ", 1, 2, 1, "لحمد"], ["رَبِّ", 1, 2, 3, "رب"], ["نَعْبُدُ", 1, 5, 2, "نعبد"], ["قُلْ", 112, 1, 1, "قل"], ["أَحَدٌ", 112, 1, 4, "ءحد"]];
 function labAudio(c) { return c === "غُنّة" ? [{ s: 108, a: 1, w: 1 }] : lettersQ(c); }
 function labHTML(zones) {
   const items = LAB_ORDER.filter(([, z]) => !zones || zones.has(z));
   return `<figure class="viz mlab"><div class="mlwrap"><svg class="mlsvg" role="img" aria-label="makharij animation"></svg></div>
     <div class="mlside"><div class="mlcap"><b class="ar mlch"></b><span class="mlzt"></span><div class="mlhow"></div></div>
     <div class="mlctl"><button class="zchip mlall">▶ ${t("playAll")}</button><button class="zchip mlslow">🐢 ${pick(LABX.slow)}</button><button class="zchip mllbl on">🏷️ ${pick(LABX.lbl)}</button><button class="zchip mlrep">🔁 ×${S.rep || 1}</button></div>
+    ${zones ? "" : `<div class="mlwords"><b>📖 ${pick(LABX.wordT)}</b><small>${pick(LABX.wordD)}</small><div class="mlwrow">${LAB_WORDS.map((w, i) => `<button class="mlw" data-i="${i}"><span class="ar">${w[0]}</span></button>`).join("")}</div></div>
+    <b class="mlkh">🔤 ${pick(LABX.oneT)}</b>`}
     <div class="mlkeys">${items.map(([c, z]) => `<button class="mlk${c.length > 1 ? " wide" : ""}" data-c="${c}" data-z="${z}"><b class="ar">${c}</b></button>`).join("")}</div></div></figure>`;
 }
 function wireLab(root) {
@@ -537,14 +543,42 @@ function wireLab(root) {
       .map(x => `<li><i>${x[0]}</i><span><b>${x[1]}</b> ${x[2]}</span></li>`).join("")}</ol>` : ""; };
   cap();
   async function say(c, z, b) {
-    const my = ++busy; $$(".mlk", fig).forEach(k => k.classList.toggle("on", k === b)); cap(c, z);
+    const my = ++busy; endWord(); $$(".mlk", fig).forEach(k => k.classList.toggle("on", k === b)); cap(c, z);
     await lab.to(c, z, slow ? 1500 : 650); if (my !== busy) return;
     const k = b || $(".mlch", fig); k.classList.add("playing");
     await playQari(labAudio(c), k); if (my !== busy) return;
     await new Promise(r => setTimeout(r, slow ? 800 : 350)); if (my !== busy) return;
     await lab.rest(slow ? 1100 : 500); b && b.classList.remove("on");
   }
-  $$(".mlk", fig).forEach(b => b.onclick = () => { all = false; $(".mlall", fig).classList.remove("on"); say(b.dataset.c, b.dataset.z, b); });
+  const box = $(".ml3", fig);
+  if (box && lab.at) box.insertAdjacentHTML("beforeend", `<div class="mlwd ar" hidden></div><div class="mltag ar" hidden></div>`);
+  const cam = (on, pt) => { if (!box || !lab.at) return; const s = on ? 1.75 : 1;
+    const tx = on ? Math.min(0, Math.max(1 - s, .5 - pt[0] * s)) : 0, ty = on ? Math.min(0, Math.max(1 - s, .55 - pt[1] * s)) : 0;
+    $$(".ml3c,.ml3o", box).forEach(e => e.style.transform = `translate(${tx * 100}%,${ty * 100}%) scale(${s})`);
+    const tag = $(".mltag", box); if (on) { const x = pt[0] * s + tx, y = pt[1] * s + ty; tag.style.left = (x < .62 ? x * 100 + 7 : x * 100 - 7) + "%"; tag.style.top = y * 100 + "%"; tag.classList.toggle("lft", x >= .62); } };
+  async function sayWord(i, btn) {
+    const w = LAB_WORDS[i], my = ++busy; all = false; $(".mlall", fig).classList.remove("on");
+    $$(".mlw", fig).forEach(k => k.classList.toggle("on", k === btn)); $$(".mlk", fig).forEach(k => k.classList.remove("on"));
+    const wd = $(".mlwd", box), tag = $(".mltag", box); box.classList.add("wm"); lab.labels(false, LANG);
+    wd.hidden = false; wd.innerHTML = `<span>${w[0]}</span><i>${[...w[4]].map(c => `<em>${c}</em>`).join("")}</i>`;
+    await playQari([{ s: w[1], a: w[2], w: w[3] }], btn); if (my !== busy) return;
+    const ems = $$("em", wd);
+    for (let k = 0; k < ems.length; k++) {
+      const c = w[4][k], z = LAB_Z[c]; if (!z) continue;
+      ems.forEach((e, j) => { e.classList.toggle("on", j === k); e.classList.toggle("ok", j < k); });
+      tag.hidden = true; cam(true, lab.at(c, z)); cap(c, z);
+      await lab.to(c, z, slow ? 1500 : 900); if (my !== busy) return;
+      tag.textContent = c; tag.hidden = false;
+      await new Promise(r => setTimeout(r, slow ? 3200 : 2000)); if (my !== busy) return;
+    }
+    ems.forEach(e => { e.classList.remove("on"); e.classList.add("ok"); }); tag.hidden = true; cam(false);
+    await lab.rest(600); if (my !== busy) return;
+    await playQari([{ s: w[1], a: w[2], w: w[3] }], btn); if (my !== busy) return;
+    endWord();
+  }
+  function endWord() { if (!box || !box.classList.contains("wm")) return; box.classList.remove("wm"); cam(false); $(".mlwd", box).hidden = true; $(".mltag", box).hidden = true; lab.labels(lbl, LANG); $$(".mlw", fig).forEach(k => k.classList.remove("on")); }
+  $$(".mlw", fig).forEach(b => b.onclick = () => sayWord(+b.dataset.i, b));
+  $$(".mlk", fig).forEach(b => b.onclick = () => { all = false; busy++; endWord(); $(".mlall", fig).classList.remove("on"); say(b.dataset.c, b.dataset.z, b); });
   $(".mlall", fig).onclick = async e => { const btn = e.currentTarget; if (all) { all = false; btn.classList.remove("on"); busy++; return; }
     all = true; btn.classList.add("on");
     for (const b of $$(".mlk", fig)) { if (!all) break; await say(b.dataset.c, b.dataset.z, b); }

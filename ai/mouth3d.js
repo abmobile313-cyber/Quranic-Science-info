@@ -218,7 +218,8 @@
     return {
       to(ch, zone, ms) { return go(letterPose(ch, zone), ms || 650, ch); },
       rest(ms) { return go(JSON.parse(JSON.stringify(REST)), ms || 500, ""); },
-      labels(on, lg) { showLbl = on; if (lg) L = lg; labels(); }
+      labels(on, lg) { showLbl = on; if (lg) L = lg; labels(); },
+      at(ch, zone) { const c = letterPose(ch, zone).c; return c ? [(c[0] - O[0]) / S, (c[1] - O[1]) / S] : [.5, .4]; }
     };
   }
   window.MLab3 = { Lab, ok };
