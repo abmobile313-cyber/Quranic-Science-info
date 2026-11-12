@@ -2332,6 +2332,44 @@ box.innerHTML=`<span class="qs-ai-lbl">🤖 Or learn with the AI Ustad</span><a 
 if(enr&&enr.parentNode){const lbl=document.createElement("span");lbl.className="qs-ai-lbl";lbl.textContent="👨‍🏫 Learn with a real teacher (live class)";enr.parentNode.insertBefore(lbl,enr);enr.after(box);}else{const b=c.querySelector(".cbody");b&&b.appendChild(box);}});};
 let tm=0;new MutationObserver(()=>{clearTimeout(tm);tm=setTimeout(run,120)}).observe(document.body,{childList:true,subtree:true});addEventListener("load",run);})();
 </script>
+<script id="qs-card-order">/* course cards: name → enroll buttons → AI options → price → description → details (owner's order, Nov 2026) */
+(()=>{const run=()=>{document.querySelectorAll("article.ccard .cbody").forEach(b=>{const h=b.querySelector(":scope>h3");if(!h)return;
+const kids=[...b.children],enr=kids.find(x=>x.classList.contains("enr2"))||kids.find(x=>x.querySelector&&x.querySelector("[data-enr]")&&!x.classList.contains("qs-ai-opt"));
+const lbl=enr&&enr.previousElementSibling&&enr.previousElementSibling.classList.contains("qs-ai-lbl")?enr.previousElementSibling:null;
+const want=[lbl,enr,kids.find(x=>x.classList.contains("qs-ai-opt")),kids.find(x=>x.classList.contains("cprice")),kids.find(x=>x.classList.contains("cbonus")),kids.find(x=>x.classList.contains("qcombo")),kids.find(x=>x.tagName==="P"&&!x.className),kids.find(x=>x.classList.contains("fpills")),kids.find(x=>x.classList.contains("meta"))].filter(Boolean);
+let prev=h;
+/* live countdown under the name: before paying = admission closes in …; after paying = course starts in … / days left */
+const card=b.closest("article.ccard"),nm=h.textContent.trim(),co=((typeof DATA!=="undefined"&&DATA.learn&&DATA.learn.courses)||[]).find(c=>c.name===nm);
+let paid=false;try{paid=!!(co&&typeof unlocked==="function"&&unlocked(co))}catch(e){}
+const D=QS_CD(nm);let cd=b.querySelector(":scope>.qs-cd");if(!cd){cd=document.createElement("div");cd.className="qs-cd";}
+cd.dataset.mode=paid?"paid":"open";cd.dataset.start=D.start;cd.dataset.end=D.end;cd.dataset.close=D.close;
+if(prev.nextElementSibling!==cd)prev.after(cd);prev=cd;
+/* already enrolled: My classes comes first, the enroll buttons go away */
+let mc=b.querySelector(":scope>.qs-myc");
+if(paid){const src=card.querySelector(".acts [data-classes]");if(!mc&&src){mc=src.cloneNode(true);mc.classList.add("qs-myc");mc.classList.remove("sm");mc.innerHTML="📚 "+(mc.textContent.trim()||"My classes");}
+if(mc){if(prev.nextElementSibling!==mc)prev.after(mc);prev=mc;}if(enr)enr.style.display="none";if(lbl)lbl.style.display="none";}
+else if(mc){mc.remove();if(enr)enr.style.display="";if(lbl)lbl.style.display="";}
+want.forEach(x=>{if(prev.nextElementSibling!==x)prev.after(x);prev=x;});});tick();};
+const IST=t=>Date.parse(t+"+05:30");
+window.QS_CD=nm=>{const n=nm.toLowerCase(),C="2026-11-30T23:59:59";
+if(/film/.test(n))return{close:C,start:"2027-02-10T19:00:00",end:"2027-03-09T23:59:59"};
+if(/masterclass/.test(n))return{close:C,start:"",end:""};
+if(/all-in-one/.test(n))return{close:C,start:"2026-12-01T07:00:00",end:"2027-02-08T23:59:59"};
+if(/video editing/.test(n))return{close:C,start:"2026-12-01T07:00:00",end:"2027-01-09T23:59:59"};
+if(/content creation/.test(n))return{close:C,start:"2027-01-16T07:00:00",end:"2027-02-08T23:59:59"};
+return{close:C,start:"2026-12-01T07:00:00",end:"2027-02-28T23:59:59"};};
+const L4=()=>{let l="en";try{l=String(typeof curLang==="function"?curLang():"en").slice(0,2)}catch(e){}return{en:["Admission closes in","Admission closed","Your course starts in","Course running","days left","Recorded course · watch any time","d","h","m","s"],ur:["داخلہ بند ہونے میں","داخلہ بند ہو چکا","آپ کا کورس شروع ہونے میں","کورس جاری ہے","دن باقی","ریکارڈڈ کورس · جب چاہیں دیکھیں","دن","گھنٹے","منٹ","سیکنڈ"],hi:["दाख़िला बंद होने में","दाख़िला बंद","आपका कोर्स शुरू होने में","कोर्स जारी है","दिन बाक़ी","रिकॉर्डेड कोर्स · जब चाहें देखें","दिन","घंटे","मिनट","सेकंड"],ar:["يغلق التسجيل بعد","انتهى التسجيل","تبدأ دورتك بعد","الدورة جارية","يوم متبقٍ","دورة مسجلة · شاهدها متى شئت","يوم","ساعة","دقيقة","ثانية"]}[l]||null;};
+const fmt=(ms,t)=>{ms=Math.max(0,ms);const d=Math.floor(ms/864e5),h=Math.floor(ms/36e5)%24,m=Math.floor(ms/6e4)%60,x=Math.floor(ms/1e3)%60,u=(v,k)=>`<span><b>${String(v).padStart(2,"0")}</b><i>${k}</i></span>`;return u(d,t[6])+u(h,t[7])+u(m,t[8])+u(x,t[9]);};
+const tick=()=>{const t=L4()||L4.en;const T=t||["Admission closes in","Admission closed","Your course starts in","Course running","days left","Recorded course · watch any time","d","h","m","s"],now=Date.now();
+document.querySelectorAll(".qs-cd").forEach(c=>{let html="";
+if(c.dataset.mode==="open"){const cl=IST(c.dataset.close);html=now<cl?`<em>⏳ ${T[0]}</em><div class="qs-cdg">${fmt(cl-now,T)}</div>`:`<em>${T[1]}</em>`;}
+else if(!c.dataset.start){html=`<em>🎬 ${T[5]}</em>`;}
+else{const st=IST(c.dataset.start),en=IST(c.dataset.end);html=now<st?`<em>🚀 ${T[2]}</em><div class="qs-cdg">${fmt(st-now,T)}</div>`:`<em>📖 ${T[3]} · ${Math.max(0,Math.ceil((en-now)/864e5))} ${T[4]}</em><div class="qs-cdg">${fmt(en-now,T)}</div>`;}
+if(c.innerHTML!==html)c.innerHTML=html;});};
+setInterval(tick,1000);setInterval(run,6000);window.qsCardOrder=run;
+const st=document.createElement("style");st.textContent=".qs-cd{margin:8px 0 10px;padding:10px 12px;border-radius:16px;background:linear-gradient(135deg,rgba(122,20,36,.92),rgba(160,29,52,.88));color:#fff;text-align:center}.qs-cd[data-mode=paid]{background:linear-gradient(135deg,#0d4a3a,#1fae86)}.qs-cd em{display:block;font-style:normal;font-weight:700;font-size:14px;margin-bottom:6px}.qs-cdg{display:flex;justify-content:center;gap:8px}.qs-cdg span{min-width:52px;padding:6px 4px;border-radius:12px;background:rgba(255,255,255,.14);display:grid}.qs-cdg b{font:800 20px/1 system-ui,sans-serif}.qs-cdg i{font-style:normal;font-size:11px;opacity:.85;margin-top:3px}.qs-myc{display:flex!important;width:100%;justify-content:center;min-height:56px;font-size:17px!important;font-weight:800!important;margin:0 0 10px!important;background:linear-gradient(135deg,#0d4a3a,#1fae86)!important;color:#fff!important;border-radius:16px!important}";document.head.appendChild(st);
+let tm=0;new MutationObserver(()=>{clearTimeout(tm);tm=setTimeout(run,160)}).observe(document.body,{childList:true,subtree:true});addEventListener("load",run);})();
+</script>
 <script id="qs-ds-promo">/* Deen Saathi app promo on the home page */
 (()=>{const css=document.createElement("style");css.textContent=`.qs-ds{margin:18px auto;max-width:1100px;display:grid;grid-template-columns:auto 1fr;gap:22px;align-items:center;padding:18px 22px;border-radius:26px;background:radial-gradient(600px 200px at 85% 0%,rgba(56,211,232,.22),transparent 70%),linear-gradient(135deg,#0b1824,#132a3c);color:#f3ece0;border:1px solid rgba(244,201,104,.45);box-shadow:0 20px 50px -30px rgba(0,0,0,.8)}
 .qs-ds img{width:92px;height:164px;object-fit:cover;object-position:top;border-radius:18px;border:3px solid #1b2a38;box-shadow:0 12px 30px rgba(0,0,0,.5)}
@@ -2356,7 +2394,7 @@ window.qsAiCell=function(u,course){var p=P[course];if(!p)return"";var ai=u&&u.ai
 })();
 </script>
 <script data-goatcounter="https://deensaathi.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
-<script src="/qs-simple.js?v=3" defer></script>
+<script src="/qs-simple.js?v=4" defer></script>
 <script src="/qs-combo.js?v=1" defer></script>
 <style id="qs-pro">
 /* Nov 2026 · cleaner, bigger navigation (owner request): full-width section bar with big buttons on phone and desktop */
