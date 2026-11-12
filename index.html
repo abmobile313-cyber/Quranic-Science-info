@@ -1524,8 +1524,13 @@ function i18nDOM(el) {
 function applyLang() {
   if (!root) return; root.setAttribute("lang", LG || "en"); root.dir = RTL() ? "rtl" : "ltr"; root.setAttribute("translate", "no");
 }
+/* voice language of the phone alerts: "auto" follows the app language (Urdu/Hindi → Urdu voice, Arabic → Arabic, others → English) */
+const ALANG = [["auto", "Same as app"], ["ur", "اردو"], ["ar", "العربية"], ["en", "English"]];
+function alertLang() { const p = LSg("qh-alang", "auto"); return p !== "auto" ? p : (LG === "ur" || LG === "hi") ? "ur" : LG === "ar" ? "ar" : "en"; }
+function pushAlertLang() { try { if (window.QSNative && QSNative.setAlertLang) QSNative.setAlertLang(alertLang()); } catch (e) {} }
+setTimeout(pushAlertLang, 1500);
 function setLang(l) {
-  LG = l; LSs("qh-lang", l); applyLang();
+  LG = l; LSs("qh-lang", l); applyLang(); pushAlertLang();
   /* the website's own popups (login, wudu, teacher panel) follow the same language */
   try { const s = document.getElementById("langSel"); if (s && s.value !== l) { s.value = l; s.dispatchEvent(new Event("change", { bubbles: true })); } } catch (e) {}
 }
@@ -1973,6 +1978,7 @@ const VIEWS = {
     const mc = myCourses();
     if (mc.length) h += `<section class="qh-card rv" style="--i:4"><h3>Certificates & receipts</h3>${mc.map(x => `<div class="qh-row sp qh-li"><span>${E(x.c.name)}</span><span><button class="qh-btn sm" data-cert="${x.i}">🎓 Certificate</button></span></div>`).join("")}<button class="qh-btn sm" data-acct="1">🧾 My receipts & account</button></section>`;
     h += `<section class="qh-card rv" style="--i:5"><h3>Language</h3>${langChips()}</section>`;
+    if (window.QSNative && QSNative.setAlertLang) { const ap = LSg("qh-alang", "auto"); h += `<section class="qh-card rv" style="--i:5"><h3>Notification voice</h3><p class="qh-mut">Which language should the phone speak your alerts in?</p><div class="qh-langs" data-noi18n>${ALANG.map(([c, n]) => `<button class="${ap === c ? "on" : ""}" data-alang="${c}">${c === "auto" ? L(n) : n}</button>`).join("")}</div><div class="qh-acts" style="margin-top:8px"><button class="qh-btn sm" data-alangtest="1">🔊 ${L("Play a sample")}</button></div></section>`; }
     h += `<section class="qh-card rv" style="--i:5"><h3>More on the website</h3><p class="qh-mut">Fees, new courses, videos and shop are on our website.</p><div class="qh-grid">
       <button class="qh-tile" data-web="#learn"><span>🎓</span><b>Courses & fees</b></button><button class="qh-tile" data-web="#quran"><span>📖</span><b>Quran & science videos</b></button>
       <button class="qh-tile" data-web="#home"><span>🌐</span><b>Website home</b></button><button class="qh-tile" data-qt="namaz"><span>🕌</span><b>Namaz times</b></button></div></section>`;
@@ -2117,6 +2123,8 @@ function readOffline(id) {
 async function onClick(e) {
   const b = e.target.closest("button,a"); if (!b || !root.contains(b)) return; const d = b.dataset;
   if (d.qt) { snd("tab"); go(d.qt); return; }
+  if (d.alang) { snd("tap"); LSs("qh-alang", d.alang); pushAlertLang(); go(cur); return; }
+  if (d.alangtest) { try { QSNative.testAlert && QSNative.testAlert(); } catch (e) {} return; }
   if (d.lang) { snd("tap"); setLang(d.lang); if (root.querySelector("#qhNav button")) setMode(mode, true); if (cur === "lang") { open("home"); return; } go(cur); return; }
   if (d.mode) { snd("toggle"); setMode(d.mode); return; }
   if (d.login) { LSs("qh-role", d.login); try { openLogin(L(d.login === "t" ? "Teachers: log in with the Gmail the owner added for you." : "Students: log in with the Google account you used to join the course.")); } catch (er) { try { requireLogin(() => open("home")); } catch (e2) {} } return; }
