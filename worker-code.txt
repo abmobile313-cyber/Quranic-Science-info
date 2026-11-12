@@ -1463,6 +1463,38 @@ export default {
         out.push({ n: i + 1, title: t, ok: !!r.ok, error: r.error || "" }); }
       return json({ ok: out.every(x => x.ok), to, sent: out.filter(x => x.ok).length, out });
     }
+    /* owner test: the same student journey as app notifications (with the recorded voice per alert), only to the owner's own phones */
+    if (url.pathname === "/push-journey") {
+      const allowed = [String(env.GMAIL_USER || "quranicscience01@gmail.com").toLowerCase(), "flowstudio91@gmail.com"];
+      const fsP = makeFS(env), last = (await fsP.get("config/pushJourney").catch(() => null)) || {};
+      if (Date.now() - (+last.at || 0) < 5 * 60000) return json({ ok: false, error: "please wait 5 minutes between tests" }, 429);
+      const users = []; for (const em of allowed) { try { users.push(...(await fsP.query("users", [["email", "EQUAL", em]], 5))); } catch (e) {} }
+      const toks = [...new Set(users.map(u => u.pushApp && u.pushApp.token).filter(Boolean))], web = [...new Set(users.map(u => u.push && u.push.token).filter(Boolean))];
+      if (!toks.length && !web.length) return json({ ok: false, error: "no phone found: open the Quranic Science app once and log in with quranicscience01@gmail.com or flowstudio91@gmail.com, allow notifications, then try again", users: users.length }, 404);
+      await fsP.merge("config/pushJourney", { at: Date.now() });
+      const site = env.SITE || "https://quranicscience.info", cn = "AI Film, Ads & Video Editing", nm = "Arsalan", code = "ARS863M";
+      const L = [
+        ["general-t1", "Welcome to Quranic Science ✓", `Assalamu Alaikum ${nm}, you are logged in. Choose a course; after the fee your classes open by themselves.`, site + "/#learn"],
+        ["pay-t2", "Payment received ✓", `Your fee for ${cn} is received. Receipt is in your email.`, site + "/#receipt=pay_TEST123"],
+        ["pay-t3", "Your classes are open ✓", `${cn}: your classes are open now in My classes.`, site + "/#learn"],
+        ["class-t4", "Class in 30 minutes · 7:00 PM IST", `${cn}: Din 1 · AI film kya hai. Tap to join on Zoom.`, site + "/#learn"],
+        ["hwdue-t5", "Homework due today ⏳", `${cn}: Din 1. Please send your homework before 7:00 PM IST.`, site + "/#learn"],
+        ["hw-t6", "Homework checked ✓", "Din 1: MashaAllah, very good idea! Marks 9/10.", site + "/homework.html"],
+        ["doubt-t7", "Your teacher answered ✓", `${cn}: CapCut mein clips jod kar lambi film banayein.`, site + "/#learn"],
+        ["general-t8", "PDF download unlocked ✓", "Your payment is received. Tap Download on the PDF.", site + "/#quran"],
+        ["cert-t9", "Certificate ready 🎓", `Masha Allah ${nm}! Your ${cn} certificate is ready.`, site + "/#verify=TEST-CERT"],
+        ["tclass-t10", "Teacher: class in 1 hour · 7:00 PM IST", `${cn}: Din 1. Please check the Zoom link now.`, site + "/#learn"],
+        ["tdoubt-t11", "Teacher: new student doubt ❓", `${nm} (${code}) asked: Character ka chehra har shot mein badal jaata hai?`, site + "/#learn"]
+      ];
+      const out = [];
+      for (let i = 0; i < L.length; i++) { const [tag, t, b, u] = L[i], msg = { title: `[TEST ${i + 1}/${L.length}] ${t}`, body: b, url: u, tag };
+        let ok = 0, err = "";
+        for (const tk of toks) { const r = await sendAppPush(env, tk, msg).catch(e => ({ ok: false, error: String(e) })); if (r.ok) ok++; else err = r.error || (r.gone ? "old token" : "failed"); }
+        if (!toks.length) for (const tk of web) { const r = await sendPush(env, tk, msg).catch(() => ({ ok: false })); if (r.ok) ok++; }
+        out.push({ n: i + 1, title: t, voice: voiceCh(tag), sent: ok, error: ok ? "" : err });
+        if (i < L.length - 1) await new Promise(r => setTimeout(r, 7000)); }
+      return json({ ok: out.every(x => x.sent > 0), phones: toks.length, browsers: web.length, out });
+    }
     if (url.pathname === "/mail-test") { const to = String(env.GMAIL_USER || "quranicscience01@gmail.com"); const r = await sendMail(env, to, { title: "Test email ✓", body: "Assalamu Alaikum! Quranic Science email alerts are working. Students will get fee receipts, class reminders and certificates by email too.", url: env.SITE || "https://quranicscience.info" }).catch(e => ({ ok: false, error: String(e && e.message || e) })); return json(Object.assign({ to }, r)); }
     if (url.pathname === "/wa-test") { const to = "919272527913", out = {};
       out.payment_confirmed = await sendWA(env, to, "payment_confirmed", ["Arsalan", "Tajweed Class", "TEST01M-TAJ"]);
