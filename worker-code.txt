@@ -181,12 +181,15 @@ const mailReady = env => !!String(env.GMAIL_APP_PASSWORD || "").trim();
 const escH = s => String(s || "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 const b64u8 = s => { const b = enc.encode(s); let o = ""; for (let i = 0; i < b.length; i += 0x8000) o += String.fromCharCode(...b.subarray(i, i + 0x8000)); return btoa(o); };
 const wrap76 = s => s.replace(/(.{76})/g, "$1\r\n");
+export const mailImg = c => { c = String(c || "").toLowerCase();
+  return /all-in-one|creator/.test(c) ? "aio" : /content/.test(c) ? "ccp" : /edit/.test(c) ? "ved" : /masterclass/.test(c) ? "aim" : /combo/.test(c) ? "tac" : /tajweed/.test(c) ? "taj" : /arabic/.test(c) ? "arb" : "general"; };
 export function mailBody(msg, site = "https://quranicscience.info") {
+  const img = `${site}/mail/${msg.img || mailImg(msg.course)}.jpg`;
   const title = String(msg.title || "Quranic Science"), body = String(msg.body || ""), url = msg.url || site;
   const text = `${title}\n\n${body}\n\n${url}\n\n— Quranic Science · ${site}`;
   const html = `<!doctype html><html><body style="margin:0;background:#f6efe6;font-family:Arial,Helvetica,sans-serif;color:#2a1a12">
 <div style="max-width:560px;margin:0 auto;padding:24px 16px"><div style="background:#5a0f1d;color:#f3d48a;border-radius:16px 16px 0 0;padding:18px 22px;font-size:18px;font-weight:bold">Quranic Science</div>
-<div style="background:#fff;border-radius:0 0 16px 16px;padding:22px;border:1px solid #ead9c3;border-top:0"><h2 style="margin:0 0 12px;font-size:20px;color:#5a0f1d">${escH(title)}</h2>
+<img src="${escH(img)}" alt="Quranic Science" width="560" style="display:block;width:100%;max-width:560px;height:auto;border:0"><div style="background:#fff;border-radius:0 0 16px 16px;padding:22px;border:1px solid #ead9c3;border-top:0"><h2 style="margin:0 0 12px;font-size:20px;color:#5a0f1d">${escH(title)}</h2>
 <p style="font-size:15px;line-height:1.6;margin:0 0 18px">${escH(body).replace(/(https?:\/\/[^\s<]+)/g, '<a href="$1" style="color:#0b7a8a">$1</a>').replace(/\n/g, "<br>")}</p>
 <a href="${escH(url)}" style="display:inline-block;background:#b8862b;color:#fff;text-decoration:none;padding:12px 20px;border-radius:10px;font-weight:bold">Open</a></div>
 <p style="font-size:12px;color:#7a6a5a;text-align:center;margin-top:14px">Quranic Science · <a href="${escH(site)}" style="color:#7a6a5a">${escH(site.replace(/^https?:\/\//, ""))}</a></p></div></body></html>`;
@@ -333,7 +336,7 @@ export async function handlePayment(env, evt, fs, fetchImpl = fetch) {
   /* payment receipt (slip) with the founder's signature: the student opens/saves it at SITE/#receipt=<payment id>; the same link goes in the WhatsApp message */
   const bl = { M: "Morning batch", E: "Evening batch" }[user.batch] || "";
   await fs.merge(`receipts/${info.id}`, { uid: user.id, name: user.name || "", code: user.code ? courseCode(user.code, course) : "", course, courseName, amount: info.amount, currency: info.currency, paymentId: info.id, batch: bl ? bl + " · 1 hour classes, timing shared in your batch" : "", ts: Date.now() });
-  const sent = await notify(env, fs, Object.assign({ phone: info.phone }, user), { title: "Payment received ✓", body: `Assalamu Alaikum ${user.name || ""}, ${info.notes.apology ? "we are very sorry this message reached you late – our system was being updated. " : ""}your fee for ${courseName} is received. Your classes are open now. Your receipt: ${(env.SITE || "https://quranicscience.info")}/#receipt=${info.id}\n📱 Your Quranic Science app is ready: download it from ${(env.SITE || "https://quranicscience.info")} (Android app), log in with Google and enter your student code ${user.code || ""}.`, url: (env.SITE || "https://quranicscience.info") + "/#learn", tag: "pay", paid: true, email: true, template: "payment_confirmed", params: [user.name || "Student", courseName, `${courseCode(user.code, course)} · Your app is ready – log in with code ${user.code || ""}${info.notes.apology ? " · Sorry for the late message, our system was being updated" : ""}`] }, Date.now(), fetchImpl);
+  const sent = await notify(env, fs, Object.assign({ phone: info.phone }, user), { title: "Payment received ✓", body: `Assalamu Alaikum ${user.name || ""}, ${info.notes.apology ? "we are very sorry this message reached you late – our system was being updated. " : ""}your fee for ${courseName} is received. Your classes are open now. Your receipt: ${(env.SITE || "https://quranicscience.info")}/#receipt=${info.id}\n📱 Your Quranic Science app is ready: download it from ${(env.SITE || "https://quranicscience.info")} (Android app), log in with Google and enter your student code ${user.code || ""}.\n📧 All updates (receipt, class reminders, certificate) also come to your email${user.email ? " " + user.email : ""} – please check Spam/Promotions too.`, url: (env.SITE || "https://quranicscience.info") + "/#learn", tag: "pay", course, paid: true, email: true, template: "payment_confirmed", params: [user.name || "Student", courseName, `${courseCode(user.code, course)} · Your app is ready – log in with code ${user.code || ""}${info.notes.apology ? " · Sorry for the late message, our system was being updated" : ""}`] }, Date.now(), fetchImpl);
   await ownerAlert(env, fs, { kind: "pay", title: `💰 New payment – ${info.currency} ${info.amount}`, body: `${user.name || "A student"} paid for ${courseName}. Classes opened automatically.` }, Date.now(), fetchImpl).catch(() => {});
   return { applied: { uid: user.id, course }, sent };
 }
@@ -403,7 +406,7 @@ export async function botReply(env, fs, from, text, who, prev, now = Date.now())
   }
   if (first || /^(0|hi|hello|salam|assalam|menu|start)\b/.test(t) || /hi qs/.test(t)) {
     if (who.role === "teacher") return `Assalamu Alaikum ${name || "Ustad"}! ✅ Teacher alerts are ON for Quranic Science.\nYou will get here: new student doubts and a reminder 30 minutes before your class.${who.teacher && who.teacher.code ? `\nYour teacher code: *${who.teacher.code}*\n📱 Your teacher app is ready: download it from ${site}, log in with the same email and enter your teacher code.` : ""}\n\n${BOT_MENU.teacher}\nٹیچر الرٹس شروع ہو گئے ہیں۔`;
-    if (who.role === "student") return `Assalamu Alaikum ${name}! ✅ WhatsApp alerts are ON.\nYou will get here: class reminders (30 min before), fee receipt, your teacher's answers and your certificate.${info || (u.code ? "\nYour student code: " + u.code : "")}\n\n🌐 Language: send *EN* English · *UR* اردو · *HI* हिन्दी · *AR* العربية\n\n${BOT_MENU.student}\nآپ کے الرٹس شروع ہو گئے ہیں۔`;
+    if (who.role === "student") return `Assalamu Alaikum ${name}! ✅ WhatsApp alerts are ON.\nYou will get here: class reminders (30 min before), fee receipt, your teacher's answers and your certificate. 📧 You also get all of these by email.${info || (u.code ? "\nYour student code: " + u.code : "")}\n\n🌐 Language: send *EN* English · *UR* اردو · *HI* हिन्दी · *AR* العربية\n\n${BOT_MENU.student}\nآپ کے الرٹس شروع ہو گئے ہیں۔`;
     return `Assalamu Alaikum${name ? " " + name : ""}! Welcome to Quranic Science 🌙\nLive Zoom courses with recordings: Tajweed, Arabic Speaking, AI Masterclass, Video Editing, Content Creation and more.\nFirst batch: enrolment till 30 November, classes from 1 December. Only 100 seats per batch.${info || (u.id ? "" : "\n\n✅ Already logged in on our website or paid the fee? Send your mobile number and name (example: 9876543210 Ahmed) – we will send your student code and receipt here.")}\n\n🌐 Language: send *EN* English · *UR* اردو · *HI* हिन्दी · *AR* العربية\n\n${BOT_MENU.visitor}\nخوش آمدید! نمبر لکھ کر جواب دیں۔`;
   }
   const n = (/^\d/.exec(t) || [""])[0];
@@ -518,7 +521,7 @@ export async function runCron(env, fs, now = Date.now(), fetchImpl = fetch) {
       const locked = prevs.some(c => (!c.batch || c.batch === "ALL" || !u.batch || c.batch === u.batch) && !(qz[c.id] && qz[c.id].ok));
       const link = locked ? site + "/#learn" : (k.zoom || site + "/#learn");
       const body = locked ? `${names[k.course] || k.course}: ${title}. First answer the 3 questions of your previous class in My classes – then the Join button opens.` : `${names[k.course] || k.course}: ${title}. 1 hour class, first 15 minutes Q&A. Tap to join.`;
-      const r = await notify(env, fs, u, { title: `Class in 30 minutes · ${when} IST`, body, url: link, tag: "class-" + k.id, paid: env.WA_PAID_REMINDERS === "on", template: "class_reminder", params: [u.name || "Student", names[k.course] || k.course, locked ? title + " (answer the 3 questions of your previous class first)" : title, when + " IST", link] }, now, fetchImpl);
+      const r = await notify(env, fs, u, { title: `Class in 30 minutes · ${when} IST`, body, url: link, tag: "class-" + k.id, course: k.course, paid: env.WA_PAID_REMINDERS === "on", template: "class_reminder", params: [u.name || "Student", names[k.course] || k.course, locked ? title + " (answer the 3 questions of your previous class first)" : title, when + " IST", link] }, now, fetchImpl);
       if (locked) out.lockedReminders = (out.lockedReminders || 0) + 1;
       out.via[r.via] = (out.via[r.via] || 0) + 1; if (r.via !== "none" && r.via !== "failed" && r.via !== "limit-reached") n++; else if (r.via === "failed") out.errors.push(`${u.id}: ${r.error}`);
     }
@@ -531,7 +534,7 @@ export async function runCron(env, fs, now = Date.now(), fetchImpl = fetch) {
   for (const c of certs) {
     if (c.notified || !c.uid) continue;
     const u = await fs.get(`users/${c.uid}`); if (!u) continue;
-    const r = await notify(env, fs, Object.assign({ id: c.uid }, u), { title: "Certificate ready 🎓", body: `Masha Allah ${u.name || c.name || ""}! Your ${c.course || ""} certificate is ready.`, url: `${site}/#verify=${c.id}`, tag: "cert", paid: true, email: true, template: "certificate_ready", params: [u.name || c.name || "Student", c.course || "", `${site}/#verify=${c.id}`] }, now, fetchImpl);
+    const r = await notify(env, fs, Object.assign({ id: c.uid }, u), { title: "Certificate ready 🎓", body: `Masha Allah ${u.name || c.name || ""}! Your ${c.course || ""} certificate is ready.`, url: `${site}/#verify=${c.id}`, tag: "cert", course: c.course || "", paid: true, email: true, template: "certificate_ready", params: [u.name || c.name || "Student", c.course || "", `${site}/#verify=${c.id}`] }, now, fetchImpl);
     await fs.merge(`certificates/${c.id}`, { notified: now, via: r.via });
     out.via[r.via] = (out.via[r.via] || 0) + 1; if (!["none", "failed", "limit-reached"].includes(r.via)) out.certs++;
   }
@@ -541,7 +544,7 @@ export async function runCron(env, fs, now = Date.now(), fetchImpl = fetch) {
       const us = await fs.query("users", [[`paid.\`${ck}\``, "GREATER_THAN", now - 2 * 864e5]], 200);
       for (const u of us) {
         if ((u.paidNotified || {})[ck] || !(u.access || {})[ck]) continue;
-        const r = await notify(env, fs, u, { title: "Your classes are open ✓", body: `Assalamu Alaikum ${u.name || ""}, your fee for ${names[ck] || ck} is confirmed. Your classes are open now in My classes.`, url: site + "/#learn", tag: "pay-" + ck, paid: false, email: true }, now, fetchImpl);
+        const r = await notify(env, fs, u, { title: "Your classes are open ✓", body: `Assalamu Alaikum ${u.name || ""}, your fee for ${names[ck] || ck} is confirmed. Your classes are open now in My classes.`, url: site + "/#learn", tag: "pay-" + ck, course: ck, paid: false, email: true }, now, fetchImpl);
         await fs.merge(`users/${u.id}`, { paidNotified: { [ck]: now } });
         out.opened = (out.opened || 0) + 1; out.via[r.via] = (out.via[r.via] || 0) + 1;
       }
@@ -582,7 +585,7 @@ Answer in Student doubts.`, url: site + "/#learn", tag: "tdoubt-" + d.id, paid: 
       for (const T of ts) {
         if (k.batch && k.batch !== "ALL" && T.batch && T.batch !== k.batch && T.batch !== "ALL") continue;
         const tu = (await fs.query("users", [["email", "EQUAL", T.id]], 1))[0] || {};
-        await notify(env, fs, Object.assign({ phone: T.phone }, tu), { title: `Your class starts in 1 hour · ${when} IST`, body: `${names[k.course] || k.course}: ${ttl} at ${when} IST. Please open Zoom now and check the link. If the link changed, update it in Teacher panel → Edit.`, url: site + "/#learn", tag: "tclass-" + k.id, paid: env.WA_PAID_REMINDERS === "on", template: "class_reminder", params: [T.name || tu.name || "Teacher", names[k.course] || k.course, ttl + " (you are the teacher: open Zoom and check the link)", when + " IST", k.zoom || site + "/#learn"] }, now, fetchImpl);
+        await notify(env, fs, Object.assign({ phone: T.phone }, tu), { title: `Your class starts in 1 hour · ${when} IST`, body: `${names[k.course] || k.course}: ${ttl} at ${when} IST. Please open Zoom now and check the link. If the link changed, update it in Teacher panel → Edit.`, url: site + "/#learn", tag: "tclass-" + k.id, course: k.course, paid: env.WA_PAID_REMINDERS === "on", template: "class_reminder", params: [T.name || tu.name || "Teacher", names[k.course] || k.course, ttl + " (you are the teacher: open Zoom and check the link)", when + " IST", k.zoom || site + "/#learn"] }, now, fetchImpl);
       }
       await fs.merge(`classes/${k.id}`, { reminder: { teacher: now } });
     }
