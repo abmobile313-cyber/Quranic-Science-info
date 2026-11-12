@@ -1494,9 +1494,9 @@ export default {
       const L = role === "teacher" ? T : S;
       const run = async () => { for (let i = 0; i < L.length; i++) { const [tag, t, b, u, c] = L[i];
         for (const tk of toks) await sendAppPush(env, tk, { title: `[TEST ${role} ${i + 1}/${L.length}] ${t}`, body: b, url: u, tag, course: c }).catch(() => {});
-        if (i < L.length - 1) await new Promise(r => setTimeout(r, 9000)); } };
+        if (i < L.length - 1) await new Promise(r => setTimeout(r, 1500)); } };
       if (ctx && ctx.waitUntil) ctx.waitUntil(run()); else await run();
-      return json({ ok: true, role, phones: toks.length, count: L.length, note: `${L.length} test alerts are going to your phone, one every 9 seconds` });
+      return json({ ok: true, role, phones: toks.length, count: L.length, note: `${L.length} test alerts sent; the phone plays them one after another` });
     }
     if (url.pathname === "/mail-test") { const to = String(env.GMAIL_USER || "quranicscience01@gmail.com"); const r = await sendMail(env, to, { title: "Test email ✓", body: "Assalamu Alaikum! Quranic Science email alerts are working. Students will get fee receipts, class reminders and certificates by email too.", url: env.SITE || "https://quranicscience.info" }).catch(e => ({ ok: false, error: String(e && e.message || e) })); return json(Object.assign({ to }, r)); }
     if (url.pathname === "/wa-test") { const to = "919272527913", out = {};
