@@ -275,7 +275,9 @@ export const PAGES = {
   pl_Tz8lQR28ZrdUKx: "ai-creator-full", pl_Tz8u91Tm9sFpyH: "ai-creator-full",
   pl_Tz8mbONgSoTT3p: "ai-creator-live", pl_Tz8unmZPwITy84: "ai-creator-live",
   pl_TxeHo0VZ8kRsNL: "ai-arabic-live", pl_TxeUBdcMdlUCBf: "ai-arabic-live",
-  pl_TxeJ1BNjHABjSo: "ai-combo-live", pl_TxeV7zOuGDQRCu: "ai-combo-live"
+  pl_TxeJ1BNjHABjSo: "ai-combo-live", pl_TxeV7zOuGDQRCu: "ai-combo-live",
+  /* AI Film, Ads & Video Editing (12 Nov 2026): 40%-off INR, full INR, 40%-off USD, full USD */
+  pl_TzCCbP7nbuHP80: "ai-film-ads-video-editing", pl_TzCELQ5cJGrkKA: "ai-film-ads-video-editing", pl_TzCGVRMSZdu3sr: "ai-film-ads-video-editing", pl_TzCICzEgCBXgd2: "ai-film-ads-video-editing"
 };
 /* unique course prices (first-batch price on each Razorpay page); ₹5,999 and $75 are shared by several courses, so those wait for the owner */
 export const AMOUNTS_MULTI = { "INR:5999": ["tajweed-arabic-combo", "video-editing-course", "content-creation-zero-to-pro"], "USD:75": ["tajweed-arabic-combo", "video-editing-course", "content-creation-zero-to-pro", "arabic-speaking-class"] };
