@@ -17,7 +17,7 @@
     ".qse .wa{background:linear-gradient(160deg,rgba(37,211,102,.25),rgba(18,140,126,.2));border-color:rgba(37,211,102,.45)}" +
     "[data-mode=light] .qse{background:rgba(255,255,255,.75)}" +
     /* less noise: hide the decorative scroll cue */
-    "#app>.cue{display:none!important}";
+    "#app>.cue{display:none!important}[data-sec=learn] #app>.qs-ds,[data-sec=learn] #qsChips{display:none!important}[data-sec=learn] #qsFabC{display:none!important}";
   document.head.appendChild(css);
 
   function bar() {
@@ -40,7 +40,15 @@
   }
   function place() {
     var app = document.getElementById("app"); if (!app || !app.firstElementChild) return;
-    var sec = document.documentElement.dataset.sec, have0 = document.getElementById("qsEasy"); if (sec !== "quran") { if (have0) have0.remove(); return; }
+    var sec = document.documentElement.dataset.sec, have0 = document.getElementById("qsEasy");
+    if (sec === "learn") { /* Courses page: the course list comes first, then the offer countdown; the long intro moves below */
+      if (have0) have0.remove();
+      var list = [].slice.call(app.children).find(function (x) { return x.tagName === "SECTION" && x.querySelector("[data-enr]"); });
+      if (list && app.firstElementChild !== list) app.insertBefore(list, app.firstElementChild);
+      var urg = [].slice.call(app.children).find(function (x) { return x !== list && x.tagName === "SECTION" && x.querySelector("[data-cd]"); });
+      if (list && urg && list.nextElementSibling !== urg) app.insertBefore(urg, list.nextElementSibling);
+      return; }
+    if (sec !== "quran") { if (have0) have0.remove(); return; }
     var have = document.getElementById("qsEasy");
     if (have && have.parentNode === app && app.firstElementChild === have) return;
     if (have) have.remove();
