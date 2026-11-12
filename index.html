@@ -2332,6 +2332,18 @@ box.innerHTML=`<span class="qs-ai-lbl">🤖 Or learn with the AI Ustad</span><a 
 if(enr&&enr.parentNode){const lbl=document.createElement("span");lbl.className="qs-ai-lbl";lbl.textContent="👨‍🏫 Learn with a real teacher (live class)";enr.parentNode.insertBefore(lbl,enr);enr.after(box);}else{const b=c.querySelector(".cbody");b&&b.appendChild(box);}});};
 let tm=0;new MutationObserver(()=>{clearTimeout(tm);tm=setTimeout(run,120)}).observe(document.body,{childList:true,subtree:true});addEventListener("load",run);})();
 </script>
+<script id="qs-appbar">/* big "Download the app" button right under Home / Courses / Our Brands (students and teachers must use the app) */
+(()=>{if(window.QSNative||/QSApp\//.test(navigator.userAgent))return;
+const T={en:["📲 Download the Quranic Science App","Students & teachers: installing this app is required — live classes, homework, alerts and certificates are in the app.","Android app · free"],
+ur:["📲 قرآنک سائنس ایپ ڈاؤن لوڈ کریں","طلبہ اور اساتذہ کے لیے یہ ایپ لازمی ہے — لائیو کلاسز، ہوم ورک، الرٹس اور سرٹیفکیٹ ایپ میں ہیں۔","اینڈرائیڈ ایپ · مفت"],
+hi:["📲 क़ुरआनिक साइंस ऐप डाउनलोड करें","स्टूडेंट्स और टीचर्स के लिए यह ऐप ज़रूरी है — लाइव क्लास, होमवर्क, अलर्ट और सर्टिफ़िकेट ऐप में हैं।","एंड्रॉइड ऐप · फ़्री"],
+ar:["📲 حمّل تطبيق قرآنيك ساينس","التطبيق ضروري للطلاب والمعلمين — الدروس المباشرة والواجبات والتنبيهات والشهادات في التطبيق.","تطبيق أندرويد · مجاني"]};
+const lang=()=>{try{const c=String(typeof curLang==="function"?curLang():"en").slice(0,2);return T[c]?c:"en"}catch(e){return"en"}};
+const st=document.createElement("style");st.textContent=`.qs-appbar{max-width:1100px;margin:2px auto 10px;padding:0 14px;box-sizing:border-box;width:100%}.qs-appbar a{display:flex;align-items:center;justify-content:center;gap:10px;min-height:60px;padding:12px 18px;border-radius:999px;text-decoration:none;color:#fff;font:800 18px/1.2 system-ui,sans-serif;background:linear-gradient(135deg,#0d4a3a,#1fae86 55%,#0d4a3a);background-size:200% 100%;box-shadow:0 14px 30px -14px rgba(31,174,134,.9),inset 0 1px rgba(255,255,255,.3);animation:qsAppGlow 3s ease-in-out infinite}.qs-appbar a small{font-size:12px;font-weight:700;opacity:.85;padding:3px 9px;border-radius:99px;background:rgba(255,255,255,.18)}@keyframes qsAppGlow{50%{background-position:100% 0}}.qs-appbar p{margin:8px 6px 0;text-align:center;font-size:14px;line-height:1.45;opacity:.85}@media(max-width:640px){.qs-appbar a{font-size:16px;min-height:54px}.qs-appbar a small{display:none}.qs-appbar p{font-size:13px}}`;document.head.appendChild(st);
+const put=()=>{const row=document.querySelector(".tabsrow");if(!row)return;let d=document.getElementById("qsAppBar");const l=lang();if(d&&d.dataset.l===l&&row.nextElementSibling===d)return;if(d)d.remove();d=document.createElement("div");d.id="qsAppBar";d.className="qs-appbar";d.dataset.l=l;d.dir=/ur|ar/.test(l)?"rtl":"ltr";d.setAttribute("translate","no");const t=T[l];
+d.innerHTML=`<a href="/download/QuranicScience.apk" download>${t[0]} <small>${t[2]}</small></a><p>${t[1]}</p>`;row.after(d);};
+put();setInterval(put,2000);})();
+</script>
 <script id="qs-card-order">/* course cards: name → enroll buttons → AI options → price → description → details (owner's order, Nov 2026) */
 (()=>{const run=()=>{document.querySelectorAll("article.ccard .cbody").forEach(b=>{const h=b.querySelector(":scope>h3");if(!h)return;
 const kids=[...b.children],enr=kids.find(x=>x.classList.contains("enr2"))||kids.find(x=>x.querySelector&&x.querySelector("[data-enr]")&&!x.classList.contains("qs-ai-opt"));
