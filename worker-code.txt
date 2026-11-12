@@ -136,7 +136,7 @@ export async function sendWAText(env, to, text, fetchImpl = fetch) {
 /* free alert on the Quranic Science Android app (Firebase Cloud Messaging, no charge) */
 /* which voice the app plays for each alert (Android notification channels with a recorded Urdu voice, app 1.2+) */
 export const voiceCh = tag => { const t = String(tag || "");
-  return /^tclass-/.test(t) ? "v_tclass" : /^class-/.test(t) ? "v_class" : /^pay/.test(t) ? "v_pay" : /^cert/.test(t) ? "v_cert" : /^hwdue-/.test(t) ? "v_hwdue" : /^hw-/.test(t) ? "v_hw" : /^tdoubt-/.test(t) ? "v_newdoubt" : /^doubt-/.test(t) ? "v_doubt" : "v_general"; };
+  return /^tclass-/.test(t) ? "v_tclass" : /^open-/.test(t) ? "v_open" : /^pdf/.test(t) ? "v_pdf" : /^tenrol-/.test(t) ? "v_enrol" : /^thw-/.test(t) ? "v_newhw" : /^class-/.test(t) ? "v_class" : /^pay/.test(t) ? "v_pay" : /^cert/.test(t) ? "v_cert" : /^hwdue-/.test(t) ? "v_hwdue" : /^hw-/.test(t) ? "v_hw" : /^tdoubt-/.test(t) ? "v_newdoubt" : /^doubt-/.test(t) ? "v_doubt" : "v_general"; };
 export async function sendAppPush(env, token, msg, fetchImpl = fetch) {
   const sa = typeof env.FIREBASE_SA === "string" ? JSON.parse(env.FIREBASE_SA) : env.FIREBASE_SA, t = await googleToken(sa, fetchImpl);
   const r = await fetchImpl(`https://fcm.googleapis.com/v1/projects/${sa.project_id}/messages:send`, { method: "POST", headers: { authorization: "Bearer " + t, "content-type": "application/json" },
@@ -571,7 +571,7 @@ export async function runCron(env, fs, now = Date.now(), fetchImpl = fetch) {
       const us = await fs.query("users", [[`paid.\`${ck}\``, "GREATER_THAN", now - 2 * 864e5]], 200);
       for (const u of us) {
         if ((u.paidNotified || {})[ck] || !(u.access || {})[ck]) continue;
-        const r = await notify(env, fs, u, { title: "Your classes are open ✓", body: `Assalamu Alaikum ${u.name || ""}, your fee for ${names[ck] || ck} is confirmed. Your classes are open now in My classes.`, url: site + "/#learn", tag: "pay-" + ck, course: ck, paid: false, email: true }, now, fetchImpl);
+        const r = await notify(env, fs, u, { title: "Your classes are open ✓", body: `Assalamu Alaikum ${u.name || ""}, your fee for ${names[ck] || ck} is confirmed. Your classes are open now in My classes.`, url: site + "/#learn", tag: "open-" + ck, course: ck, paid: false, email: true }, now, fetchImpl);
         await fs.merge(`users/${u.id}`, { paidNotified: { [ck]: now } });
         out.opened = (out.opened || 0) + 1; out.via[r.via] = (out.via[r.via] || 0) + 1;
       }
@@ -1386,7 +1386,7 @@ export async function aiRoute(req, env, url) {
       const due = +body.due > 0 ? +body.due : 0;
       const rec = { uid: me.uid, email: me.email, name: user.name || "", code: user.code || "", phone: user.phone || "", course: clip(body.course, 60), lesson: clip(body.lesson, 80), classId: clip(body.classId, 60), due, late: !!(due && now > due), kind, mime, n, size: Math.round(data.length * 3 / 4), note: clip(body.note, 500), ts: now, status: "new", feedback: "", marks: null, by: "" };
       await fs.merge(`hw/${id}`, rec);
-      if (!String(rec.course).startsWith("ai-")) await ownerAlert(env, fs, { kind: "info", title: rec.late ? "📤 New homework (late)" : "📤 New homework", body: `${rec.name || rec.email} (${rec.code || "no code"}) · ${rec.course} · ${rec.lesson} · ${kind}${rec.late ? " · late" : ""}` }, now).catch(() => {});
+      if (!String(rec.course).startsWith("ai-")) await ownerAlert(env, fs, { kind: "info", tag: "thw-" + String(rec.id || now), course: rec.course, title: rec.late ? "📤 New homework (late)" : "📤 New homework", body: `${rec.name || rec.email} (${rec.code || "no code"}) · ${rec.course} · ${rec.lesson} · ${kind}${rec.late ? " · late" : ""}` }, now).catch(() => {});
       return out({ ok: true, id });
     }
     if (p === "/hw/list") {
@@ -1477,19 +1477,19 @@ export default {
       const S = [
         ["general-t1", "Welcome to Quranic Science ✓", `Assalamu Alaikum ${nm}, you are logged in. Choose a course; after the fee your classes open by themselves.`, site + "/#learn", ""],
         ["pay-t2", `Payment received ✓ · ${cn}`, `Your fee for ${cn} is received. Receipt is in your email.`, site + "/#receipt=pay_TEST123", ck],
-        ["pay-t3", `Classes open ✓ · ${cn}`, `${cn}: your classes are open now in My classes.`, site + "/#learn", ck],
+        ["open-t3", `Classes open ✓ · ${cn}`, `${cn}: your classes are open now in My classes.`, site + "/#learn", ck],
         ["class-t4", `Class in 30 minutes · ${cn}`, `Din 1 · AI film kya hai · 7:00 PM IST. Tap to join on Zoom.`, site + "/#learn", ck],
         ["hwdue-t5", `Homework due today ⏳ · ${cn}`, "Din 1: please send your homework before 7:00 PM IST.", site + "/#learn", ck],
         ["hw-t6", `Homework checked ✓ · ${cn}`, "Din 1: MashaAllah, very good idea! Marks 9/10.", site + "/homework.html", ck],
         ["doubt-t7", `Teacher answered ✓ · ${cn}`, "CapCut mein clips jod kar lambi film banayein.", site + "/#learn", ck],
-        ["general-t8", "PDF download unlocked ✓", "Your payment is received. Tap Download on the PDF.", site + "/#quran", ""],
+        ["pdf-t8", "PDF download unlocked ✓", "Your payment is received. Tap Download on the PDF.", site + "/#quran", ""],
         ["cert-t9", `Certificate ready 🎓 · ${cn}`, `Masha Allah ${nm}! Your certificate is ready.`, site + "/#verify=TEST-CERT", ck]
       ];
       const T = [
         ["tclass-t1", `Teacher: class in 1 hour · ${cn}`, "Din 1 at 7:00 PM IST. Please check the Zoom link now.", site + "/#learn", ck],
         ["tdoubt-t2", `Teacher: new student doubt ❓ · ${cn}`, `${nm} (${code}) asked: Character ka chehra har shot mein badal jaata hai?`, site + "/#learn", ck],
-        ["pay-t3", `New enrolment ✓ · ${cn}`, `${nm} (${code}) joined ${cn}.`, site + "/#learn", ck],
-        ["hw-t4", `New homework to check · ${cn}`, `${nm} (${code}) sent Din 1 homework.`, site + "/homework.html", ck]
+        ["tenrol-t3", `New enrolment ✓ · ${cn}`, `${nm} (${code}) joined ${cn}.`, site + "/#learn", ck],
+        ["thw-t4", `New homework to check · ${cn}`, `${nm} (${code}) sent Din 1 homework.`, site + "/homework.html", ck]
       ];
       const L = role === "teacher" ? T : S;
       const run = async () => { for (let i = 0; i < L.length; i++) { const [tag, t, b, u, c] = L[i];
