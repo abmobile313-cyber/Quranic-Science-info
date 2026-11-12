@@ -279,7 +279,7 @@ async function viewHome() {
   const card = (c, desc) => {
     const s = st[c], own = c === "combo" ? (has("tajweed") && has("arabic")) : has(c), full = c === "combo" ? isFull("tajweed") && isFull("arabic") : isFull(c);
     return `<article class="cc">${c === "combo" ? `<span class="badge">${t("best")}</span>` : full && own ? `<span class="badge">${t("fullBadge")}</span>` : ""}<div class="arT">${COURSES[c].ar}</div><h3>${t(c)}</h3><p>${t(desc)}</p>${priceHTML(c)}
-      ${c !== "combo" && liveOf(c) && !has(c) ? `<p class="mini">🎓 ${pick(ADDX.h)}: <b>${rupee(COURSES[c].aInr)}</b> · <bdi dir="ltr">$${COURSES[c].aUsd}</bdi> <button class="btn sm pri" data-addon="${c}">${pick(ADDX.b)}</button></p>` : ""}
+      ${c !== "combo" && liveOf(c) && !has(c) ? `<p class="mini">🎓 ${pick(ADDX.h)}: <b>${rupee(COURSES[c].aInr)}</b> · <bdi dir="ltr">$${COURSES[c].aUsd}</bdi> <small>(${pick(ADDX.only)})</small> <button class="btn sm pri" data-addon="${c}">${pick(ADDX.b)}</button></p>` : ""}
       ${s && s.done ? `<div class="bar"><i style="width:${s.pct}%"></i></div><span class="mini">${t("progress")} ${num(s.pct)}% · ${t("score")} ${num(s.score)}%</span>` : ""}
       <div class="acts">${c !== "combo" ? `<a class="btn ${own || s.done ? "pri" : "cy"}" href="#${c}">${own || s.done ? t("open") : t("start")}</a>` : ""}${own ? "" : `<button class="btn ${c === "combo" ? "pri" : ""}" data-buy="${c}">${t("enroll")}</button>`}${full ? "" : `<button class="btn fullb" data-buy="${c}" data-full="1">${t("addFull")}</button>`}</div></article>`;
   };
@@ -475,12 +475,13 @@ const ADDX = {
   h: { en: "For our live-class students", ur: "ہماری لائیو کلاس کے طلبہ کے لیے", hi: "हमारी लाइव क्लास के तलबा के लिए" },
   p: { en: "Add AI practice to your live class: the same lesson as your class opens here on the same day, with the qari, the Makharij animation, quizzes and homework that goes to your teacher.", ur: "اپنی لائیو کلاس کے ساتھ AI مشق جوڑیں: آپ کی کلاس والا سبق اسی دن یہاں کھلے گا، قاری صاحب، مخارج اینیمیشن، سوالات اور ہوم ورک کے ساتھ جو آپ کے استاد کو جائے گا۔", hi: "अपनी लाइव क्लास के साथ AI मश्क़ जोड़ें: आपकी क्लास वाला सबक़ उसी दिन यहाँ खुलेगा, क़ारी साहब, मख़ारिज एनिमेशन, सवालात और होमवर्क के साथ जो आपके उस्ताद को जाएगा।" },
   b: { en: "Add AI practice", ur: "AI مشق شامل کریں", hi: "AI मश्क़ शामिल करें" },
+  only: { en: "AI practice only (your live class fee is separate)", ur: "صرف AI مشق (لائیو کلاس کی فیس الگ ہے)", hi: "सिर्फ़ AI मश्क़ (लाइव क्लास की फ़ीस अलग है)" },
   both: { en: "Both courses (Tajweed + Arabic)", ur: "دونوں کورس (تجوید + عربی)", hi: "दोनों कोर्स (तजवीद + अरबी)" } };
 function addonHTML(c) { const C = COURSES[c];
-  return `<div class="livenote"><b>🎓 ${pick(ADDX.h)}</b><p style="margin:6px 0">${pick(ADDX.p)}</p><p style="margin:0 0 8px"><b>${rupee(C.aInr)}</b> · <bdi dir="ltr">$${C.aUsd}</bdi></p><button class="btn pri sm" data-addon="${c}">${pick(ADDX.b)}</button></div>`; }
+  return `<div class="livenote"><b>🎓 ${pick(ADDX.h)}</b><p style="margin:6px 0">${pick(ADDX.p)}</p><p style="margin:0 0 8px"><b>${rupee(C.aInr)}</b> · <bdi dir="ltr">$${C.aUsd}</bdi> <small>· ${pick(ADDX.only)}</small></p><button class="btn pri sm" data-addon="${c}">${pick(ADDX.b)}</button></div>`; }
 function buyAddon(c) {
   const go = () => { const both = liveOf("tajweed") && liveOf("arabic");
-    const line = (k, label) => { const C = COURSES[k]; return `<div class="opt"><b>${label}</b><span>${rupee(C.aInr)} · <bdi dir="ltr">$${C.aUsd}</bdi></span>
+    const line = (k, label) => { const C = COURSES[k]; return `<div class="opt"><b>${label}</b><span>${rupee(C.aInr)} · <bdi dir="ltr">$${C.aUsd}</bdi> <small>${pick(ADDX.only)}</small></span>
       ${C.aPay ? `<a class="btn pri sm" href="${C.aPay}" target="_blank" rel="noopener">${t("enroll")} – India</a>` : ""}${C.aPayIntl ? `<a class="btn sm" href="${C.aPayIntl}" target="_blank" rel="noopener">${t("intl")}</a>` : ""}
       <a class="btn cy sm" target="_blank" rel="noopener" href="https://wa.me/${WA}?text=${encodeURIComponent(`Assalamu Alaikum, I am a live-class student. I want the AI practice add-on: ${label} (₹${C.aInr} / $${C.aUsd}). My email: ${S.user ? S.user.email || "" : ""}`)}">${t("payWa")}</a></div>`; };
     modal(`<h3>🎓 ${pick(ADDX.b)}</h3><p class="mini">${pick(ADDX.p)}</p><div style="display:grid;gap:10px;margin-top:10px">${line(c, t(c))}${both ? line("combo", pick(ADDX.both)) : ""}</div>`);
