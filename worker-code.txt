@@ -508,6 +508,23 @@ export async function runCron(env, fs, now = Date.now(), fetchImpl = fetch) {
   try { const ts = await fs.query("teachers", [], 100), byCode = {}; ts.forEach(t => { if (t.code) byCode[t.code] = t.name || ""; });
     const recent = await fs.query("classes", [["date", "GREATER_THAN_OR_EQUAL", new Date(now - 30 * 864e5 + 330 * 60000).toISOString().slice(0, 10)]], 300);
     for (const k of recent) { const nm = k.teacher && byCode[k.teacher]; if (nm && k.tname !== nm) await fs.merge(`classes/${k.id}`, { tname: nm }); } } catch (e) { out.errors.push("tname: " + String(e.message || e).slice(0, 120)); }
+  /* 0c) homework due: one reminder (voice alert "hwdue") to students who have not sent the homework, within 12 hours of the last date; never at night */
+  try { const hIST = new Date(now + 330 * 60000).getUTCHours();
+    if (hIST >= 7 && hIST < 22) {
+      const recent = (await fs.query("classes", [["date", "GREATER_THAN_OR_EQUAL", new Date(now - 14 * 864e5 + 330 * 60000).toISOString().slice(0, 10)]], 300)).filter(k => k.hw && !k.hwRemind);
+      for (const k of recent) {
+        const t = istMs(k.date); if (isNaN(t) || t > now) continue;
+        let due = k.hwDue ? istMs(k.hwDue) : NaN;
+        if (isNaN(due)) { const nx = (await fs.query("classes", [["course", "EQUAL", k.course]], 300)).filter(c => (!k.batch || !c.batch || c.batch === k.batch || c.batch === "ALL" || k.batch === "ALL")).map(c => istMs(c.date)).filter(v => !isNaN(v) && v > t).sort((a, b) => a - b)[0];
+          due = nx || (() => { const d = new Date(t + 2 * 864e5 + 330 * 60000); d.setUTCHours(23, 59, 0, 0); return +d - 330 * 60000; })(); }
+        if (due - now > 12 * 3600000 || due < now) { if (due < now) await fs.merge(`classes/${k.id}`, { hwRemind: { skipped: true, at: now } }); continue; }
+        const studs = await fs.query("users", [[`access.\`${k.course}\``, "EQUAL", true]], 1000), sent = await fs.query("hw", [["classId", "EQUAL", k.id]], 500), done = new Set(sent.map(h => h.uid));
+        const title = (k.title && (k.title.en || k.title.ur)) || "Class " + (k.n || ""), when = new Date(due + 330 * 60000).toISOString().slice(11, 16); let n = 0;
+        for (const u of studs) { if (done.has(u.id)) continue; if (k.batch && k.batch !== "ALL" && u.batch && u.batch !== k.batch) continue;
+          const r = await notify(env, fs, u, { title: "Homework due today ⏳", body: `${names[k.course] || k.course}: ${title}. Please send your homework before ${when} IST in My classes.`, url: site + "/#learn", tag: "hwdue-" + k.id, course: k.course, paid: false }, now, fetchImpl).catch(() => ({ via: "failed" }));
+          if (r.via !== "none" && r.via !== "failed") n++; }
+        await fs.merge(`classes/${k.id}`, { hwRemind: { sent: true, at: now, count: n } }); out.hwDue = (out.hwDue || 0) + n;
+      } } } catch (e) { out.errors.push("hwdue: " + String(e.message || e).slice(0, 120)); }
   /* 1) class reminders: about 30 minutes before (the 15-minute cron lands once in the 24–39 minute window), once per class */
   /* only classes dated between now and +2 hours (IST text dates sort correctly) */
   const ist = ms => new Date(ms + 330 * 60000).toISOString().slice(0, 16).replace("T", " ");
@@ -1363,9 +1380,10 @@ export async function aiRoute(req, env, url) {
       if (data.length > 14e6) return out({ error: "File is too big. Please keep it under 10 MB (short video, clear photo or voice note)." }, 413);
       const now = Date.now(), id = "H" + new Date(now + 330 * 60000).toISOString().slice(2, 10).replace(/-/g, "") + "-" + rid(6).toUpperCase(), CH = 700000, n = Math.ceil(data.length / CH);
       for (let i = 0; i < n; i++) await fs.merge(`hwData/${id}_${i}`, { d: data.slice(i * CH, (i + 1) * CH) });
-      const rec = { uid: me.uid, email: me.email, name: user.name || "", code: user.code || "", phone: user.phone || "", course: clip(body.course, 60), lesson: clip(body.lesson, 80), kind, mime, n, size: Math.round(data.length * 3 / 4), note: clip(body.note, 500), ts: now, status: "new", feedback: "", marks: null, by: "" };
+      const due = +body.due > 0 ? +body.due : 0;
+      const rec = { uid: me.uid, email: me.email, name: user.name || "", code: user.code || "", phone: user.phone || "", course: clip(body.course, 60), lesson: clip(body.lesson, 80), classId: clip(body.classId, 60), due, late: !!(due && now > due), kind, mime, n, size: Math.round(data.length * 3 / 4), note: clip(body.note, 500), ts: now, status: "new", feedback: "", marks: null, by: "" };
       await fs.merge(`hw/${id}`, rec);
-      if (!String(rec.course).startsWith("ai-")) await ownerAlert(env, fs, { kind: "info", title: "📤 New homework", body: `${rec.name || rec.email} (${rec.code || "no code"}) · ${rec.course} · ${rec.lesson} · ${kind}` }, now).catch(() => {});
+      if (!String(rec.course).startsWith("ai-")) await ownerAlert(env, fs, { kind: "info", title: rec.late ? "📤 New homework (late)" : "📤 New homework", body: `${rec.name || rec.email} (${rec.code || "no code"}) · ${rec.course} · ${rec.lesson} · ${kind}${rec.late ? " · late" : ""}` }, now).catch(() => {});
       return out({ ok: true, id });
     }
     if (p === "/hw/list") {

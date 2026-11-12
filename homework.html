@@ -20,7 +20,7 @@ header{display:flex;align-items:center;gap:12px;margin-bottom:14px}header img{wi
 .tabs{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}.tabs .btn[aria-pressed=true]{border-color:var(--gold);color:var(--gold2)}
 .row{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:14px;margin:10px 0;display:grid;gap:8px}
 .row .h{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}.row b{font-size:17px}.mut{color:var(--mut);font-size:14px}
-.st{font-size:13px;font-weight:700;padding:4px 10px;border-radius:999px}.st.new{background:rgba(227,170,60,.18);color:var(--gold2)}.st.checked{background:rgba(63,207,142,.16);color:var(--ok)}
+.st{font-size:13px;font-weight:700;padding:4px 10px;border-radius:999px}.st.new{background:rgba(227,170,60,.18);color:var(--gold2)}.st.late{background:rgba(231,76,60,.18);color:#ff9d92}.st.due{background:rgba(31,182,232,.14);color:#8fdcf5}.st.checked{background:rgba(63,207,142,.16);color:var(--ok)}
 textarea,input{width:100%;border-radius:12px;border:1px solid var(--line);background:var(--bg2);color:var(--fg);padding:10px;font:inherit}
 .media img,.media video{max-width:100%;border-radius:12px}.media audio{width:100%}
 .fb{padding:10px 12px;border-radius:12px;background:rgba(44,196,242,.08);border:1px solid rgba(44,196,242,.3)}
@@ -63,7 +63,7 @@ function draw() {
   const staff = data.role === "owner" || data.role === "teacher";
   app.innerHTML = `<p class="mut">${data.role === "owner" ? "Owner · all courses" : data.role === "teacher" ? "Teacher · " + esc(data.teacherCourse) : "My homework · میرا ہوم ورک"} · <a href="#" id="lo" style="color:var(--gold2)">Log out</a></p>
     <div class="tabs">${[["new", "⏳ To check · باقی"], ["checked", "✓ Checked · چیک ہو گیا"], ["all", "All · سب"]].map(([k, l]) => `<button class="btn" aria-pressed="${filter === k}" data-f="${k}">${l} (${(data.rows || []).filter(r => k === "all" || (k === "new" ? r.status !== "checked" : r.status === "checked")).length})</button>`).join("")}</div>
-    ${rows.length ? rows.map(r => `<article class="row" data-id="${esc(r.id)}"><div class="h"><b>${staff ? esc(r.name || r.email) + (r.code ? " · " + esc(r.code) : "") : esc(r.lesson)}</b><span class="st ${r.status === "checked" ? "checked" : "new"}">${r.status === "checked" ? "✓ checked" : "new"}</span></div>
+    ${rows.length ? rows.map(r => `<article class="row" data-id="${esc(r.id)}"><div class="h"><b>${staff ? esc(r.name || r.email) + (r.code ? " · " + esc(r.code) : "") : esc(r.lesson)}</b><span class="st ${r.status === "checked" ? "checked" : "new"}">${r.status === "checked" ? "✓ checked" : "new"}</span>${r.late ? `<span class="st late">⏰ late</span>` : ""}${r.due ? `<span class="st due">due ${new Date(r.due).toLocaleString(undefined, { day: "numeric", month: "short", hour: "numeric", minute: "2-digit" })}</span>` : ""}</div>
       <span class="mut">${staff ? esc(r.course) + " · " + esc(r.lesson) + " · " : ""}${KIND[r.kind] || esc(r.kind)} · ${when(r.ts)}</span>
       ${r.feedback ? `<div class="fb"><b>${r.by === "ai" ? "🤖 AI Ustad" : "👨‍🏫 Teacher"}${r.marks != null ? " · " + r.marks + "/10" : ""}</b><br>${esc(r.feedback)}</div>` : ""}
       <div class="media"></div><div><button class="btn op">▶ Open · کھولیں</button></div>

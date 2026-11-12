@@ -538,9 +538,11 @@ Student code: ${t.code}`)}" target="_blank" rel="noopener" data-snd="wa">${UI.wa
       <label class="lb">Class title<input class="inp" id="ecT" required value="${esc(a?tx3(a.title):"")}" placeholder="e.g. Makharij of the throat letters"></label>
       <label class="lb">Zoom link<input class="inp" id="ecZ" type="url" value="${esc(a&&a.zoom||"")}" placeholder="https://zoom.us/j/…"></label>
       <label class="lb">Recording link (Google Drive / YouTube unlisted)<input class="inp" id="ecR" type="url" value="${esc(a&&a.recording||"")}" placeholder="https://drive.google.com/…"></label>
+      <label class="lb">Homework for this class (optional)<textarea class="inp" id="ecH" rows="2" placeholder="e.g. Record yourself reading lines 1–5 and send the voice note">${esc(a&&a.hw||"")}</textarea></label>
+      <label class="lb">Homework last date (optional · empty = before the next class)<input class="inp" id="ecHD" type="datetime-local" value="${esc(a&&a.hwDue?String(a.hwDue).replace(" ","T"):"")}"></label>
       ${[0,1,2].map(r=>{const o=i[r]||{};return`<fieldset class="mq"><legend><b>Question ${r+1}</b> <small class="hint">· tick ◉ the correct answer</small></legend><input class="inp" id="eq${r}" required value="${esc(o.q?tx3(o.q):"")}" placeholder="Question">
         ${[0,1,2].map(l=>`<label class="mopt"><input type="radio" name="ec${r}" value="${l}" ${+(o.c||0)===l?"checked":""} aria-label="Correct answer"><input class="inp" id="eo${r}_${l}" required value="${esc(o.o&&o.o[l]?tx3(o.o[l]):"")}" placeholder="Answer ${l+1}${l===0?" (tick the correct one)":""}"></label>`).join("")}</fieldset>`}).join("")}
-      <button class="btn pri" type="submit"><span class="bl"></span>${UI.spark}<span id="ecGo">Translate & check</span></button></form>`),$("#ecF").onsubmit=async r=>{r.preventDefault(),$("#ecGo").textContent="Translating to English, Urdu, Arabic…";const o=[$("#ecT").value];for(let f=0;f<3;f++){o.push($("#eq"+f).value);for(let m=0;m<3;m++)o.push($("#eo"+f+"_"+m).value)}const l=await Promise.all(o.map(to3));let d=0;const h=l[d++],c=[];for(let f=0;f<3;f++){const m=l[d++],w=[l[d++],l[d++],l[d++]];c.push({q:m,o:w,c:+((document.querySelector(`input[name="ec${f}"]:checked`)||{}).value||0)})}const b={course:ckey(e),batch:t,n:+$("#ecN").value||1,date:$("#ecD").value.replace("T"," "),zoom:$("#ecZ").value.trim(),recording:$("#ecR").value.trim()},v=f=>f.en===f.ur&&f.ur===f.ar,u=[h,...c.map(f=>f.q)].some(v),p=(f,m,w,g)=>`<div class="trrow${g?" ok":""}"><b>${f}</b>${["en","ur","ar"].map(y=>`<input class="inp" data-tr="${w}.${y}" value="${esc(m[y])}" ${y!=="en"?`dir="rtl" lang="${y}"`:""} aria-label="${f} ${y}">`).join("")}</div>`;openTop(`<div class="shd"><div><span class="chip"><span class="dot"></span>Step 2 of 2</span><h2>Check the 3 languages</h2><p>English · اردو · العربية. Correct anything you like, then save. The correct answer is marked ✓.</p></div>${xTop}</div>
+      <button class="btn pri" type="submit"><span class="bl"></span>${UI.spark}<span id="ecGo">Translate & check</span></button></form>`),$("#ecF").onsubmit=async r=>{r.preventDefault(),$("#ecGo").textContent="Translating to English, Urdu, Arabic…";const o=[$("#ecT").value];for(let f=0;f<3;f++){o.push($("#eq"+f).value);for(let m=0;m<3;m++)o.push($("#eo"+f+"_"+m).value)}const l=await Promise.all(o.map(to3));let d=0;const h=l[d++],c=[];for(let f=0;f<3;f++){const m=l[d++],w=[l[d++],l[d++],l[d++]];c.push({q:m,o:w,c:+((document.querySelector(`input[name="ec${f}"]:checked`)||{}).value||0)})}const b={course:ckey(e),batch:t,n:+$("#ecN").value||1,date:$("#ecD").value.replace("T"," "),zoom:$("#ecZ").value.trim(),recording:$("#ecR").value.trim(),hw:($("#ecH")||{}).value?$("#ecH").value.trim().slice(0,600):"",hwDue:($("#ecHD")||{}).value?$("#ecHD").value.replace("T"," "):""},v=f=>f.en===f.ur&&f.ur===f.ar,u=[h,...c.map(f=>f.q)].some(v),p=(f,m,w,g)=>`<div class="trrow${g?" ok":""}"><b>${f}</b>${["en","ur","ar"].map(y=>`<input class="inp" data-tr="${w}.${y}" value="${esc(m[y])}" ${y!=="en"?`dir="rtl" lang="${y}"`:""} aria-label="${f} ${y}">`).join("")}</div>`;openTop(`<div class="shd"><div><span class="chip"><span class="dot"></span>Step 2 of 2</span><h2>Check the 3 languages</h2><p>English · اردو · العربية. Correct anything you like, then save. The correct answer is marked ✓.</p></div>${xTop}</div>
       ${u?'<p class="hint" style="color:#c0392b;margin:0 0 8px">Auto-translation could not reach the internet for some lines. Please type the Urdu and Arabic yourself in those boxes.</p>':""}
       <form id="trF" style="display:grid;gap:10px"><div class="trhead"><span></span><span>English</span><span>اردو</span><span>العربية</span></div>${p("Title",h,"t")}
       ${c.map((f,m)=>p("Q"+(m+1),f.q,"q"+m)+f.o.map((w,g)=>p((g===f.c?"✓ ":"")+"Answer "+(g+1),w,`o${m}_${g}`,g===f.c)).join("")).join("")}
@@ -1650,6 +1652,7 @@ function open(tab) {
       <nav class="qh-nav" aria-label="App sections" id="qhNav"></nav>`;
     document.body.appendChild(root); applyLang();
     root.addEventListener("click", onClick);
+    root.addEventListener("change", e => { const t = e.target; if (t && t.dataset && t.dataset.hwup) hwUpload(t); });
     root.querySelector("#qhClose").onclick = close;
     root.querySelector("#qhWeb").onclick = () => { if (IS_APP) { webOut("#home"); return; } close(); try { location.hash = "#home"; } catch (e) {} say("You are on the website. Tap “My App” to come back."); };
     window.addEventListener("popstate", () => { if (!root || !root.classList.contains("on")) return; if (IS_APP) { if (cur !== "home" && cur !== "thome" && !root.classList.contains("guest")) go(mode === "t" ? "thome" : "home"); return; } if (location.hash !== "#app") close(true); });
@@ -1892,7 +1895,7 @@ const VIEWS = {
   },
   async classes() {
     const mc = myCourses(); if (!mc.length) return empty("🎥", "No classes yet", "Join a course to see your live classes and recordings here.", `<button class="qh-btn pri" data-web="#learn">See courses</button>`);
-    const x = mc[Math.min(sel, mc.length - 1)], cls = await classes(x), a = await attendance(x), p = prog(x);
+    const x = mc[Math.min(sel, mc.length - 1)], cls = await classes(x), a = await attendance(x), p = prog(x), HWROWS = cls.some(k => k.hw) ? await hwRows() : [];
     let h = seg(mc); const tn = (cls.slice().reverse().find(k => k.tname) || {}).tname;
     if (tn) h += `<p class="qh-teach rv" style="--i:0"><span>👨‍🏫 Your teacher</span>: <b>${E(tn)}</b></p>`;
     const LK = locks(cls, p);
@@ -1910,7 +1913,7 @@ const VIEWS = {
           ${k.recording && !lk ? `<button class="qh-btn sm" data-rec="${E(k.recording)}" data-ci="${x.i}">▶ Recording</button>` : ""}
           ${(k.qs || []).length && !lk && (at || !t || Date.now() > t) ? `<button class="qh-btn sm" data-cls="${x.i}">${ok ? "✓ Questions" : "3 questions"}</button>` : ""}
           ${(k.qs || []).length && !lk ? `<button class="qh-btn sm ${saved ? "on" : ""}" data-save="${x.i}|${E(kid(k))}">${saved ? "✓ Saved" : "⤓ Offline"}</button>` : ""}
-          ${k.recording && !lk && NV() && vdlUrl(k.recording) ? (() => { const vid = ckey(x.c) + "|" + kid(k), have = vList().some(v => v.id === vid), p = VDL[vid]; return `<button class="qh-btn sm ${have ? "on" : ""}" data-vdl="${E(vid)}" data-vci="${x.i}" data-vk="${E(kid(k))}" ${p != null ? "disabled" : ""}>${have ? "✓ " + L("Video saved") : p != null ? "⤓ " + p + "%" : "⤓ " + L("Save video")}</button>`; })() : ""}</div></div></article>`;
+          ${k.recording && !lk && NV() && vdlUrl(k.recording) ? (() => { const vid = ckey(x.c) + "|" + kid(k), have = vList().some(v => v.id === vid), p = VDL[vid]; return `<button class="qh-btn sm ${have ? "on" : ""}" data-vdl="${E(vid)}" data-vci="${x.i}" data-vk="${E(kid(k))}" ${p != null ? "disabled" : ""}>${have ? "✓ " + L("Video saved") : p != null ? "⤓ " + p + "%" : "⤓ " + L("Save video")}</button>`; })() : ""}</div>${!lk ? hwBox(x, k, cls, HWROWS) : ""}</div></article>`;
     }).join("") + `</div>`;
     return h + `<section class="qh-card qh-promo rv" style="--i:20"><div><b>💬 Ask your teacher</b><p class="qh-mut">Stuck on something? Your teacher answers here, AI replies at once.</p></div><button class="qh-btn sm pri" data-qsdoubt="${x.i}">Ask a doubt</button></section>`;
   },
@@ -2058,6 +2061,29 @@ function webOut(hash) { openUrl("https://abmobile313-cyber.github.io/Quranic-Sci
 function openUrl(u) { try { if (window.QSNative && QSNative.openExternal) { QSNative.openExternal(u); return; } } catch (e) {} window.open(u, "_blank", "noopener"); }
 function dlUrl(u) { const m = /drive\.google\.com\/(?:file\/d\/|open\?id=)([\w-]{20,})/.exec(u); return m ? `https://drive.google.com/uc?export=download&id=${m[1]}` : u; }
 
+/* ---------- live-class homework: due before the next class (or the date the teacher set) ---------- */
+const HWW = "https://quranic-science-automation.quranicscience01.workers.dev";
+let MYHW = null; /* my homework rows */
+const hwRows = async () => { if (MYHW) return MYHW; try { const t = await AUTH.fb.auth.currentUser.getIdToken(); const r = await fetch(HWW + "/hw/list", { headers: { authorization: "Bearer " + t } }).then(r => r.json()); MYHW = r.rows || []; } catch (e) { MYHW = []; } return MYHW; };
+const hwDue = (k, cls) => { if (k.hwDue) return tms(k.hwDue) || 0; const t = tm(k) || 0; const nx = cls.map(tm).filter(v => v && v > t).sort((a, b) => a - b)[0]; if (nx) return nx; if (!t) return 0; const d = new Date(t + 2 * DAY); d.setHours(23, 59, 0, 0); return +d; };
+const hwBox = (x, k, cls, rows) => { if (!k.hw) return ""; const due = hwDue(k, cls), mine = rows.filter(r => r.classId === kid(k)).sort((a, b) => b.ts - a.ts)[0], now = Date.now();
+  const st = mine ? (mine.status === "checked" ? ["✓ " + L("Checked") + (mine.marks != null ? " · " + mine.marks + "/10" : ""), "green"] : mine.late ? ["⏰ " + L("Sent late"), "red"] : ["✓ " + L("Sent"), "green"]) : due && now > due ? ["⚠ " + L("Late · send now"), "red"] : due && due - now < DAY ? ["⏳ " + L("Due today"), "gold"] : ["📝 " + L("Pending"), "cyan"];
+  return `<div class="qh-hw" style="margin-top:10px;padding:10px 12px;border-radius:14px;border:1px solid rgba(224,164,37,.35);background:rgba(224,164,37,.08)"><div class="qh-row sp"><b>📝 ${L("Homework")}</b><span class="qh-chip ${st[1]}">${st[0]}</span></div>
+    <p dir="auto" style="margin:6px 0">${E(T(k.hw) || k.hw)}</p>${due ? `<small class="qh-mut">${L("Last date")}: ${new Date(due).toLocaleString(LOC(), { weekday: "short", day: "numeric", month: "short", hour: "numeric", minute: "2-digit" })}</small>` : ""}
+    ${mine && mine.feedback ? `<p class="qh-mut" dir="auto" style="margin:6px 0 0">👨‍🏫 ${E(mine.feedback)}</p>` : ""}
+    <div class="qh-acts"><label class="qh-btn sm ${mine ? "" : "pri"}">📤 ${L(mine ? "Send again" : "Send homework")}<input type="file" accept="audio/*,image/*,video/*" hidden data-hwup="${x.i}|${E(kid(k))}"></label><a class="qh-btn sm ghost" href="/homework.html">${L("All my homework")}</a></div></div>`; };
+async function hwUpload(inp) {
+  const f = inp.files && inp.files[0]; if (!f) return; const [i, id] = inp.dataset.hwup.split("|"); const x = myCourses().find(z => z.i === +i); if (!x) return;
+  const cls = await classes(x), k = cls.find(z => kid(z) === id); if (!k) return;
+  if (f.size > 10 * 1048576) { snd("error"); say("File is too big. Please keep it under 10 MB (short video, clear photo or voice note)."); return; }
+  const kind = /^audio/.test(f.type) ? "voice" : /^image/.test(f.type) ? "photo" : "video";
+  say("Sending your homework…");
+  try { const data = await new Promise((r, j) => { const fr = new FileReader(); fr.onload = () => r(String(fr.result).split(",")[1]); fr.onerror = j; fr.readAsDataURL(f); });
+    const t = await AUTH.fb.auth.currentUser.getIdToken();
+    const r = await fetch(HWW + "/hw/upload", { method: "POST", headers: { authorization: "Bearer " + t, "content-type": "application/json" }, body: JSON.stringify({ course: ckey(x.c), lesson: T(k.title) || "Class " + (k.n || ""), classId: kid(k), due: hwDue(k, cls), kind, mime: f.type, data, note: "" }) }).then(r => r.json());
+    if (!r.ok) throw new Error(r.error || "error"); MYHW = null; snd("success"); say("Homework sent ✓ Your teacher will check it."); go(cur);
+  } catch (e) { snd("error"); say(String(e.message || "").length > 8 ? e.message : "Could not send. Please check your internet."); }
+}
 /* ---------- class videos saved inside the Android app (one folder per course, secure player) ---------- */
 const NV = () => { try { return !!(window.QSNative && QSNative.features && /offline-video/.test(QSNative.features())); } catch (e) { return false; } };
 const driveId = u => { const m = String(u || "").match(/(?:\/d\/|[?&]id=)([\w-]{20,})/); return m ? m[1] : ""; };
