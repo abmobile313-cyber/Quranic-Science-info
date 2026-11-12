@@ -176,8 +176,8 @@ export async function ownerAlert(env, fs, msg, now = Date.now(), fetchImpl = fet
 /* ---------- payment → classes ---------- */
 /* course short forms, same as the website: student code ARS863M + TAJ = ARS863M-TAJ */
 /* combo courses: paying for the combo also opens each course inside it, so combo students join the same live batches */
-export const COMBOS = { "ai-combo-live": ["ai-tajweed-live", "ai-arabic-live"], "tajweed-arabic-combo": ["tajweed-class", "arabic-speaking-class"], "ai-tajweed-arabic-combo": ["ai-tajweed", "ai-arabic"], "ai-combo-full": ["ai-tajweed-full", "ai-arabic-full", "ai-tajweed", "ai-arabic"], "ai-tajweed-full": ["ai-tajweed"], "ai-arabic-full": ["ai-arabic"], "all-in-one-creator-course": ["ai-masterclass", "video-editing-course", "content-creation-zero-to-pro"] };
-export const SHORT = { "all-in-one-creator-course": "AIO", "tajweed-arabic-combo": "TAC", "ai-masterclass": "AIM", "video-editing-course": "VED", "content-creation-zero-to-pro": "CCP", "tajweed-class": "TAJ", "arabic-speaking-class": "ARB", "ai-tajweed": "AIT", "ai-arabic": "AIA", "ai-tajweed-arabic-combo": "AIC", "ai-tajweed-full": "AITF", "ai-arabic-full": "AIAF", "ai-combo-full": "AICF", "ai-tajweed-live": "AITL", "ai-arabic-live": "AIAL", "ai-combo-live": "AICL" };
+export const COMBOS = { "ai-combo-live": ["ai-tajweed-live", "ai-arabic-live"], "tajweed-arabic-combo": ["tajweed-class", "arabic-speaking-class"], "ai-tajweed-arabic-combo": ["ai-tajweed", "ai-arabic"], "ai-combo-full": ["ai-tajweed-full", "ai-arabic-full", "ai-tajweed", "ai-arabic"], "ai-tajweed-full": ["ai-tajweed"], "ai-arabic-full": ["ai-arabic"], "all-in-one-creator-course": ["ai-masterclass", "video-editing-course", "content-creation-zero-to-pro"], "ai-creator": ["ai-masterclass"], "ai-creator-full": ["ai-creator", "ai-masterclass"], "ai-video-editing-full": ["ai-video-editing"], "ai-content-creation-full": ["ai-content-creation"] };
+export const SHORT = { "all-in-one-creator-course": "AIO", "tajweed-arabic-combo": "TAC", "ai-masterclass": "AIM", "video-editing-course": "VED", "content-creation-zero-to-pro": "CCP", "tajweed-class": "TAJ", "arabic-speaking-class": "ARB", "ai-tajweed": "AIT", "ai-arabic": "AIA", "ai-tajweed-arabic-combo": "AIC", "ai-tajweed-full": "AITF", "ai-arabic-full": "AIAF", "ai-combo-full": "AICF", "ai-tajweed-live": "AITL", "ai-arabic-live": "AIAL", "ai-combo-live": "AICL", "ai-video-editing": "AIV", "ai-content-creation": "AICC", "ai-creator": "AIX", "ai-video-editing-full": "AIVF", "ai-content-creation-full": "AICCF", "ai-creator-full": "AIXF", "ai-video-editing-live": "AIVL", "ai-content-creation-live": "AICCL", "ai-creator-live": "AIXL" };
 export const courseCode = (code, course) => code ? code + (SHORT[course] ? "-" + SHORT[course] : "") : "-";
 const slug = s => String(s || "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 export function paymentInfo(evt) {
@@ -221,9 +221,13 @@ export const AMOUNTS = {
   "INR:50": "ref-pdf", "USD:1": "ref-pdf",
   "INR:1479": "ai-tajweed", "USD:18": "ai-tajweed", "INR:2999": "ai-arabic", "USD:36": "ai-arabic", "INR:3999": "ai-tajweed-arabic-combo", "USD:48": "ai-tajweed-arabic-combo",
   "INR:999": "ai-tajweed-full", "USD:12": "ai-tajweed-full", "INR:1009": "ai-arabic-full", "USD:11": "ai-arabic-full", "INR:1519": "ai-combo-full", "USD:17": "ai-combo-full",
-  "INR:1099": "ai-tajweed-live", "USD:13": "ai-tajweed-live", "INR:2199": "ai-arabic-live", "USD:27": "ai-arabic-live", "INR:3009": "ai-combo-live", "USD:37": "ai-combo-live"
+  "INR:1099": "ai-tajweed-live", "USD:13": "ai-tajweed-live", "INR:2199": "ai-arabic-live", "USD:27": "ai-arabic-live", "INR:3009": "ai-combo-live", "USD:37": "ai-combo-live",
+  /* AI Ustad creator courses (12 Nov 2026): AI = live - 30%, full access on top, AI + live teacher add-on */
+  "INR:4189": "ai-video-editing", "USD:52": "ai-video-editing", "INR:4179": "ai-content-creation", "USD:53": "ai-content-creation", "INR:9799": "ai-creator", "USD:122": "ai-creator",
+  "INR:1999": "ai-video-editing-full", "USD:25": "ai-video-editing-full", "INR:1989": "ai-content-creation-full", "USD:24": "ai-content-creation-full", "INR:4499": "ai-creator-full", "USD:55": "ai-creator-full",
+  "INR:3499": "ai-video-editing-live", "USD:43": "ai-video-editing-live", "INR:3489": "ai-content-creation-live", "USD:42": "ai-content-creation-live", "INR:7499": "ai-creator-live", "USD:92": "ai-creator-live"
 };
-const TITLE_KEYS = [[/all-in-one/i, "all-in-one-creator-course"], [/tajweed\s*\+\s*arabic|combo/i, "tajweed-arabic-combo"], [/ai masterclass/i, "ai-masterclass"], [/video editing/i, "video-editing-course"], [/content creation/i, "content-creation-zero-to-pro"], [/reference pdf|pdf download/i, "ref-pdf"], [/tajweed/i, "tajweed-class"], [/arabic speaking/i, "arabic-speaking-class"]];
+const TITLE_KEYS = [[/ai ustad.*video editing.*full/i, "ai-video-editing-full"], [/ai ustad.*video editing.*(live|teacher)/i, "ai-video-editing-live"], [/ai ustad.*video editing/i, "ai-video-editing"], [/ai ustad.*content creation.*full/i, "ai-content-creation-full"], [/ai ustad.*content creation.*(live|teacher)/i, "ai-content-creation-live"], [/ai ustad.*content creation/i, "ai-content-creation"], [/ai ustad.*(all-in-one|creator).*full/i, "ai-creator-full"], [/ai ustad.*(all-in-one|creator).*(live|teacher)/i, "ai-creator-live"], [/ai ustad.*(all-in-one|creator)/i, "ai-creator"], [/all-in-one/i, "all-in-one-creator-course"], [/tajweed\s*\+\s*arabic|combo/i, "tajweed-arabic-combo"], [/ai masterclass/i, "ai-masterclass"], [/video editing/i, "video-editing-course"], [/content creation/i, "content-creation-zero-to-pro"], [/reference pdf|pdf download/i, "ref-pdf"], [/tajweed/i, "tajweed-class"], [/arabic speaking/i, "arabic-speaking-class"]];
 export async function handlePayment(env, evt, fs, fetchImpl = fetch) {
   const info = paymentInfo(evt);
   if (!info.id) return { ignored: "no payment id" };
@@ -1253,10 +1257,12 @@ async function whoAmI(req, env) {
   const email = String(me.email || "").toLowerCase();
   return { uid: me.localId, email, verified: !!me.emailVerified, owner: !!me.emailVerified && ownerEmails(env).includes(email) };
 }
-const AI_COURSE = { tajweed: ["ai-tajweed", "ai-tajweed-arabic-combo", "ai-tajweed-full", "ai-combo-full"], arabic: ["ai-arabic", "ai-tajweed-arabic-combo", "ai-arabic-full", "ai-combo-full"] };
+const AI_COURSE = { tajweed: ["ai-tajweed", "ai-tajweed-arabic-combo", "ai-tajweed-full", "ai-combo-full"], arabic: ["ai-arabic", "ai-tajweed-arabic-combo", "ai-arabic-full", "ai-combo-full"], editing: ["ai-video-editing", "ai-video-editing-full", "ai-creator", "ai-creator-full"], content: ["ai-content-creation", "ai-content-creation-full", "ai-creator", "ai-creator-full"], design: ["ai-creator", "ai-creator-full"] };
 /* paid AI add-on for live-class students only (live key + add-on key) */
-const AI_ADDON = { tajweed: ["ai-tajweed-live", "ai-combo-live"], arabic: ["ai-arabic-live", "ai-combo-live"] };
-const AI_LIVE = { tajweed: "tajweed-class", arabic: "arabic-speaking-class" };
+const AI_ADDON = { tajweed: ["ai-tajweed-live", "ai-combo-live"], arabic: ["ai-arabic-live", "ai-combo-live"], editing: ["ai-video-editing-live", "ai-creator-live"], content: ["ai-content-creation-live", "ai-creator-live"], design: ["ai-creator-live"] };
+const AI_LIVE = { tajweed: "tajweed-class", arabic: "arabic-speaking-class", editing: "video-editing-course", content: "content-creation-zero-to-pro", design: "all-in-one-creator-course" };
+const AI_LIVE_COMBO = { tajweed: "tajweed-arabic-combo", arabic: "tajweed-arabic-combo", editing: "all-in-one-creator-course", content: "all-in-one-creator-course", design: "all-in-one-creator-course" };
+const AI_FULL = { tajweed: ["ai-tajweed-full", "ai-combo-full"], arabic: ["ai-arabic-full", "ai-combo-full"], editing: ["ai-video-editing-full", "ai-creator-full"], content: ["ai-content-creation-full", "ai-creator-full"], design: ["ai-creator-full"] };
 export async function aiRoute(req, env, url) {
   const cors = { "access-control-allow-origin": "*", "access-control-allow-headers": "authorization,content-type", "access-control-allow-methods": "GET,POST,OPTIONS", "content-type": "application/json", "cache-control": "no-store" };
   const out = (o, s = 200) => new Response(JSON.stringify(o), { status: s, headers: cors });
@@ -1267,14 +1273,14 @@ export async function aiRoute(req, env, url) {
     const body = req.method === "POST" ? await req.json().catch(() => ({})) : {};
     const user = (await fs.get(`users/${me.uid}`)) || {}, acc = user.access || {};
     if (p === "/ai/setkeys") { if (!me.owner) return out({ error: "owner only" }, 401);
-      const k = {}; for (const c of ["tajweed", "arabic"]) if (/^[0-9a-f]{64}$/.test(body[c] || "")) k[c] = body[c];
+      const k = {}; for (const c of Object.keys(AI_COURSE)) if (/^[0-9a-f]{64}$/.test(body[c] || "")) k[c] = body[c];
       await fs.merge("secrets/aiKeys", k); return out({ ok: true, saved: Object.keys(k) }); }
     if (p === "/ai/key") { const c = q.get("course"); if (!AI_COURSE[c]) return out({ error: "course" }, 400);
-      const tch = me.verified ? await fs.get(`teachers/${me.email}`).catch(() => null) : null, isT = !!(tch && (tch.course === AI_LIVE[c] || tch.course === "tajweed-arabic-combo"));
-      const liveAddon = (acc[AI_LIVE[c]] === true || acc["tajweed-arabic-combo"] === true) && AI_ADDON[c].some(k => acc[k] === true);
+      const tch = me.verified ? await fs.get(`teachers/${me.email}`).catch(() => null) : null, isT = !!(tch && (tch.course === AI_LIVE[c] || tch.course === AI_LIVE_COMBO[c]));
+      const liveAddon = (acc[AI_LIVE[c]] === true || acc[AI_LIVE_COMBO[c]] === true) && AI_ADDON[c].some(k => acc[k] === true);
       if (!me.owner && !isT && !liveAddon && !AI_COURSE[c].some(k => acc[k])) return out({ error: "not enrolled" }, 403);
       const keys = (await fs.get("secrets/aiKeys")) || {}; if (!keys[c]) return out({ error: "key missing" }, 500);
-      return out({ key: keys[c], teacher: isT, full: me.owner || isT || acc["ai-" + c + "-full"] === true || acc["ai-combo-full"] === true }); }
+      return out({ key: keys[c], teacher: isT, full: me.owner || isT || AI_FULL[c].some(k => acc[k] === true) }); }
     const teacher = me.verified ? await fs.get(`teachers/${me.email}`).catch(() => null) : null;
     if (p === "/hw/upload" && req.method === "POST") {
       const data = String(body.data || ""), mime = clip(body.mime, 60), kind = ["voice", "photo", "video"].includes(body.kind) ? body.kind : "";
