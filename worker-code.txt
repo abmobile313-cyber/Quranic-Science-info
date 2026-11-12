@@ -140,8 +140,8 @@ export const voiceCh = tag => { const t = String(tag || "");
 export async function sendAppPush(env, token, msg, fetchImpl = fetch) {
   const sa = typeof env.FIREBASE_SA === "string" ? JSON.parse(env.FIREBASE_SA) : env.FIREBASE_SA, t = await googleToken(sa, fetchImpl);
   const r = await fetchImpl(`https://fcm.googleapis.com/v1/projects/${sa.project_id}/messages:send`, { method: "POST", headers: { authorization: "Bearer " + t, "content-type": "application/json" },
-    body: JSON.stringify({ message: { token, notification: { title: msg.title, body: msg.body }, data: { url: msg.url || "", tag: msg.tag || "", ch: voiceCh(msg.tag) },
-      android: { priority: "HIGH", notification: { channel_id: voiceCh(msg.tag), icon: "ic_stat", color: "#C99A45", tag: msg.tag || undefined } } } }) });
+    body: JSON.stringify({ message: { token, data: { title: String(msg.title || "Quranic Science"), body: String(msg.body || ""), url: msg.url || "", tag: msg.tag || "", ch: voiceCh(msg.tag), course: SHORT[msg.course] || SHORT[String(msg.course || "").replace(/-(full|live)$/, "")] || String(msg.course || "").slice(0, 8) },
+      android: { priority: "HIGH", ttl: "7200s" } } }) });
   const j = await r.json().catch(() => ({})), code = JSON.stringify(j.error || "");
   return { ok: r.ok, gone: r.status === 404 || /UNREGISTERED|INVALID_ARGUMENT/.test(code) };
 }
@@ -346,7 +346,7 @@ export async function handlePayment(env, evt, fs, fetchImpl = fetch) {
   /* payment receipt (slip) with the founder's signature: the student opens/saves it at SITE/#receipt=<payment id>; the same link goes in the WhatsApp message */
   const bl = { M: "Morning batch", E: "Evening batch" }[user.batch] || "";
   await fs.merge(`receipts/${info.id}`, { uid: user.id, name: user.name || "", code: user.code ? courseCode(user.code, course) : "", course, courseName, amount: info.amount, currency: info.currency, paymentId: info.id, batch: bl ? bl + " · 1 hour classes, timing shared in your batch" : "", ts: Date.now() });
-  const sent = await notify(env, fs, Object.assign({ phone: info.phone }, user), { title: "Payment received ✓", body: `Assalamu Alaikum ${user.name || ""}, ${info.notes.apology ? "we are very sorry this message reached you late – our system was being updated. " : ""}your fee for ${courseName} is received. Your classes are open now. Your receipt: ${(env.SITE || "https://quranicscience.info")}/#receipt=${info.id}\n📱 Your Quranic Science app is ready: download it from ${(env.SITE || "https://quranicscience.info")} (Android app), log in with the same Google account and your classes open by themselves${user.code ? ` (your student code for help: ${user.code})` : ""}.\n📧 All updates (receipt, class reminders, certificate) also come to your email${user.email ? " " + user.email : ""} – please check Spam/Promotions too.`, url: (env.SITE || "https://quranicscience.info") + "/#learn", tag: "pay", course, paid: true, email: true, template: "payment_confirmed", params: [user.name || "Student", courseName, `${courseCode(user.code, course)} · Your app is ready – log in with code ${user.code || ""}${info.notes.apology ? " · Sorry for the late message, our system was being updated" : ""}`] }, Date.now(), fetchImpl);
+  const sent = await notify(env, fs, Object.assign({ phone: info.phone }, user), { course, title: "Payment received ✓", body: `Assalamu Alaikum ${user.name || ""}, ${info.notes.apology ? "we are very sorry this message reached you late – our system was being updated. " : ""}your fee for ${courseName} is received. Your classes are open now. Your receipt: ${(env.SITE || "https://quranicscience.info")}/#receipt=${info.id}\n📱 Your Quranic Science app is ready: download it from ${(env.SITE || "https://quranicscience.info")} (Android app), log in with the same Google account and your classes open by themselves${user.code ? ` (your student code for help: ${user.code})` : ""}.\n📧 All updates (receipt, class reminders, certificate) also come to your email${user.email ? " " + user.email : ""} – please check Spam/Promotions too.`, url: (env.SITE || "https://quranicscience.info") + "/#learn", tag: "pay", course, paid: true, email: true, template: "payment_confirmed", params: [user.name || "Student", courseName, `${courseCode(user.code, course)} · Your app is ready – log in with code ${user.code || ""}${info.notes.apology ? " · Sorry for the late message, our system was being updated" : ""}`] }, Date.now(), fetchImpl);
   await ownerAlert(env, fs, { kind: "pay", title: `💰 New payment – ${info.currency} ${info.amount}`, body: `${user.name || "A student"} paid for ${courseName}. Classes opened automatically.` }, Date.now(), fetchImpl).catch(() => {});
   return { applied: { uid: user.id, course }, sent };
 }
@@ -582,7 +582,7 @@ export async function runCron(env, fs, now = Date.now(), fetchImpl = fetch) {
     const ds = await fs.query("doubts", [["status", "EQUAL", "answered"], ["notified", "EQUAL", false]], 100);
     for (const d of ds) {
       const u = d.uid ? await fs.get(`users/${d.uid}`) : null;
-      const r = u ? await notify(env, fs, Object.assign({ id: d.uid }, u), { title: "Your teacher answered ✓", body: `${d.courseName || "Your course"}: ${String(await toLangOf(d.answer, d.q, fetchImpl)).slice(0, 120)}`, url: site + "/#learn", tag: "doubt-" + d.id, paid: false }, now, fetchImpl) : { via: "none" };
+      const r = u ? await notify(env, fs, Object.assign({ id: d.uid }, u), { course: d.course, title: "Your teacher answered ✓", body: `${d.courseName || "Your course"}: ${String(await toLangOf(d.answer, d.q, fetchImpl)).slice(0, 120)}`, url: site + "/#learn", tag: "doubt-" + d.id, paid: false }, now, fetchImpl) : { via: "none" };
       await fs.merge(`doubts/${d.id}`, { notified: true, notifiedVia: r.via });
       out.doubts = (out.doubts || 0) + 1;
     }
@@ -596,7 +596,7 @@ export async function runCron(env, fs, now = Date.now(), fetchImpl = fetch) {
       for (const T of ts) {
         if (T.batch && d.batch && T.batch !== d.batch && T.batch !== "ALL") continue;
         const tu = (await fs.query("users", [["email", "EQUAL", T.id]], 1))[0] || { phone: T.phone };
-        await notify(env, fs, Object.assign({ phone: T.phone }, tu), { title: "New student doubt ❓", body: `${d.name || "A student"} (${d.courseName || d.course}): ${String(d.q || "").slice(0, 160)}
+        await notify(env, fs, Object.assign({ phone: T.phone }, tu), { course: d.course, title: "New student doubt ❓", body: `${d.name || "A student"} (${d.courseName || d.course}): ${String(d.q || "").slice(0, 160)}
 Answer in Student doubts.`, url: site + "/#learn", tag: "tdoubt-" + d.id, paid: false }, now, fetchImpl);
       }
       await fs.merge(`doubts/${d.id}`, { teacherNotified: now });
@@ -1405,14 +1405,14 @@ export async function aiRoute(req, env, url) {
       const self = hw.uid === me.uid && String(hw.course).startsWith("ai-");
       if (!(me.owner || (teacher && teacher.course === hw.course) || self)) return out({ error: "not allowed" }, 403);
       await fs.merge(`hw/${hw.id}`, { feedback: clip(body.feedback, 2000), marks: body.marks == null || body.marks === "" ? null : Math.max(0, Math.min(10, +body.marks || 0)), status: "checked", by: self ? "ai" : me.owner ? "owner" : "teacher", checkedAt: Date.now() });
-      if (!self) await notify(env, fs, Object.assign({ id: hw.uid }, (await fs.get(`users/${hw.uid}`)) || {}), { title: "Homework checked ✓", body: `${hw.lesson}: ${clip(body.feedback, 120)}`, url: (env.SITE || "https://quranicscience.info") + "/homework.html", tag: "hw-" + hw.id }, Date.now()).catch(() => {});
+      if (!self) await notify(env, fs, Object.assign({ id: hw.uid }, (await fs.get(`users/${hw.uid}`)) || {}), { course: hw.course, title: "Homework checked ✓", body: `${hw.lesson}: ${clip(body.feedback, 120)}`, url: (env.SITE || "https://quranicscience.info") + "/homework.html", tag: "hw-" + hw.id }, Date.now()).catch(() => {});
       return out({ ok: true }); }
     return out({ error: "not found" }, 404);
   } catch (e) { return out({ error: String(e.message || e).slice(0, 200) }, 500); }
 }
 
 export default {
-  async fetch(req, env) {
+  async fetch(req, env, ctx) {
     const url = new URL(req.url);
     if (url.pathname === "/health") return json({ ok: true, razorpay: !!env.RAZORPAY_WEBHOOK_SECRET, firebase: !!env.FIREBASE_SA, whatsapp: !!(env.WA_TOKEN && env.WA_PHONE_ID), whatsappWebhook: !!env.WA_VERIFY_TOKEN, backup: !!env.BACKUP, paidReminders: env.WA_PAID_REMINDERS === "on", email: mailReady(env), monthlyLimit: +(env.WA_MONTHLY_LIMIT || 200) });
     /* WhatsApp webhook: remembers when a student messaged us, so our replies in the next 24 h are free */
@@ -1465,35 +1465,38 @@ export default {
     }
     /* owner test: the same student journey as app notifications (with the recorded voice per alert), only to the owner's own phones */
     if (url.pathname === "/push-journey") {
+      const role = url.searchParams.get("role") === "teacher" ? "teacher" : "student";
       const allowed = [String(env.GMAIL_USER || "quranicscience01@gmail.com").toLowerCase(), "flowstudio91@gmail.com"];
       const fsP = makeFS(env), last = (await fsP.get("config/pushJourney").catch(() => null)) || {};
-      if (Date.now() - (+last.at || 0) < 5 * 60000) return json({ ok: false, error: "please wait 5 minutes between tests" }, 429);
+      if (Date.now() - (+last.at || 0) < 2 * 60000) return json({ ok: false, error: "please wait 2 minutes between tests" }, 429);
       const users = []; for (const em of allowed) { try { users.push(...(await fsP.query("users", [["email", "EQUAL", em]], 5))); } catch (e) {} }
-      const toks = [...new Set(users.map(u => u.pushApp && u.pushApp.token).filter(Boolean))], web = [...new Set(users.map(u => u.push && u.push.token).filter(Boolean))];
-      if (!toks.length && !web.length) return json({ ok: false, error: "no phone found: open the Quranic Science app once and log in with quranicscience01@gmail.com or flowstudio91@gmail.com, allow notifications, then try again", users: users.length }, 404);
-      await fsP.merge("config/pushJourney", { at: Date.now() });
-      const site = env.SITE || "https://quranicscience.info", cn = "AI Film, Ads & Video Editing", nm = "Arsalan", code = "ARS863M";
-      const L = [
-        ["general-t1", "Welcome to Quranic Science ✓", `Assalamu Alaikum ${nm}, you are logged in. Choose a course; after the fee your classes open by themselves.`, site + "/#learn"],
-        ["pay-t2", "Payment received ✓", `Your fee for ${cn} is received. Receipt is in your email.`, site + "/#receipt=pay_TEST123"],
-        ["pay-t3", "Your classes are open ✓", `${cn}: your classes are open now in My classes.`, site + "/#learn"],
-        ["class-t4", "Class in 30 minutes · 7:00 PM IST", `${cn}: Din 1 · AI film kya hai. Tap to join on Zoom.`, site + "/#learn"],
-        ["hwdue-t5", "Homework due today ⏳", `${cn}: Din 1. Please send your homework before 7:00 PM IST.`, site + "/#learn"],
-        ["hw-t6", "Homework checked ✓", "Din 1: MashaAllah, very good idea! Marks 9/10.", site + "/homework.html"],
-        ["doubt-t7", "Your teacher answered ✓", `${cn}: CapCut mein clips jod kar lambi film banayein.`, site + "/#learn"],
-        ["general-t8", "PDF download unlocked ✓", "Your payment is received. Tap Download on the PDF.", site + "/#quran"],
-        ["cert-t9", "Certificate ready 🎓", `Masha Allah ${nm}! Your ${cn} certificate is ready.`, site + "/#verify=TEST-CERT"],
-        ["tclass-t10", "Teacher: class in 1 hour · 7:00 PM IST", `${cn}: Din 1. Please check the Zoom link now.`, site + "/#learn"],
-        ["tdoubt-t11", "Teacher: new student doubt ❓", `${nm} (${code}) asked: Character ka chehra har shot mein badal jaata hai?`, site + "/#learn"]
+      const toks = [...new Set(users.map(u => u.pushApp && u.pushApp.token).filter(Boolean))];
+      if (!toks.length) return json({ ok: false, error: "no phone found: open the Quranic Science app, log in with the owner Gmail and allow notifications", users: users.length }, 404);
+      await fsP.merge("config/pushJourney", { at: Date.now(), role });
+      const site = env.SITE || "https://quranicscience.info", ck = "ai-film-ads-video-editing", cn = "AI Film, Ads & Video Editing", nm = "Arsalan", code = "ARS863M";
+      const S = [
+        ["general-t1", "Welcome to Quranic Science ✓", `Assalamu Alaikum ${nm}, you are logged in. Choose a course; after the fee your classes open by themselves.`, site + "/#learn", ""],
+        ["pay-t2", `Payment received ✓ · ${cn}`, `Your fee for ${cn} is received. Receipt is in your email.`, site + "/#receipt=pay_TEST123", ck],
+        ["pay-t3", `Classes open ✓ · ${cn}`, `${cn}: your classes are open now in My classes.`, site + "/#learn", ck],
+        ["class-t4", `Class in 30 minutes · ${cn}`, `Din 1 · AI film kya hai · 7:00 PM IST. Tap to join on Zoom.`, site + "/#learn", ck],
+        ["hwdue-t5", `Homework due today ⏳ · ${cn}`, "Din 1: please send your homework before 7:00 PM IST.", site + "/#learn", ck],
+        ["hw-t6", `Homework checked ✓ · ${cn}`, "Din 1: MashaAllah, very good idea! Marks 9/10.", site + "/homework.html", ck],
+        ["doubt-t7", `Teacher answered ✓ · ${cn}`, "CapCut mein clips jod kar lambi film banayein.", site + "/#learn", ck],
+        ["general-t8", "PDF download unlocked ✓", "Your payment is received. Tap Download on the PDF.", site + "/#quran", ""],
+        ["cert-t9", `Certificate ready 🎓 · ${cn}`, `Masha Allah ${nm}! Your certificate is ready.`, site + "/#verify=TEST-CERT", ck]
       ];
-      const out = [];
-      for (let i = 0; i < L.length; i++) { const [tag, t, b, u] = L[i], msg = { title: `[TEST ${i + 1}/${L.length}] ${t}`, body: b, url: u, tag };
-        let ok = 0, err = "";
-        for (const tk of toks) { const r = await sendAppPush(env, tk, msg).catch(e => ({ ok: false, error: String(e) })); if (r.ok) ok++; else err = r.error || (r.gone ? "old token" : "failed"); }
-        if (!toks.length) for (const tk of web) { const r = await sendPush(env, tk, msg).catch(() => ({ ok: false })); if (r.ok) ok++; }
-        out.push({ n: i + 1, title: t, voice: voiceCh(tag), sent: ok, error: ok ? "" : err });
-        if (i < L.length - 1) await new Promise(r => setTimeout(r, 7000)); }
-      return json({ ok: out.every(x => x.sent > 0), phones: toks.length, browsers: web.length, out });
+      const T = [
+        ["tclass-t1", `Teacher: class in 1 hour · ${cn}`, "Din 1 at 7:00 PM IST. Please check the Zoom link now.", site + "/#learn", ck],
+        ["tdoubt-t2", `Teacher: new student doubt ❓ · ${cn}`, `${nm} (${code}) asked: Character ka chehra har shot mein badal jaata hai?`, site + "/#learn", ck],
+        ["pay-t3", `New enrolment ✓ · ${cn}`, `${nm} (${code}) joined ${cn}.`, site + "/#learn", ck],
+        ["hw-t4", `New homework to check · ${cn}`, `${nm} (${code}) sent Din 1 homework.`, site + "/homework.html", ck]
+      ];
+      const L = role === "teacher" ? T : S;
+      const run = async () => { for (let i = 0; i < L.length; i++) { const [tag, t, b, u, c] = L[i];
+        for (const tk of toks) await sendAppPush(env, tk, { title: `[TEST ${role} ${i + 1}/${L.length}] ${t}`, body: b, url: u, tag, course: c }).catch(() => {});
+        if (i < L.length - 1) await new Promise(r => setTimeout(r, 9000)); } };
+      if (ctx && ctx.waitUntil) ctx.waitUntil(run()); else await run();
+      return json({ ok: true, role, phones: toks.length, count: L.length, note: `${L.length} test alerts are going to your phone, one every 9 seconds` });
     }
     if (url.pathname === "/mail-test") { const to = String(env.GMAIL_USER || "quranicscience01@gmail.com"); const r = await sendMail(env, to, { title: "Test email ✓", body: "Assalamu Alaikum! Quranic Science email alerts are working. Students will get fee receipts, class reminders and certificates by email too.", url: env.SITE || "https://quranicscience.info" }).catch(e => ({ ok: false, error: String(e && e.message || e) })); return json(Object.assign({ to }, r)); }
     if (url.pathname === "/wa-test") { const to = "919272527913", out = {};
