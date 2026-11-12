@@ -1510,6 +1510,14 @@ export default {
       return json({ ok: out.every(x => x.ok), to, sent: out.filter(x => x.ok).length, out });
     }
     /* owner test: the same student journey as app notifications (with the recorded voice per alert), only to the owner's own phones */
+    if (url.pathname === "/fs-mail-test") { /* sends one sample Flow Studio email to the studio's own inbox only */
+      const fs = makeFS(env), lk = await fs.get("config/fsMailTest").catch(() => null), now = Date.now();
+      if (lk && now - (lk.t || 0) < 60000) return json({ ok: false, error: "Wait 1 minute" });
+      await fs.merge("config/fsMailTest", { t: now }).catch(() => {});
+      const to = String(env.FS_GMAIL_USER || "flowstudio91@gmail.com").trim();
+      const r = await fsMail(env, to, { title: "✅ Flow Studio emails are working", body: "Hi Flow Studio team,\n\nThis is a test. From now on clients get emails automatically: welcome, request received, quotation, advance received, work started, draft ready, bill and final delivery.", code: "FS-TEST-0000" });
+      return json({ ok: !!r.ok, to: to.replace(/^(.{3}).*@/, "$1***@"), error: r.ok ? "" : r.error });
+    }
     if (url.pathname === "/push-journey") {
       const role = url.searchParams.get("role") === "teacher" ? "teacher" : "student";
       const allowed = [String(env.GMAIL_USER || "quranicscience01@gmail.com").toLowerCase(), "flowstudio91@gmail.com"];
