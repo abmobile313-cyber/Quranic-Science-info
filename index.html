@@ -2355,5 +2355,29 @@ window.qsAiCell=function(u,course){var p=P[course];if(!p)return"";var ai=u&&u.ai
 <script data-goatcounter="https://deensaathi.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
 <script src="/qs-simple.js?v=2" defer></script>
 <script src="/qs-combo.js?v=1" defer></script>
+<style id="qs-pro">
+/* Nov 2026 · cleaner, bigger navigation (owner request): full-width section bar with big buttons on phone and desktop */
+.tabsrow{max-width:1100px!important;padding:0 14px;box-sizing:border-box;width:100%}
+.tabscroll{width:100%;padding:2px 0 8px!important}
+.tabs{display:flex!important;width:100%;box-sizing:border-box;gap:6px!important;padding:7px!important}
+.tabs .tab{flex:1 1 0;min-height:56px;padding:14px 8px!important;font-size:18px!important;font-weight:700!important;letter-spacing:0!important;color:var(--ink)!important;opacity:.72;text-align:center}
+.tabs .tab[aria-selected=true]{opacity:1}
+.tabarr{display:none!important}
+@media (max-width:640px){
+  .tabs .tab{min-height:52px;font-size:16px!important;padding:12px 4px!important}
+  /* header: never let icons sit on top of the name */
+  .brandtxt b{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .brandtxt small{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .brand{flex:1 1 auto;min-width:0;overflow:hidden}
+  .topctl{flex:0 0 auto}
+  .topctl:has(#dApp) .qh-open-btn{display:none!important}
+  /* floating helpers become small round buttons so they never cover the page text */
+  .qs-fabc{padding:6px!important;gap:0!important}
+  .qs-fabc>span:not(.qsm-ic){display:none!important}
+  .aifab{padding:6px!important;gap:0!important}
+  #aiFab>span:not(.aiorb){display:none!important}
+}
+</style>
+<script>/* the section pill follows the new full-width buttons */(function(){var f=function(){try{if(typeof movePill==="function")movePill(false)}catch(e){}};[300,1200,3000].forEach(function(t){setTimeout(f,t)});addEventListener("load",f);document.fonts&&document.fonts.ready.then(f)})();</script>
 </body>
 </html>
