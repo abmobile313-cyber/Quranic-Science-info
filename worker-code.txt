@@ -185,7 +185,7 @@ const escH = s => String(s || "").replace(/&/g, "&amp;").replace(/</g, "&lt;").r
 const b64u8 = s => { const b = enc.encode(s); let o = ""; for (let i = 0; i < b.length; i += 0x8000) o += String.fromCharCode(...b.subarray(i, i + 0x8000)); return btoa(o); };
 const wrap76 = s => s.replace(/(.{76})/g, "$1\r\n");
 export const mailImg = c => { c = String(c || "").toLowerCase();
-  return /all-in-one|creator/.test(c) ? "aio" : /content/.test(c) ? "ccp" : /edit/.test(c) ? "ved" : /masterclass/.test(c) ? "aim" : /combo/.test(c) ? "tac" : /tajweed/.test(c) ? "taj" : /arabic/.test(c) ? "arb" : "general"; };
+  return /film/.test(c) ? "afa" : /all-in-one|creator/.test(c) ? "aio" : /content/.test(c) ? "ccp" : /edit/.test(c) ? "ved" : /masterclass/.test(c) ? "aim" : /combo/.test(c) ? "tac" : /tajweed/.test(c) ? "taj" : /arabic/.test(c) ? "arb" : "general"; };
 export function mailBody(msg, site = "https://quranicscience.info") {
   const img = `${site}/mail/${msg.img || mailImg(msg.course)}.jpg`;
   const title = String(msg.title || "Quranic Science"), body = String(msg.body || ""), url = msg.url || site;
