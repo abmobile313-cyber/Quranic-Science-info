@@ -201,9 +201,13 @@ export function mailBody(msg, site = "https://quranicscience.info") {
 export async function sendMail(env, to, msg) {
   const user = String(env.GMAIL_USER || "quranicscience01@gmail.com").trim(), pass = String(env.GMAIL_APP_PASSWORD || "").replace(/\s+/g, "");
   if (!pass || !/^[^@\s]+@[^@\s]+\.[a-z]{2,}$/i.test(to)) return { ok: false, error: "no-mail" };
-  const { text, html } = mailBody(msg, env.SITE || "https://quranicscience.info"), bd = "qs" + Date.now().toString(36);
-  const data = [`From: "Quranic Science" <${user}>`, `To: <${to}>`, `Subject: =?UTF-8?B?${b64u8(String(msg.title || "Quranic Science"))}?=`, `Date: ${new Date().toUTCString()}`,
-    `Message-ID: <${Date.now().toString(36)}.${Math.random().toString(36).slice(2)}@quranicscience.info>`, "MIME-Version: 1.0", `Content-Type: multipart/alternative; boundary="${bd}"`, "",
+  const { text, html } = mailBody(msg, env.SITE || "https://quranicscience.info");
+  return smtpSend(user, pass, "Quranic Science", "quranicscience.info", to, String(msg.title || "Quranic Science"), text, html);
+}
+export async function smtpSend(user, pass, fromName, dom, to, subject, text, html) {
+  const bd = "m" + Date.now().toString(36);
+  const data = [`From: "${fromName}" <${user}>`, `To: <${to}>`, `Subject: =?UTF-8?B?${b64u8(subject)}?=`, `Date: ${new Date().toUTCString()}`,
+    `Message-ID: <${Date.now().toString(36)}.${Math.random().toString(36).slice(2)}@${dom}>`, "MIME-Version: 1.0", `Content-Type: multipart/alternative; boundary="${bd}"`, "",
     `--${bd}`, "Content-Type: text/plain; charset=UTF-8", "Content-Transfer-Encoding: base64", "", wrap76(b64u8(text)), "",
     `--${bd}`, "Content-Type: text/html; charset=UTF-8", "Content-Transfer-Encoding: base64", "", wrap76(b64u8(html)), "", `--${bd}--`].join("\r\n");
   const sock = connect({ hostname: "smtp.gmail.com", port: 465 }, { secureTransport: "on" });
@@ -212,7 +216,7 @@ export async function sendMail(env, to, msg) {
     const { value, done } = await rd.read(); if (done) throw new Error("smtp closed"); buf += dec.decode(value, { stream: true }); } };
   const cmd = async (c, ok) => { if (c !== null) await w.write(enc.encode(c + "\r\n")); const res = await reply(); if (ok && !res.split("\n").pop().startsWith(ok)) throw new Error(res.slice(0, 160)); return res; };
   try {
-    await cmd(null, "220"); await cmd("EHLO quranicscience.info", "250"); await cmd("AUTH LOGIN", "334"); await cmd(btoa(user), "334"); await cmd(btoa(pass), "235");
+    await cmd(null, "220"); await cmd("EHLO " + dom, "250"); await cmd("AUTH LOGIN", "334"); await cmd(btoa(user), "334"); await cmd(btoa(pass), "235");
     await cmd(`MAIL FROM:<${user}>`, "250"); await cmd(`RCPT TO:<${to}>`, "250"); await cmd("DATA", "354"); await cmd(data + "\r\n.", "250"); await cmd("QUIT").catch(() => {});
     return { ok: true };
   } finally { try { await sock.close(); } catch {} }
@@ -921,6 +925,34 @@ function fsContactBlock(s) { const t = String(s), low = t.toLowerCase().replace(
   if (/\b(insta(gram)?|ig|fb|facebook|youtube|yt|linkedin|twitter|x\.com|threads|snap|telegram)\s*(id|handle|account|username|user name|profile|page link)\b/i.test(low)) return "a social media ID";
   if (/\b(my|mera|meri|mere|apna|apni|apne|your|tera|teri|tumhara|aapka)\s*(number|no\.?|num|contact|mobile|phone|insta|id)\b|\b(number|contact|id)\s*(do|de|dedo|bhejo|send|share|dena)\b|\b(dm|inbox|follow|add)\s*(me|karo|kar)\b|व्हाट्सएप|इंस्टा|नंबर|واٹس|نمبر|انسٹا/i.test(low)) return "personal contact details";
   return ""; }
+/* ---------- Flow Studio emails: sent from the Flow Studio Gmail only (FS_GMAIL_USER + FS_GMAIL_APP_PASSWORD), in the studio's dark + rainbow look ---------- */
+export function fsMailBody(msg) {
+  const site = "https://pixelflowstudio.agency", url = msg.url || site + "/portal.html", btn = msg.btn || "Open my dashboard";
+  const text = `${msg.title}\n\n${msg.body}\n\n${btn}: ${url}\n\nFlow Studio · Turn your dreams into visuals.\n${site}`;
+  const html = `<!doctype html><html><body style="margin:0;background:#07070c;font-family:Arial,Helvetica,sans-serif;color:#eef0f8"><div style="max-width:560px;margin:0 auto;padding:22px 14px">
+<div style="height:4px;border-radius:4px;background:linear-gradient(90deg,#ff3d9a,#9b5cff,#3b82ff,#22d37f,#ffd43b,#ff8a1f)"></div>
+<div style="padding:18px 4px 8px"><img src="${site}/logo.webp" width="44" height="44" alt="Flow Studio" style="vertical-align:middle;border-radius:10px"> <b style="font-size:18px;vertical-align:middle;margin-left:8px;color:#fff">Flow Studio</b></div>
+<div style="background:#12131c;border:1px solid #262838;border-radius:18px;padding:24px"><h2 style="margin:0 0 12px;font-size:21px;color:#fff">${escH(msg.title)}</h2>
+<p style="font-size:15px;line-height:1.65;margin:0 0 20px;color:#cfd3e4">${escH(msg.body).replace(/\n/g, "<br>")}</p>
+<a href="${escH(url)}" style="display:inline-block;background:linear-gradient(135deg,#ff3d9a,#9b5cff);color:#fff;text-decoration:none;padding:13px 22px;border-radius:99px;font-weight:bold">${escH(btn)}</a>
+${msg.code ? `<p style="font-size:13px;color:#8e93a8;margin:18px 0 0">Your client code: <b style="color:#fff">${escH(msg.code)}</b></p>` : ""}</div>
+<p style="font-size:12px;color:#7d8196;text-align:center;margin-top:16px">Flow Studio · Turn your dreams into visuals · <a href="${site}" style="color:#9b5cff">pixelflowstudio.agency</a><br>FlowStudio91@gmail.com</p></div></body></html>`;
+  return { text, html };
+}
+export async function fsMail(env, to, msg) {
+  const user = String(env.FS_GMAIL_USER || "flowstudio91@gmail.com").trim(), pass = String(env.FS_GMAIL_APP_PASSWORD || "").replace(/\s+/g, "");
+  if (!pass || !/^[^@\s]+@[^@\s]+\.[a-z]{2,}$/i.test(String(to || ""))) return { ok: false, error: pass ? "no-email" : "fs-mail-not-set" };
+  const { text, html } = fsMailBody(msg);
+  return smtpSend(user, pass, "Flow Studio", "pixelflowstudio.agency", to, String(msg.title || "Flow Studio"), text, html).catch(e => ({ ok: false, error: String(e && e.message || e).slice(0, 160) }));
+}
+/* tell a client: email now + a ready WhatsApp message the team can send with one tap */
+async function fsTell(env, fs, codeOrClient, title, body, extra = {}) {
+  const c = typeof codeOrClient === "string" ? await fs.get(`clients/${codeOrClient}`).catch(() => null) : codeOrClient; if (!c) return { mail: false };
+  const m = await fsMail(env, c.email, Object.assign({ title, body: `Hi ${c.name || c.business},\n\n${body}`, code: c.code }, extra));
+  const waText = `*Flow Studio* · ${title}\nHi ${c.name || c.business}, ${body}\nOpen your dashboard: https://pixelflowstudio.agency/portal.html (client code ${c.code})`;
+  return { mail: !!m.ok, mailError: m.ok ? "" : m.error, waTo: waNumber(c.phone || ""), waText };
+}
+const FS_STATUS_MAIL = { quoted: ["📄 Your quotation is ready", "Your quotation is ready in your Flow Studio dashboard. Pay the 40% advance from there to start the work."], assets: ["📎 Please upload your files", "We are ready to start. Please upload your logo, samples, photos and other assets in your dashboard."], in_progress: ["🚀 Work has started", "Our team has started working on your project. You can follow every step in your dashboard."], draft: ["🎬 Your first draft is ready", "Your first draft is ready to review in your dashboard (preview quality with watermark). Tell us your changes there."], delivered: ["✅ Your final files are ready", "Your project is delivered. Download the final files in every format from your dashboard."], closed: ["🙏 Thank you for working with us", "Your project is closed. We would love to work with you again — book your next project from your dashboard."] };
 const fsMsg = (pr, t, by = "Flow Studio") => (pr.msgs || []).concat([{ f: "o", t, ts: Date.now(), by, sys: true }]).slice(-150);
 const fsAmt = pr => { const a = +pr.amount || 0, adv = Math.round(a * 0.4); return { total: a, advance: adv, balance: a - adv }; };
 /* what a client may see of a project: final files stay locked until the balance is paid */
@@ -953,7 +985,8 @@ export async function fsRoute(req, env, url) {
       const rec = { code, email: me.email, emailType, name, business: biz, phone, address: clip(body.address, 200), city: clip(body.city, 60), country: clip(body.country || "India", 40), gst: clip(body.gst, 20), photo: me.photo || "", ts: now, upd: now, notes: "", plan: "" };
       await fs.merge(`clients/${code}`, rec);
       await ownerAlert(env, fs, { kind: "info", title: `🆕 New Flow Studio client · ${code}`, body: `${name} · ${biz} · ${phone}` }, now).catch(() => {});
-      return out({ ok: true, code });
+      const tell = await fsTell(env, fs, rec, "Welcome to Flow Studio 💜", `your client dashboard is ready. Your permanent client code is ${code}. Book services, get quotations, pay, upload files and download your final work — all in one place.`);
+      return out({ ok: true, code, mail: tell.mail });
     }
     if (p === "/fs/client") { if (me.role !== "client") return out({ error: "Client dashboard only." }, 403); const b = await fsClientBundle(fs, me.code); b.client.notes = undefined; b.client.plan = undefined; b.rzp = !!shopKey(env, "flowstudio"); return out(b); }
     if (p === "/fs/client/profile" && req.method === "POST") { if (me.role !== "client") return out({ error: "Client only." }, 403);
@@ -972,7 +1005,8 @@ export async function fsRoute(req, env, url) {
         await fs.merge(`projects/${pid}`, { pid, code: me.code, client: me.client.business, service, title: (title0 ? title0 + (list.length > 1 ? " · " + service : "") : service), brief, budget: clip(body.budget, 40), deadline: clip(body.deadline, 40), status: "requested", assignee: "", assigneeName: "", amount: 0, ts: now, upd: now, group, groupSize: list.length, big, files: [], refs: refsAll.filter(r => r.svc === service || !r.svc).slice(0, 30), links, msgs: [{ f: "o", t: `👋 Thank you, ${me.name || me.client.business}! We received your request for ${service}${list.length > 1 ? ` (part of your ${list.length}-service bundle)` : ""}. Our team will send the quotation here soon.`, ts: now, by: "Flow Studio", sys: true }] });
         await fsNote(fs, big ? ["owner"] : ["owner", ...(await fsCatStaff(fs, service))], `${big ? "⭐ BIG project" : "📝 New request"}: ${me.client.business} wants ${service}${group ? " (bundle of " + list.length + ")" : ""}`, pid, now); }
       await ownerAlert(env, fs, { kind: "info", title: `${big ? "⭐ BIG " : "📝 "}${me.client.business} (${me.code}) booked ${list.length > 1 ? list.length + " services" : list[0]}`, body: (list.length > 1 ? list.join(", ") + " — " : "") + brief.slice(0, 140) }, now).catch(() => {});
-      return out({ ok: true, pid: pids[0], pids, group }); }
+      const tellR = await fsTell(env, fs, me.client, "📝 We received your request", `thank you! We received your request for ${list.join(", ")}. Our team will send your quotation in your dashboard soon. Request no. ${pids[0]}.`);
+      return out({ ok: true, pid: pids[0], pids, group, mail: tellR.mail }); }
     /* ----- contact tickets: client -> owner or the person working on the project (no phone numbers shared) ----- */
     if (p === "/fs/ticket" && req.method === "POST") { if (me.role !== "client") return out({ error: "Client only." }, 403);
       const kind = body.kind === "call" ? "call" : "msg", text = clip(body.text, 1500); let to = "owner", toName = "Owner", pid = "", ptitle = "";
@@ -1260,11 +1294,15 @@ export async function fsRoute(req, env, url) {
       if (upd.status && upd.status !== pr.status && !upd.msgs) { const M = { quoted: "📄 Your quotation is ready in Documents.", assets: "📎 Please upload your samples, logo and assets here.", in_progress: "🚀 Work has started on your project!", draft: "🎬 Your first draft is ready to review.", delivered: "✅ Delivered! Thank you for choosing Flow Studio 💜", closed: "🙏 Project closed. It was a pleasure working with you!" }; if (M[upd.status]) upd.msgs = fsMsg(pr, M[upd.status], by); }
       if (body.deadline != null) upd.deadline = clip(body.deadline, 40);
       upd.log = log; await fs.merge(`projects/${pr.pid}`, upd);
+      let tellP = null;
+      if (upd.balancePaid && !pr.balancePaid) tellP = await fsTell(env, fs, pr.code, "🎉 Payment received — files unlocked", `we received your balance payment for "${pr.title}". Your final files are unlocked in your dashboard.`);
+      else if (upd.advancePaid && !pr.advancePaid) tellP = await fsTell(env, fs, pr.code, "💜 Advance received — thank you", `we received your 40% advance for "${pr.title}". Please upload your logo, samples and assets in your dashboard so we can start.`);
+      else if (upd.status && upd.status !== pr.status && FS_STATUS_MAIL[upd.status]) tellP = await fsTell(env, fs, pr.code, FS_STATUS_MAIL[upd.status][0] + " · " + pr.title, FS_STATUS_MAIL[upd.status][1]);
       if (upd.assignee && upd.assignee !== pr.assignee && upd.assignee !== me.tid) await fsNote(fs, ["t:" + upd.assignee], `👤 New project for you: ${pr.client} · ${pr.title}`, pr.pid, now);
       if (upd.advancePaid && !pr.advancePaid) await fsNote(fs, ["c:" + pr.code, pr.assignee ? "t:" + pr.assignee : ""], `💜 Advance received for ${pr.title}`, pr.pid, now);
       if (upd.balancePaid && !pr.balancePaid) await fsNote(fs, ["c:" + pr.code, pr.assignee ? "t:" + pr.assignee : ""], `🎉 Payment complete for ${pr.title} — final files unlocked`, pr.pid, now);
       if (upd.status && upd.status !== pr.status) await fsNote(fs, ["c:" + pr.code, me.role === "staff" ? "owner" : ""], `📍 ${pr.title}: ${{ quoted: "quotation ready", assets: "please upload your files", in_progress: "work started", draft: "first draft ready", delivered: "delivered", closed: "closed" }[upd.status] || upd.status}`, pr.pid, now);
-      return out({ ok: true }); }
+      return out(Object.assign({ ok: true }, tellP ? { mail: tellP.mail, waTo: tellP.waTo, waText: tellP.waText } : {})); }
     if (p === "/fs/doc/new" && req.method === "POST") { const c = await fs.get(`clients/${clip(body.code, 24).toUpperCase()}`); if (!c) return out({ error: "Client code not found." }, 404);
       const d = body.data || {}; if (!["quote", "invoice"].includes(d.type) || !(d.items || []).length) return out({ error: "Add at least one service line." }, 400);
       const cfgP = (await fs.get("config/flowstudio").catch(() => null)) || {}; d.pay = d.pay || {}; if (!d.pay.upi && cfgP.upi) d.pay.upi = cfgP.upi; if (!d.pay.name && cfgP.payName) d.pay.name = cfgP.payName; d.cur = d.cur === "USD" ? "USD" : "INR";
@@ -1277,7 +1315,15 @@ export async function fsRoute(req, env, url) {
       await fsNote(fs, ["c:" + c.code, me.role === "staff" ? "owner" : ""], `${d.type === "quote" ? "📄 New quotation" : "🧾 New bill"} ${d.no || ""} · ${d.cur === "USD" ? "$" : "₹"}${total.toLocaleString(d.cur === "USD" ? "en-US" : "en-IN")}`, pid, now);
       const text = `Flow Studio · ${d.type === "quote" ? "Quotation" : "Bill"} ${d.no || ""}\nHi ${c.name}, your ${d.type === "quote" ? "quotation" : "bill"} of ${d.cur === "USD" ? "$" + total.toLocaleString("en-US") : "₹" + total.toLocaleString("en-IN")} is in your dashboard.\nOpen: https://pixelflowstudio.agency/portal.html (your client code: ${c.code})`;
       let wa = { skipped: true }; if (body.wa && c.phone) wa = await sendWAText(env, c.phone, text).catch(e => ({ ok: false, error: String(e) }));
-      return out({ ok: true, did, total, wa: !!wa.ok, waText: text, waTo: waNumber(c.phone || "") }); }
+      const amt = d.cur === "USD" ? "$" + total.toLocaleString("en-US") : "₹" + total.toLocaleString("en-IN");
+      const tellD = await fsTell(env, fs, c, d.type === "quote" ? `📄 Quotation ${d.no || ""} · ${amt}` : `🧾 Bill ${d.no || ""} · ${amt}`, d.type === "quote" ? `your quotation of ${amt} is ready in your dashboard. You can download the PDF and pay the 40% advance there to start.` : `your bill of ${amt} is ready in your dashboard. Pay the balance there and your final files unlock straight away.`, { btn: d.type === "quote" ? "View quotation" : "View bill" });
+      return out({ ok: true, did, total, wa: !!wa.ok, waText: text, waTo: waNumber(c.phone || ""), mail: tellD.mail }); }
+    if (p === "/fs/tell" && req.method === "POST") { if (!team) return out({ error: "Team only." }, 403);
+      const pr = body.pid ? await fs.get(`projects/${clip(body.pid, 30)}`) : null, code = pr ? pr.code : clip(body.code, 24).toUpperCase(), text = clip(body.text, 1500);
+      if (!text) return out({ error: "Write the update." }, 400); if (me.role === "staff" && (!pr || pr.assignee !== me.tid)) return out({ error: "Only for your own projects." }, 403);
+      const t = await fsTell(env, fs, code, clip(body.title, 100) || (pr ? "Update · " + pr.title : "Update from Flow Studio"), text);
+      if (pr) await fs.merge(`projects/${pr.pid}`, { msgs: fsMsg(pr, "📧 " + text, by), upd: now });
+      return out(Object.assign({ ok: true }, t)); }
     if (p === "/fs/file/remove" && req.method === "POST") { const pr = await fs.get(`projects/${clip(body.pid, 30)}`); if (!pr) return out({ error: "Project not found." }, 404);
       await fs.merge(`projects/${pr.pid}`, { files: (pr.files || []).filter(f => f.id !== body.id), upd: now }); return out({ ok: true }); }
     if (me.role !== "owner") return out({ error: "Only the owner can do this." }, 403);
