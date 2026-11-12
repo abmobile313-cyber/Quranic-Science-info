@@ -1713,11 +1713,19 @@ function close(fromPop) {
   if (!root) return; root.classList.remove("on"); document.documentElement.classList.remove("qh-open"); clearInterval(timer);
   if (!fromPop && location.hash === "#app") try { history.back(); } catch (e) {}
 }
+/* Android students must use the Quranic Science app (voice alerts, saved videos, secure recordings). iPhone and computer keep the website. */
+const needApp = tab => { try { return /Android/i.test(navigator.userAgent) && !IS_APP && !window.QS_DEMO && !(typeof OWN === "function" && OWN()) && mode !== "t" && ["home", "classes", "tests", "offline", "me"].includes(tab) && myCourses().length > 0; } catch (e) { return false; } };
+const appGate = () => `<section class="qh-hero rv" style="--i:0;text-align:center"><div class="qh-logo" style="margin:0 auto 10px"><img src="/logo.png" alt=""></div>
+  <span class="qh-chip gold">${L("Required")}</span><h2>${L("Please install the Quranic Science app")}</h2>
+  <p class="qh-mut">${L("Your classes, recordings and tests now open in our Android app. It is free and uses the same account.")}</p>
+  <div class="qh-acts" style="justify-content:center;margin-top:12px"><a class="qh-btn pri" href="/download/QuranicScience.apk">📲 ${L("Download the app")}</a><a class="qh-btn" href="intent://quranicscience.info/?app=1#Intent;scheme=https;package=info.quranicscience.app;end">${L("Already installed? Open it")}</a></div></section>
+  <section class="qh-card rv" style="--i:1"><h3>${L("Why the app?")}</h3><div class="qh-li">🔔 ${L("Voice alerts for class time, fees, homework and certificates, even when the app is closed")}</div><div class="qh-li">🎬 ${L("Save class videos on your phone, a separate folder for every course, and watch without internet")}</div><div class="qh-li">🔒 ${L("Secure recordings and faster loading")}</div></section>
+  <section class="qh-card rv" style="--i:2"><h3>${L("How to install")}</h3><ol class="qh-mut" style="padding-inline-start:20px;line-height:1.8"><li>${L("Tap Download the app.")}</li><li>${L("Open the downloaded file. If the phone asks, allow “Install unknown apps” for your browser.")}</li><li>${L("Tap Install, open the app and log in with the same Google account.")}</li></ol></section>`;
 function go(tab) {
   cur = tab; clearInterval(timer);
   root.querySelectorAll("#qhNav [data-qt]").forEach((b, i) => { const on = b.dataset.qt === tab; b.classList.toggle("on", on); b.setAttribute("aria-current", on ? "page" : "false"); if (on) root.querySelector("#qhInd").style.setProperty("--x", i); });
   const main = root.querySelector("#qhMain");
-  const render = async () => { main.innerHTML = `<div class="qh-load"><i></i><i></i><i></i></div>`; main.scrollTop = 0; try { main.innerHTML = await VIEWS[tab](); } catch (e) { main.innerHTML = `<div class="qh-card"><p>${L("Could not load. Please check your internet and try again.")}</p></div>`; console.log(e); } after(main); };
+  const render = async () => { main.innerHTML = `<div class="qh-load"><i></i><i></i><i></i></div>`; main.scrollTop = 0; try { main.innerHTML = needApp(tab) ? appGate() : await VIEWS[tab](); } catch (e) { main.innerHTML = `<div class="qh-card"><p>${L("Could not load. Please check your internet and try again.")}</p></div>`; console.log(e); } after(main); };
   if (document.startViewTransition && !RM) document.startViewTransition(render); else render();
 }
 function after(main) {
@@ -1901,7 +1909,8 @@ const VIEWS = {
         ${lk ? lockHTML() : ""}<div class="qh-acts">${lk ? "" : live || up ? `<button class="qh-btn sm pri" data-room="${x.i}|${E(kid(k))}">${live ? "Join" : "Live room"}</button>` : ""}
           ${k.recording && !lk ? `<button class="qh-btn sm" data-rec="${E(k.recording)}" data-ci="${x.i}">▶ Recording</button>` : ""}
           ${(k.qs || []).length && !lk && (at || !t || Date.now() > t) ? `<button class="qh-btn sm" data-cls="${x.i}">${ok ? "✓ Questions" : "3 questions"}</button>` : ""}
-          ${(k.qs || []).length && !lk ? `<button class="qh-btn sm ${saved ? "on" : ""}" data-save="${x.i}|${E(kid(k))}">${saved ? "✓ Saved" : "⤓ Offline"}</button>` : ""}</div></div></article>`;
+          ${(k.qs || []).length && !lk ? `<button class="qh-btn sm ${saved ? "on" : ""}" data-save="${x.i}|${E(kid(k))}">${saved ? "✓ Saved" : "⤓ Offline"}</button>` : ""}
+          ${k.recording && !lk && NV() && vdlUrl(k.recording) ? (() => { const vid = ckey(x.c) + "|" + kid(k), have = vList().some(v => v.id === vid), p = VDL[vid]; return `<button class="qh-btn sm ${have ? "on" : ""}" data-vdl="${E(vid)}" data-vci="${x.i}" data-vk="${E(kid(k))}" ${p != null ? "disabled" : ""}>${have ? "✓ " + L("Video saved") : p != null ? "⤓ " + p + "%" : "⤓ " + L("Save video")}</button>`; })() : ""}</div></div></article>`;
     }).join("") + `</div>`;
     return h + `<section class="qh-card qh-promo rv" style="--i:20"><div><b>💬 Ask your teacher</b><p class="qh-mut">Stuck on something? Your teacher answers here, AI replies at once.</p></div><button class="qh-btn sm pri" data-qsdoubt="${x.i}">Ask a doubt</button></section>`;
   },
@@ -1930,10 +1939,21 @@ const VIEWS = {
     let h = `<section class="qh-card rv" style="--i:0"><div class="qh-row sp"><h3>Offline lessons</h3><span class="qh-chip ${navigator.onLine === false ? "red" : "green"}">${navigator.onLine === false ? "Offline" : "Online"}</span></div>
       <p class="qh-mut"><span>Saved lessons, their questions and your practice tests open even without internet.</span> <span>${used}</span></p>
       ${myCourses().length ? `<button class="qh-btn sm" data-saveall="1">⤓ Save all my classes</button>` : ""}</section>`;
-    if (!items.length) return h + empty("📥", "Nothing saved yet", "Tap “⤓ Offline” on any class to keep it on this phone.", "");
-    h += items.sort((a, b) => b[1].ts - a[1].ts).map(([id, v], j) => `<article class="qh-cls rv" style="--i:${j + 1}"><div class="qh-dot cyan"></div><div class="qh-cbody">
-      <small class="qh-mut">${E(v.course)} · ${L("saved")} ${new Date(v.ts).toLocaleDateString(LOC())}</small><h4>${E(v.title)}</h4>
-      <div class="qh-acts"><button class="qh-btn sm" data-read="${E(id)}">Open lesson</button>${v.recording ? `<button class="qh-btn sm" data-rec="${E(v.recording)}">▶ Recording</button>` : ""}<button class="qh-btn sm ghost" data-del="${E(id)}">Remove</button></div></div></article>`).join("");
+    const vids = NV() ? vList() : [];
+    if (NV()) { let mb = 0; try { mb = (+QSNative.offUsed() || 0) / 1048576; } catch (e) {} h += `<section class="qh-card rv" style="--i:1"><div class="qh-row sp"><h3>🎬 ${L("Saved videos")}</h3><small class="qh-mut">${mb.toFixed(0)} MB</small></div><p class="qh-mut">${L("Class videos kept inside this app, a separate folder for every course. They play without internet.")}</p></section>`; }
+    if (!items.length && !vids.length) return h + empty("📥", "Nothing saved yet", "Tap “⤓ Offline” or “⤓ Save video” on any class to keep it on this phone.", "");
+    const groups = {}; items.forEach(([id, v]) => { (groups[v.course] = groups[v.course] || { les: [], vid: [] }).les.push([id, v]); });
+    vids.forEach(v => { (groups[v.courseName || v.course] = groups[v.courseName || v.course] || { les: [], vid: [] }).vid.push(v); });
+    let j = 2;
+    Object.keys(groups).sort().forEach(cn => { const g = groups[cn];
+      h += `<h3 class="qh-grp rv" style="--i:${j++};margin:18px 4px 8px">📚 ${E(cn)} <small class="qh-mut">· ${g.vid.length} ${L("videos")} · ${g.les.length} ${L("lessons")}</small></h3>`;
+      h += g.vid.sort((a, b) => (a.n || 0) - (b.n || 0)).map(v => `<article class="qh-cls rv" style="--i:${j++}"><div class="qh-dot green"></div><div class="qh-cbody">
+        <small class="qh-mut">🎬 ${L("Video")} · ${((v.size || 0) / 1048576).toFixed(0)} MB</small><h4>${E(v.title)}</h4>
+        <div class="qh-acts"><button class="qh-btn sm pri" data-vplay="${E(v.id)}" data-vt="${E(v.title)}">▶ ${L("Play")}</button><button class="qh-btn sm ghost" data-vdel="${E(v.id)}">${L("Delete")}</button></div></div></article>`).join("");
+      h += g.les.sort((a, b) => (a[1].n || 0) - (b[1].n || 0)).map(([id, v]) => `<article class="qh-cls rv" style="--i:${j++}"><div class="qh-dot cyan"></div><div class="qh-cbody">
+        <small class="qh-mut">📝 ${L("saved")} ${new Date(v.ts).toLocaleDateString(LOC())}</small><h4>${E(v.title)}</h4>
+        <div class="qh-acts"><button class="qh-btn sm" data-read="${E(id)}">Open lesson</button>${v.recording ? `<button class="qh-btn sm" data-rec="${E(v.recording)}">▶ Recording</button>` : ""}<button class="qh-btn sm ghost" data-del="${E(id)}">Remove</button></div></div></article>`).join("");
+    });
     return h;
   },
   async me() {
@@ -2038,6 +2058,18 @@ function webOut(hash) { openUrl("https://abmobile313-cyber.github.io/Quranic-Sci
 function openUrl(u) { try { if (window.QSNative && QSNative.openExternal) { QSNative.openExternal(u); return; } } catch (e) {} window.open(u, "_blank", "noopener"); }
 function dlUrl(u) { const m = /drive\.google\.com\/(?:file\/d\/|open\?id=)([\w-]{20,})/.exec(u); return m ? `https://drive.google.com/uc?export=download&id=${m[1]}` : u; }
 
+/* ---------- class videos saved inside the Android app (one folder per course, secure player) ---------- */
+const NV = () => { try { return !!(window.QSNative && QSNative.features && /offline-video/.test(QSNative.features())); } catch (e) { return false; } };
+const driveId = u => { const m = String(u || "").match(/(?:\/d\/|[?&]id=)([\w-]{20,})/); return m ? m[1] : ""; };
+const vdlUrl = u => { const id = driveId(u); return id ? "https://drive.usercontent.google.com/download?id=" + id + "&export=download&confirm=t" : (/\.mp4(\?|$)/i.test(u) ? u : ""); };
+const vList = () => { try { return JSON.parse(QSNative.offList() || "[]"); } catch (e) { return []; } };
+const VDL = {}; /* id -> percent while downloading */
+window.qsNativeOff = (id, st, pct, info) => {
+  if (st === "progress" || st === "queued") VDL[id] = pct < 0 ? 0 : pct; else delete VDL[id];
+  root.querySelectorAll(`[data-vdl="${CSS.escape(id)}"]`).forEach(b => { b.textContent = st === "done" ? "✓ " + L("Video saved") : st === "error" ? "⚠ " + L("Try again") : "⤓ " + (pct > 0 ? pct + "%" : L("Starting…")); b.disabled = st === "progress" || st === "queued"; });
+  if (st === "done") { snd("success"); say("Video saved on this phone ✓"); if (cur === "offline" || cur === "classes") go(cur); }
+  if (st === "error") { snd("error"); say(/not-public/.test(info) ? "This recording is not shared for download yet. Please tell your teacher." : "Download stopped. Please check your internet and try again."); }
+};
 /* ---------- offline save ---------- */
 async function saveOffline(i, id, quiet) {
   const x = myCourses().find(z => z.i === +i); if (!x) return; const k = (await classes(x)).find(z => kid(z) === id); if (!k) return;
@@ -2080,6 +2112,15 @@ async function onClick(e) {
   if (d.test) { const [i, m] = d.test.split("|"); runTest(i, m); return; }
   if (d.save) { const [i, id] = d.save.split("|"); await saveOffline(i, id); go(cur); return; }
   if (d.saveall) { for (const x of myCourses()) for (const k of await classes(x)) if ((k.qs || []).length) await saveOffline(x.i, kid(k), true); snd("success"); say("All classes saved for offline ✓"); go("offline"); return; }
+  if (d.vdl) { const x = myCourses().find(z => z.i === +d.vci); if (!x) return; const k = (await classes(x)).find(z => kid(z) === d.vk); if (!k) return;
+    if (vList().some(v => v.id === d.vdl)) { go("offline"); return; }
+    const u = vdlUrl(k.recording); if (!u) { say("This recording cannot be saved."); return; }
+    if (navigator.connection && navigator.connection.type === "cellular") say("Tip: videos are big. Wi-Fi is better.");
+    VDL[d.vdl] = 0; b.disabled = true; b.textContent = "⤓ " + L("Starting…");
+    try { QSNative.offDownload(JSON.stringify({ id: d.vdl, course: ckey(x.c), courseName: x.c.name, title: T(k.title) || L("Class") + " " + (k.n || ""), n: +k.n || 0, url: u })); } catch (er) { delete VDL[d.vdl]; say("Please update the app to save videos."); }
+    return; }
+  if (d.vplay) { try { if (!QSNative.offPlay(d.vplay, d.vt || "")) say("This video is not on the phone any more."); } catch (er) {} return; }
+  if (d.vdel) { try { QSNative.offDelete(d.vdel); } catch (er) {} snd("tap"); say("Video deleted from this phone."); go("offline"); return; }
   if (d.read) { readOffline(d.read); return; }
   if (d.del) { const o = LSg("qh-off", {}); delete o[d.del]; LSs("qh-off", o); go("offline"); return; }
   if (d.web) { if (IS_APP) { webOut(d.web); return; } close(); setTimeout(() => { try { location.hash = d.web; } catch (er) {} }, 60); return; }

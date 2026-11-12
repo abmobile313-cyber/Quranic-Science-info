@@ -134,11 +134,14 @@ export async function sendWAText(env, to, text, fetchImpl = fetch) {
 }
 /* cheapest first: 1) app alert (free)  2) WhatsApp text in open window (free)  3) WhatsApp template (paid, ~Rs 0.14, monthly cap) */
 /* free alert on the Quranic Science Android app (Firebase Cloud Messaging, no charge) */
+/* which voice the app plays for each alert (Android notification channels with a recorded Urdu voice, app 1.2+) */
+export const voiceCh = tag => { const t = String(tag || "");
+  return /^tclass-/.test(t) ? "v_tclass" : /^class-/.test(t) ? "v_class" : /^pay/.test(t) ? "v_pay" : /^cert/.test(t) ? "v_cert" : /^hwdue-/.test(t) ? "v_hwdue" : /^hw-/.test(t) ? "v_hw" : /^tdoubt-/.test(t) ? "v_newdoubt" : /^doubt-/.test(t) ? "v_doubt" : "v_general"; };
 export async function sendAppPush(env, token, msg, fetchImpl = fetch) {
   const sa = typeof env.FIREBASE_SA === "string" ? JSON.parse(env.FIREBASE_SA) : env.FIREBASE_SA, t = await googleToken(sa, fetchImpl);
   const r = await fetchImpl(`https://fcm.googleapis.com/v1/projects/${sa.project_id}/messages:send`, { method: "POST", headers: { authorization: "Bearer " + t, "content-type": "application/json" },
-    body: JSON.stringify({ message: { token, notification: { title: msg.title, body: msg.body }, data: { url: msg.url || "", tag: msg.tag || "" },
-      android: { priority: "HIGH", notification: { channel_id: "alerts", icon: "ic_stat", color: "#C99A45", tag: msg.tag || undefined } } } }) });
+    body: JSON.stringify({ message: { token, notification: { title: msg.title, body: msg.body }, data: { url: msg.url || "", tag: msg.tag || "", ch: voiceCh(msg.tag) },
+      android: { priority: "HIGH", notification: { channel_id: voiceCh(msg.tag), icon: "ic_stat", color: "#C99A45", tag: msg.tag || undefined } } } }) });
   const j = await r.json().catch(() => ({})), code = JSON.stringify(j.error || "");
   return { ok: r.ok, gone: r.status === 404 || /UNREGISTERED|INVALID_ARGUMENT/.test(code) };
 }
