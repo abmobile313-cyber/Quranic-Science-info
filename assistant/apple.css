@@ -1,0 +1,152 @@
+/* ===== Arsalan PA — Apple-style look (v4). Loaded after style.css; only changes appearance. ===== */
+:root.apple{
+  --bg:#070b16;--text:#f5f7fb;--muted:rgba(235,240,255,.58);--eye:rgba(235,240,255,.55);
+  --blue:#0a84ff;--cyan:#64d2ff;--ok:#30d158;--warn:#ff9f0a;--bad:#ff453a;--purple:#bf5af2;--gold:#ffd60a;--goldtx:#ffd60a;--gold2:#ffe066;
+  --card:rgba(255,255,255,.07);--card2:rgba(255,255,255,.10);--stroke:rgba(255,255,255,.12);--hl:rgba(255,255,255,.22);
+  --inp:rgba(118,118,128,.24);--dockbg:rgba(28,30,40,.62);--sheet:rgba(30,32,42,.86);--shadow:0 20px 50px rgba(0,0,0,.45);
+  --gl:blur(28px) saturate(180%);--ease:cubic-bezier(.22,1,.36,1);--spring:cubic-bezier(.32,1.25,.42,1);
+  --f-head:Inter,Mehr,-apple-system,system-ui,sans-serif;
+}
+:root.apple[data-theme=light]{
+  --bg:#f2f3f8;--text:#111318;--muted:rgba(30,35,50,.58);--eye:rgba(30,35,50,.55);
+  --blue:#007aff;--cyan:#32ade6;--ok:#34c759;--warn:#ff9500;--bad:#ff3b30;--purple:#af52de;--gold:#b8860b;--goldtx:#9a6b00;--gold2:#b8860b;
+  --card:rgba(255,255,255,.62);--card2:rgba(255,255,255,.78);--stroke:rgba(20,30,60,.08);--hl:rgba(255,255,255,.95);
+  --inp:rgba(118,118,128,.12);--dockbg:rgba(250,250,252,.72);--sheet:rgba(250,250,252,.92);--shadow:0 18px 44px rgba(40,50,90,.14);
+}
+/* background: soft Apple wallpaper, deep blue waves in dark, pastel light in light */
+.apple .bg{background:var(--bg)}
+.apple .bg::before{opacity:0!important}
+.apple .bg i{display:none}
+.apple .bg::after{content:"";position:absolute;inset:-20%;filter:blur(60px);opacity:.9;
+  background:radial-gradient(40% 35% at 20% 15%,rgba(64,90,255,.45),transparent 70%),radial-gradient(45% 40% at 85% 30%,rgba(120,70,255,.32),transparent 70%),radial-gradient(50% 40% at 50% 95%,rgba(20,120,255,.30),transparent 70%)}
+.apple[data-theme=light] .bg::after{opacity:1;background:radial-gradient(40% 35% at 15% 10%,rgba(120,170,255,.45),transparent 70%),radial-gradient(40% 35% at 90% 25%,rgba(255,150,220,.32),transparent 70%),radial-gradient(45% 40% at 40% 95%,rgba(120,230,255,.35),transparent 70%)}
+.apple .specks{display:none}
+.apple body{font-family:Inter,Mehr,-apple-system,system-ui,sans-serif;letter-spacing:-.01em}
+
+/* header: iOS large title */
+.apple header{background:linear-gradient(180deg,var(--bg) 0%,color-mix(in srgb,var(--bg) 70%,transparent) 70%,transparent);backdrop-filter:none;padding:calc(12px + env(safe-area-inset-top)) 18px 10px}
+.apple header h1{font-size:32px;font-weight:700;letter-spacing:-.025em}
+.apple .eyebrow{font:600 12.5px/1.3 Inter,Mehr,sans-serif;letter-spacing:0;text-transform:none;color:var(--muted)}
+.apple #bLang,.apple #bTheme{display:none}
+.apple .ib{width:38px;height:38px;border-radius:50%;background:var(--card);border:0;box-shadow:inset 0 0 0 .5px var(--stroke);backdrop-filter:var(--gl);-webkit-backdrop-filter:var(--gl)}
+.apple .ib .n{background:var(--bad);top:-3px;right:-3px}
+
+/* cards: frosted glass, hairline border, soft shadow */
+.apple .card,.apple .stat,.apple details{background:var(--card)!important;border:0!important;border-radius:22px!important;box-shadow:inset 0 0 0 .5px var(--stroke),0 8px 30px rgba(0,0,0,.18)!important;backdrop-filter:var(--gl);-webkit-backdrop-filter:var(--gl)}
+.apple[data-theme=light] .card,.apple[data-theme=light] .stat{box-shadow:inset 0 0 0 .5px var(--stroke),0 8px 26px rgba(40,50,90,.08)!important}
+.apple .card.hero{background:var(--card2)!important}
+.apple .card.hero::after{display:none}
+.apple h2{font-size:19px;font-weight:700;letter-spacing:-.015em}
+
+/* buttons: iOS pills */
+.apple .btn{background:var(--blue);border:0;border-radius:14px;box-shadow:none;font-weight:600}
+.apple .btn.ghost{background:var(--inp);color:var(--text)}
+.apple .btn.gold{background:var(--blue);color:#fff;box-shadow:none}
+.apple .btn.bad{background:rgba(255,69,58,.14)!important;color:var(--bad)!important;border:0!important}
+.apple .btn.s{border-radius:11px}
+.apple .chip{background:var(--inp);border:0}
+.apple .chip.gold{background:rgba(255,214,10,.16);color:var(--goldtx)}
+.apple input:not([type=checkbox]):not([type=radio]),.apple select,.apple textarea{background:var(--inp)!important;border:0!important;border-radius:12px!important}
+
+/* segmented control like iOS */
+.apple .seg{background:var(--inp);border:0;border-radius:12px;padding:3px;backdrop-filter:none}
+.apple .seg .pill{background:var(--card2);border-radius:9px;box-shadow:0 3px 8px rgba(0,0,0,.18),inset 0 0 0 .5px var(--stroke)}
+.apple[data-theme=dark] .seg .pill{background:rgba(255,255,255,.18)}
+.apple .seg button{color:var(--muted);font-size:13px;padding:8px 2px}
+.apple .seg button.on{color:var(--text)}
+
+/* tab bar: equal icons with labels, like iPhone */
+.apple .dock{left:10px;right:10px;bottom:calc(10px + env(safe-area-inset-bottom));padding:6px 4px;border-radius:28px;border:0;box-shadow:inset 0 0 0 .5px var(--stroke),0 14px 40px rgba(0,0,0,.35);backdrop-filter:var(--gl);-webkit-backdrop-filter:var(--gl);transition:none}
+.apple .dock .pill{display:none!important}
+.apple .dock button{height:52px;flex-direction:column;gap:3px;color:var(--muted);font:600 10.5px/1 Inter,Mehr,sans-serif;transition:color .25s,transform .25s var(--spring)}
+.apple .dock button span{max-width:none!important;opacity:1!important;margin:0!important;font-size:10.5px}
+.apple .dock button svg,.apple .dock button .ui3,.apple .dock button img{width:24px;height:24px}
+.apple .dock button.on{color:var(--blue)}
+.apple .dock button:active{transform:scale(.88)}
+.apple .fab{border:0;background:var(--dockbg);box-shadow:inset 0 0 0 .5px var(--stroke),0 10px 30px rgba(0,0,0,.35);bottom:calc(90px + env(safe-area-inset-bottom))}
+.apple dialog{background:var(--sheet);backdrop-filter:var(--gl);-webkit-backdrop-filter:var(--gl);border:0;box-shadow:inset 0 0 0 .5px var(--stroke),0 30px 80px rgba(0,0,0,.5);border-radius:26px}
+.apple dialog[open]{animation:apSheet .45s var(--spring)}
+@keyframes apSheet{from{transform:translateY(30px) scale(.97);opacity:0}to{transform:none;opacity:1}}
+
+/* page change: gentle fade-up, not a big reveal */
+.apple .page>*{animation:apIn .5s var(--ease) both}
+@keyframes apIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+
+/* ===== iOS notification banner (top) ===== */
+.apple #toast{top:calc(10px + env(safe-area-inset-top));bottom:auto;left:50%;width:min(94vw,420px);padding:0;border:0;border-radius:24px;background:transparent;box-shadow:none;
+  transform:translate(-50%,-140%) scale(.92);opacity:0;transition:transform .55s var(--spring),opacity .35s;z-index:200;pointer-events:auto}
+.apple #toast.show{transform:translate(-50%,0) scale(1);opacity:1}
+.apb{display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:24px;background:var(--sheet);backdrop-filter:var(--gl);-webkit-backdrop-filter:var(--gl);box-shadow:inset 0 0 0 .5px var(--stroke),0 16px 40px rgba(0,0,0,.35);text-align:start}
+.apb-i{flex:0 0 38px;height:38px;border-radius:10px;display:grid;place-items:center;font-size:22px;background:linear-gradient(145deg,#2c6bff,#7a4dff)}
+.apb-i img{width:38px;height:38px;border-radius:10px}
+.apb-t{flex:1;min-width:0;display:flex;flex-direction:column;line-height:1.3}
+.apb-t b{font-size:14.5px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.apb-t small{font-size:13px;color:var(--muted);overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.apb-n{font-size:11.5px;color:var(--muted);align-self:flex-start}
+
+/* ===== Apple splash ===== */
+#splash.apple{background:radial-gradient(60% 45% at 50% 40%,rgba(70,100,255,.35),transparent 70%),var(--bg)!important;transition:opacity .6s var(--ease),transform .6s var(--ease),filter .6s}
+#splash.apple.out{opacity:0;transform:scale(1.06);filter:blur(10px)}
+.aps{position:relative;display:flex;flex-direction:column;align-items:center;gap:14px}
+.aps-glow{position:absolute;top:-40px;width:220px;height:220px;border-radius:50%;background:radial-gradient(circle,rgba(100,140,255,.55),transparent 65%);filter:blur(20px);opacity:0;transform:scale(.6);transition:opacity 1s var(--ease),transform 1.2s var(--ease)}
+.aps-ic{width:112px;height:112px;border-radius:26px;box-shadow:0 20px 50px rgba(0,0,0,.5),inset 0 0 0 .5px rgba(255,255,255,.2);opacity:0;transform:scale(.55);filter:blur(12px);transition:opacity .7s var(--ease),transform .9s var(--spring),filter .7s var(--ease)}
+.aps-name{font:700 30px/1.1 Inter,sans-serif;letter-spacing:-.03em;color:var(--text);opacity:0;transform:translateY(10px);transition:opacity .6s var(--ease) .35s,transform .7s var(--ease) .35s}
+.aps-sub{font:500 15px/1.3 Inter,Mehr,sans-serif;color:var(--muted);opacity:0;transition:opacity .6s var(--ease) .6s}
+#splash.go .aps-ic{opacity:1;transform:none;filter:none}
+#splash.go .aps-glow{opacity:1;transform:scale(1)}
+#splash.go .aps-name{opacity:1;transform:none}
+#splash.go .aps-sub{opacity:1}
+
+/* ===== simple home ===== */
+.aphi{margin:-4px 2px 12px}
+.aphi-d{font-size:14px;color:var(--muted)}
+.apwg{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px}
+.apw{all:unset;cursor:pointer;display:flex;flex-direction:column;gap:4px;min-height:150px;padding:16px;border-radius:24px;box-sizing:border-box;background:var(--card);backdrop-filter:var(--gl);-webkit-backdrop-filter:var(--gl);box-shadow:inset 0 0 0 .5px var(--stroke),0 8px 30px rgba(0,0,0,.18);transition:transform .3s var(--spring)}
+.apw:active{transform:scale(.96)}
+.apw-n{background:linear-gradient(160deg,rgba(10,132,255,.55),rgba(94,92,230,.45));color:#fff}
+.apw-n .apw-l,.apw-n .apw-s{color:rgba(255,255,255,.8)}
+.apw-l{font-size:12.5px;font-weight:600;color:var(--muted)}
+.apw-big{font-size:28px;font-weight:700;letter-spacing:-.02em;line-height:1.1}
+.apw-cd{font:600 22px/1.2 Inter,sans-serif;font-variant-numeric:tabular-nums;margin-top:auto}
+.apw-s{font-size:12.5px}
+.apw-row{display:flex;align-items:center;gap:8px;font-size:15px}
+.apw-row i{font-style:normal;width:22px;text-align:center}
+.apw-row small{color:var(--muted);font-size:12px}
+.apsec{font-size:13px;font-weight:600;color:var(--muted);margin:18px 6px 10px}
+.apgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:18px 8px;padding:16px 8px;border-radius:26px;background:var(--card);backdrop-filter:var(--gl);-webkit-backdrop-filter:var(--gl);box-shadow:inset 0 0 0 .5px var(--stroke)}
+.apapp{all:unset;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:6px;min-width:0}
+.apic{position:relative;width:58px;height:58px;border-radius:15px;display:grid;place-items:center;font-size:28px;box-shadow:0 6px 16px rgba(0,0,0,.25),inset 0 1px 0 rgba(255,255,255,.35);transition:transform .3s var(--spring)}
+.apapp:active .apic{transform:scale(.88)}
+.apnm{font-size:11.5px;font-weight:500;max-width:76px;text-align:center;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--text)}
+.apbd{position:absolute;top:-5px;right:-5px;min-width:20px;height:20px;padding:0 6px;border-radius:99px;background:#ff3b30;color:#fff;font:700 11px/20px Inter,sans-serif;font-style:normal;box-shadow:0 0 0 2px var(--bg)}
+.g-blue{background:linear-gradient(160deg,#4ea4ff,#0a6cff)}.g-teal{background:linear-gradient(160deg,#5ee0d0,#0a9488)}.g-green{background:linear-gradient(160deg,#5fe08a,#1aa34a)}
+.g-indigo{background:linear-gradient(160deg,#8d8bff,#4b3fdc)}.g-purple{background:linear-gradient(160deg,#d38bff,#8a35e0)}.g-pink{background:linear-gradient(160deg,#ff8fb8,#e0326e)}
+.g-orange{background:linear-gradient(160deg,#ffbe5c,#ff7a0a)}.g-yellow{background:linear-gradient(160deg,#ffe36b,#f0b400)}.g-gold{background:linear-gradient(160deg,#ffd77a,#c98a12)}
+.g-red{background:linear-gradient(160deg,#ff7d72,#e0281c)}.g-gray{background:linear-gradient(160deg,#a5adbd,#5d6576)}.g-brown{background:linear-gradient(160deg,#d6a56c,#8a5a2b)}
+.g-night{background:linear-gradient(160deg,#4a5ad8,#1a1f5c)}
+.aplinks{display:flex;gap:14px;overflow-x:auto;padding:4px 4px 10px;scrollbar-width:none}
+.aplinks::-webkit-scrollbar{display:none}
+.aplk{flex:0 0 auto;display:flex;flex-direction:column;align-items:center;gap:6px;text-decoration:none;color:var(--text);font-size:11px;width:62px}
+.aplk>i{width:50px;height:50px;border-radius:14px;display:grid;place-items:center;background:var(--card2);font-style:normal;font-size:24px;box-shadow:inset 0 0 0 .5px var(--stroke)}
+.aplk>i img{width:30px;height:30px}
+.aplk span{max-width:62px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.aphad{margin-top:14px}
+.aphad .had{font-size:16px;line-height:1.7;margin-top:6px}
+.apback{all:unset;cursor:pointer;color:var(--blue);font-size:16px;font-weight:500;padding:4px 2px 12px;display:inline-block}
+@media (min-width:560px){.apgrid{grid-template-columns:repeat(5,1fr)}}
+@media (prefers-reduced-motion:reduce){.apple *{animation:none!important;transition:none!important}}
+
+/* calculator lives in the app grid now; only one floating button (Noor) stays */
+.apple #calcfab{display:none!important}
+/* home: alerts shown short (title only); "see all" opens the full list */
+.ap-home .nalert .item .muted{display:none}
+.ap-home .nalert .item{padding:8px 0}
+.ap-home .nalert .item:nth-of-type(n+4){display:none}
+.ap-home .nalert h2{font-size:16px}
+/* tab bar icons: clean, no glowing tiles */
+.apple .dock .dk3{width:28px!important;height:28px!important;padding:0!important;background:none!important;box-shadow:none!important;border:0!important;transform:none!important;filter:grayscale(.35) opacity(.8)}
+.apple .dock button.on .dk3{filter:none;transform:scale(1.08)!important}
+.apple .nalert h2{font:700 16px/1.3 Inter,Mehr,sans-serif!important;letter-spacing:-.01em!important;text-transform:none!important}
+.apple header{background:linear-gradient(180deg,var(--bg) 0%,color-mix(in srgb,var(--bg) 75%,transparent) 70%,transparent)!important}
+.apple h2,.apple .card h2,.apple .h2{font-family:Inter,Mehr,-apple-system,sans-serif!important;text-transform:none!important;letter-spacing:-.015em!important;font-weight:700!important}
+.apple .seg button.on,.apple .fch button.on{color:#fff}
