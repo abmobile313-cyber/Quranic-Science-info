@@ -209,6 +209,16 @@ export const PAGES = {
   pl_TxeFSAyIYnzGuO: "ai-combo-full", pl_TxeSG2IMlqi37J: "ai-combo-full",
   /* AI practice add-on, only for live-class students */
   pl_TxeGbRnAGCEc84: "ai-tajweed-live", pl_TxeTHa4jPMQVBk: "ai-tajweed-live",
+  /* AI Ustad creator courses (12 Nov 2026) */
+  pl_Tz8guZx5NP1uOp: "ai-video-editing", pl_Tz8oE1riytyY7J: "ai-video-editing",
+  pl_Tz8hgfHSOHOGu0: "ai-video-editing-full", pl_Tz8pLJZh4f3UX5: "ai-video-editing-full",
+  pl_Tz8ifCBgNmzbbd: "ai-video-editing-live", pl_Tz8q8iDmXfEmfV: "ai-video-editing-live",
+  pl_Tz8jK6cArwBBhp: "ai-content-creation", pl_Tz8qr4RnCfiFqb: "ai-content-creation",
+  pl_Tz8jtVyiG0ap18: "ai-content-creation-full", pl_Tz8rlLuUG4qwlM: "ai-content-creation-full",
+  pl_Tz8kNWRNusy8gU: "ai-content-creation-live", pl_Tz8slMNce93y3j: "ai-content-creation-live",
+  pl_Tz8krx4gQfL1NY: "ai-creator", pl_Tz8tTIx5HY79bH: "ai-creator",
+  pl_Tz8lQR28ZrdUKx: "ai-creator-full", pl_Tz8u91Tm9sFpyH: "ai-creator-full",
+  pl_Tz8mbONgSoTT3p: "ai-creator-live", pl_Tz8unmZPwITy84: "ai-creator-live",
   pl_TxeHo0VZ8kRsNL: "ai-arabic-live", pl_TxeUBdcMdlUCBf: "ai-arabic-live",
   pl_TxeJ1BNjHABjSo: "ai-combo-live", pl_TxeV7zOuGDQRCu: "ai-combo-live"
 };
