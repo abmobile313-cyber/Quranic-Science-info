@@ -129,7 +129,7 @@
     if (!settled) S.raf = requestAnimationFrame(frame);
     else instances.forEach(draw);
   }
-  function kick() { if (!S.raf) S.raf = requestAnimationFrame(frame); }
+  function kick() { instances.forEach(draw); } /* photo only: no lip, head or idle movement */
 
   function draw(inst) {
     if (!ready || ready === "loading" || !inst.cv.isConnected) return;
@@ -247,7 +247,7 @@
     ".ustd canvas{width:100%;height:100%;object-fit:cover;object-position:50% 12%;display:block}" +
     ".ustd::after{content:'';position:absolute;inset:0;border-radius:inherit;box-shadow:inset 0 0 0 1px rgba(255,255,255,.35),inset 0 -26px 28px -22px rgba(20,60,45,.55);pointer-events:none}" +
     "@keyframes ustidle{0%,100%{transform:translateY(0) rotate(-.35deg)}50%{transform:translateY(-1.5px) rotate(.35deg)}}" +
-    ".ustd:not(.talk) .uw{animation:ustidle 6s ease-in-out infinite}@media(prefers-reduced-motion:reduce){.ustd .uw{animation:none!important}}";
+    "";
   function mount(el, opts) {
     if (!el) return null; load();
     if (!document.getElementById("ustd-css")) { var st = document.createElement("style"); st.id = "ustd-css"; st.textContent = CSS; document.head.appendChild(st); }
