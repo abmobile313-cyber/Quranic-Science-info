@@ -1,5 +1,5 @@
 /* Creator Courses · Quranic Science AI — offline shell. */
-const V = "qscr-v27", SHELL = ["./", "index.html", "class.js?v=4", "app.js?v=12", "icons.js?v=1", "theme.css?v=1", "ustad.js?v=7", "ustad/v_closed.webp?v=3", "ustad/thumb.webp", "creator.js?v=2", "board.js?v=1", "apps.js?v=6", "screens.js?v=5", "scene.js?v=8", "livesync.js?v=5", "icon-192.png", "icon-512.png", "manifest.webmanifest", "data/editing.json", "data/content.json", "data/design.json"];
+const V = "qscr-v28", SHELL = ["./", "index.html", "class.js?v=4", "app.js?v=12", "icons.js?v=1", "theme.css?v=1", "ustad.js?v=7", "ustad/v_closed.webp?v=3", "ustad/thumb.webp", "creator.js?v=2", "board.js?v=1", "apps.js?v=7", "screens.js?v=5", "scene.js?v=10", "livesync.js?v=5", "icon-192.png", "icon-512.png", "manifest.webmanifest", "data/editing.json", "data/content.json", "data/design.json"];
 self.addEventListener("install", e => { e.waitUntil(caches.open(V).then(c => c.addAll(SHELL)).catch(() => {})); self.skipWaiting(); });
 self.addEventListener("activate", e => { e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => k.startsWith("qscr-v") && k !== V).map(k => caches.delete(k))))); self.clients.claim(); });
 self.addEventListener("fetch", e => {
