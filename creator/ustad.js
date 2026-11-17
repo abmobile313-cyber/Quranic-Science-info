@@ -9,12 +9,12 @@
 (function () {
   "use strict";
   var BASE = (document.currentScript && document.currentScript.src || location.href).replace(/[^\/]*$/, "") + "ustad/";
-  var FILES = { c: "v_closed.webp", s: "v_small.webp", o: "v_oo.webp", e: "v_ee.webp", a: "v_open.webp" }, ORDER = ["c", "s", "e", "o", "a"];
+  var FILES = { c: "v_closed.webp", s: "v_small.webp", o: "v_oo.webp", e: "v_ee.webp", a: "v_open.webp" }, ORDER = ["c"];
   var IMG = {}, ready = false, W = 448, H = 470;
   var reduce = false; try { reduce = matchMedia("(prefers-reduced-motion:reduce)").matches; } catch (e) {}
   function load() {
     if (ready === "loading" || ready === true) return; ready = "loading"; var n = 0;
-    ORDER.forEach(function (k) { var im = new Image(); im.onload = function () { if (++n === ORDER.length) { ready = true; instances.forEach(draw); } }; im.src = BASE + FILES[k]; IMG[k] = im; });
+    ORDER.forEach(function (k) { var im = new Image(); im.onload = function () { if (++n === ORDER.length) { ready = true; instances.forEach(draw); } }; im.src = BASE + FILES[k] + "?v=2"; IMG[k] = im; });
   }
 
   /* ---------- text -> mouth shapes ---------- */
