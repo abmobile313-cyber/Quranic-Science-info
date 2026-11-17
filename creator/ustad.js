@@ -190,7 +190,7 @@
   /* ---------- hooks: every sound the app plays moves the lips ---------- */
   try {
     var HMP = HTMLMediaElement.prototype, origPlay = HMP.play;
-    HMP.play = function () { var el = this, r = origPlay.apply(el, arguments); if (instances.length && el.tagName === "AUDIO" && !el.dataset.nolip && !/^blob:/.test(el.currentSrc || el.src || "")) { try { var go = function () { driveAudio(el); }; if (r && r.then) r.then(go, function () {}); else go(); } catch (e) {} } return r; };
+    HMP.play = function () { var el = this, r = origPlay.apply(el, arguments); if (instances.length && el.tagName === "AUDIO" && !el.dataset.nolip) { try { var go = function () { driveAudio(el); }; if (r && r.then) r.then(go, function () {}); else go(); } catch (e) {} } return r; };
   } catch (e) {}
   try {
     if (window.speechSynthesis) {

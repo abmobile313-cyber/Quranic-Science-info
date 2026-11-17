@@ -800,7 +800,7 @@ function drawMoment() {
   LESSON.tour = () => { if (!LBX) return; const ch = momentLetters(m); if (ch.length) LBX.tour(ch.slice(0, 8), 2000); };
   if (m.rec) { const pb = $("#pb"); recUrl = null;
     $("#rb").onclick = e => startRec(b => { if (recUrl) URL.revokeObjectURL(recUrl); recUrl = URL.createObjectURL(b); pb.disabled = false; }, e.currentTarget, "🎙️ " + t("rec"));
-    pb.onclick = () => { if (recUrl) { stopAll(); voiceEl = new Audio(recUrl); voiceEl.play(); } }; }
+    pb.onclick = () => { if (recUrl) { stopAll(); voiceEl = new Audio(recUrl); voiceEl.dataset.nolip = 1; voiceEl.play(); } }; }
   $("#bk").onclick = () => { LESSON.i--; drawMoment(); };
   $("#nx").onclick = () => { LESSON.i++; drawMoment(); scrollTo({ top: 0, behavior: "smooth" }); };
   if (S.voice) playVoice();

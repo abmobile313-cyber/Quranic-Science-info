@@ -249,7 +249,7 @@ function phRecord() {
     <div class="tkctl"><button class="btn rec big" id="rr">🎙️ ${pick(CX.recB)}</button><button class="btn big" id="rm" disabled>▶ ${pick(CX.mine)}</button><button class="btn cy big" id="rq">🕋 ${pick(CX.qari)}</button></div><p class="tkst" id="rs"></p></section>`);
   let url = null;
   $("#rr").onclick = e => startRec(b => { if (url) URL.revokeObjectURL(url); url = URL.createObjectURL(b); $("#rm").disabled = false; CL.done.record = 1; saveCL(); updNext(); $("#rs").textContent = "✓"; }, e.currentTarget, "🎙️ " + pick(CX.recB));
-  $("#rm").onclick = () => { if (url) { stopAll(); voiceEl = new Audio(url); voiceEl.play(); } };
+  $("#rm").onclick = () => { if (url) { stopAll(); voiceEl = new Audio(url); voiceEl.dataset.nolip = 1; voiceEl.play(); } };
   $("#rq").onclick = async e => { const b = e.currentTarget; b.classList.add("playing"); for (const x of items) { await playSrc(x.src); await sleep(500); } b.classList.remove("playing"); };
 }
 
