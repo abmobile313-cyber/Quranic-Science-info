@@ -115,7 +115,12 @@ body.ur .day.done:after{right:auto;left:10px}
 .res{text-align:center;padding:26px 10px}.res .big{font:800 54px/1 Outfit;color:var(--gold2)}
 /* ustad */
 .fab{position:fixed;right:max(16px,env(safe-area-inset-right,0px));bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:30;display:flex;align-items:center;gap:8px;padding:12px 16px;border-radius:999px;border:0;background:linear-gradient(135deg,var(--mar2),var(--mar));color:#fff;font:700 15px/1 Outfit;box-shadow:0 14px 34px -12px rgba(160,29,52,.9)}
-.fab img{width:26px;height:26px;border-radius:8px}
+.fab{padding:7px 18px 7px 8px}
+.uav{position:relative;display:block;flex:none;width:42px;height:42px;border-radius:50%;overflow:hidden;background:radial-gradient(circle at 50% 28%,#fff1c2,#e0a93e 70%);border:2px solid #ffe9a8;box-shadow:0 3px 10px -2px rgba(0,0,0,.45)}
+.uav.big{width:44px;height:44px}
+.uav img{width:100%;height:100%;border-radius:0}
+.uav svg{position:absolute;width:176%;height:auto;left:-38%;top:-16%}
+@keyframes ustbob{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}@media(prefers-reduced-motion:no-preference){.fab{animation:ustbob 3.2s ease-in-out infinite}}
 .drawer{position:fixed;inset:auto 0 0 auto;width:min(420px,100%);height:min(640px,88vh);z-index:40;background:var(--bg2);border:1px solid var(--line);border-radius:22px 22px 0 0;display:flex;flex-direction:column;box-shadow:0 -20px 60px -20px #000;transform:translateY(110%);transition:transform .3s;padding-bottom:env(safe-area-inset-bottom,0px)}
 @media(min-width:700px){.drawer{right:16px;bottom:16px;border-radius:22px}}
 .drawer{visibility:hidden}.drawer.open{transform:none;visibility:visible}
@@ -193,7 +198,9 @@ select.btn{appearance:auto}
 .mlsteps{list-style:none;margin:6px 0 0;padding:0;display:grid;gap:6px}.mlsteps li{display:flex;gap:8px;align-items:flex-start}.mlsteps i{font-style:normal;flex:none;width:26px;height:26px;border-radius:50%;display:grid;place-items:center;background:#f3e2c4;font-size:14px}.mlsteps b{color:#5b2d1c}
 .mlctl{display:flex;flex-wrap:wrap;gap:6px;justify-content:center}
 .mlab .zchip{background:#fff;color:#3b2418;border-color:#e2c6b0}.mlab .zchip.on{background:#ffe9a8;border-color:#e3aa3c;box-shadow:none}.mlab .mlall{background:#e3aa3c;color:#1c1712;font-weight:700}
-.mlkeys{display:grid;grid-template-columns:repeat(auto-fill,minmax(48px,1fr));gap:6px}
+.punc{margin:6px 0;font-weight:700}.punc.ok{color:#3fcf8e}.punc.late{color:#f0a24b}
+.catch{margin:14px 0;padding:14px 16px;border-radius:18px;border:1px solid var(--gold);background:linear-gradient(135deg,rgba(227,170,60,.14),rgba(44,196,242,.08))}.catch p{margin:0 0 10px;line-height:1.7}.catch .tools{display:flex;flex-wrap:wrap;gap:8px}
+.labslot{margin:14px 0}.labslot:empty{display:none}.labdock{min-width:0}.mlkeys{display:grid;grid-template-columns:repeat(auto-fill,minmax(48px,1fr));gap:6px}
 .mlk{background:#fff;border:1px solid #e2c6b0;border-radius:12px;padding:2px 0;color:#3b2418;min-height:48px}.mlk b{font-size:26px;font-weight:400}.mlk.wide{grid-column:span 2}
 .mlk.on{background:#ffe9a8;border-color:#e3aa3c;box-shadow:0 0 0 3px rgba(227,170,60,.35)}.mlk.playing{box-shadow:0 0 0 3px #1fa8e0}
 .mlFlow{animation:mlfl .9s linear infinite}.mlFlow.burst{animation-duration:.45s}@keyframes mlfl{to{stroke-dashoffset:-28}}
@@ -225,9 +232,9 @@ select.btn{appearance:auto}
 </div></header>
 <main id="app" class="wrap"></main>
 <footer class="foot"><div class="wrap"><span>© 2026 Quranic Science · Learn with Quranic Science AI</span><span><a href="/">quranicscience.info</a> · <a href="/terms">Terms</a> · <a href="/privacy">Privacy</a> · <a href="/refund-policy">Refund policy</a></span></div></footer>
-<button class="fab" id="fab"><img src="icon-192.png" alt=""><span data-t="ask"></span></button>
+<button class="fab" id="fab"><span class="uav" aria-hidden="true"><img src="icon-192.png" alt=""></span><span data-t="ask"></span></button>
 <aside class="drawer" id="drawer" aria-label="AI Ustad">
-  <div class="dh"><img src="icon-192.png" alt=""><b data-t="ustad"></b><button class="x" id="dx" aria-label="Close">×</button></div>
+  <div class="dh"><span class="uav big" aria-hidden="true"><img src="icon-192.png" alt=""></span><b data-t="ustad"></b><button class="x" id="dx" aria-label="Close">×</button></div>
   <div class="log" id="log"></div>
   <p class="note" data-t="aiNote"></p>
   <form class="dform" id="dform"><textarea id="dq" data-ph="askPh"></textarea><button class="btn pri" data-t="send"></button></form>
@@ -239,8 +246,10 @@ select.btn{appearance:auto}
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <script src="mouth.js?v=2"></script>
-<script src="mouth3d.js?v=3"></script>
-<script src="class.js?v=3"></script>
-<script src="app.js?v=27"></script>
+<script src="mouth3d.js?v=4"></script>
+<script src="class.js?v=4"></script>
+<script src="app.js?v=29"></script>
+<script src="coach-core.js?v=1"></script>
+<script src="coach.js?v=2"></script>
 </body>
 </html>

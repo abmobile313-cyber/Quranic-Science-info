@@ -5,13 +5,14 @@ const FB = { apiKey: "AIzaSyCCoqjw2BzgWcal6OVBqONYOB7x--WP12g", authDomain: "qur
 const W = "https://quranic-science-automation.quranicscience01.workers.dev";
 const OWNERS = ["quranicscience01@gmail.com"];
 const RECAPTCHA = "6Lf3gQsuAAAAACWh2Tym8DMJoLbh5RLxNjbokYDx", AI_MODEL = "gemini-3.5-flash-lite";
-const WA = "919272527913";
+const WA = "917822831751";
 const FREE = []; /* no free demo: every lesson needs enrolment */
 const COURSES = {
   tajweed: { key: "ai-tajweed", full: "ai-tajweed-full", live: "tajweed-class", addon: "ai-tajweed-live", aInr: 1099, aUsd: 13, k: "t", ar: "التَّجْوِيدُ", inr: 1479, usd: 18, fInr: 999, fUsd: 12, pay: "https://rzp.io/rzp/nyBSf1Qy", payIntl: "https://rzp.io/rzp/sb2LY58", payFull: "https://rzp.io/rzp/AbiamVu", payFullIntl: "https://rzp.io/rzp/WYETCtoG", aPay: "https://rzp.io/rzp/oXXWfGW", aPayIntl: "https://rzp.io/rzp/NKWkAvq" },
   arabic:  { key: "ai-arabic",  full: "ai-arabic-full", live: "arabic-speaking-class", addon: "ai-arabic-live", aInr: 2199, aUsd: 27,  k: "a", ar: "اللُّغَةُ الْعَرَبِيَّةُ", inr: 2999, usd: 36, fInr: 1009, fUsd: 11, pay: "https://rzp.io/rzp/94PwijX5", payIntl: "https://rzp.io/rzp/11HeEIV", payFull: "https://rzp.io/rzp/N7PnZ7uz", payFullIntl: "https://rzp.io/rzp/ffSQWCxi", aPay: "https://rzp.io/rzp/OZ6BrfpI", aPayIntl: "https://rzp.io/rzp/dkWYZXP1" },
   combo:   { key: "ai-tajweed-arabic-combo", full: "ai-combo-full", live: "tajweed-arabic-combo", addon: "ai-combo-live", aInr: 3009, aUsd: 37, k: "c", ar: "التَّجْوِيدُ + الْعَرَبِيَّةُ", inr: 3999, usd: 48, fInr: 1519, fUsd: 17, pay: "https://rzp.io/rzp/y8gz8VNJ", payIntl: "https://rzp.io/rzp/32kV4V3P", payFull: "https://rzp.io/rzp/tgs4Ns0t", payFullIntl: "https://rzp.io/rzp/8ZhpCj7", aPay: "https://rzp.io/rzp/c76ssKV", aPayIntl: "https://rzp.io/rzp/O9rDowk" }
 };
+let QTOK = 0;
 const QARI_AYAH = (s, a) => `https://everyayah.com/data/Husary_128kbps/${String(s).padStart(3, "0")}${String(a).padStart(3, "0")}.mp3`;
 const QARI_WORD = (s, a, w) => `https://audio.qurancdn.com/wbw/${String(s).padStart(3, "0")}_${String(a).padStart(3, "0")}_${String(w).padStart(3, "0")}.mp3`;
 const DAYS = { en: ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"], ur: ["اتوار", "پیر", "منگل", "بدھ", "جمعرات", "جمعہ", "ہفتہ"], hi: ["इतवार", "पीर", "मंगल", "बुध", "जुमेरात", "जुमा", "हफ़्ता"] };
@@ -202,6 +203,21 @@ function slotTimeAfter(ts) {
   while (d.getDay() === +s.off) d.setDate(d.getDate() + 1);
   return d.getTime();
 }
+/* punctuality: how long after the student's own class time did this lesson actually start? (lessons stay open, but being on time is recorded and counts for the certificate ranking) */
+const PUN = {
+  on: { en: "On time — shabash!", ur: "وقت پر — شاباش!", hi: "वक़्त पर — शाबाश!" },
+  late: { en: "You started {t} after your class time.", ur: "آپ اپنے کلاس کے وقت کے {t} بعد آئے۔", hi: "आप अपनी क्लास के वक़्त से {t} बाद आए।" },
+  rank: { en: "Being on time and regular counts towards your certificate ranking and your weekly report.", ur: "وقت کی پابندی اور باقاعدگی آپ کی سرٹیفکیٹ رینکنگ اور ہفتہ وار رپورٹ میں شمار ہوتی ہے۔", hi: "वक़्त की पाबंदी और बाक़ायदगी आपकी सर्टिफ़िकेट रैंकिंग और हफ़्तावार रिपोर्ट में गिनी जाती है।" },
+  stat: { en: "On time", ur: "وقت کی پابندی", hi: "वक़्त की पाबंदी" },
+  h: { en: "h", ur: "گھنٹے", hi: "घंटे" }, m: { en: "min", ur: "منٹ", hi: "मिनट" } };
+const fmtLate = min => { const h = Math.floor(min / 60), m = min % 60; return (h ? num(h) + " " + pick(PUN.h) + " " : "") + (m || !h ? num(m) + " " + pick(PUN.m) : "").trim(); };
+function lateMin(c, o, id) {
+  if (!slot() || isFull(c) || isOwner()) return null;
+  const ids = allIds(o), i = ids.indexOf(id), P = progOf(); if (i <= 0 || P[id]) return null;
+  const prev = P[ids[i - 1]]; if (!prev || !prev.ts) return null;
+  const at = slotTimeAfter(prev.ts); return Date.now() < at ? 0 : Math.round((Date.now() - at) / 60000);
+}
+const punctLine = late => late == null ? "" : late <= 30 ? `<p class="punc ok">⏰ ${pick(PUN.on)}</p>` : `<p class="punc late">⏰ ${pick(PUN.late).replace("{t}", fmtLate(late))}</p>`;
 /* which AI lessons are open for a live student: the lesson of every live class that has started */
 async function liveOpen(c) {
   if (S.live[c] || !db || !liveAI(c)) return S.live[c] || new Set();
@@ -259,7 +275,7 @@ function loginBox(after) {
 
 /* ============ views ============ */
 function route() {
-  stopAll(); if (typeof CL !== "undefined" && !/^#lesson=/.test(location.hash)) { CL.on = false; clearInterval(CL.tick); document.body.classList.remove("incls"); }
+  stopAll(); if (!/^#lesson=/.test(location.hash)) labDrop(); if (typeof CL !== "undefined" && !/^#lesson=/.test(location.hash)) { CL.on = false; clearInterval(CL.tick); document.body.classList.remove("incls"); }
   const h = (location.hash || "#home").slice(1), [v, a] = h.split("=");
   if (v === "tajweed" || v === "arabic") return viewCourse(v);
   if (v === "lesson" && a) return viewLesson(a);
@@ -267,6 +283,7 @@ function route() {
   if (v === "offline") return viewOffline();
   if (v === "keys") return viewKeys();
   if (v === "lab") return viewLab();
+  if (v === "coach") return typeof viewCoach === "function" ? viewCoach(a) : setTimeout(route, 400);
   if (v === "plan") return viewPlan(a || "tajweed");
   return viewHome();
 }
@@ -287,6 +304,7 @@ async function viewHome() {
     <div class="feat"><span>📚 ${t("f1")}</span><span>🔊 ${t("f2")}</span><span>🕋 ${t("f3")}</span><span>🤖 ${t("f4")}</span><span>🎓 ${t("f5")}</span></div></div>
     <div class="orb"><img src="icon-512.png" alt="Quranic Science AI"></div></section>
     ${isOwner() ? `<p class="mini">⭐ ${t("owner")}</p>` : ""}
+    <section class="sec"><a class="cc labcard" href="#coach"><span class="badge">NEW</span><h3>🎓 ${pick({ en: "Tajweed Coach (AI Ustad)", ur: "تجوید کوچ (AI استاد)", hi: "तजवीद कोच (AI उस्ताद)" })}</h3><p>${pick({ en: "Touch a letter or a mouth part, see it in 3D, read aloud — the AI listens, rates you and fixes every mistake.", ur: "حرف یا منہ کے حصے کو چھوئیں، 3D میں دیکھیں، پڑھیں — AI سنتا ہے، نمبر دیتا ہے اور ہر غلطی ٹھیک کراتا ہے۔", hi: "हर्फ़ या मुँह के हिस्से को छूइए, 3D में देखिए, पढ़िए — AI सुनता है, नंबर देता है और हर ग़लती सुधरवाता है।" })}</p><span class="btn pri sm">🎤 ${pick({ en: "Start", ur: "شروع کریں", hi: "शुरू करें" })}</span></a></section>
     <section class="sec"><a class="cc labcard" href="#lab"><span class="badge">FREE</span><h3>🗣️ ${pick(LABX.title)}</h3><p>${pick(LABX.desc)}</p><span class="btn cy sm">▶ ${pick(LABX.title)}</span></a></section>
     <section class="sec" id="aic"><h2>${t("courses")}</h2><div class="cards">${card("tajweed", "dT")}${card("arabic", "dA")}${card("combo", "dC")}</div></section>
     <section class="sec"><div class="cards two"><div class="cc"><h3>📅 ${t("dailyT")}</h3><p>${t("dailyD")}</p></div><div class="cc"><h3>⚡ ${t("fullT")}</h3><p>${t("fullD")}</p></div></div></section>`;
@@ -322,6 +340,25 @@ function slotBox(after) {
     <button class="btn pri" id="ss" style="width:100%">${t("slotSave")}</button>`);
   $("#ss", m).onclick = async () => { await saveUser({ aiSlot: { t: $("#st", m).value, off: +$("#so", m).value, tz: Intl.DateTimeFormat().resolvedOptions().timeZone || "", at: Date.now() } }); m.remove(); after && after(); };
 }
+/* missed a class? Lessons never expire: the student is told where to continue, and which opened lessons are still waiting */
+const CATCH = {
+  back: { en: "Welcome back! You were away for {n} days. No problem — every lesson stays open for you, and your class starts with a quick revision of the last lesson.", ur: "خوش آمدید! آپ {n} دن غائب رہے۔ کوئی بات نہیں — ہر سبق آپ کے لیے کھلا رہتا ہے اور کلاس پچھلے سبق کی مختصر دہرائی سے شروع ہوتی ہے۔", hi: "वापसी मुबारक! आप {n} दिन ग़ैरहाज़िर रहे। कोई बात नहीं — हर सबक़ आपके लिए खुला रहता है और क्लास पिछले सबक़ की छोटी दोहराई से शुरू होती है।" },
+  go: { en: "Continue: {d}", ur: "جاری رکھیں: {d}", hi: "जारी रखें: {d}" },
+  again: { en: "Repeat the last lesson", ur: "پچھلا سبق دوبارہ", hi: "पिछला सबक़ दोबारा" },
+  miss: { en: "📌 Classes waiting for you (missed or not finished). Tap one to catch up:", ur: "📌 یہ اسباق آپ کے منتظر ہیں (چھوٹ گئے یا ادھورے)۔ چھو کر پورا کریں:", hi: "📌 ये सबक़ आपका इंतज़ार कर रहे हैं (छूटे या अधूरे)। छूकर पूरा करें:" } };
+function catchHTML(c, o, P, ids, cur) {
+  const flat = o.weeks.flatMap(w => w.days), done = ids.filter(id => P[id]), last = done.map(id => P[id].ts || 0).sort((x, y) => y - x)[0] || 0;
+  const days = last ? Math.floor((Date.now() - last) / 864e5) : 0, dn = id => "D" + (ids.indexOf(id) % 6 + 1), W = id => Math.floor(ids.indexOf(id) / 6) + 1;
+  const lbl = id => `${t("week")} ${num(W(id))} · ${t("day")} ${num(ids.indexOf(id) % 6 + 1)}`;
+  const waiting = []; if (liveAI(c) && !buyer(c)) { const ld = ids.filter(id => (S.live[c] || new Set()).has(id) && !P[id]); ld.slice(0, 6).forEach(id => waiting.push(id)); }
+  let h = "";
+  const lastRec = done.length ? P[done.slice().sort((x, y) => (P[y].ts || 0) - (P[x].ts || 0))[0]] : null;
+  if (lastRec && lastRec.late != null) h += `<div class="catch">${punctLine(lastRec.late)}<p class="mini">${pick(PUN.rank)}</p></div>`;
+  if (cur && last && days >= 2) { const lastId = done.sort((x, y) => (P[y].ts || 0) - (P[x].ts || 0))[0];
+    h += `<div class="catch"><p>${pick(CATCH.back).replace("{n}", num(days))}</p><div class="tools"><a class="btn pri" href="#lesson=${cur}">▶ ${pick(CATCH.go).replace("{d}", lbl(cur))}</a><a class="btn" href="#lesson=${lastId}">↻ ${pick(CATCH.again)}</a></div></div>`; }
+  if (waiting.length) h += `<div class="catch"><p>${pick(CATCH.miss)}</p><div class="tools">${waiting.map(id => `<a class="btn" href="#lesson=${id}">${lbl(id)}</a>`).join("")}</div></div>`;
+  return h;
+}
 async function viewCourse(c) {
   const app = $("#app"), o = await outline(c), P = progOf(), ids = allIds(o);
   if (has(c) && S.user) { try { await courseKey(c); } catch (e) {} }
@@ -330,11 +367,12 @@ async function viewCourse(c) {
   const s = stats(c, o), cur = ids.find(id => !P[id]), sl = slot();
   app.innerHTML = (liveAI(c) && !buyer(c) ? `<p class="livenote">🎓 ${pick(LIVEX.note)}</p>` : liveOf(c) && !has(c) ? addonHTML(c) : "") + (isTeacherOf(c) || isOwner() ? `<p class="livenote"><a href="#plan=${c}">📘 ${pick(LIVEX.plan)}</a></p>` : "") + `<div class="chead"><div class="ring" style="--p:${s.pct}"><span>${num(s.pct)}%</span></div>
     <div style="flex:1;min-width:200px"><div class="arT ar" style="font-size:24px;color:var(--gold2)">${COURSES[c].ar}</div><h2 style="margin:0">${t(c)} ${isFull(c) && has(c) ? `<span class="tagf">${t("fullBadge")}</span>` : ""}</h2>
-    <div class="stats" style="margin-top:8px"><div class="stat"><b>${num(s.done)}/${num(s.total)}</b><small>${t("lessons")}</small></div><div class="stat"><b>${num(s.score)}%</b><small>${t("score")}</small></div>
+    <div class="stats" style="margin-top:8px"><div class="stat"><b>${num(s.done)}/${num(s.total)}</b><small>${t("lessons")}</small></div><div class="stat"><b>${num(s.score)}%</b><small>${t("score")}</small></div>${(() => { const L = ids.map(id => P[id]).filter(x => x && x.late != null); return L.length ? `<div class="stat"><b>⏰ ${num(Math.round(L.filter(x => x.late <= 30).length * 100 / L.length))}%</b><small>${pick(PUN.stat)}</small></div>` : ""; })()}
     <a class="stat" href="#cert=${c}" style="text-decoration:none;color:inherit"><b>🎓</b><small>${t("cert")}</small></a>
     ${sl && has(c) && !isFull(c) ? `<div class="stat"><b>⏰ ${esc(new Date(2000, 0, 1, ...sl.t.split(":").map(Number)).toLocaleTimeString("en-IN", { hour: "numeric", minute: "2-digit" }))}</b><small>${t("slotIs")} · ${DAYS[LANG][sl.off]} ${t("offIs")}</small></div>` : ""}</div></div>
     <div class="acts">${has(c) ? "" : `<button class="btn pri" data-buy="${c}">${t("enroll")} · ${rupee(COURSES[c].inr)}</button>`}${isFull(c) ? "" : `<button class="btn fullb" data-buy="${c}" data-full="1">${t("addFull")}</button>`}</div></div>
     ${has(c) ? "" : `<p class="mini">🔓 ${t("buyFirst")}</p>`}
+    ${has(c) ? catchHTML(c, o, P, ids, cur) : ""}
     <div>${o.weeks.map((w, wi) => `<details class="week" ${w.days.some(d => d.id === cur) || (!cur && wi === 0) ? "open" : ""}><summary><span class="wkn">${t("week")} ${num(wi + 1)}</span>
       <span class="wkt"><b>${esc(pick(w.title))}</b><small>${esc(pick(w.goal))}</small></span><span class="mini">${num(w.days.filter(d => P[d.id]).length)}/${num(6)}</span></summary>
       <div class="days">${w.days.map((d, di) => { const done = P[d.id], L = d.ready ? lockInfo(c, o, d.id) : { open: false, why: "soon" };
@@ -357,11 +395,23 @@ async function viewCourse(c) {
 
 /* ============ audio ============ */
 let voiceEl = null, qariEl = null, rec = null, recUrl = null, recChunks = [];
-function stopAll() { [voiceEl, qariEl].forEach(a => { try { a && a.pause(); } catch (e) {} }); if (rec && rec.state === "recording") try { rec.stop(); } catch (e) {} $$(".playing").forEach(e => e.classList.remove("playing")); }
+function stopAll() { QTOK++; [voiceEl, qariEl].forEach(a => { try { a && a.pause(); } catch (e) {} }); try { window.speechSynthesis && speechSynthesis.cancel(); } catch (e) {} if (rec && rec.state === "recording") try { rec.stop(); } catch (e) {} $$(".playing").forEach(e => e.classList.remove("playing")); }
+/* the lesson is narrated in one recorded (Urdu) voice. When the app language is English the same lesson text is spoken in English by the phone's own voice, so the voice always matches the words on screen */
+function speakText(text, onend) {
+  try {
+    if (!window.speechSynthesis) return false; speechSynthesis.cancel();
+    const clean = String(text).replace(/[\u0600-\u06FF\u0750-\u077F]+/g, ", ").replace(/[\u{1F300}-\u{1FAFF}\u2600-\u27BF]/gu, " ").replace(/\s+/g, " ").trim();
+    const u = new SpeechSynthesisUtterance(clean); u.lang = "en-IN"; u.rate = .93;
+    const v = speechSynthesis.getVoices().find(x => /^en[-_]IN/i.test(x.lang)) || speechSynthesis.getVoices().find(x => /^en/i.test(x.lang)); if (v) u.voice = v;
+    u.onend = u.onerror = () => onend && onend(); speechSynthesis.speak(u); voiceEl = { pause() { try { speechSynthesis.cancel(); } catch (e) {} } }; return true;
+  } catch (e) { return false; }
+}
 async function playVoice() {
   stopAll(); const { id, i, data } = LESSON, m = data && data.moments[i]; if (!m) return;
+  const box = $("#vo"), after = () => { box && box.classList.remove("playing"); LESSON.tourOff && LESSON.tourOff(); };
+  LESSON.tour && LESSON.tour();
+  if (LANG === "en" && window.speechSynthesis) { box && box.classList.add("playing"); if (speakText(pick(m), after)) return; after(); }
   let src = null; try { src = await voiceSrc(id, i + 1); } catch (e) {}
-  const box = $("#vo"), after = () => { box && box.classList.remove("playing"); };
   if (!src) return after();
   voiceEl = new Audio(src); box && box.classList.add("playing");
   voiceEl.onended = after; voiceEl.onerror = () => box && box.classList.remove("playing");
@@ -376,6 +426,7 @@ async function playArabic(btn) {
   voiceEl.onerror = () => btn && btn.classList.remove("playing"); voiceEl.play().catch(() => btn && btn.classList.remove("playing"));
 }
 /* every letter has a real qari example word (word-by-word Qur'an audio) */
+const LETNAME = {"ا": "ltc86823", "ب": "lt9497c4", "ت": "lt9c8d21", "ث": "ltf0544b", "ج": "lt972dbf", "ح": "ltde5564", "خ": "lt734eb6", "د": "lt4d69eb", "ذ": "ltde2023", "ر": "lt65087b", "ز": "lt7502d9", "س": "lt7bfb02", "ش": "lt088577", "ص": "lt8cebea", "ض": "lt7f0096", "ط": "lt4b788e", "ظ": "lt056db0", "ع": "ltb4dfa8", "غ": "lt749a1f", "ف": "lt8b1eae", "ق": "ltb32d1a", "ك": "lt9cef32", "ل": "lt9d52c9", "م": "lte1ac99", "ن": "ltb68b5f", "و": "lt99d151", "ه": "ltb5af0a", "ء": "lt70d7c3", "ي": "lta99b99"}; /* recorded letter names: Alif, Baa, Taa... */
 const LETTER = { "ء":[112,1,4],"ا":[1,4,1],"ب":[114,1,3],"ت":[1,7,3],"ث":[113,4,3],"ج":[110,1,2],"ح":[1,2,1],"خ":[114,4,4],"د":[112,3,2],"ذ":[1,7,2],"ر":[1,3,1],"ز":[99,1,2],"س":[1,5,4],"ش":[113,2,2],"ص":[112,2,2],"ض":[1,7,9],"ط":[105,3,3],"ظ":[94,3,3],"ع":[1,5,2],"غ":[1,7,5],"ف":[113,1,4],"ق":[112,1,1],"ك":[108,1,3],"ل":[112,3,1],"م":[1,4,1],"ن":[114,1,4],"ه":[112,1,2],"و":[112,4,1],"ي":[112,3,2] };
 const ZONES = { jawf:[190,140,"ا و ي",{en:"Al-Jawf: empty space of mouth & throat",ur:"الجوف: منہ اور حلق کا خالی حصہ",hi:"अल-जौफ़: मुँह और हल्क़ का ख़ाली हिस्सा"}],
   h1:[98,226,"ء ه",{en:"Deepest throat",ur:"اقصیٰ حلق (سب سے گہرا)",hi:"अक़्सा-ए-हल्क़ (सबसे गहरा)"}], h2:[101,192,"ع ح",{en:"Middle of the throat",ur:"وسطِ حلق (درمیان)",hi:"वस्ते-हल्क़ (बीच)"}], h3:[106,160,"غ خ",{en:"Top of the throat",ur:"ادنیٰ حلق (منہ کے قریب)",hi:"अदना-ए-हल्क़ (मुँह के क़रीब)"}],
@@ -400,12 +451,20 @@ function visualHTML(v) {
       if (k === "jawf") return `<g class="zon" data-z="${k}"><ellipse cx="${x}" cy="${y}" rx="190" ry="48" class="jawf"/>${many ? "" : `<g class="pill"><rect x="${x - 70}" y="${y - 40}" width="140" height="64" rx="32"/><text x="${x}" y="${y + 6}">${z[2]}</text></g>`}</g>`;
       const lx = ZL[k] ? ZL[k][0] : x, ly = ZL[k] ? ZL[k][1] : y - 90, w = Math.max(90, z[2].replace(/\s/g, "").length * 34 + 50);
       return `<g class="zon" data-z="${k}"><circle cx="${x}" cy="${y}" r="${many ? 16 : 24}" class="zg"/>${many ? "" : `<line x1="${x}" y1="${y}" x2="${lx}" y2="${ly}" class="ld"/><g class="pill"><rect x="${lx - w / 2}" y="${ly - 36}" width="${w}" height="64" rx="32"/><text x="${lx}" y="${ly + 10}">${z[2]}</text></g>`}</g>`; }).join("");
-    return labHTML(on) + `<details class="mkimg"><summary>🖼️ ${pick(LABX.pic)}</summary><figure class="viz mouth"><div class="mk"><img src="makharij.webp" alt="" draggable="false"><svg viewBox="0 0 1000 1000" role="img" aria-label="makharij">${marks}</svg></div>
+    return `<details class="mkimg"><summary>🖼️ ${pick(LABX.pic)}</summary><figure class="viz mouth"><div class="mk"><img src="makharij.webp" alt="" draggable="false"><svg viewBox="0 0 1000 1000" role="img" aria-label="makharij">${marks}</svg></div>
       <figcaption><button class="zchip zplay">▶ ${t("playAll")}</button>${[...on].map(k => `<button class="zchip" data-z="${k}"><b class="ar">${ZONES[k][2]}</b><span>${esc(pick(ZONES[k][3]))}</span> 🔊</button>`).join("")}</figcaption></figure></details>`;
   }
   if (v.t === "groups") return `<figure class="viz groups">${v.g.map(g => `<button class="grp" style="--gc:${GCOL[g[4] || 0]}" data-l="${esc(g[3])}"><span class="gl">${esc(pick({ en: g[0], ur: g[1], hi: g[2] }))}</span><b class="ar">${esc(g[3])}</b></button>`).join("")}</figure>`;
   if (v.t === "cards") return `<figure class="viz cards">${v.c.map(c => `<div class="vc"><span class="em">${c[0]}</span><b class="ar">${esc(c[1])}</b><small>${esc(pick({ en: c[2], ur: c[3], hi: c[4] }))}</small></div>`).join("")}</figure>`;
   return "";
+}
+/* the isti'adha (ta'awwudh) has its own recitation clip; it comes before the Basmala */
+const bare = t => String(t || "").replace(/[\u064B-\u0652\u0670\u0640]/g, "").replace(/[ٱأإآ]/g, "ا").replace(/\s+/g, " ").trim();
+const isIstiadha = t => /^اعوذ بالله من الشيطان الرجيم/.test(bare(t));
+function qariList(m, app) {
+  let l = m.q && m.q.length ? m.q : screenSeq(app);
+  if (m.ar && isIstiadha(m.ar.split("\n")[0])) l = [{ k: "istiadha" }].concat(m.q && m.q.length ? l : /بسم الله/.test(bare(m.ar)) ? [{ s: 1, a: 1 }] : []);
+  return l;
 }
 function tilesHTML(ar, wq, aw) {
   const W = {}, A = aw || {}; (wq || []).forEach(x => W[x[0]] = x.slice(1));
@@ -417,7 +476,7 @@ function tilesHTML(ar, wq, aw) {
     if (core.length === 2 && /^[اأإء]/.test(core) && LETTER[core[1]]) return `<button class="tile ltr" data-c="${core[1]}">${esc(w)}</button>`;
     return esc(w); };
   const phrase = p => { const t = p.trim(), toks = t.match(/[\u0621-\u0652\u0670\u0671]+/g) || [], key = t.replace(/\s+/g, " ");
-    let seq = null;
+    let seq = null; if (isIstiadha(t)) seq = [{ k: "istiadha" }]; else
     if (toks.length > 1) { if (A[key]) seq = [{ k: A[key] }]; else { const s = toks.map(one).filter(Boolean); if (s.length > 1) seq = s; } }
     const play = seq ? `<button class="tp" data-seq='${JSON.stringify(seq)}' aria-label="play">🔊</button>` : "";
     return `<span class="tile">${t.split(/(\s+)/).map(x => /\s/.test(x) ? x : word(x)).join("")}${play}</span>`; };
@@ -438,7 +497,10 @@ function wireVisuals(root) {
     b.classList.remove("playing"); });
   $$(".grp", root).forEach(b => b.onclick = () => playQari(lettersQ(b.dataset.l).slice(0, 4), b));
   const LB = wireLab(root);
-  $$(".tile.ltr", root).forEach(b => b.onclick = () => (LB && LB.say(b.dataset.c, b)) || playQari(lettersQ(b.dataset.c), b));
+  $$(".tile.ltr", root).forEach(b => b.onclick = () => { const lb = LB || (LABD.el && document.body.contains(LABD.el) ? LABD.LB : null);
+    /* a bare letter says its name (Alif, Baa...); a letter with a vowel mark is shown with a real Qur'an word that contains it */
+    const bareTile = !/[\u064B-\u0652\u0670]/.test(b.textContent), aud = bareTile && LETNAME[b.dataset.c] ? [{ k: LETNAME[b.dataset.c] }] : lettersQ(b.dataset.c);
+    return (lb && lb.say(b.dataset.c, b, null, aud)) || (window.MkDock && MkDock.say(b.dataset.c, b)) || playQari(aud, b); });
   $$(".tile.qw", root).forEach(b => b.onclick = () => { if (b.dataset.k) return playQari([{ k: b.dataset.k }], b); const [s, a, w] = b.dataset.q.split(",").map(Number); playQari([{ s, a, w }], b); });
   $$(".tp", root).forEach(b => b.onclick = () => playQari(JSON.parse(b.dataset.seq), b));
 }
@@ -524,18 +586,20 @@ const LAB_ORDER = [["ء","h1"],["ه","h1"],["ع","h2"],["ح","h2"],["غ","h3"],[
 const LAB_Z = Object.fromEntries(LAB_ORDER.filter(x => x[0].length === 1));
 /* Lafz mode: a real Qur'an word, letter by letter (word audio from the word-by-word qari) */
 const LAB_WORDS = [["بِسْمِ", 1, 1, 1, "بسم"], ["ٱلرَّحْمَٰنِ", 1, 1, 3, "رحمان"], ["ٱلْحَمْدُ", 1, 2, 1, "لحمد"], ["رَبِّ", 1, 2, 3, "رب"], ["نَعْبُدُ", 1, 5, 2, "نعبد"], ["قُلْ", 112, 1, 1, "قل"], ["أَحَدٌ", 112, 1, 4, "ءحد"]];
-function labAudio(c) { return c === "غُنّة" ? [{ s: 108, a: 1, w: 1 }] : lettersQ(c); }
+function labAudio(c) { return c === "غُنّة" ? [{ s: 108, a: 1, w: 1 }] : (LETNAME[c] ? [{ k: LETNAME[c] }] : []).concat(lettersQ(c)); }
+const keysHTML = zones => LAB_ORDER.filter(([, z]) => !zones || zones.has(z)).map(([c, z]) => `<button class="mlk${c.length > 1 ? " wide" : ""}" data-c="${c}" data-z="${z}"><b class="ar">${c}</b></button>`).join("");
 function labHTML(zones) {
-  const items = LAB_ORDER.filter(([, z]) => !zones || zones.has(z));
   return `<figure class="viz mlab"><div class="mlwrap"><svg class="mlsvg" role="img" aria-label="makharij animation"></svg></div>
     <div class="mlside"><div class="mlcap"><b class="ar mlch"></b><span class="mlzt"></span><div class="mlhow"></div></div>
     <div class="mlctl"><button class="zchip mlall">▶ ${t("playAll")}</button><button class="zchip mlslow">🐢 ${pick(LABX.slow)}</button><button class="zchip mllbl on">🏷️ ${pick(LABX.lbl)}</button><button class="zchip mlrep">🔁 ×${S.rep || 1}</button></div>
-    ${zones ? "" : `<div class="mlwords"><b>📖 ${pick(LABX.wordT)}</b><small>${pick(LABX.wordD)}</small><div class="mlwrow">${LAB_WORDS.map((w, i) => `<button class="mlw" data-i="${i}"><span class="ar">${w[0]}</span></button>`).join("")}</div></div>
-    <b class="mlkh">🔤 ${pick(LABX.oneT)}</b>`}
-    <div class="mlkeys">${items.map(([c, z]) => `<button class="mlk${c.length > 1 ? " wide" : ""}" data-c="${c}" data-z="${z}"><b class="ar">${c}</b></button>`).join("")}</div></div></figure>`;
+    <div class="mlwords"${zones ? " hidden" : ""}><b>📖 ${pick(LABX.wordT)}</b><small>${pick(LABX.wordD)}</small><div class="mlwrow">${LAB_WORDS.map((w, i) => `<button class="mlw" data-i="${i}"><span class="ar">${w[0]}</span></button>`).join("")}</div></div>
+    <b class="mlkh">🔤 ${pick(LABX.oneT)}</b>
+    <div class="mlkeys">${keysHTML(zones)}</div></div></figure>`;
 }
-function wireLab(root) {
-  const fig = $(".mlab", root); if (!fig || !window.MLab) return null;
+/* the names written on the 3D head → the makharij zones whose letters are all played when a student touches them */
+const PART_Z = { lips: ["s1", "s2"], teeth: ["l6", "l7", "l8", "s1"], tongue: ["l1", "l2", "l3", "l4", "l5", "l6", "l7", "l8"], palate: ["l3"], soft: ["l1", "l2"], nose: ["kh"], throat: ["h1", "h2", "h3"], jaw: ["jawf"], folds: ["h1"] };
+function wireLab(root, opt) {
+  opt = opt || {}; const fig = $(".mlab", root); if (!fig || !window.MLab) return null;
   const lab = (window.MLab3 && MLab3.ok() ? MLab3 : MLab).Lab($(".mlsvg", fig), LANG); let slow = false, lbl = true, busy = 0, all = false;
   const cap = (c, z) => { $(".mlch", fig).textContent = c || "";
     $(".mlzt", fig).textContent = z ? pick(ZONES[z][3]) : pick(LABX.tap);
@@ -543,11 +607,11 @@ function wireLab(root) {
       .concat("خصضغطقظ".includes(c) && c.length === 1 ? [["⬆️", pick(LABX.s3), pick(LABX.heavy).trim()]] : [], "نم".includes(c) && c.length === 1 ? [["👃", pick(LABX.s3), pick(LABX.ghunna).trim()]] : [], c === "ر" ? [["↩️", pick(LABX.s3), pick(LABX.raa).trim()]] : [], [["🔁", pick(LABX.s4), pick(LABX.prac)]])
       .map(x => `<li><i>${x[0]}</i><span><b>${x[1]}</b> ${x[2]}</span></li>`).join("")}</ol>` : ""; };
   cap();
-  async function say(c, z, b) {
+  async function say(c, z, b, aud) {
     const my = ++busy; endWord(); $$(".mlk", fig).forEach(k => k.classList.toggle("on", k === b)); cap(c, z);
     await lab.to(c, z, slow ? 1500 : 650); if (my !== busy) return;
     const k = b || $(".mlch", fig); k.classList.add("playing");
-    await playQari(labAudio(c), k); if (my !== busy) return;
+    await playQari(aud || labAudio(c), k); if (my !== busy) return;
     await new Promise(r => setTimeout(r, slow ? 800 : 350)); if (my !== busy) return;
     await lab.rest(slow ? 1100 : 500); b && b.classList.remove("on");
   }
@@ -579,7 +643,7 @@ function wireLab(root) {
   }
   function endWord() { if (!box || !box.classList.contains("wm")) return; box.classList.remove("wm"); cam(false); $(".mlwd", box).hidden = true; $(".mltag", box).hidden = true; lab.labels(lbl, LANG); $$(".mlw", fig).forEach(k => k.classList.remove("on")); }
   $$(".mlw", fig).forEach(b => b.onclick = () => sayWord(+b.dataset.i, b));
-  $$(".mlk", fig).forEach(b => b.onclick = () => { all = false; busy++; endWord(); $(".mlall", fig).classList.remove("on"); say(b.dataset.c, b.dataset.z, b); });
+  $(".mlkeys", fig).onclick = e => { const b = e.target.closest(".mlk"); if (!b) return; all = false; busy++; endWord(); $(".mlall", fig).classList.remove("on"); say(b.dataset.c, b.dataset.z, b); };
   $(".mlall", fig).onclick = async e => { const btn = e.currentTarget; if (all) { all = false; btn.classList.remove("on"); busy++; return; }
     all = true; btn.classList.add("on");
     for (const b of $$(".mlk", fig)) { if (!all) break; await say(b.dataset.c, b.dataset.z, b); }
@@ -587,22 +651,85 @@ function wireLab(root) {
   $(".mlslow", fig).onclick = e => { slow = !slow; e.currentTarget.classList.toggle("on", slow); };
   $(".mllbl", fig).onclick = e => { lbl = !lbl; e.currentTarget.classList.toggle("on", lbl); lab.labels(lbl, LANG); };
   $(".mlrep", fig).onclick = e => { S.rep = S.rep === 1 ? 3 : S.rep === 3 ? 5 : 1; LS.set("qsai-rep", S.rep); e.currentTarget.textContent = "🔁 ×" + S.rep; };
-  return { say: (c, b) => LAB_Z[c] ? say(c, LAB_Z[c], b) : null };
+  /* silent walk over some letters on the 3D head (used while the lesson voice explains) */
+  async function tour(chars, dwell) {
+    const my = ++busy; all = false; endWord(); $(".mlall", fig).classList.remove("on");
+    for (const c of chars) { const z = LAB_Z[c]; if (!z) continue; if (my !== busy) return;
+      $$(".mlk", fig).forEach(k => k.classList.toggle("on", k.dataset.c === c)); cap(c, z); await lab.to(c, z, 900); if (my !== busy) return; await new Promise(r => setTimeout(r, dwell || 1800)); }
+    if (my !== busy) return; $$(".mlk", fig).forEach(k => k.classList.remove("on")); await lab.rest(500);
+  }
+  /* touching a part name on the head (teeth, nose, lips...) plays every letter that comes out of it, with the 3D moving */
+  async function part(key) {
+    const zs = new Set(PART_Z[key] || []), chars = key === "nose" ? ["ن", "م"] : LAB_ORDER.filter(([c, z]) => zs.has(z) && c.length === 1).map(x => x[0]); if (!chars.length) return;
+    busy++; endWord(); all = true; $(".mlall", fig).classList.add("on");
+    for (const c of chars) { if (!all) break; await say(c, LAB_Z[c], $(`.mlk[data-c="${c}"]`, fig)); }
+    all = false; $(".mlall", fig).classList.remove("on");
+  }
+  function setZones(zones) { $(".mlkeys", fig).innerHTML = keysHTML(zones); const w = $(".mlwords", fig); w && (w.hidden = !!zones); $(".mlkh", fig).hidden = false; cap(); }
+  if (opt.parts) fig.addEventListener("mlpart", e => part(e.detail));
+  return { say: (c, b, z, aud) => (z || LAB_Z[c]) ? say(c, z || LAB_Z[c], b, aud) : null, lab, el: fig, tour, part, setZones, stop: () => { busy++; all = false; endWord(); },
+    destroy: () => { busy++; all = false; try { lab.destroy && lab.destroy(); } catch (e) {} } };
 }
 async function viewLab() {
   const app = $("#app");
   app.innerHTML = `<section class="sec"><p><a class="btn sm" href="#home">← ${t("back")}</a></p><h2>🗣️ ${pick(LABX.title)}</h2><p class="lead">${pick(LABX.desc)}</p>${labHTML(null)}</section>`;
   wireLab(app);
 }
-async function playQari(list, btn) {
-  stopAll(); btn && btn.classList.add("playing");
-  for (const q of [].concat(...Array(S.rep || 1).fill(list))) {
-    const src = q.k ? `arv/${q.k}.mp3` : q.w ? QARI_WORD(q.s, q.a, q.w) : QARI_AYAH(q.s, q.a);
-    await new Promise(r => { qariEl = new Audio(src); qariEl.onended = qariEl.onerror = r; qariEl.play().catch(r); });
-    if (!btn || !btn.classList.contains("playing")) break;
+/* ---- qari playback: a run of neighbouring words of one ayah is read as ONE smooth recitation, never as separate pieces ---- */
+const ACTX = () => (ACTX.c = ACTX.c || new (window.AudioContext || window.webkitAudioContext)());
+const clipBuf = {}, ayahDone = (() => { try { return JSON.parse(localStorage.getItem("qsai-ayw") || "{}"); } catch (e) { return {}; } })();
+async function clipBuffer(src) {
+  if (clipBuf[src]) return clipBuf[src];
+  const r = await fetch(src); if (!r.ok) throw new Error("clip"); const b = await ACTX().decodeAudioData(await r.arrayBuffer());
+  const d = b.getChannelData(0), th = .012, sr = b.sampleRate; let st = 0, en = d.length - 1;
+  while (st < en && Math.abs(d[st]) < th) st++; while (en > st && Math.abs(d[en]) < th) en--;
+  st = Math.max(0, st - (sr * .015 | 0)); en = Math.min(d.length - 1, en + (sr * .03 | 0));
+  const out = ACTX().createBuffer(1, en - st + 1, sr); out.copyToChannel(d.slice(st, en + 1), 0); return clipBuf[src] = out;
+}
+/* does this ayah end right after word k? (the word clip k+1 does not exist) */
+async function ayahEndsAt(s, a, k) {
+  const key = s + ":" + a + ":" + k; if (key in ayahDone) return ayahDone[key];
+  const url = QARI_WORD(s, a, k + 1); let res = null;
+  try { const r = await fetch(url, { method: "HEAD" }); res = r.status === 404; } catch (e) {}
+  if (res === null) res = await new Promise(ok => { const au = new Audio(); const t = setTimeout(() => ok(null), 4000); au.preload = "metadata"; au.onloadedmetadata = () => { clearTimeout(t); ok(false); }; au.onerror = () => { clearTimeout(t); ok(true); }; au.src = url; });
+  if (res === null) return false;
+  ayahDone[key] = res; try { localStorage.setItem("qsai-ayw", JSON.stringify(ayahDone)); } catch (e) {} return res;
+}
+/* turn a list of word/ayah/clip references into the fewest, smoothest pieces */
+async function qariPlan(list) {
+  const out = []; let i = 0;
+  while (i < list.length) {
+    const q = list[i];
+    if (!q.w) { out.push(q); i++; continue; }
+    let j = i; while (j + 1 < list.length && list[j + 1].w && list[j + 1].s === q.s && list[j + 1].a === q.a && list[j + 1].w === list[j].w + 1) j++;
+    if (j > i && q.w === 1 && await ayahEndsAt(q.s, q.a, list[j].w)) out.push({ s: q.s, a: q.a });
+    else if (j > i) out.push({ run: list.slice(i, j + 1) });
+    else out.push(q);
+    i = j + 1;
+  }
+  return out;
+}
+function playBuffer(buf) {
+  return new Promise(res => { const c = ACTX(), n = c.createBufferSource(); n.buffer = buf; n.connect(c.destination);
+    qariEl = { pause() { try { n.onended = null; n.stop(); } catch (e) {} res(); } }; n.onended = res; if (c.state === "suspended") c.resume(); n.start(); });
+}
+async function stitched(run) {
+  const bs = await Promise.all(run.map(q => clipBuffer(QARI_WORD(q.s, q.a, q.w)))), c = ACTX(), gap = (c.sampleRate * .07) | 0;
+  const tot = bs.reduce((x, b) => x + b.length, 0) + gap * (bs.length - 1), out = c.createBuffer(1, tot, c.sampleRate); let o = 0;
+  bs.forEach(b => { out.copyToChannel(b.getChannelData(0), 0, o); o += b.length + gap; }); return out;
+}
+function playEl(src) { return new Promise(r => { qariEl = new Audio(src); qariEl.onended = qariEl.onerror = r; qariEl.play().catch(r); }); }
+async function playQari(list, btn, once) {
+  stopAll(); const tok = ++QTOK, live = () => tok === QTOK && (!btn || btn.classList.contains("playing")); btn && btn.classList.add("playing");
+  let plan; try { plan = await qariPlan(list); } catch (e) { plan = list; }
+  if (!live()) { btn && tok === QTOK && btn.classList.remove("playing"); return; }
+  for (const q of [].concat(...Array(once ? 1 : S.rep || 1).fill(plan))) {
+    if (q.run) { let ok = false; try { await playBuffer(await stitched(q.run)); ok = true; } catch (e) {} if (!ok) for (const w of q.run) { await playEl(QARI_WORD(w.s, w.a, w.w)); if (!live()) break; } }
+    else await playEl(q.k ? `arv/${q.k}.mp3` : q.w ? QARI_WORD(q.s, q.a, q.w) : QARI_AYAH(q.s, q.a));
+    if (!live()) break;
     await new Promise(r => setTimeout(r, 250));
   }
-  btn && btn.classList.remove("playing");
+  btn && tok === QTOK && btn.classList.remove("playing");
 }
 async function startRec(onDone, btn, labelIdle) {
   if (rec && rec.state === "recording") { rec.stop(); return; }
@@ -658,15 +785,18 @@ function drawMoment() {
   app.innerHTML = lessonHead() + `<section class="stage">
     <div class="vo" id="vo"><span class="eq"><i></i><i></i><i></i></span><button class="btn sm" id="rv">↻ ${t("replay")}</button></div>
     <div class="say">${esc(pick(m))}</div>
+    <div class="labslot" id="labslot"></div>
     ${visualHTML(m.v)}${m.ar ? tilesHTML(m.ar, m.wq, m.aw) : ""}
     ${/^(Homework|Weekly test|Test|Speaking test)\b/.test(m.en || "") ? `<p class="mini hwhint">📤 ${t("hwHint")}</p>` : ""}
     <div class="tools">${m.q ? `<button class="btn cy" id="qb">🕋 ${t("listen")}</button>` : m.wq || m.aw ? `<button class="btn cy" id="qb">🔊 ${t("arVoice")}</button>` : ""}${m.q || m.wq || m.v || m.ar ? `<button class="btn sm" id="rp" title="${t("repeat")}">🔁 ×${S.rep}</button>` : ""}${m.rec ? `<button class="btn rec" id="rb">🎙️ ${t("rec")}</button><button class="btn" id="pb" disabled>▶ ${t("mine")}</button>` : ""}</div>
   </section><div class="nav"><button class="btn big" id="bk" ${i === 0 ? "disabled" : ""}>${t("back")}</button><button class="btn pri big" id="nx">${i === data.moments.length - 1 ? (typeof CL !== "undefined" && CL.on ? t("next") : t("toQuiz")) : t("next")}</button></div>`;
   $("#vt").onclick = () => { S.voice = !S.voice; LS.set("qsai-voice", S.voice); S.voice ? playVoice() : stopAll(); $("#vt").textContent = S.voice ? "🔊 " + t("voiceOn") : "🔇 " + t("voiceOff"); };
   $("#rv").onclick = () => playVoice();
-  if ($("#qb")) $("#qb").onclick = e => playQari(m.q || screenSeq(app), e.currentTarget);
+  if ($("#qb")) $("#qb").onclick = e => playQari(qariList(m, app), e.currentTarget);
   if ($("#rp")) $("#rp").onclick = e => { S.rep = S.rep === 1 ? 3 : S.rep === 3 ? 5 : 1; LS.set("qsai-rep", S.rep); e.currentTarget.textContent = "🔁 ×" + S.rep; toast(t("repeat") + ": ×" + S.rep); };
   wireVisuals(app);
+  const LBX = labMount($("#labslot"), momentZones(m)); LESSON.tourOff = () => { try { LBX && LBX.stop(); } catch (e) {} };
+  LESSON.tour = () => { if (!LBX) return; const ch = momentLetters(m); if (ch.length) LBX.tour(ch.slice(0, 8), 2000); };
   if (m.rec) { const pb = $("#pb"); recUrl = null;
     $("#rb").onclick = e => startRec(b => { if (recUrl) URL.revokeObjectURL(recUrl); recUrl = URL.createObjectURL(b); pb.disabled = false; }, e.currentTarget, "🎙️ " + t("rec"));
     pb.onclick = () => { if (recUrl) { stopAll(); voiceEl = new Audio(recUrl); voiceEl.play(); } }; }
@@ -674,11 +804,32 @@ function drawMoment() {
   $("#nx").onclick = () => { LESSON.i++; drawMoment(); scrollTo({ top: 0, behavior: "smooth" }); };
   if (S.voice) playVoice();
 }
+/* ---- one 3D lab for the whole lesson: it is moved under the description of every step, and keeps working after the voice has finished ---- */
+const LABD = { el: null, LB: null };
+function momentLetters(m) {
+  const out = [], seen = new Set();
+  const src = m.v && m.v.t === "mouth" ? LAB_ORDER.filter(([, z]) => new Set(m.v.on).has(z)).map(x => x[0]).join("") : bare(m.ar || "");
+  for (const ch of src) if (LAB_Z[ch] && !seen.has(ch)) { seen.add(ch); out.push(ch); } return out;
+}
+function momentZones(m) {
+  if (m.v && m.v.t === "mouth") return new Set(m.v.on);
+  const z = new Set(momentLetters(m).map(c => LAB_Z[c])); return z.size ? z : null;
+}
+function labMount(slot, zones) {
+  if (!slot || !window.MLab) return null;
+  try {
+    if (!LABD.el || !LABD.LB) { const d = document.createElement("div"); d.className = "labdock"; d.innerHTML = labHTML(zones); slot.appendChild(d); LABD.el = d; LABD.LB = wireLab(d, { parts: true }); if (!LABD.LB) { LABD.el = null; slot.innerHTML = ""; return null; } }
+    else { slot.appendChild(LABD.el); LABD.LB.stop(); LABD.LB.setZones(zones); }
+    setTimeout(() => dispatchEvent(new Event("resize")), 60);
+  } catch (e) { return null; }
+  return LABD.LB;
+}
+function labDrop() { try { LABD.LB && LABD.LB.destroy(); } catch (e) {} LABD.el = null; LABD.LB = null; }
 /* options appear in a fixed but mixed order, so the right answer is not always first */
 function qorder(id, k, n) { let h = 2166136261; for (const ch of id + ":" + k) h = Math.imul(h ^ ch.charCodeAt(0), 16777619) >>> 0;
   const o = [...Array(n).keys()]; for (let i = n - 1; i > 0; i--) { h = (Math.imul(h, 1103515245) + 12345) >>> 0; const j = h % (i + 1); [o[i], o[j]] = [o[j], o[i]]; } return o; }
 function drawQuiz(k, ans) {
-  stopAll();
+  stopAll(); LESSON.tour = LESSON.tourOff = null;
   const { data } = LESSON, Q = data.quiz[k], app = $("#app");
   if (!Q) return finish(ans);
   app.innerHTML = lessonHead() + `<section class="stage"><span class="qn">${t("q")} ${num(k + 1)} ${t("of")} ${num(data.quiz.length)}</span>
@@ -693,12 +844,13 @@ function drawQuiz(k, ans) {
 }
 async function finish(ans) {
   const { id, c, o } = LESSON, s = ans.filter(Boolean).length, n = ans.length;
-  await saveProg(id, { s, n, ts: Date.now() });
+  const lateNow = typeof CL !== "undefined" && CL.on ? CL.late : null;
+  await saveProg(id, Object.assign({ s, n, ts: Date.now() }, lateNow != null ? { late: lateNow } : {}));
   const clsMin = typeof CL !== "undefined" && CL.on ? Math.round((Date.now() - CL.t0) / 60000) : null; if (typeof CL !== "undefined") { CL.on = false; clearInterval(CL.tick); document.body.classList.remove("incls"); try { sessionStorage.removeItem("qsai-cls-" + id); } catch (e) {} }
   const ids = allIds(o), flat = o.weeks.flatMap(w => w.days), nx = flat.find((d, i) => i > ids.indexOf(id) && d.ready);
   const L = nx ? lockInfo(c, o, nx.id) : null;
   $("#app").innerHTML = lessonHead() + `<section class="stage res"><div style="font-size:42px">${s === n ? "🌟" : s >= n / 2 ? "👍" : "📘"}</div><h2>${t("done")}</h2>
-    <div class="big">${num(s)}/${num(n)}</div><p class="mini">${t("yourScore")} · ${t("saved")}</p>${clsMin != null ? `<p class="mini">⏱ ${pick(CX.took)}: ${num(clsMin)} ${pick(CX.mins)}</p>` : ""}${s < n ? `<p class="mini">${t("lowNote")}</p>` : ""}
+    <div class="big">${num(s)}/${num(n)}</div><p class="mini">${t("yourScore")} · ${t("saved")}</p>${punctLine(lateNow)}${lateNow != null ? `<p class="mini">${pick(PUN.rank)}</p>` : ""}${clsMin != null ? `<p class="mini">⏱ ${pick(CX.took)}: ${num(clsMin)} ${pick(CX.mins)}</p>` : ""}${s < n ? `<p class="mini">${t("lowNote")}</p>` : ""}
     <div class="tools" style="justify-content:center">${nx && L && L.open ? `<a class="btn pri" href="#lesson=${nx.id}">${t("nextL")} →</a>` : ""}<a class="btn" href="#${c}">${t("toCourse")}</a>
     ${!S.user ? `<button class="btn cy" id="sv">${t("login")}</button>` : ""}</div>
     ${nx && L && L.why === "time" ? `<p class="mini">⏰ ${t("nextAt")}: ${fmtAt(L.at)}</p>` : ""}</section>
@@ -791,6 +943,7 @@ async function saveOffline(c, btn) {
   for (const d of ready) { urls.add(`data/${d.id.slice(0, 5)}.bin?v=${o.v || 0}`); }
   const bar = btn.parentNode.querySelector(".bar"); bar.hidden = false; btn.disabled = true; btn.textContent = t("saving");
   const weeks = [...new Set(ready.map(d => d.id.slice(0, 5)))]; let done = 0, total = 0;
+  ["istiadha"].concat(Object.values(LETNAME)).forEach(k => urls.add(`arv/${k}.mp3`));
   for (const wk of weeks) { const L = await lessonDataWeek(wk); for (const l of L) { l.moments.forEach((m, i) => { const V = `?v=${o.v || 0}`; [String(i + 1)].concat(m.av ? [(i + 1) + "a"] : []).forEach(n => urls.add(FREE.includes(l.id) ? `vo/${l.id}-${n}.mp3${V}` : `vo/${l.id}-${n}.bin${V}`)); (m.q || []).forEach(q => urls.add(q.w ? QARI_WORD(q.s, q.a, q.w) : QARI_AYAH(q.s, q.a))); }); } }
   total = urls.size;
   for (const u of urls) { try { const req = new Request(u, /^https?:/.test(u) ? { mode: "no-cors" } : {}); const res = await fetch(req); await cache.put(req, res); } catch (e) {} done++; bar.firstChild.style.width = Math.round(done * 100 / total) + "%"; }
@@ -809,7 +962,7 @@ async function viewCert(c) {
   const name = (S.doc.name || (S.user && S.user.displayName) || "").trim() || "Student";
   let photo = S.doc.aiPhoto || (S.user && S.user.photoURL) || "";
   app.innerHTML = `<section class="sec"><h2>🎓 ${t("certReady")}</h2><canvas id="cv"></canvas><div class="tools" style="margin-top:12px"><button class="btn pri" id="dl">${t("dl")} PNG</button>
-    <label class="btn">🖼️ ${t("photoBtn")}<input type="file" accept="image/*" id="ph" hidden></label><a class="btn" href="#${c}">${t("toCourse")}</a></div><p class="mini">${t("photoL")}</p></section>`;
+    <label class="btn">🖼️ ${t("photoBtn")}<input type="file" accept="image/*" id="ph" hidden></label><a class="btn" href="#${c}">${t("toCourse")}</a></div><p class="mini">${t("photoL")}</p><p class="mini">⏰ ${pick(PUN.rank)}</p></section>`;
   const id = "QSAI-" + (c === "tajweed" ? "T" : "A") + "-" + (S.user ? S.user.uid.slice(0, 6).toUpperCase() : "PREVIEW");
   const draw = () => drawCert($("#cv"), { name, code: S.doc.code || "", course: c === "tajweed" ? "Tajweed with AI" : "Arabic Speaking with AI", ar: COURSES[c].ar, score: s.score, id, date: new Date(fin && fin.ts || Date.now()), photo });
   await draw();
@@ -878,14 +1031,22 @@ COURSE SYLLABUS:
 ${syl(ot, "TAJWEED (72 lessons)")}
 ${syl(oa, "ARABIC (72 lessons)")}${cur}`;
 }
-async function aiModel() {
-  if (AIX.model || AIX.tried) return AIX.model; AIX.tried = true;
-  try {
+/* ONE Firebase app + App Check for every AI feature (Ustad chat, homework check, Tajweed Coach): two App Check instances on one page can hang */
+function aiBoot() {
+  if (AIX.boot) return AIX.boot;
+  return AIX.boot = (async () => {
     const v = "12.4.0", { initializeApp } = await import(`https://www.gstatic.com/firebasejs/${v}/firebase-app.js`),
       ac = await import(`https://www.gstatic.com/firebasejs/${v}/firebase-app-check.js`),
       { getAI, getGenerativeModel, GoogleAIBackend } = await import(`https://www.gstatic.com/firebasejs/${v}/firebase-ai.js`);
-    const app = initializeApp(FB, "qs-ai-ustad-" + Date.now());
+    const app = initializeApp(FB, "qs-ai-" + Date.now());
     try { ac.initializeAppCheck(app, { provider: new ac.ReCaptchaEnterpriseProvider(RECAPTCHA), isTokenAutoRefreshEnabled: true }); } catch (e) {}
+    return { app, getAI, getGenerativeModel, GoogleAIBackend };
+  })().catch(e => { AIX.boot = null; throw e; });
+}
+async function aiModel() {
+  if (AIX.model || AIX.tried) return AIX.model; AIX.tried = true;
+  try {
+    const { app, getAI, getGenerativeModel, GoogleAIBackend } = await aiBoot();
     AIX.model = getGenerativeModel(getAI(app, { backend: new GoogleAIBackend() }), { model: AI_MODEL, systemInstruction: await ustadKnowledge() });
   } catch (e) { AIX.model = null; }
   return AIX.model;

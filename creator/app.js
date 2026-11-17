@@ -5,7 +5,7 @@ const FB = { apiKey: "AIzaSyCCoqjw2BzgWcal6OVBqONYOB7x--WP12g", authDomain: "qur
 const W = "https://quranic-science-automation.quranicscience01.workers.dev";
 const OWNERS = ["quranicscience01@gmail.com"];
 const RECAPTCHA = "6Lf3gQsuAAAAACWh2Tym8DMJoLbh5RLxNjbokYDx", AI_MODEL = "gemini-3.5-flash-lite";
-const WA = "919272527913";
+const WA = "917822831751";
 const FREE = []; /* no free demo: every lesson needs enrolment */
 const COURSES = {
   editing: { key: "ai-video-editing", full: "ai-video-editing-full", live: "video-editing-course", addon: "ai-video-editing-live", aInr: 3499, aUsd: 43, k: "v", ar: "🎬", inr: 4189, usd: 52, fInr: 1999, fUsd: 25, pay: "https://rzp.io/rzp/buYV1Tm", payIntl: "https://rzp.io/rzp/2zKb287u", payFull: "https://rzp.io/rzp/GcYat8I", payFullIntl: "https://rzp.io/rzp/I0Af3pLn", aPay: "https://rzp.io/rzp/xwZo7Jj", aPayIntl: "https://rzp.io/rzp/G5mU4ALg" },

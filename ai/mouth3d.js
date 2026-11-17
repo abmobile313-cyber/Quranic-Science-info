@@ -93,6 +93,7 @@
     const wrap = document.createElement("div"); wrap.className = "ml3";
     const cv = document.createElement("canvas"); cv.className = "ml3c";
     const ov = document.createElementNS(NS, "svg"); ov.setAttribute("viewBox", `${O[0]} ${O[1]} ${S} ${S}`); ov.setAttribute("class", "ml3o");
+    ov.addEventListener("click", e => { const g = e.target.closest && e.target.closest("[data-part]"); if (g) wrap.dispatchEvent(new CustomEvent("mlpart", { detail: g.getAttribute("data-part"), bubbles: true })); });
     ov.innerHTML = `<defs><radialGradient id="m3g"><stop offset="0" stop-color="#fff7c2"/><stop offset=".35" stop-color="#ffd23f" stop-opacity=".9"/><stop offset="1" stop-color="#ffb000" stop-opacity="0"/></radialGradient>
       <filter id="m3b" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="6"/></filter>
       <filter id="m3t" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="0" stdDeviation="6" flood-color="#ffb000" flood-opacity=".75"/></filter></defs>
@@ -179,9 +180,9 @@
       q("m3air").innerHTML = a ? `<path d="${a}" stroke="#7fd8ff" stroke-width="12" opacity=".22" filter="url(#m3b)"/><path d="${a}" class="mlFlow${p.air === "burst" ? " burst" : ""}" stroke="#a8ecff" stroke-width="4" stroke-dasharray="4 16" opacity=".9"/>` : "";
     }
     function labels() {
-      q("m3lbl").innerHTML = showLbl ? Object.values(LBL).map(l => {
+      q("m3lbl").innerHTML = showLbl ? Object.entries(LBL).map(([key, l]) => {
         const t = l[L] || l.en, wd = Math.max(70, t.length * (L === "en" ? 11 : 12) + 26), [x, y] = l.at;
-        return `<line x1="${x}" y1="${y}" x2="${l.to[0]}" y2="${l.to[1]}" stroke="#d9f1ff" stroke-width="1.6" opacity=".8"/><circle cx="${l.to[0]}" cy="${l.to[1]}" r="4.5" fill="#d9f1ff"/><rect x="${x - wd / 2}" y="${y - 17}" width="${wd}" height="34" rx="17" fill="#0d151d" fill-opacity=".82" stroke="#8fd3ff" stroke-width="1.4"/><text x="${x}" y="${y + 7}" text-anchor="middle" fill="#eaf6ff"${L === "ur" ? ' direction="rtl"' : ""}>${t}</text>`;
+        return `<g class="m3part" data-part="${key}" style="cursor:pointer"><rect x="${x - wd / 2 - 8}" y="${y - 38}" width="${wd + 16}" height="76" rx="24" fill="rgba(0,0,0,.01)"/><line x1="${x}" y1="${y}" x2="${l.to[0]}" y2="${l.to[1]}" stroke="#d9f1ff" stroke-width="1.6" opacity=".8"/><circle cx="${l.to[0]}" cy="${l.to[1]}" r="4.5" fill="#d9f1ff"/><rect x="${x - wd / 2}" y="${y - 17}" width="${wd}" height="34" rx="17" fill="#0d151d" fill-opacity=".82" stroke="#8fd3ff" stroke-width="1.4"/><text x="${x}" y="${y + 7}" text-anchor="middle" fill="#eaf6ff"${L === "ur" ? ' direction="rtl"' : ""}>${t}</text></g>`;
       }).join("") : "";
     }
     function go(target, ms, ch) {
@@ -214,11 +215,12 @@
     }
     labels();
     if (gl) Promise.all([load(base.replace(/mouth3d\.js.*$/, "mk/mkb.webp")), load(base.replace(/mouth3d\.js.*$/, "mk/mkp.webp")), load(base.replace(/mouth3d\.js.*$/, "mk/mkm.png"))]).then(a => setup(...a)).catch(() => {});
-    window.addEventListener("resize", () => { if (ready) { resize(); frame(cur); } });
+    const onResize = () => { if (ready) { resize(); frame(cur); } }; window.addEventListener("resize", onResize);
     return {
       to(ch, zone, ms) { return go(letterPose(ch, zone), ms || 650, ch); },
       rest(ms) { return go(JSON.parse(JSON.stringify(REST)), ms || 500, ""); },
       labels(on, lg) { showLbl = on; if (lg) L = lg; labels(); },
+      destroy() { cancelAnimationFrame(raf); window.removeEventListener("resize", onResize); try { const e = gl && gl.getExtension("WEBGL_lose_context"); e && e.loseContext(); } catch (e) {} },
       at(ch, zone) { const c = letterPose(ch, zone).c; return c ? [(c[0] - O[0]) / S, (c[1] - O[1]) / S] : [.5, .4]; }
     };
   }

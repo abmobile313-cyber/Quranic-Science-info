@@ -41,6 +41,7 @@ const CX = {
   recB: { en: "Record my reading", ur: "میری تلاوت ریکارڈ کریں", hi: "मेरी तिलावत रिकॉर्ड करें" },
   mine: { en: "My voice", ur: "میری آواز", hi: "मेरी आवाज़" }, qari: { en: "Qari", ur: "قاری", hi: "क़ारी" },
   took: { en: "Class time", ur: "کلاس کا وقت", hi: "क्लास का वक़्त" },
+  fromL: { en: "{n} → word", ur: "{n} سے لفظ", hi: "{n} से लफ़्ज़" },
   letterOf: { en: "as in", ur: "مثال", hi: "मिसाल" },
   kinds: {
     letters: { en: "Takhti 1 · The letters (huroof mufradat)", ur: "تختی ۱ · حروفِ مفردات", hi: "तख़्ती 1 · हुरूफ़-ए-मुफ़रदात" },
@@ -76,19 +77,14 @@ function lessonItems(data, max) {
 }
 function qaidaItems(qd) {
   if (!qd) return [];
-  if (qd.k === "letters") return qd.items.map(x => ({ ip: 1, ar: x.L, sub: pick(x.n), ex: x.x.t, src: [{ s: x.x.s, a: x.x.a, w: x.x.w }] }));
+  if (qd.k === "letters") return qd.items.map(x => { const nm = LETNAME[x.L] ? [{ k: LETNAME[x.L] }] : [], exs = [{ s: x.x.s, a: x.x.a, w: x.x.w }];
+    return { ip: 1, L: x.L, ar: x.L, sub: pick(x.n), nm, ex: x.x.t, exs, src: nm.concat(exs) }; });
   if (qd.k === "ayat") return qd.items.map(x => ({ ip: 1, ar: x.t, ay: 1, src: [{ s: x.ay[0], a: x.ay[1] }], sub: num(x.ay[0]) + ":" + num(x.ay[1]) }));
   return qd.items.map(x => ({ ip: 1, ar: x.t, src: [{ s: x.s, a: x.a, w: x.w }] }));
 }
-function playSrc(list) {
-  return new Promise(async res => {
-    stopAll(); const t0 = performance.now();
-    for (const q of list) {
-      const src = q.k ? `arv/${q.k}.mp3` : q.w ? QARI_WORD(q.s, q.a, q.w) : QARI_AYAH(q.s, q.a);
-      await new Promise(r => { qariEl = new Audio(src); qariEl.onended = qariEl.onerror = r; qariEl.play().catch(r); });
-    }
-    res((performance.now() - t0) / 1000);
-  });
+/* one smooth recitation (same engine as everywhere else); resolves with the seconds it took */
+async function playSrc(list) {
+  const t0 = performance.now(); await playQari(list, null, true); return (performance.now() - t0) / 1000;
 }
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 
@@ -103,12 +99,12 @@ async function startClass(id) {
   if (CL.prev) P.push(["rev", 8]);
   P.push(["learn", 15], [qk, CL.prev ? 18 : 26], ["game", 6], ["record", 6], ["quiz", 5]);
   if (!CL.qd) P.splice(P.findIndex(p => p[0] === qk), 1);
-  Object.assign(CL, { on: true, id, ph: 0, phases: P, t0: Date.now(), pt0: Date.now(), done: {} });
-  try { const sv = JSON.parse(sessionStorage.getItem("qsai-cls-" + id) || "null"); if (sv && Date.now() - sv.t0 < 5 * 3600e3) Object.assign(CL, { ph: sv.ph, t0: sv.t0, pt0: Date.now(), done: sv.done || {} }); } catch (e) {}
+  Object.assign(CL, { on: true, id, ph: 0, phases: P, t0: Date.now(), pt0: Date.now(), done: {}, late: lateMin(c, o, id) });
+  try { const sv = JSON.parse(sessionStorage.getItem("qsai-cls-" + id) || "null"); if (sv && Date.now() - sv.t0 < 5 * 3600e3) Object.assign(CL, { ph: sv.ph, t0: sv.t0, pt0: Date.now(), done: sv.done || {}, late: sv.late != null ? sv.late : CL.late }); } catch (e) {}
   clearInterval(CL.tick); CL.tick = setInterval(clockTick, 1000); document.body.classList.add("incls");
   drawPhase();
 }
-const saveCL = () => { try { sessionStorage.setItem("qsai-cls-" + CL.id, JSON.stringify({ ph: CL.ph, t0: CL.t0, done: CL.done })); } catch (e) {} };
+const saveCL = () => { try { sessionStorage.setItem("qsai-cls-" + CL.id, JSON.stringify({ ph: CL.ph, t0: CL.t0, done: CL.done, late: CL.late })); } catch (e) {} };
 const curK = () => CL.phases[CL.ph] && CL.phases[CL.ph][0];
 function classBar() {
   if (!CL.on) return "";
@@ -135,7 +131,7 @@ function nextPhase() {
 }
 const navNext = () => `<div class="nav clsnav"><span></span><button class="btn pri big" id="clsNx" disabled>…</button></div>`;
 function wireNext() { const b = $("#clsNx"); if (b) { b.onclick = () => { if (!b.disabled) nextPhase(); }; updNext(); } }
-function shell(inner) { $("#app").innerHTML = lessonHead() + inner + navNext(); $("#vt") && ($("#vt").onclick = () => { S.voice = !S.voice; LS.set("qsai-voice", S.voice); if (!S.voice) stopAll(); $("#vt").textContent = S.voice ? "🔊 " + t("voiceOn") : "🔇 " + t("voiceOff"); }); wireNext(); }
+function shell(inner) { LESSON.tour = LESSON.tourOff = null; $("#app").innerHTML = lessonHead() + inner + navNext(); $("#vt") && ($("#vt").onclick = () => { S.voice = !S.voice; LS.set("qsai-voice", S.voice); if (!S.voice) stopAll(); $("#vt").textContent = S.voice ? "🔊 " + t("voiceOn") : "🔇 " + t("voiceOff"); }); wireNext(); }
 
 function drawPhase() {
   const k = curK();
@@ -160,7 +156,7 @@ function phOpen() {
     <ol class="agenda">${CL.phases.map(p => `<li><span>${pick(CX.ph[p[0]])}</span><b>~${num(p[1])} ${pick(CX.mins)}</b></li>`).join("")}</ol></section>`);
   const d1 = $("#d1"), d2 = $("#d2");
   d1.onclick = async () => { d1.classList.add("playing"); await playSrc([{ s: 1, a: 1 }]); d1.classList.remove("playing"); };
-  d2.onclick = async () => { d2.classList.add("playing"); for (let r = 0; r < 3; r++) { await playSrc(dua); await sleep(2600); } d2.classList.remove("playing"); CL.done.open = 1; saveCL(); updNext(); };
+  d2.onclick = async () => { d2.classList.add("playing"); for (let r = 0; r < 3 && curK() === "open"; r++) { await playSrc(dua); await sleep(2600); } d2.classList.remove("playing"); CL.done.open = 1; saveCL(); updNext(); };
   setTimeout(() => { CL.done.open = 1; updNext(); }, 30000);
   if (S.voice) d2.click();
 }
@@ -178,11 +174,20 @@ function phDrill(k) {
   shell(`<section class="stage"><h3 class="clsh">${k === "rev" ? "🔁" : k === "learn" ? "📘" : "📜"} ${pick(title)}</h3>${kindT ? `<p class="kindt">${esc(kindT)}</p>` : ""}<p class="say">${pick(note)}</p>
     <div class="tkctl"><button class="btn pri big" id="tkGo">▶ <span id="tkR">${pick(CX.r1)}</span></button><button class="btn big" id="tkStop" hidden>⏸ ${pick(CX.stop)}</button></div>
     <p class="tkst" id="tkst">${pick(CX.tapHint)}</p>
-    <div class="tkg ${ay ? "ayg" : ""}">${items.map((x, i) => `<button class="tki" data-i="${i}"><span class="ar ${x.ip ? "ip" : ""}">${esc(x.ar)}</span>${x.sub ? `<small>${esc(x.sub)}</small>` : ""}${x.ex ? `<small class="ar ip ex">${pick(CX.letterOf)} ${esc(x.ex)}</small>` : ""}<i class="tkd"><b></b><b></b><b></b></i></button>`).join("")}</div></section>`);
+    <div class="tkg ${ay ? "ayg" : ""}">${items.map((x, i) => x.L
+      ? `<div class="tkw"><button class="tki" data-i="${i}"><span class="ar ip">${esc(x.ar)}</span><small>${esc(x.sub)}</small><i class="tkd"><b></b><b></b><b></b></i></button><button class="tkx" data-i="${i}" aria-label="${esc(x.sub)}"><small>${pick(CX.fromL).replace("{n}", esc(x.sub))}</small><span class="ar ip">${esc(x.ex)}</span><i>🔊</i></button></div>`
+      : `<button class="tki" data-i="${i}"><span class="ar ${x.ip ? "ip" : ""}">${esc(x.ar)}</span>${x.sub ? `<small>${esc(x.sub)}</small>` : ""}${x.ex ? `<small class="ar ip ex">${pick(CX.letterOf)} ${esc(x.ex)}</small>` : ""}<i class="tkd"><b></b><b></b><b></b></i></button>`).join("")}</div>
+    <div class="labslot" id="labslot"></div></section>`);
+  const zs = new Set(); items.forEach(x => [...bare(x.ar)].forEach(ch => LAB_Z[ch] && zs.add(LAB_Z[ch])));
+  const LBD = labMount($("#labslot"), zs.size ? zs : null), lettersOf = t => [...new Set([...bare(t)].filter(ch => LAB_Z[ch]))].slice(0, 6);
   const tiles = $$(".tki"), cnt = items.map(() => 0);
   const mark = i => { cnt[i]++; const d = $$(".tkd b", tiles[i]); d.forEach((b, j) => b.classList.toggle("on", j < cnt[i])); if (cnt.every(n => n >= 2) && !CL.done[k]) { CL.done[k] = 1; saveCL(); updNext(); } };
   let run = false, round = 0;
-  tiles.forEach((b, i) => b.onclick = async () => { if (run) return; tiles.forEach(x => x.classList.remove("cur")); b.classList.add("cur"); await playSrc(items[i].src); mark(i); b.classList.remove("cur"); });
+  tiles.forEach((b, i) => b.onclick = async () => { if (run) return; tiles.forEach(x => x.classList.remove("cur")); b.classList.add("cur"); const it = items[i];
+    if (it.L) { if (LBD && LAB_Z[it.L]) await LBD.say(it.L, null, null, it.nm); else await playSrc(it.nm); }   /* letter box: the letter's own name, with the 3D head showing where it comes from */
+    else { LBD && LBD.tour(lettersOf(it.ar), 900); await playSrc(it.src); LBD && LBD.stop(); }
+    mark(i); b.classList.remove("cur"); });
+  $$(".tkx").forEach(b => b.onclick = async () => { if (run) return; const it = items[+b.dataset.i]; b.classList.add("cur"); LBD && LBD.tour(lettersOf(it.ex), 900); await playSrc(it.exs); LBD && LBD.stop(); b.classList.remove("cur"); });
   const st = $("#tkst"), go = $("#tkGo"), stp = $("#tkStop"), lbl = [CX.r1, CX.r2, CX.r3];
   stp.onclick = () => { run = false; stopAll(); };
   go.onclick = async () => {
@@ -191,7 +196,7 @@ function phDrill(k) {
       const b = tiles[i]; tiles.forEach(x => x.classList.remove("cur", "you")); b.classList.add("cur");
       b.scrollIntoView({ block: "nearest", behavior: "smooth" });
       if (round === 2) { b.classList.add("you"); st.textContent = "🗣️ " + pick(CX.youFirst); await sleep(ay ? 7000 : 3200); if (!run) break; b.classList.remove("you"); }
-      st.textContent = "🔊 " + pick(CX.qari) + " …";
+      st.textContent = "🔊 " + pick(CX.qari) + " …"; if (LBD) { const L1 = items[i].L ? [items[i].L] : lettersOf(items[i].ar); if (L1.length) LBD.tour(L1, items[i].L ? 1500 : 900); }
       const dur = await playSrc(items[i].src); if (!run) break;
       if (round === 0) { b.classList.add("you"); st.textContent = "🗣️ " + pick(CX.you); await sleep(Math.max(1600, dur * 1300 + 900)); b.classList.remove("you"); }
       else await sleep(round === 1 ? 700 : 1200);
@@ -252,7 +257,7 @@ function phRecord() {
 (() => { const st = document.createElement("style"); st.textContent = `
 @font-face{font-family:"QS IndoPak";src:url(/assistant/indopak.woff2) format("woff2");font-display:swap}
 .ip{font-family:"QS IndoPak","Amiri Quran","Noto Naskh Arabic",serif!important;direction:rtl}
-[hidden]{display:none!important}body.incls .fab{bottom:calc(96px + env(safe-area-inset-bottom,0px));padding:10px;border-radius:50%}body.incls .fab span{display:none}
+[hidden]{display:none!important}body.incls .fab{bottom:calc(96px + env(safe-area-inset-bottom,0px));padding:4px;border-radius:50%}body.incls .fab>span:not(.uav){display:none}
 .btn.big{min-height:56px;padding:14px 22px;font-size:18px;border-radius:16px}.btn.round{border-radius:999px;min-width:180px}
 .clsbar{margin:12px 0 4px;padding:12px 14px;border:1px solid var(--line);border-radius:18px;background:linear-gradient(180deg,rgba(227,170,60,.10),rgba(227,170,60,.02))}
 .clstop{display:flex;justify-content:space-between;align-items:center;gap:10px}.clk{font:700 15px Outfit;color:var(--gold2);background:rgba(0,0,0,.3);padding:6px 10px;border-radius:10px;border:1px solid var(--line)}
@@ -268,6 +273,7 @@ function phRecord() {
 .tkg{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px;direction:rtl}.tkg.ayg{grid-template-columns:1fr}
 .tki{position:relative;display:flex;flex-direction:column;align-items:center;gap:2px;padding:14px 8px 18px;border-radius:16px;border:1px solid var(--line);background:var(--bg2);min-height:96px;transition:.2s}
 .tki .ar{font-size:clamp(30px,7vw,40px);line-height:1.9;color:var(--gold2)}.ayg .tki .ar{font-size:clamp(24px,5.4vw,32px);line-height:2.2;text-align:center}
+.tkw{display:flex;flex-direction:column;gap:6px;min-width:0}.tkw .tki{min-height:104px}.tkx{display:flex;flex-direction:column;align-items:center;gap:0;padding:8px 6px;border-radius:14px;border:1px dashed var(--gold);background:var(--card);color:var(--fg)}.tkx small{color:var(--mut);font-size:12px;direction:ltr}.tkx .ar{font-size:clamp(22px,5.5vw,28px);line-height:1.7;color:var(--gold2)}.tkx i{font-style:normal;font-size:12px}.tkx.cur{border-style:solid;border-color:var(--cy);box-shadow:0 0 0 3px rgba(44,196,242,.3)}
 .tki small{color:var(--mut);font-size:13px;direction:ltr}.tki small.ex{font-size:18px;direction:rtl}
 .tki.cur{border-color:var(--cy);box-shadow:0 0 0 3px rgba(44,196,242,.3);transform:scale(1.03)}.tki.you{border-color:var(--gold);box-shadow:0 0 0 3px rgba(227,170,60,.4);animation:pulse 1s ease-in-out infinite}
 @keyframes pulse{50%{box-shadow:0 0 0 7px rgba(227,170,60,.15)}}

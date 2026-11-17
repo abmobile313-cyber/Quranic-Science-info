@@ -396,7 +396,8 @@ export async function botReply(env, fs, from, text, who, prev, now = Date.now())
   const site = env.SITE || "https://quranicscience.info", main = env.MAIN_WA || "919272527913";
   const cfg = (await fs.get("config/payLinks")) || {}, names = cfg.names || {}, nm = k => names[k] || k;
   const u = who.user || {}, name = (u.name || prev.name || "").split(" ")[0], t = String(text || "").trim().toLowerCase();
-  const human = `To talk to us, message +${main}: https://wa.me/${main}\nبات کرنے کے لیے اس نمبر پر میسج کریں۔`;
+  const human = `✅ Your message is noted. Our team will reply here within 24 hours (not instantly).\nMost answers are in the menu: send 0.\nآپ کا پیغام نوٹ ہو گیا ہے، 24 گھنٹے میں یہیں جواب ملے گا۔ مینو کے لیے 0 بھیجیں۔`;
+  const logHuman = async (why) => { try { await fs.add("activities", { uid: (who.user || {}).id || "", name: (who.user || {}).name || "", phone: digits(from), kind: why === "demo" ? "demo" : "support", title: why === "demo" ? "Free demo (WhatsApp)" : "Help request (WhatsApp)", message: String(text || "").slice(0, 300), status: why === "demo" ? "Demo requested" : "New", section: "learn", sectionName: "Learn with Us", ts: now }); } catch (e) {} return why === "demo" ? `✅ Your free demo request is noted. We will send the class link here and remind you 30 minutes before.\nآپ کی ڈیمو کلاس کی درخواست نوٹ ہو گئی ہے۔` : human; };
   const first = !prev.welcomed || prev.role !== who.role;
   /* TEMPORARY (until paid WhatsApp templates work): on "Hi" / first message, give the student code, open courses and fee receipts right here in the chat (free reply).
      Turn off by setting config/flags.botReceipts = false. */
@@ -426,16 +427,17 @@ export async function botReply(env, fs, from, text, who, prev, now = Date.now())
   const n = (/^\d/.exec(t) || [""])[0];
   if (who.role === "visitor") {
     if (n === "1" || /course|fee|price/.test(t)) return `📚 Courses & fees (first batch prices):\n${site}/#learn\nEach course shows its fee, duration, timings and an Enroll button.\n\n${BOT_MENU.visitor}`;
-    if (n === "2" || /join|enrol|admission/.test(t)) return `How to join:\n1) Log in at ${site} (Google or mobile)\n2) Open Courses, pick a course and your batch (morning/evening)\n3) Tap Enroll and pay\n4) Tap "I have paid" – your classes open and you get your student code here.\n\n${BOT_MENU.visitor}`;
+    if (n === "2" || /join|enrol|admission/.test(t)) return `How to join:\n1) Log in at ${site} (Google or mobile)\n2) Open Courses, pick a course and your batch (morning/evening)\n3) Tap Enroll and pay\n4) Your classes open automatically after payment (a few minutes) and your student code and receipt come here.\n\n${BOT_MENU.visitor}`;
     if (n === "3" || /seat/.test(t)) { const s = await fs.get("voice/seats"); const c = (s && s.counts) || s || {}; const cap = +(s && s.cap) || 100; const lines = Object.entries(c).filter(([k, v]) => v && typeof v === "object").slice(0, 8).map(([k, v]) => `• ${nm(k)}: morning ${Math.max(0, cap - (v.M || 0))}, evening ${Math.max(0, cap - (v.E || 0))} seats left`); return `🪑 Seats left (100 per batch):\n${lines.join("\n") || "See " + site + "/#learn"}\n\nSeats fill fast – lock yours at ${site}/#learn\n\n${BOT_MENU.visitor}`; }
-    if (n === "4") return human;
-    return `Sorry, this is an automatic number. ${human}\n\n${BOT_MENU.visitor}`;
+    if (n === "4") return await logHuman();
+    if (/demo|trial|free class/.test(t)) return await logHuman("demo");
+    return `This is an automatic number. Please pick a number from the menu; for anything else send 4 and our team will reply within 24 hours.\n\n${BOT_MENU.visitor}`;
   }
   if (who.role === "teacher") {
     const T = who.teacher;
     if (n === "1" || /class/.test(t)) { const b = await nextClass(fs, [T.course], T.batch, now); return b ? `📅 Your next class: ${nm(T.course)} – ${(b.k.title && (b.k.title.en || b.k.title.ur)) || "Class " + (b.k.n || "")}\n${fmtIST(istMs(b.k.date))}${b.k.zoom ? "\nZoom: " + b.k.zoom : ""}` : `No upcoming class is scheduled yet. Add one in your teacher panel: ${site}/#learn`; }
     if (n === "2" || /doubt/.test(t)) { const d = (await fs.query("doubts", [["course", "EQUAL", T.course]], 200)).filter(x => x.status === "open"); return `❓ Open student doubts in ${nm(T.course)}: ${d.length}\nAnswer them in your panel → Student doubts: ${site}/#learn`; }
-    if (n === "4") return human;
+    if (n === "4") return await logHuman();
     return `This is an automatic number. ${BOT_MENU.teacher}`;
   }
   /* student */
@@ -443,8 +445,8 @@ export async function botReply(env, fs, from, text, who, prev, now = Date.now())
   if (info && /receipt|code/.test(t)) return `Assalamu Alaikum ${name}!${info}\n\n${BOT_MENU.student}`;
   if (n === "2" || /fee|course|paid|payment/.test(t)) return `✅ Your open courses:\n${who.paid.map(k => "• " + nm(k)).join("\n")}${u.code ? "\nStudent code: " + u.code : ""}\nBatch: ${({ M: "Morning", E: "Evening" })[u.batch] || "-"}\nReceipts and classes: ${site}/#learn`;
   if (n === "3" || /certif/.test(t)) { const c = (await fs.query("certificates", [["uid", "EQUAL", u.id]], 10))[0]; return c ? `🎓 Your certificate: ${site}/#verify=${c.id}` : `Your certificate opens after you finish all classes, the 3 questions after each class and the weekly tests. Keep going! 💪`; }
-  if (n === "4") return human;
-  return `This is an automatic number, so a person may not see this. ${human}\n\n${BOT_MENU.student}`;
+  if (n === "4") return await logHuman();
+  return `This is an automatic number. Please pick a number from the menu; for anything else send 4 and our team will reply within 24 hours.\n\n${BOT_MENU.student}`;
 }
 
 /* translate a bot reply line by line; lines with links stay as they are (free Google translate, original if it fails) */

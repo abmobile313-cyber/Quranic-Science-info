@@ -44,7 +44,7 @@
       '<button type="button" data-qse="learn"><i>🎓</i><b>' + t.c[0] + '</b><small>' + t.c[1] + '</small></button>' +
       '<button type="button" data-qse="app"><i>📚</i><b>' + t.m[0] + '</b><small>' + t.m[1] + '</small></button>' +
       '<button type="button" data-qse="videos"><i>▶️</i><b>' + t.v[0] + '</b><small>' + t.v[1] + '</small></button>' +
-      '<a class="wa" href="https://wa.me/919272527913?text=' + encodeURIComponent("Assalamu Alaikum, I need help with the Quranic Science website.") + '" target="_blank" rel="noopener"><i>💬</i><b>' + t.w[0] + '</b><small>' + t.w[1] + '</small></a></div>';
+      '<a class="wa" href="https://wa.me/917822831751?text=' + encodeURIComponent("Assalamu Alaikum, I need help with the Quranic Science website.") + '" target="_blank" rel="noopener"><i>💬</i><b>' + t.w[0] + '</b><small>' + t.w[1] + '</small></a></div>';
     d.addEventListener("click", function (e) {
       var b = e.target.closest("[data-qse]"); if (!b) return; var k = b.dataset.qse;
       try { if (window.play) play("tap"); } catch (x) {}
