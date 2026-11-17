@@ -58,7 +58,7 @@
   }
   function ring(z, label, sc) { /* highlight around a zone, with its name */
     var x = z[0], y = z[1], w = z[2], h = z[3];
-    return '<g class="uhl"><rect x="' + (x - 2) + '" y="' + (y - 2) + '" width="' + (w + 4) + '" height="' + (h + 4) + '" rx="' + (sc ? 8 : 6) + '"/></g>';
+    return '<g class="uhl" data-z="' + x + ',' + y + ',' + w + ',' + h + '"><rect x="' + (x - 2) + '" y="' + (y - 2) + '" width="' + (w + 4) + '" height="' + (h + 4) + '" rx="' + (sc ? 8 : 6) + '"/></g>';
   }
   function chip(z, text, W, H) {
     if (!text) return "";
@@ -100,7 +100,7 @@
     s += '<rect x="60" y="213" width="70" height="12" rx="3" fill="#b26b2d"/><text x="64" y="222" class="ut s">Hello everyone</text><rect x="140" y="213" width="50" height="12" rx="3" fill="#b26b2d"/>';
     for (i = 0; i < 4; i++) { var bx = 40 + i * 92, bw = i === 3 ? 70 : 88; s += '<rect x="' + bx + '" y="230" width="' + bw + '" height="32" rx="4" fill="#2f5d8a"/><rect x="' + bx + '" y="230" width="' + bw + '" height="32" rx="4" fill="url(#th' + id + ')" opacity="' + (.5 + (i % 2) * .2) + '"/>'; }
     s += '<rect x="40" y="268" width="330" height="18" rx="4" fill="#1f5a45"/><path d="M42 277' + (function () { var p = ""; for (var k = 0; k < 82; k++) p += "l4 " + ((k % 3 === 0 ? -1 : 1) * (k % 5 + 1) * (k % 2 ? 1 : -1)); return p; })() + '" fill="none" stroke="#3fcf8e" stroke-width=".8"/>';
-    s += '<line x1="152" y1="206" x2="152" y2="290" stroke="#fff" stroke-width="1.5"/><path d="M147 204h10l-5 7z" fill="#fff"/>';
+    s += '<g class="uph" data-x0="44" data-x1="372"><line x1="152" y1="206" x2="152" y2="290" stroke="#fff" stroke-width="1.5"/><path d="M147 204h10l-5 7z" fill="#fff"/></g>';
     return s;
   }
 
@@ -121,7 +121,7 @@
     for (i = 0; i < 3; i++) { var bx = 30 + i * 70; s += '<rect x="' + bx + '" y="256" width="66" height="30" rx="4" fill="url(#th' + id + ')" opacity="' + (.55 + (i % 2) * .2) + '"/>'; }
     s += '<rect x="244" y="258" width="26" height="26" rx="5" fill="#fff"/><path d="M257 264v14M250 271h14" stroke="#111" stroke-width="2.2" stroke-linecap="round"/>';
     s += '<rect x="30" y="291" width="190" height="16" rx="4" fill="#1f5a45"/><path d="M32 299' + (function () { var p = ""; for (var k = 0; k < 46; k++) p += "l4 " + ((k % 3 === 0 ? -1 : 1) * (k % 4 + 1) * (k % 2 ? 1 : -1)); return p; })() + '" fill="none" stroke="#3fcf8e" stroke-width=".8"/>';
-    s += '<line x1="112" y1="236" x2="112" y2="310" stroke="#fff" stroke-width="1.6"/>';
+    s += '<g class="uph" data-x0="34" data-x1="262"><line x1="112" y1="236" x2="112" y2="310" stroke="#fff" stroke-width="1.6"/></g>';
     /* bottom toolbar */
     s += '<rect x="6" y="326" width="288" height="84" rx="14" fill="#101113"/>';
     var main = [["edit", "Edit"], ["audio", "Audio"], ["text", "Text"], ["overlay", "Overlay"], ["captions", "Captions"], ["filters", "Filters"]];
@@ -141,7 +141,7 @@
     var ch = d.btn && target ? chip(target, d.btn, W, H) : "";
     var steps = d.steps && d.steps.length ? '<ol class="usteps">' + d.steps.map(function (s) { return "<li>" + T(s) + "</li>"; }).join("") + "</ol>" : "";
     var where = hl.filter(function (k) { return ZN[k]; }).map(function (k) { return T(ZN[k]); }).join(" · ");
-    return '<div class="upane" data-p="' + plat + '"><svg class="usvg ' + plat + '" viewBox="0 0 ' + W + " " + H + '" role="img" aria-label="' + CAP[plat] + '">' + svg + rings + ch + "</svg>" + (where ? '<div class="uwhere">📍 ' + where + "</div>" : "") + steps + "</div>";
+    return '<div class="upane" data-p="' + plat + '" data-c="' + plat + '"><svg class="usvg ' + plat + '" viewBox="0 0 ' + W + " " + H + '" role="img" aria-label="' + CAP[plat] + '">' + svg + rings + ch + "</svg>" + (where ? '<div class="uwhere">📍 ' + where + "</div>" : "") + steps + "</div>";
   }
 
   function platDefault(own) { var p = null; try { p = localStorage.getItem("qscr-plat"); } catch (e) {} if (p === "pc" || p === "mob") return p; try { if (matchMedia("(pointer:coarse)").matches && innerWidth < 800) return "mob"; } catch (e) {} return own; }
