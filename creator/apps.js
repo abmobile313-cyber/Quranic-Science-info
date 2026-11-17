@@ -420,13 +420,57 @@
       [/./, "search", [["search", "box", "Search CapCut"], ["page", "inst", "Install"], ["installing", "bar", "Installing"], ["done", "open", "Open"]]]
     ]
   };
-  var APPS = { canva: CAPP, insta: IAPP, gpt: GAPP, zoom: ZAPP, store: SAPP };
+
+  /* ============================== CAMERA / SHOT LIST (phone 360x780) ============================== */
+  function tileArt(k, x, y, w) {
+    var h = w * .78, bg = { wide: "#cfe3f4", medium: "#e8dccb", close: "#e9e0f0", move: "#dbeee3", talk: "#f6e3d4", hero: "#1d1d22", detail: "#2a2430", hand: "#efe3d6", use: "#e0ecf2", around: "#1f2530", owner: "#f0dfd0" }[k] || "#ddd", s = R(x, y, w, h, bg, 10), cxm = x + w / 2, cym = y + h / 2;
+    var bottle = function (bx, by, bw, bh, col) { return R(bx, by, bw, bh, col, bw * .18) + R(bx + bw * .3, by - bh * .18, bw * .4, bh * .2, "#222", 3); };
+    if (k === "wide") s += R(x, y + h * .66, w, h * .34, "#7fae7a", 0) + C(cxm, y + h * .52, 7, "#444") + R(cxm - 6, y + h * .58, 12, 24, "#44608a", 4) + Pa("M" + x + " " + (y + h * .66) + "l" + w * .25 + " -22l" + w * .2 + " 14l" + w * .25 + " -30l" + w * .3 + " 38z", "#9dc6a0");
+    else if (k === "medium") s += C(cxm, y + h * .34, 14, "#8a5a3c") + R(cxm - 26, y + h * .5, 52, h * .5, "#2d4f7a", 14);
+    else if (k === "close") s += R(cxm - 22, y + h * .42, 44, 40, "#d9a07a", 14) + R(cxm - 24, y + h * .34, 14, 30, "#d9a07a", 7) + R(cxm - 8, y + h * .3, 14, 32, "#d9a07a", 7) + R(cxm + 8, y + h * .34, 14, 30, "#d9a07a", 7) + R(cxm - 36, y + h * .72, 72, 18, "#8d6a4a", 6);
+    else if (k === "move") s += Pa("M" + (x + 16) + " " + (y + h * .7) + "C" + (x + w * .3) + " " + (y + h * .1) + "," + (x + w * .7) + " " + (y + h * .1) + "," + (x + w - 16) + " " + (y + h * .7), 0, "#2f9e6e", 3) + Pa("M" + (x + w - 26) + " " + (y + h * .6) + "l10 12l-14 4", 0, "#2f9e6e", 3) + bottle(cxm - 10, y + h * .4, 20, 34, "#c9a227");
+    else if (k === "talk") s += C(cxm - 14, y + h * .5, 16, "#8a5a3c") + R(cxm - 38, y + h * .66, 48, h * .34, "#44608a", 12) + R(cxm + 6, y + 10, 40, 24, "#fff", 8) + Tx(cxm + 26, y + 27, 12, "Hi!", "#111", 700, "middle");
+    else if (k === "hero") s += bottle(cxm - 16, y + h * .3, 32, 56, "#c9a227") + R(cxm - 36, y + h * .86, 72, 4, "rgba(255,255,255,.25)", 2);
+    else if (k === "detail") s += R(cxm - 36, y + h * .26, 72, 50, "#c9a227", 8) + Tx(cxm, y + h * .58, 12, "AL ASWAD", "#222", 800, "middle") + Tx(cxm, y + h * .74, 8, "EAU DE PARFUM · 50 ML", "#4a3a10", 600, "middle");
+    else if (k === "hand") s += bottle(cxm - 12, y + h * .22, 24, 44, "#c9a227") + R(cxm - 26, y + h * .58, 52, 22, "#d9a07a", 11) + R(cxm - 30, y + h * .72, 60, 30, "#d9a07a", 10);
+    else if (k === "use") s += C(cxm - 10, y + h * .36, 13, "#8a5a3c") + R(cxm - 30, y + h * .5, 44, h * .5, "#2d4f7a", 12) + Pa("M" + (cxm + 10) + " " + (y + h * .56) + "l20 -14", 0, "#d9a07a", 8) + bottle(cxm + 26, y + h * .26, 14, 26, "#c9a227") + Pa("M" + (cxm + 46) + " " + (y + h * .2) + "l8 -8M" + (cxm + 50) + " " + (y + h * .34) + "l12 0M" + (cxm + 46) + " " + (y + h * .46) + "l8 8", 0, "#6a8caa", 2);
+    else if (k === "around") s += bottle(cxm - 10, y + h * .36, 20, 34, "#c9a227") + '<ellipse cx="' + cxm + '" cy="' + (y + h * .6) + '" rx="' + w * .36 + '" ry="' + h * .24 + '" fill="none" stroke="#5fe0c0" stroke-width="3" stroke-dasharray="7 6"/>' + Pa("M" + (cxm + w * .36 - 4) + " " + (y + h * .56) + "l8 10l-12 3", 0, "#5fe0c0", 3);
+    else if (k === "owner") s += C(cxm, y + h * .4, 18, "#b8825e") + R(cxm - 32, y + h * .62, 64, h * .38, "#8a3a3a", 14) + Pa("M" + (cxm - 8) + " " + (y + h * .45) + "q8 8 16 0", 0, "#5a2a1a", 2);
+    return s;
+  }
+  var CAMZ = { grid: [0, 80, 360, 620], top: [0, 30, 360, 50], shutter: [110, 706, 140, 70], timer: [110, 36, 140, 36] };
+  var SHOTPOS = [0, 1, 2, 3, 4, 5].map(function (i) { return [20 + (i % 2) * 170, 120 + Math.floor(i / 2) * 200, 150, 176]; });
+  function camBase(rec) {
+    var s = R(0, 0, 360, 780, "#000") + R(0, 80, 360, 620, "#4a5560") + R(0, 80, 360, 620, "rgba(120,150,180,.18)") + R(0, 520, 360, 180, "#2f353b");
+    s += Ln(120, 80, 120, 700, "rgba(255,255,255,.5)", 1.2) + Ln(240, 80, 240, 700, "rgba(255,255,255,.5)", 1.2) + Ln(0, 287, 360, 287, "rgba(255,255,255,.5)", 1.2) + Ln(0, 493, 360, 493, "rgba(255,255,255,.5)", 1.2);
+    s += C(180, 300, 54, "#c89a74") + R(88, 358, 184, 200, "#35557f", 60) + Pa("M158 345q22 24 44 0", 0, "#a67a58", 3);
+    s += C(165, 292, 4, "#222") + C(195, 292, 4, "#222") + Pa("M168 318q12 8 24 0", 0, "#7a3b2b", 2.4) + Tx(40, 284, 11, "eyes here", "#ffd86b", 700) + Ln(100, 287, 148, 287, "#ffd86b", 1.4);
+    s += Tx(18, 20, 12, "9:41", "#fff", 600) + Tx(180, 62, 13, "⚙", "#fff", 500, "middle") + Tx(40, 62, 18, "⚡", "#fff", 500, "middle") + Tx(320, 62, 16, "▦", "#ffd86b", 700, "middle");
+    s += Tx(120, 692, 12, "PHOTO", "#ccc", 600, "middle") + Tx(180, 692, 12, "VIDEO", "#ffd86b", 700, "middle") + Tx(240, 692, 12, "MORE", "#ccc", 600, "middle");
+    s += C(180, 744, 30, "none", "#fff") + (rec ? R(166, 730, 28, 28, "#e53935", 6) : C(180, 744, 24, "#e53935"));
+    if (rec) s += R(110, 36, 140, 34, "rgba(229,57,53,.92)", 17) + C(134, 53, 6, "#fff") + Tx(186, 59, 17, "00:12", "#fff", 700, "middle");
+    return s;
+  }
+  function camList(six) {
+    var s = R(0, 0, 360, 780, "#f4f6f8") + R(0, 0, 360, 74, "#fff") + Tx(18, 20, 12, "9:41", "#111", 600) + Tx(20, 62, 22, six ? "6 product shots" : "Shot list", "#111", 700) + Tx(20, 106, 13, six ? "Tick each one while you shoot" : "Tick each one while you shoot", "#5f6368", 400);
+    var set = six ? [["hero", "1 · Hero"], ["detail", "2 · Detail"], ["hand", "3 · In hand"], ["use", "4 · In use"], ["around", "5 · Moving"], ["owner", "6 · Owner"]] : [["wide", "Wide · 1"], ["medium", "Medium · 1"], ["close", "Close · 3–4"], ["move", "Moving · 2"], ["talk", "Talking · 1–2"]];
+    set.forEach(function (t, i) { var p = SHOTPOS[i]; s += R(p[0] - 2, p[1] - 2, p[2] + 4, p[3] + 4, "#fff", 14, "#e1e5ea") + tileArt(t[0], p[0], p[1], p[2]) + Tx(p[0] + 8, p[1] + p[3] - 12, 15, t[1], "#111", 700) + C(p[0] + p[2] - 16, p[1] + p[3] - 18, 9, "none", "#2f9e6e"); });
+    return s;
+  }
+  var KAPP = {
+    key: "camera", W: 360, H: 780, plat: "mob", cap: "Phone camera", defs: "",
+    zones: { grid: CAMZ.grid, top: CAMZ.top, shutter: CAMZ.shutter, timer: CAMZ.timer, s1: SHOTPOS[0], s2: SHOTPOS[1], s3: SHOTPOS[2], s4: SHOTPOS[3], s5: SHOTPOS[4], s6: SHOTPOS[5], w1: SHOTPOS[0], w2: SHOTPOS[1], w3: SHOTPOS[2], w4: SHOTPOS[3], w5: SHOTPOS[4] },
+    zn: { grid: L("Grid", "گرڈ", "ग्रिड"), top: L("Camera settings", "کیمرہ سیٹنگز", "कैमरा सेटिंग्स"), shutter: L("Record button", "ریکارڈ بٹن", "रिकॉर्ड बटन"), timer: L("Timer", "ٹائمر", "टाइमर"), s1: L("Hero", "ہیرو", "हीरो"), s2: L("Detail", "تفصیل", "डिटेल"), s3: L("Hand", "ہاتھ", "हाथ"), s4: L("Used", "استعمال", "इस्तेमाल"), s5: L("Moving", "حرکت", "मूविंग"), s6: L("Owner", "مالک", "मालिक"), w1: L("Wide", "وائیڈ", "वाइड"), w2: L("Medium", "میڈیم", "मीडियम"), w3: L("Close", "کلوز", "क्लोज़"), w4: L("Moving", "حرکت", "मूविंग"), w5: L("Talking", "بات", "बात") },
+    frames: { cam: { hs: { grid: CAMZ.grid, top: CAMZ.top, shutter: CAMZ.shutter } }, rec: { hs: { timer: CAMZ.timer, shutter: CAMZ.shutter } }, list5: { hs: {} }, list6: { hs: {} } },
+    kw: [[/\brec\b/, "rec", []], [/\blist5\b/, "list5", []], [/\blist6\b/, "list6", []]]
+  };
+  var APPS = { canva: CAPP, insta: IAPP, gpt: GAPP, zoom: ZAPP, store: SAPP, camera: KAPP };
   var DRAW = {
     canva: CF, insta: { profile: inProfile, settings: inSettings, type: inType, reel: inReel, caption: inCaption, insights: inInsights, active: inActive, viewreel: inViewReel },
-    gpt: { chat: gptChat, result: gptResult }, store: { search: stSearch, page: function () { return stPage(); }, installing: function () { return stPage('installing'); }, done: function () { return stPage('done'); }, login: stLogin }, zoom: { meeting: function () { return zmMeeting(false); }, share: function () { return zmMeeting(true); } }
+    gpt: { chat: gptChat, result: gptResult }, store: { search: stSearch, page: function () { return stPage(); }, installing: function () { return stPage('installing'); }, done: function () { return stPage('done'); }, login: stLogin }, camera: { cam: function () { return camBase(false); }, rec: function () { return camBase(true); }, list5: function () { return camList(false); }, list6: function () { return camList(true); } }, zoom: { meeting: function () { return zmMeeting(false); }, share: function () { return zmMeeting(true); } }
   };
-  var DEFAULT_FRAME = { canva: "editor", insta: "profile", gpt: "chat", zoom: "meeting", store: "search" };
-  var HLZ = { canva: { top: "file" }, insta: {}, gpt: {}, zoom: {}, store: {} };
+  var DEFAULT_FRAME = { canva: "editor", insta: "profile", gpt: "chat", zoom: "meeting", store: "search", camera: "cam" };
+  var HLZ = { canva: { top: "file" }, insta: {}, gpt: {}, zoom: {}, store: {}, camera: {} };
 
   /* ============================== build a pane ============================== */
   var esc2 = function (s) { return (typeof esc === "function" ? esc(s) : String(s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; })); };
@@ -462,6 +506,15 @@
   }
   window.QSApps = { html: appHTML, has: function (ui) { return !!APPS[ui]; }, apps: APPS, draw: DRAW, svg: svg };
 
+  window.camV = function (m) {
+    var t = ((m && m.en) || "").toLowerCase(), lid = ""; try { lid = (LESSON && LESSON.id) || ""; } catch (e) {}
+    if (lid[0] === "v") return null;
+    if (/phone standing up|eye level|one third from the top|grid in (the )?camera/.test(t)) return { ui: "camera", hl: ["grid", "top"], tab: "cam", btn: "" };
+    if (/to your camera|watch it back/.test(t)) return { ui: "camera", hl: ["timer", "shutter"], tab: "rec", btn: "" };
+    if (/shot list|wide shot|medium shot|close shots/.test(t)) return { ui: "camera", hl: ["w1", "w2", "w3", "w4", "w5"], tab: "list5", btn: "" };
+    if (/six shots|hero shot|product being used|camera going around/.test(t)) return { ui: "camera", hl: /\b(four|five|six)\b/.test(t) ? ["s4", "s5", "s6"] : ["s1", "s2", "s3"], tab: "list6", btn: "" };
+    return null;
+  };
   window.storeV = function (m) {
     var t = ((m && m.en) || "").toLowerCase();
     if (!/play store|app store|\binstall\b|download capcut|download (the )?app/.test(t)) return null;
