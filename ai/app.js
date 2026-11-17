@@ -396,6 +396,13 @@ async function viewCourse(c) {
 
 /* ============ audio ============ */
 let voiceEl = null, qariEl = null, rec = null, recUrl = null, recChunks = [];
+/* only ONE voice at a time: any sound that starts silences every other lesson / qari / coach sound (no more voices on top of each other) */
+const LIVE = new Set();
+(function () { const P = HTMLMediaElement.prototype.play;
+  HTMLMediaElement.prototype.play = function () { const me = this;
+    if (me.tagName === "AUDIO" && !me.dataset.mix) { LIVE.forEach(a => { if (a !== me) { try { a.pause(); } catch (e) {} } }); try { if (qariEl && qariEl !== me && qariEl.pause) qariEl.pause(); } catch (e) {}
+      if (!me.__lv) { me.__lv = 1; const off = () => LIVE.delete(me); me.addEventListener("ended", off); me.addEventListener("pause", off); me.addEventListener("error", off); } LIVE.add(me); }
+    return P.apply(me, arguments); }; })();
 function stopAll() { QTOK++; [voiceEl, qariEl].forEach(a => { try { a && a.pause(); } catch (e) {} }); try { window.speechSynthesis && speechSynthesis.cancel(); } catch (e) {} if (rec && rec.state === "recording") try { rec.stop(); } catch (e) {} $$(".playing").forEach(e => e.classList.remove("playing")); }
 /* the lesson is narrated in one recorded (Urdu) voice. When the app language is English the same lesson text is spoken in English by the phone's own voice, so the voice always matches the words on screen */
 function speakText(text, onend) {
@@ -408,10 +415,11 @@ function speakText(text, onend) {
   } catch (e) { return false; }
 }
 async function playVoice() {
-  stopAll(); const { id, i, data } = LESSON, m = data && data.moments[i]; if (!m) return;
+  stopAll(); const my = QTOK; const { id, i, data } = LESSON, m = data && data.moments[i]; if (!m) return;
   const box = $("#vo"), after = () => { box && box.classList.remove("playing"); LESSON.tourOff && LESSON.tourOff(); };
   LESSON.tour && LESSON.tour();
   let src = null; try { src = await voiceSrc(id, i + 1); } catch (e) {}
+  if (my !== QTOK) return;            // another sound was started meanwhile: do not talk over it
   if (!src) return after();
   voiceEl = new Audio(src); box && box.classList.add("playing"); window.QSUstad && QSUstad.hint(pick(m));
   voiceEl.onended = after; voiceEl.onerror = () => box && box.classList.remove("playing");
@@ -419,8 +427,8 @@ async function playVoice() {
 }
 /* the Arabic words of a moment, read by a native Arabic voice (ElevenLabs) */
 async function playArabic(btn) {
-  const { id, i } = LESSON; stopAll(); let src = null; try { src = await voiceSrc(id, (i + 1) + "a"); } catch (e) {}
-  if (!src) return; btn = btn || $("#ab"); btn && btn.classList.add("playing");
+  const { id, i } = LESSON; stopAll(); const my = QTOK; let src = null; try { src = await voiceSrc(id, (i + 1) + "a"); } catch (e) {}
+  if (!src || my !== QTOK) return; btn = btn || $("#ab"); btn && btn.classList.add("playing");
   let left = S.rep || 1; voiceEl = new Audio(src); const arTxt = (LESSON.data && LESSON.data.moments[i] && LESSON.data.moments[i].ar) || ""; window.QSUstad && QSUstad.hint(arTxt);
   voiceEl.onended = () => { if (--left > 0 && btn && btn.classList.contains("playing")) setTimeout(() => { window.QSUstad && QSUstad.hint(arTxt); voiceEl.play().catch(() => {}); }, 500); else btn && btn.classList.remove("playing"); };
   voiceEl.onerror = () => btn && btn.classList.remove("playing"); voiceEl.play().catch(() => btn && btn.classList.remove("playing"));
@@ -643,7 +651,10 @@ function wireLab(root, opt) {
     }
     ems.forEach(e => { e.classList.remove("on"); e.classList.add("ok"); }); tag.hidden = true; cam(false);
     await lab.rest(600); if (my !== busy) return;
-    await playQari([{ s: w[1], a: w[2], w: w[3] }], btn); if (my !== busy) return;
+    /* then the whole word once more at natural speed: the mouth flows through every letter and vowel while the qari recites it */
+    const segs = [...w[4]].map((c, k) => ({ ch: c, zone: LAB_Z[c], v: (LAB_V[i] || "")[k] || "" })).filter(x => x.zone);
+    cam(false);
+    await Promise.all([playQari([{ s: w[1], a: w[2], w: w[3] }], btn), lab.flow ? lab.flow(segs, Math.max(1100, segs.length * 520)) : 0]); if (my !== busy) return;
     endWord();
   }
   function endWord() { if (!box || !box.classList.contains("wm")) return; box.classList.remove("wm"); cam(false); $(".mlwd", box).hidden = true; $(".mltag", box).hidden = true; lab.labels(lbl, LANG); $$(".mlw", fig).forEach(k => k.classList.remove("on")); }
@@ -729,7 +740,7 @@ async function playQari(list, btn, once) {
   let plan; try { plan = await qariPlan(list); } catch (e) { plan = list; }
   if (!live()) { btn && tok === QTOK && btn.classList.remove("playing"); return; }
   for (const q of [].concat(...Array(once ? 1 : S.rep || 1).fill(plan))) {
-    if (q.run) { let ok = false; try { await playBuffer(await stitched(q.run)); ok = true; } catch (e) {} if (!ok) for (const w of q.run) { await playEl(QARI_WORD(w.s, w.a, w.w)); if (!live()) break; } }
+    if (q.run) { let ok = false; try { const sb = await stitched(q.run); if (!live()) break; await playBuffer(sb); ok = true; } catch (e) {} if (!ok) for (const w of q.run) { await playEl(QARI_WORD(w.s, w.a, w.w)); if (!live()) break; } }
     else await playEl(q.k ? `arv/${q.k}.mp3` : q.w ? QARI_WORD(q.s, q.a, q.w) : QARI_AYAH(q.s, q.a));
     if (!live()) break;
     await new Promise(r => setTimeout(r, 250));

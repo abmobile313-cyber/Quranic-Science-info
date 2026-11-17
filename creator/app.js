@@ -389,12 +389,20 @@ async function viewCourse(c) {
 }
 
 /* ============ audio ============ */
-let voiceEl = null, qariEl = null, rec = null, recUrl = null, recChunks = [];
-function stopAll() { [voiceEl, qariEl].forEach(a => { try { a && a.pause(); } catch (e) {} }); if (rec && rec.state === "recording") try { rec.stop(); } catch (e) {} $$(".playing").forEach(e => e.classList.remove("playing")); }
+let voiceEl = null, qariEl = null, rec = null, recUrl = null, recChunks = [], QTOK = 0;
+/* only ONE voice at a time: any sound that starts silences every other lesson / qari sound */
+const LIVE = new Set();
+(function () { const P = HTMLMediaElement.prototype.play;
+  HTMLMediaElement.prototype.play = function () { const me = this;
+    if (me.tagName === "AUDIO" && !me.dataset.mix) { LIVE.forEach(a => { if (a !== me) { try { a.pause(); } catch (e) {} } });
+      if (!me.__lv) { me.__lv = 1; const off = () => LIVE.delete(me); me.addEventListener("ended", off); me.addEventListener("pause", off); me.addEventListener("error", off); } LIVE.add(me); }
+    return P.apply(me, arguments); }; })();
+function stopAll() { QTOK++; [voiceEl, qariEl].forEach(a => { try { a && a.pause(); } catch (e) {} }); if (rec && rec.state === "recording") try { rec.stop(); } catch (e) {} $$(".playing").forEach(e => e.classList.remove("playing")); }
 async function playVoice() {
-  stopAll(); const { id, i, data } = LESSON, m = data && data.moments[i]; if (!m) return;
+  stopAll(); const my = QTOK; const { id, i, data } = LESSON, m = data && data.moments[i]; if (!m) return;
   let src = null; try { src = await voiceSrc(id, i + 1); } catch (e) {}
   const box = $("#vo"), after = () => { box && box.classList.remove("playing"); };
+  if (my !== QTOK) return;
   if (!src) return after();
   voiceEl = new Audio(src); box && box.classList.add("playing"); window.QSUstad && QSUstad.hint(pick(m));
   voiceEl.onended = after; voiceEl.onerror = () => box && box.classList.remove("playing");

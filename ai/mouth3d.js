@@ -130,9 +130,11 @@
     let cur = JSON.parse(JSON.stringify(REST)), raf = 0, ready = false, showLbl = true, L = lang;
     // meshes in image coordinates
     const MT = grid(540, 512, 1036, 852, 9), MV = grid(546, 500, 660, 656, 6), MU = grid(1018, 550, 1122, 628, 5), ML = grid(1014, 622, 1112, 708, 5);
-    let prog, buf, ibuf, texB, texP, texM, U = {};
+    let prog, prog2, buf, ibuf, texB, texP, texM, U = {};
     function setup(imB, imP, imM) {
       const sh = (t, s) => { const o = gl.createShader(t); gl.shaderSource(o, s); gl.compileShader(o); return o; };
+      prog2 = gl.createProgram(); gl.attachShader(prog2, sh(gl.VERTEX_SHADER, "attribute vec2 p;attribute vec4 k;uniform vec2 o;uniform float s;varying vec4 c;void main(){c=k;vec2 q=(p-o)/s;gl_Position=vec4(q.x*2.-1.,1.-q.y*2.,0.,1.);}"));
+      gl.attachShader(prog2, sh(gl.FRAGMENT_SHADER, "precision mediump float;varying vec4 c;void main(){gl_FragColor=c;}")); gl.linkProgram(prog2);
       prog = gl.createProgram(); gl.attachShader(prog, sh(gl.VERTEX_SHADER, VS)); gl.attachShader(prog, sh(gl.FRAGMENT_SHADER, FS)); gl.linkProgram(prog); gl.useProgram(prog);
       ["o", "s", "tex", "msk", "sel", "um"].forEach(n => U[n] = gl.getUniformLocation(prog, n));
       const tx = (im, unit) => { const t = gl.createTexture(); gl.activeTexture(gl.TEXTURE0 + unit); gl.bindTexture(gl.TEXTURE_2D, t);
@@ -161,6 +163,16 @@
       gl.uniform1i(U.tex, texUnit); gl.uniform1f(U.um, sel ? 1 : 0); gl.uniform3fv(U.sel, sel || [0, 0, 0]);
       gl.drawElements(gl.TRIANGLES, M.I.length, gl.UNSIGNED_SHORT, 0);
     }
+    /* the dark space between open lips (the plate behind it is only a smear): soft maroon that fades out at both ends, drawn under the lips */
+    function gapFill(p) {
+      const top = 604 + Math.min(0, p.u[1]) * .6, bot = 640 + p.l[1] + (p.jaw || 0), a = [0, .95, .95, 0], xs = [1026, 1048, 1086 + p.u[0] * .3, 1104 + p.u[0] * .3], D = [];
+      for (let i = 0; i < 4; i++) for (const y of [top, bot]) D.push(xs[i], y, .10 * a[i], .03 * a[i], .04 * a[i], a[i]);
+      gl.useProgram(prog2); gl.uniform2f(gl.getUniformLocation(prog2, "o"), O[0], O[1]); gl.uniform1f(gl.getUniformLocation(prog2, "s"), S);
+      gl.bindBuffer(gl.ARRAY_BUFFER, buf); gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(D), gl.DYNAMIC_DRAW);
+      const ap = gl.getAttribLocation(prog2, "p"), ak = gl.getAttribLocation(prog2, "k");
+      gl.enableVertexAttribArray(ap); gl.vertexAttribPointer(ap, 2, gl.FLOAT, false, 24, 0); gl.enableVertexAttribArray(ak); gl.vertexAttribPointer(ak, 4, gl.FLOAT, false, 24, 8);
+      gl.drawArrays(gl.TRIANGLE_STRIP, 0, 8); gl.disableVertexAttribArray(ak); gl.useProgram(prog);
+    }
     const MP = grid(O[0], O[1], O[0] + S, O[1] + S, 16);
     /* the plate itself moves too: throat walls close in (halq letters), the voice box rises, the lower jaw opens */
     function plateWarp(v, p) {
@@ -188,6 +200,7 @@
         const jw = (p.jaw || 0) * sm(600, 760, v[1]) * .6;
         return [v[0] + f * dx / sw, v[1] + f * dy / sw + jw];
       }), 0, [1, 0, 0]);
+      if (p.jaw > 8 || p.u[1] < -4 || p.l[1] > 4) gapFill(p);
       // lips: the inner edge stays on the teeth, the outer part moves
       drawMesh(MU, MU.V.map(v => { const w = sm(1020, 1085, v[0]); return [v[0] + p.u[0] * w, v[1] + p.u[1] * w * sm(560, 615, v[1])]; }), 0, [0, 1, 0]);
       drawMesh(ML, ML.V.map(v => { const w = sm(1016, 1080, v[0]) * (0.25 + 0.75 * sm(705, 640, v[1])); return [v[0] + p.l[0] * w - (p.jaw || 0) * .25, v[1] + p.l[1] * w + (p.jaw || 0)]; }), 0, [0, 1, 0]);
@@ -218,6 +231,23 @@
         raf = requestAnimationFrame(step);
       });
     }
+    /* natural speech: one smooth, continuous run through a whole word — every letter's lip/jaw/tongue shape blends into the next, no stops.
+       segs = [{ch, zone, v}] (v = fatha "a" / damma "u" / kasra "i" / "" sukun); total = ms for the whole word (the length of the recording) */
+    function flow(segs, total) {
+      cancelAnimationFrame(raf); q("m3pt").style.opacity = 0; q("m3air").innerHTML = ""; q("m3glow").innerHTML = "";
+      const n = segs.length || 1, per = (total || 1200) / n, K = [{ t: 0, p: cur, ch: "" }]; let t = 0;
+      segs.forEach(sg => { const c = letterPose(sg.ch, sg.zone, ""); c.c = null; c.air = null;
+        K.push({ t: t + per * .38, p: c, ch: sg.ch });                       // the letter itself (lips shape first)
+        t += per; K.push({ t: t - per * .06, p: letterPose(sg.ch, sg.zone, sg.v || ""), ch: sg.ch }); });  // then its vowel opens / rounds / spreads
+      K.push({ t: t + per * .5, p: JSON.parse(JSON.stringify(REST)), ch: "" });
+      const t0 = performance.now(), end = K[K.length - 1].t;
+      return new Promise(res => {
+        const step = now => { const e = now - t0; let i = 1; while (i < K.length - 1 && K[i].t < e) i++;
+          const a = K[i - 1], b = K[i], k = Math.max(0, Math.min(1, (e - a.t) / Math.max(1, b.t - a.t)));
+          const m = mix(a.p, b.p, k < .5 ? 2 * k * k : 1 - 2 * (1 - k) * (1 - k)); frame(m); q("m3ch").textContent = (k < .5 ? a.ch : b.ch) || "";
+          if (e < end) raf = requestAnimationFrame(step); else { cur = JSON.parse(JSON.stringify(REST)); frame(cur); q("m3ch").textContent = ""; res(); } };
+        raf = requestAnimationFrame(step); });
+    }
     /* after the pose is reached the organs keep moving for a moment, like a real voice:
        throat walls pulse (halq letters), the voice box buzzes (voiced letters), the tongue tip trills (ر), lips burst (ب) */
     function alive(T) {
@@ -242,6 +272,7 @@
     const onResize = () => { if (ready) { resize(); frame(cur); } }; window.addEventListener("resize", onResize);
     return {
       to(ch, zone, ms, vowel) { return go(letterPose(ch, zone, vowel), ms || 650, ch); },
+      flow,
       rest(ms) { return go(JSON.parse(JSON.stringify(REST)), ms || 500, ""); },
       labels(on, lg) { showLbl = on; if (lg) L = lg; labels(); },
       destroy() { cancelAnimationFrame(raf); window.removeEventListener("resize", onResize); try { const e = gl && gl.getExtension("WEBGL_lose_context"); e && e.loseContext(); } catch (e) {} },

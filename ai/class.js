@@ -38,6 +38,7 @@ const CX = {
   play: { en: "Play", ur: "سنیں", hi: "सुनें" },
   right: { en: "Right!", ur: "درست!", hi: "सही!" }, wrong: { en: "Not this one — listen again", ur: "یہ نہیں — دوبارہ سنیں", hi: "यह नहीं — दोबारा सुनें" },
   recP: { en: "Read these aloud and record yourself. Then play your voice and the qari one after the other and find the difference.", ur: "انہیں بلند آواز سے پڑھیں اور ریکارڈ کریں۔ پھر اپنی آواز اور قاری کی آواز باری باری سنیں اور فرق پہچانیں۔", hi: "इन्हें बुलंद आवाज़ से पढ़ें और रिकॉर्ड करें। फिर अपनी आवाज़ और क़ारी की आवाज़ बारी-बारी सुनें और फ़र्क़ पहचानें।" },
+  chk: { en: "Check my recitation (AI Ustad listens & corrects)", ur: "میری تلاوت چیک کریں (AI استاد سنتا اور درست کراتا ہے)", hi: "मेरी तिलावत चेक करें (AI उस्ताद सुनकर सुधारता है)" },
   recB: { en: "Record my reading", ur: "میری تلاوت ریکارڈ کریں", hi: "मेरी तिलावत रिकॉर्ड करें" },
   mine: { en: "My voice", ur: "میری آواز", hi: "मेरी आवाज़" }, qari: { en: "Qari", ur: "قاری", hi: "क़ारी" },
   took: { en: "Class time", ur: "کلاس کا وقت", hi: "क्लास का वक़्त" },
@@ -246,10 +247,11 @@ function phRecord() {
   if (!items.length) { CL.done.record = 1; return nextPhase(); }
   shell(`<section class="stage"><h3 class="clsh">🎙️ ${pick(CX.ph.record)}</h3><p class="say">${pick(CX.recP)}</p>
     <div class="bigar recar ${items[0].ip ? "ip" : ""}">${items.map(x => esc(x.ar)).join(" · ")}</div>
-    <div class="tkctl"><button class="btn rec big" id="rr">🎙️ ${pick(CX.recB)}</button><button class="btn big" id="rm" disabled>▶ ${pick(CX.mine)}</button><button class="btn cy big" id="rq">🕋 ${pick(CX.qari)}</button></div><p class="tkst" id="rs"></p></section>`);
+    <div class="tkctl"><button class="btn rec big" id="rr">🎙️ ${pick(CX.recB)}</button><button class="btn big" id="rm" disabled>▶ ${pick(CX.mine)}</button><button class="btn cy big" id="rq">🕋 ${pick(CX.qari)}</button></div><p><button class="btn pri big" id="rk">🎯 ${pick(CX.chk)}</button></p><p class="tkst" id="rs"></p></section>`);
   let url = null;
   $("#rr").onclick = e => startRec(b => { if (url) URL.revokeObjectURL(url); url = URL.createObjectURL(b); $("#rm").disabled = false; CL.done.record = 1; saveCL(); updNext(); $("#rs").textContent = "✓"; }, e.currentTarget, "🎙️ " + pick(CX.recB));
   $("#rm").onclick = () => { if (url) { stopAll(); voiceEl = new Audio(url); voiceEl.dataset.nolip = 1; voiceEl.play(); } };
+  $("#rk").onclick = () => { stopAll(); const f = items[0] && items[0].ay && items[0].src && items[0].src[0]; if (f && window.CoachState) { window.CoachState.s = f.s; window.CoachState.a = f.a; } saveCL(); location.hash = f ? "#coach=a" : "#coach=h"; };
   $("#rq").onclick = async e => { const b = e.currentTarget; b.classList.add("playing"); for (const x of items) { await playSrc(x.src); await sleep(500); } b.classList.remove("playing"); };
 }
 

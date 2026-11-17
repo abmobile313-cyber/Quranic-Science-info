@@ -89,16 +89,17 @@
 
   function stateAt(now) { /* -> {shape, open} for the current moment of the active driver */
     if (S.mode === "idle") return { shape: "_", open: 0 };
-    var el = S.el, p, tk, o = 0, shape;
+    var el = S.el, p, tk, o = 0, shape, vz = -1;
     if (S.mode === "audio" && el) {
       if (el.paused && !el.ended && el.readyState < 3 && !el.currentTime) { return { shape: "_", open: 0 }; }
       var ct = el.currentTime || 0, dur = el.duration && isFinite(el.duration) ? el.duration : (S.dur || 6);
-      if (S.env) { var e = S.env[Math.min(S.env.length - 1, Math.max(0, Math.round(ct / S.envDt)))] || 0; p = (ct - S.start) / Math.max(.2, S.end - S.start); o = e; }
+      if (S.env) { var fi = Math.min(S.env.length - 1, Math.max(0, Math.round(ct / S.envDt))), e = S.env[fi] || 0; p = (ct - S.start) / Math.max(.2, S.end - S.start); o = e; if (S.vis) { vz = S.vis[fi]; } }
       else { p = ct / dur; }
     } else if (S.mode === "tts") {
       var el2 = (now - S.t0) / 1000; p = S.boundary >= 0 ? S.boundary + Math.min(.07, ((now - S.tb) / 1000) / Math.max(.5, S.dur)) : el2 / Math.max(.5, S.dur);
     } else { p = (now - S.t0) / Math.max(1, S.dur); } /* "say": text only */
-    if (S.pl) { tk = at(S.pl, p); shape = tk[0]; if (!(S.mode === "audio" && S.env)) o = tk[2] * (.86 + .14 * Math.sin(now / 70)); else { o = Math.min(1, o * 1.15); if (shape === "_") o *= .35; if (shape === "c" && o < .5) o *= .4; } }
+    if (vz >= 0) { shape = ["_", "s", "o", "e", "a"][vz]; o = Math.min(1, o * 1.15); if (vz === 0) o *= .2; if (vz === 1) o = Math.min(o, .5); }
+    else if (S.pl) { tk = at(S.pl, p); shape = tk[0]; if (!(S.mode === "audio" && S.env)) o = tk[2] * (.86 + .14 * Math.sin(now / 70)); else { o = Math.min(1, o * 1.15); if (shape === "_") o *= .35; if (shape === "c" && o < .5) o *= .4; } }
     else { /* no text known: a natural-looking rhythm of vowels */
       var u = Math.floor(now / 190) % 7; shape = ["a", "o", "a", "e", "a", "s", "e"][u]; if (S.mode === "audio" && S.env) { o = Math.min(1, o * 1.15); } else o = .5 + .4 * Math.sin(now / 95);
     }
@@ -141,7 +142,7 @@
 
   /* ---------- starting / stopping ---------- */
   function setMode(m) { S.mode = m; kick(); }
-  function stop() { S.mode = "idle"; S.el = null; S.env = null; S.pl = null; S.boundary = -1; kick(); }
+  function stop() { S.mode = "idle"; S.el = null; S.env = null; S.vis = null; S.pl = null; S.boundary = -1; kick(); }
   function say(text, ms) { /* text-only animation (no sound), e.g. when the Ustad "speaks" a bubble */
     if (!text) return; S.pl = plan(text); S.t0 = performance.now(); S.dur = ms || Math.min(14000, 900 + String(text).length * 62); S.el = null; S.env = null; setMode("say");
     var id = ++S.sayId || (S.sayId = 1); setTimeout(function () { if (S.sayId === id && S.mode === "say") stop(); }, S.dur + 150);
@@ -164,15 +165,50 @@
       sorted = Array.prototype.slice.call(a).sort(function (x, y) { return x - y; }); mx = sorted[Math.floor(sorted.length * .95)] || 1; if (mx < 1e-4) mx = 1;
       var sm = new Float32Array(n), st = -1, en = -1;
       for (i = 0; i < n; i++) { var v1 = Math.min(1, a[i] / mx); sm[i] = i ? sm[i - 1] * .35 + v1 * .65 : v1; sm[i] = sm[i] < .08 ? 0 : sm[i]; if (sm[i] > .15) { if (st < 0) st = i; en = i; } }
-      var r = { a: sm, dt: win / sr, start: st < 0 ? 0 : st * win / sr, end: en < 0 ? n * win / sr : (en + 1) * win / sr }; ENV[src] = r; return r;
+      var r = { a: sm, dt: win / sr, start: st < 0 ? 0 : st * win / sr, end: en < 0 ? n * win / sr : (en + 1) * win / sr, vis: visemes(d, sr, win, n, sm) }; ENV[src] = r; return r;
     }).catch(function () { ENV[src] = null; return null; });
+  }
+  /* mouth shape straight from the sound: a tiny FFT per 30 ms. Low "colour" (dark vowel) -> round lips, bright vowel -> smile,
+     open vowel -> wide, hiss (s, sh, f) -> small gap, near-silence in speech -> lips closed. Thresholds adapt to this voice. */
+  var FN = 1024, FW = null, FC = null, FS = null;
+  function fft(re, im) {
+    var n = re.length, i, j = 0, k, m, t;
+    for (i = 1; i < n; i++) { var bit = n >> 1; for (; j & bit; bit >>= 1) j ^= bit; j ^= bit; if (i < j) { t = re[i]; re[i] = re[j]; re[j] = t; t = im[i]; im[i] = im[j]; im[j] = t; } }
+    for (var len = 2; len <= n; len <<= 1) {
+      var ang = -2 * Math.PI / len, wr = Math.cos(ang), wi = Math.sin(ang);
+      for (i = 0; i < n; i += len) { var cr = 1, ci = 0; for (k = 0; k < len / 2; k++) { var a = i + k, b = a + len / 2, xr = re[b] * cr - im[b] * ci, xi = re[b] * ci + im[b] * cr; re[b] = re[a] - xr; im[b] = im[a] - xi; re[a] += xr; im[a] += xi; m = cr * wr - ci * wi; ci = cr * wi + ci * wr; cr = m; } }
+    }
+  }
+  function visemes(d, sr, win, n, sm) {
+    if (!FW) { FW = new Float32Array(FN); for (var q = 0; q < FN; q++) FW[q] = .5 - .5 * Math.cos(2 * Math.PI * q / (FN - 1)); FC = new Float32Array(FN); FS = new Float32Array(FN); }
+    var hz = sr / FN, b250 = Math.round(250 / hz), b900 = Math.round(900 / hz), b3k = Math.round(3000 / hz), b3k5 = Math.round(3500 / hz), bmax = Math.round(Math.min(9000, sr / 2 - 50) / hz);
+    var cen = new Float32Array(n), hiss = new Float32Array(n), vc = [], i, k, j;
+    for (i = 0; i < n; i++) {
+      if (sm[i] < .1) continue;
+      var c0 = i * win + (win >> 1) - (FN >> 1), re = FC, im = FS;
+      for (j = 0; j < FN; j++) { var ix = c0 + j; re[j] = ix >= 0 && ix < d.length ? d[ix] * FW[j] : 0; im[j] = 0; }
+      fft(re, im);
+      var e1 = 0, e2 = 0, e3 = 0, num = 0, den = 0, m2;
+      for (k = b250; k < bmax; k++) { m2 = re[k] * re[k] + im[k] * im[k]; if (k < b900) e1 += m2; else if (k < b3k5) e2 += m2; else e3 += m2; if (k < b3k) { var mg = Math.sqrt(m2); num += k * hz * mg; den += mg; } }
+      var tot = e1 + e2 + e3 + 1e-12; hiss[i] = e3 / tot; cen[i] = den > 0 ? num / den : 0; vc.push(cen[i]);
+    }
+    vc.sort(function (x, y) { return x - y; });
+    var lo = vc.length ? vc[Math.floor(vc.length * .3)] : 900, hi = vc.length ? vc[Math.floor(vc.length * .72)] : 1700, out = new Uint8Array(n);
+    /* 0 closed, 1 small(s), 2 round(o), 3 smile(e), 4 wide(a) */
+    for (i = 0; i < n; i++) {
+      if (sm[i] < .1) { out[i] = 0; continue; }
+      if (hiss[i] > .5) out[i] = 1; else if (cen[i] < lo) out[i] = 2; else if (cen[i] > hi) out[i] = 3; else out[i] = 4;
+    }
+    var sm2 = new Uint8Array(n); /* 3-frame majority so the lips do not flicker */
+    for (i = 0; i < n; i++) { var a0 = out[Math.max(0, i - 1)], a1 = out[i], a2 = out[Math.min(n - 1, i + 1)]; sm2[i] = a0 === a2 ? a0 : a1; }
+    return sm2;
   }
   function driveAudio(el) {
     var txt = S.hintText && Date.now() - S.hintAt < 4000 ? S.hintText : ""; S.hintText = "";
-    S.pl = txt ? plan(txt) : null; S.el = el; S.env = null; S.start = 0; S.end = el.duration && isFinite(el.duration) ? el.duration : 6; S.dur = S.end; S.sayId = (S.sayId || 0) + 1;
+    S.pl = txt ? plan(txt) : null; S.el = el; S.env = null; S.vis = null; S.start = 0; S.end = el.duration && isFinite(el.duration) ? el.duration : 6; S.dur = S.end; S.sayId = (S.sayId || 0) + 1;
     setMode("audio");
     var tok = S.tokA = (S.tokA || 0) + 1, src = el.currentSrc || el.src;
-    envelope(src).then(function (e) { if (e && S.tokA === tok && S.el === el) { S.env = e.a; S.envDt = e.dt; S.start = e.start; S.end = e.end; } });
+    envelope(src).then(function (e) { if (e && S.tokA === tok && S.el === el) { S.env = e.a; S.vis = e.vis; S.envDt = e.dt; S.start = e.start; S.end = e.end; } });
     var done = function () { if (S.el === el) { el.removeEventListener("ended", done); el.removeEventListener("pause", done); el.removeEventListener("error", done); stop(); } };
     el.addEventListener("ended", done); el.addEventListener("pause", done); el.addEventListener("error", done);
   }
