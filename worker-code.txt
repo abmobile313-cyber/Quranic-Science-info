@@ -1450,6 +1450,8 @@ export async function aiRoute(req, env, url) {
       let d = ""; for (let i = 0; i < (hw.n || 0); i++) d += ((await fs.get(`hwData/${hw.id}_${i}`)) || {}).d || "";
       return out({ mime: hw.mime, data: d }); }
     if (p === "/hw/review" && req.method === "POST") { if (!hw) return out({ error: "not found" }, 404);
+      /* AI feedback on a live-class homework: saved beside the teacher's own feedback, never replaces it */
+      if (body.ai === true && hw.uid === me.uid && !String(hw.course).startsWith("ai-")) { await fs.merge(`hw/${hw.id}`, { aiFeedback: clip(body.feedback, 2000), aiAt: Date.now() }); return out({ ok: true }); }
       const self = hw.uid === me.uid && String(hw.course).startsWith("ai-");
       if (!(me.owner || (teacher && teacher.course === hw.course) || self)) return out({ error: "not allowed" }, 403);
       await fs.merge(`hw/${hw.id}`, { feedback: clip(body.feedback, 2000), marks: body.marks == null || body.marks === "" ? null : Math.max(0, Math.min(10, +body.marks || 0)), status: "checked", by: self ? "ai" : me.owner ? "owner" : "teacher", checkedAt: Date.now() });

@@ -2081,6 +2081,7 @@ const hwBox = (x, k, cls, rows) => { if (!k.hw) return ""; const due = hwDue(k, 
   return `<div class="qh-hw" style="margin-top:10px;padding:10px 12px;border-radius:14px;border:1px solid rgba(224,164,37,.35);background:rgba(224,164,37,.08)"><div class="qh-row sp"><b>📝 ${L("Homework")}</b><span class="qh-chip ${st[1]}">${st[0]}</span></div>
     <p dir="auto" style="margin:6px 0">${E(T(k.hw) || k.hw)}</p>${due ? `<small class="qh-mut">${L("Last date")}: ${new Date(due).toLocaleString(LOC(), { weekday: "short", day: "numeric", month: "short", hour: "numeric", minute: "2-digit" })}</small>` : ""}
     ${mine && mine.feedback ? `<p class="qh-mut" dir="auto" style="margin:6px 0 0">👨‍🏫 ${E(mine.feedback)}</p>` : ""}
+    ${mine && mine.aiFeedback ? `<p class="qh-mut" dir="auto" style="margin:6px 0 0">🤖 ${E(mine.aiFeedback)}</p>` : ""}<p class="qh-mut" dir="auto" id="qhAI-${E(kid(k))}" style="margin:6px 0 0"></p>
     <div class="qh-acts"><label class="qh-btn sm ${mine ? "" : "pri"}">📤 ${L(mine ? "Send again" : "Send homework")}<input type="file" accept="audio/*,image/*,video/*" hidden data-hwup="${x.i}|${E(kid(k))}"></label><a class="qh-btn sm ghost" href="/homework.html">${L("All my homework")}</a></div></div>`; };
 async function hwUpload(inp) {
   const f = inp.files && inp.files[0]; if (!f) return; const [i, id] = inp.dataset.hwup.split("|"); const x = myCourses().find(z => z.i === +i); if (!x) return;
@@ -2091,8 +2092,34 @@ async function hwUpload(inp) {
   try { const data = await new Promise((r, j) => { const fr = new FileReader(); fr.onload = () => r(String(fr.result).split(",")[1]); fr.onerror = j; fr.readAsDataURL(f); });
     const t = await AUTH.fb.auth.currentUser.getIdToken();
     const r = await fetch(HWW + "/hw/upload", { method: "POST", headers: { authorization: "Bearer " + t, "content-type": "application/json" }, body: JSON.stringify({ course: ckey(x.c), lesson: T(k.title) || "Class " + (k.n || ""), classId: kid(k), due: hwDue(k, cls), kind, mime: f.type, data, note: "" }) }).then(r => r.json());
-    if (!r.ok) throw new Error(r.error || "error"); MYHW = null; snd("success"); say("Homework sent ✓ Your teacher will check it."); go(cur);
+    if (!r.ok) throw new Error(r.error || "error"); MYHW = null; snd("success"); say("Homework sent ✓ Your teacher will check it, and our AI gives you feedback right now."); go(cur);
+    hwAI(r.id, kid(k), x.c.name, T(k.title) || "Class " + (k.n || ""), T(k.hw) || k.hw, kind, f.type || (kind === "voice" ? "audio/webm" : kind === "photo" ? "image/jpeg" : "video/mp4"), data);
   } catch (e) { snd("error"); say(String(e.message || "").length > 8 ? e.message : "Could not send. Please check your internet."); }
+}
+/* AI feedback on live-class homework (voice / photo / video): instant, kind, never replaces the teacher's marks */
+let HWAI = null;
+async function hwAIModel() {
+  if (HWAI) return HWAI;
+  const v = "12.4.0", { initializeApp } = await import(`https://www.gstatic.com/firebasejs/${v}/firebase-app.js`), ac = await import(`https://www.gstatic.com/firebasejs/${v}/firebase-app-check.js`),
+    { getAI, getGenerativeModel, GoogleAIBackend } = await import(`https://www.gstatic.com/firebasejs/${v}/firebase-ai.js`);
+  const app = initializeApp({ apiKey: "AIzaSyCCoqjw2BzgWcal6OVBqONYOB7x--WP12g", authDomain: "quranicscience-682ff.firebaseapp.com", projectId: "quranicscience-682ff", storageBucket: "quranicscience-682ff.firebasestorage.app", messagingSenderId: "573259128290", appId: "1:573259128290:web:ac11b77238e1bd7354edbb" }, "qs-hwai");
+  try { ac.initializeAppCheck(app, { provider: new ac.ReCaptchaEnterpriseProvider("6Lf3gQsuAAAAACWh2Tym8DMJoLbh5RLxNjbokYDx"), isTokenAutoRefreshEnabled: true }); } catch (e) {}
+  return HWAI = getGenerativeModel(getAI(app, { backend: new GoogleAIBackend() }), { model: "gemini-3.5-flash-lite" });
+}
+async function hwAI(id, kid_, course, title, task, kind, mime, data) {
+  const el = () => document.getElementById("qhAI-" + kid_); const put = tx => { const e = el(); if (e) e.textContent = tx; };
+  put("🤖 AI is checking your homework…");
+  try {
+    const m = await hwAIModel();
+    const ask = `A student of "${course}" sent homework for the class "${title}". The task was: ${task}
+The student sent a ${kind}. Check it kindly like a good teacher. If it is Qur'an recitation: listen for makharij, harakat length, ghunnah, madd and the rules of the class; if it is Arabic speaking: pronunciation and grammar; if it is writing: letters and words; if it is video editing, content or design work: cuts, text, colours, layout, audio and the class steps.
+Give: 1) what was good, 2) up to 3 specific corrections with the correct form, 3) a mark out of 10. If the file is unclear or unrelated, say so politely and ask them to send again. Never invent mistakes you cannot hear or see. Say clearly that the teacher will also check it. Reply in the same language as the task (English if unsure), under 120 words, plain text.`;
+    const r = await Promise.race([m.generateContent({ contents: [{ role: "user", parts: [{ inlineData: { mimeType: String(mime).split(";")[0], data } }, { text: ask }] }] }), new Promise((_, j) => setTimeout(() => j(0), 90000))]);
+    const fb = r.response.text().replace(/\*\*?|#+ |`/g, ""); if (!fb) throw 0;
+    put("🤖 " + fb); MYHW = null;
+    const t = await AUTH.fb.auth.currentUser.getIdToken();
+    fetch(HWW + "/hw/review", { method: "POST", headers: { authorization: "Bearer " + t, "content-type": "application/json" }, body: JSON.stringify({ id, feedback: fb, ai: true }) }).catch(() => {});
+  } catch (e) { put("🤖 AI could not check right now. Your teacher will check your homework."); }
 }
 /* ---------- class videos saved inside the Android app (one folder per course, secure player) ---------- */
 const NV = () => { try { return !!(window.QSNative && QSNative.features && /offline-video/.test(QSNative.features())); } catch (e) { return false; } };

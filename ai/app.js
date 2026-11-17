@@ -897,9 +897,14 @@ function wireHw(c, lessonId) {
       body: JSON.stringify({ course: !buyer(c) && liveAI(c) ? COURSES[c].live : COURSES[c].key, lesson: lessonId, kind, mime, data, note: "" }) }).then(r => r.json()).catch(() => ({ error: "network" }));
     if (!r.ok) { status.innerHTML = `<p class="mini" style="color:var(--bad)">${esc(r.error || "Error")}</p>`; return; }
     status.innerHTML = `<p class="mini">✓ ${t("hwSent")}</p><p class="why" id="hwfb">🤖 ${t("hwChecking")}</p>`;
-    const fb = await aiCheckHomework(lessonId, kind, mime, data);
-    $("#hwfb").textContent = "🤖 " + (fb || t("aiFail"));
-    if (fb) fetch(`${W}/hw/review`, { method: "POST", headers: { authorization: "Bearer " + await token(), "content-type": "application/json" }, body: JSON.stringify({ id: r.id, feedback: fb }) }).catch(() => {});
+    const run = async () => {
+      const el = $("#hwfb"); el.textContent = "🤖 " + t("hwChecking");
+      const fb = await aiCheckHomework(lessonId, kind, mime, data);
+      el.textContent = "🤖 " + (fb || t("aiFail"));
+      if (fb) fetch(`${W}/hw/review`, { method: "POST", headers: { authorization: "Bearer " + await token(), "content-type": "application/json" }, body: JSON.stringify({ id: r.id, feedback: fb }) }).catch(() => {});
+      else { const b = document.createElement("button"); b.className = "btn"; b.textContent = "🔁 " + RECHK(); b.onclick = () => { b.remove(); run(); }; el.after(b); }
+    };
+    run();
   };
   $("#hv").onclick = e => startRec(b => send(b, "voice"), e.currentTarget, "🎙️ " + t("hwVoice"));
   $("#hp").onchange = async e => { const f = e.target.files[0]; if (f) send(await shrinkImage(f), "photo"); };
@@ -920,8 +925,20 @@ async function myHomework(c) {
   const r = await fetch(`${W}/hw/list`, { headers: { authorization: "Bearer " + await token() } }).then(r => r.json()).catch(() => ({ rows: [] }));
   const rows = (r.rows || []).filter(x => x.course === COURSES[c].key || x.course === COURSES.combo.key).slice(0, 30);
   box.innerHTML = `<h2>📤 ${t("hwMine")}</h2>${rows.length ? rows.map(x => `<div class="hwrow"><b>${esc(x.lesson)}</b> · ${x.kind === "voice" ? "🎙️" : x.kind === "photo" ? "📷" : "🎥"} · <span class="mini">${new Date(x.ts).toLocaleDateString()}</span>
-    ${x.feedback ? `<p class="why">🤖 ${esc(x.feedback)}</p>` : `<p class="mini">⏳</p>`}</div>`).join("") : `<p class="mini">${t("hwNone")}</p>`}`;
+    ${x.feedback ? `<p class="why">🤖 ${esc(x.feedback)}</p>` : `<p class="mini">⏳</p><button class="btn hwre" data-id="${esc(x.id)}" data-lesson="${esc(x.lesson)}">🤖 ${RECHK()}</button>`}</div>`).join("") : `<p class="mini">${t("hwNone")}</p>`}`;
+  box.querySelectorAll(".hwre").forEach(b => b.onclick = async () => {
+    const row = b.closest(".hwrow"), p = row.querySelector("p"); b.disabled = true; p.textContent = "🤖 " + t("hwChecking");
+    try {
+      const f = await fetch(`${W}/hw/file?id=${encodeURIComponent(b.dataset.id)}`, { headers: { authorization: "Bearer " + await token() } }).then(r => r.json());
+      if (!f.data) throw 0;
+      const rw = rows.find(z => z.id === b.dataset.id) || {}, fb = await aiCheckHomework(b.dataset.lesson, rw.kind || "photo", f.mime, f.data);
+      if (!fb) throw 0;
+      p.className = "why"; p.textContent = "🤖 " + fb; b.remove();
+      fetch(`${W}/hw/review`, { method: "POST", headers: { authorization: "Bearer " + await token(), "content-type": "application/json" }, body: JSON.stringify({ id: b.dataset.id, feedback: fb }) }).catch(() => {});
+    } catch (e) { p.textContent = "🤖 " + t("aiFail"); b.disabled = false; }
+  });
 }
+const RECHK = () => ({ en: "Check again", ur: "دوبارہ چیک کریں", hi: "दोबारा चेक करें" })[LANG] || "Check again";
 
 /* ============ owner: save the lesson keys (pick the keys file once) ============ */
 function viewKeys() {

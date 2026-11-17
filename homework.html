@@ -66,6 +66,7 @@ function draw() {
     ${rows.length ? rows.map(r => `<article class="row" data-id="${esc(r.id)}"><div class="h"><b>${staff ? esc(r.name || r.email) + (r.code ? " · " + esc(r.code) : "") : esc(r.lesson)}</b><span class="st ${r.status === "checked" ? "checked" : "new"}">${r.status === "checked" ? "✓ checked" : "new"}</span>${r.late ? `<span class="st late">⏰ late</span>` : ""}${r.due ? `<span class="st due">due ${new Date(r.due).toLocaleString(undefined, { day: "numeric", month: "short", hour: "numeric", minute: "2-digit" })}</span>` : ""}</div>
       <span class="mut">${staff ? esc(r.course) + " · " + esc(r.lesson) + " · " : ""}${KIND[r.kind] || esc(r.kind)} · ${when(r.ts)}</span>
       ${r.feedback ? `<div class="fb"><b>${r.by === "ai" ? "🤖 AI Ustad" : "👨‍🏫 Teacher"}${r.marks != null ? " · " + r.marks + "/10" : ""}</b><br>${esc(r.feedback)}</div>` : ""}
+      ${r.aiFeedback ? `<div class="fb"><b>🤖 AI</b><br>${esc(r.aiFeedback)}</div>` : ""}
       <div class="media"></div><div><button class="btn op">▶ Open · کھولیں</button></div>
       ${staff ? `<div class="rv" hidden><textarea rows="3" placeholder="Feedback for the student (they get it in the app / WhatsApp)">${esc(r.feedback || "")}</textarea><p><input type="number" min="0" max="10" placeholder="Marks /10" value="${r.marks == null ? "" : r.marks}" style="max-width:160px"></p><button class="btn pri sv">✓ Save & tell the student</button></div>` : ""}</article>`).join("")
       : `<p class="center mut">Nothing here yet. · ابھی کچھ نہیں۔</p>`}`;

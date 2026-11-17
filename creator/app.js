@@ -770,9 +770,14 @@ function wireHw(c, lessonId) {
       body: JSON.stringify({ course: !buyer(c) && liveAI(c) ? COURSES[c].live : COURSES[c].key, lesson: lessonId, kind, mime, data, note: "" }) }).then(r => r.json()).catch(() => ({ error: "network" }));
     if (!r.ok) { status.innerHTML = `<p class="mini" style="color:var(--bad)">${esc(r.error || "Error")}</p>`; return; }
     status.innerHTML = `<p class="mini">✓ ${t("hwSent")}</p><p class="why" id="hwfb">🤖 ${t("hwChecking")}</p>`;
-    const fb = await aiCheckHomework(lessonId, kind, mime, data);
-    $("#hwfb").textContent = "🤖 " + (fb || t("aiFail"));
-    if (fb) fetch(`${W}/hw/review`, { method: "POST", headers: { authorization: "Bearer " + await token(), "content-type": "application/json" }, body: JSON.stringify({ id: r.id, feedback: fb }) }).catch(() => {});
+    const run = async () => {
+      const el = $("#hwfb"); el.textContent = "🤖 " + t("hwChecking");
+      const fb = await aiCheckHomework(lessonId, kind, mime, data);
+      el.textContent = "🤖 " + (fb || t("aiFail"));
+      if (fb) fetch(`${W}/hw/review`, { method: "POST", headers: { authorization: "Bearer " + await token(), "content-type": "application/json" }, body: JSON.stringify({ id: r.id, feedback: fb }) }).catch(() => {});
+      else { const b = document.createElement("button"); b.className = "btn"; b.textContent = "🔁 " + RECHK(); b.onclick = () => { b.remove(); run(); }; el.after(b); }
+    };
+    run();
   };
   $("#hv").onclick = e => startRec(b => send(b, "voice"), e.currentTarget, "🎙️ " + t("hwVoice"));
   $("#hp").onchange = async e => { const f = e.target.files[0]; if (f) send(await shrinkImage(f), "photo"); };
@@ -781,20 +786,32 @@ function wireHw(c, lessonId) {
 async function aiCheckHomework(lessonId, kind, mime, data) {
   const m = await aiModel(); if (!m) return "";
   const L = LESSON.data && LESSON.id === lessonId ? LESSON.data : null;
-  const lessonText = L ? L.moments.map(x => x.en + (x.ar ? " [" + x.ar + "]" : "")).join("\n") : lessonId;
+  const lessonText = L ? L.moments.map(x => x.en).join("\n") : lessonId;
   const lang = LANG === "ur" ? "Urdu (Urdu script)" : LANG === "hi" ? "simple Hindi-Urdu in Devanagari" : "English";
-  const ask = `This is a student's homework for lesson ${lessonId} of Learn with Quranic Science AI. The lesson:\n${lessonText}\n
-The student sent a ${kind}. Check it kindly like a good teacher. If it is recitation, listen for makharij, harakat length, ghunnah, madd and the rules of this lesson; if it is writing, check the letters/words; if it is spoken Arabic, check pronunciation and grammar.
-Give: 1) what was good, 2) up to 3 specific corrections with the correct form, 3) a mark out of 10. If the audio/image is unclear or not related to the lesson, say so politely and ask them to send again. Never invent mistakes you cannot hear or see. Reply in ${lang}, under 120 words, plain text.`;
-  try { const r = await withTimeout(m.generateContent({ contents: [{ role: "user", parts: [{ inlineData: { mimeType: mime.split(";")[0], data } }, { text: ask }] }] }), 60000); return r.response.text().replace(/\*\*?|#+ |`/g, ""); } catch (e) { return ""; }
+  const ask = `This is a student's homework for lesson ${lessonId} of the Quranic Science Creator course (video editing with CapCut, content creation, graphic design). The lesson:\n${lessonText}\n
+The student sent a ${kind}. Check it kindly like a good teacher. If it is a video, watch it: check the cuts and timing, text and captions, audio levels, colours, hook in the first 3 seconds and the steps of this lesson. If it is a photo or screenshot, check the layout, text, alignment, colours and the steps of this lesson. If it is a voice note, check that the student explains the lesson clearly.
+Give: 1) what was good, 2) up to 3 specific corrections with how to fix them, 3) a mark out of 10. If the file is unclear or not related to the lesson, say so politely and ask them to send again. Never invent mistakes you cannot see or hear. Neutral, friendly tone for students of every background. Reply in ${lang}, under 120 words, plain text.`;
+  try { const r = await withTimeout(m.generateContent({ contents: [{ role: "user", parts: [{ inlineData: { mimeType: mime.split(";")[0], data } }, { text: ask }] }] }), 90000); return r.response.text().replace(/\*\*?|#+ |`/g, ""); } catch (e) { return ""; }
 }
 async function myHomework(c) {
   const box = $("#hwList"); if (!box) return;
   const r = await fetch(`${W}/hw/list`, { headers: { authorization: "Bearer " + await token() } }).then(r => r.json()).catch(() => ({ rows: [] }));
   const rows = (r.rows || []).filter(x => x.course === COURSES[c].key || x.course === COURSES.combo.key).slice(0, 30);
   box.innerHTML = `<h2>📤 ${t("hwMine")}</h2>${rows.length ? rows.map(x => `<div class="hwrow"><b>${esc(x.lesson)}</b> · ${x.kind === "voice" ? "🎙️" : x.kind === "photo" ? "📷" : "🎥"} · <span class="mini">${new Date(x.ts).toLocaleDateString()}</span>
-    ${x.feedback ? `<p class="why">🤖 ${esc(x.feedback)}</p>` : `<p class="mini">⏳</p>`}</div>`).join("") : `<p class="mini">${t("hwNone")}</p>`}`;
+    ${x.feedback ? `<p class="why">🤖 ${esc(x.feedback)}</p>` : `<p class="mini">⏳</p><button class="btn hwre" data-id="${esc(x.id)}" data-lesson="${esc(x.lesson)}">🤖 ${RECHK()}</button>`}</div>`).join("") : `<p class="mini">${t("hwNone")}</p>`}`;
+  box.querySelectorAll(".hwre").forEach(b => b.onclick = async () => {
+    const row = b.closest(".hwrow"), p = row.querySelector("p"); b.disabled = true; p.textContent = "🤖 " + t("hwChecking");
+    try {
+      const f = await fetch(`${W}/hw/file?id=${encodeURIComponent(b.dataset.id)}`, { headers: { authorization: "Bearer " + await token() } }).then(r => r.json());
+      if (!f.data) throw 0;
+      const rw = rows.find(z => z.id === b.dataset.id) || {}, fb = await aiCheckHomework(b.dataset.lesson, rw.kind || "photo", f.mime, f.data);
+      if (!fb) throw 0;
+      p.className = "why"; p.textContent = "🤖 " + fb; b.remove();
+      fetch(`${W}/hw/review`, { method: "POST", headers: { authorization: "Bearer " + await token(), "content-type": "application/json" }, body: JSON.stringify({ id: b.dataset.id, feedback: fb }) }).catch(() => {});
+    } catch (e) { p.textContent = "🤖 " + t("aiFail"); b.disabled = false; }
+  });
 }
+const RECHK = () => ({ en: "Check again", ur: "دوبارہ چیک کریں", hi: "दोबारा चेक करें" })[LANG] || "Check again";
 
 /* ============ owner: save the lesson keys (pick the keys file once) ============ */
 function viewKeys() {
