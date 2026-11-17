@@ -32,7 +32,7 @@ const TX = {
   q: "Question", of: "of", right: "Correct!", wrong: "Not quite.", cont: "Continue", done: "Lesson complete", saved: "Saved to your progress.", yourScore: "Your score",
   nextL: "Next lesson", toCourse: "Back to course", lowNote: "You can continue, but wrong answers lower your course score. Review this lesson if you like.",
   ask: "Ask AI Teacher", ustad: "AI Teacher", send: "Send", askPh: "Ask about this lesson, a Tajweed rule or an Arabic word…",
-  aiNote: "AI Teacher answers from the course. For fatwa or personal issues, please ask a scholar.", aiHello: "Assalamu alaikum! I am your AI Teacher. Ask me anything about Tajweed or Arabic from this course.",
+  aiNote: "AI Teacher answers from the course. For personal issues, please ask your teacher on WhatsApp.", aiHello: "Hello! I am your AI Teacher. Ask me anything about this course.",
   aiFail: "The AI Teacher is not available right now. Please try again in a minute, or message us on WhatsApp.",
   cert: "Certificate", certNeed: "Complete all 72 lessons and score at least 70% in the final exam to get your certificate.", dl: "Download",
   free: "Free", voiceOff: "Voice off", voiceOn: "Voice on", micNo: "Microphone not allowed. Please allow it in your browser.", payNote: "After payment your course opens automatically on the same account (same mobile/email).",
@@ -60,7 +60,7 @@ const TX = {
   q: "سوال", of: "میں سے", right: "درست!", wrong: "صحیح نہیں۔", cont: "آگے بڑھیں", done: "سبق مکمل", saved: "آپ کی پروگریس میں محفوظ ہو گیا۔", yourScore: "آپ کا نمبر",
   nextL: "اگلا سبق", toCourse: "کورس پر واپس", lowNote: "آپ آگے بڑھ سکتے ہیں، لیکن غلط جواب آپ کے کورس کے نمبر کم کرتے ہیں۔ چاہیں تو یہ سبق دوبارہ دیکھیں۔",
   ask: "اے آئی ٹیچر سے پوچھیں", ustad: "اے آئی ٹیچر", send: "بھیجیں", askPh: "اس سبق، تجوید کے قاعدے یا عربی لفظ کے بارے میں پوچھیں…",
-  aiNote: "اے آئی ٹیچر کورس کی بنیاد پر جواب دیتا ہے۔ فتویٰ یا ذاتی مسائل کے لیے عالم سے پوچھیں۔", aiHello: "السلام علیکم! میں آپ کا اے آئی ٹیچر ہوں۔ اس کورس سے تجوید یا عربی کے بارے میں کچھ بھی پوچھیں۔",
+  aiNote: "اے آئی ٹیچر کورس کی بنیاد پر جواب دیتا ہے۔ ذاتی بات کے لیے واٹس ایپ پر استاد سے پوچھیں۔", aiHello: "ہیلو! میں آپ کا اے آئی ٹیچر ہوں۔ اس کورس کے بارے میں کچھ بھی پوچھیں۔",
   aiFail: "اے آئی ٹیچر ابھی دستیاب نہیں۔ ایک منٹ بعد دوبارہ کوشش کریں، یا واٹس ایپ پر پیغام بھیجیں۔",
   cert: "سرٹیفکیٹ", certNeed: "سرٹیفکیٹ کے لیے تمام ۷۲ اسباق مکمل کریں اور فائنل امتحان میں کم از کم ۷۰٪ نمبر لائیں۔", dl: "ڈاؤن لوڈ",
   free: "مفت", voiceOff: "آواز بند", voiceOn: "آواز چالو", micNo: "مائیک کی اجازت نہیں ملی۔ براؤزر میں اجازت دیں۔", payNote: "ادائیگی کے بعد آپ کا کورس اسی اکاؤنٹ (اسی موبائل/ای میل) پر خود کھل جائے گا۔",
@@ -88,7 +88,7 @@ const TX = {
   q: "सवाल", of: "में से", right: "सही!", wrong: "सही नहीं।", cont: "आगे बढ़ें", done: "सबक़ पूरा", saved: "आपकी प्रोग्रेस में महफ़ूज़ हो गया।", yourScore: "आपका नंबर",
   nextL: "अगला सबक़", toCourse: "कोर्स पर वापस", lowNote: "आप आगे बढ़ सकते हैं, लेकिन ग़लत जवाब आपके कोर्स के नंबर कम करते हैं। चाहें तो यह सबक़ दोबारा देखें।",
   ask: "ए आई टीचर से पूछें", ustad: "ए आई टीचर", send: "भेजें", askPh: "इस सबक़, तजवीद के क़ायदे या अरबी लफ़्ज़ के बारे में पूछें…",
-  aiNote: "ए आई टीचर कोर्स की बुनियाद पर जवाब देता है। फ़तवा या ज़ाती मसाइल के लिए आलिम से पूछें।", aiHello: "अस्सलामु अलैकुम! मैं आपका ए आई टीचर हूँ। इस कोर्स से तजवीद या अरबी के बारे में कुछ भी पूछें।",
+  aiNote: "ए आई टीचर कोर्स की बुनियाद पर जवाब देता है। निजी बात के लिए WhatsApp पर उस्ताद से पूछें।", aiHello: "हेलो! मैं आपका ए आई टीचर हूँ। इस कोर्स के बारे में कुछ भी पूछें।",
   aiFail: "ए आई टीचर अभी उपलब्ध नहीं। एक मिनट बाद दोबारा कोशिश करें, या व्हाट्सऐप पर मैसेज भेजें।",
   cert: "सर्टिफ़िकेट", certNeed: "सर्टिफ़िकेट के लिए सारे 72 सबक़ पूरे करें और फ़ाइनल इम्तिहान में कम से कम 70% नंबर लाएँ।", dl: "डाउनलोड",
   free: "मुफ़्त", voiceOff: "आवाज़ बंद", voiceOn: "आवाज़ चालू", micNo: "माइक की इजाज़त नहीं मिली। ब्राउज़र में इजाज़त दें।", payNote: "पेमेंट के बाद आपका कोर्स उसी अकाउंट (उसी मोबाइल/ईमेल) पर ख़ुद खुल जाएगा।",
@@ -111,7 +111,7 @@ Object.assign(TX.en, { tag: "Video Editing · Content · Design · AI Teacher", 
   editing: "Video Editing (CapCut) with AI", content: "Content Creation with AI", combo: "All-in-One Creator with AI", design: "Graphic Design with AI",
   dT: "Cuts, captions, sound, colour, motion and client work in CapCut — 35 lessons.", dA: "Niche, ideas, hooks, scripts, phone shooting, vlogs, growth and earning — 20 lessons.", dC: "Video Editing + Content Creation + Graphic Design (gift) + AI Masterclass — 70 lessons.", dD: "Canva and ChatGPT images: posts, thumbnails, posters, logo and brand kit — 5 lessons.",
   listen: "Watch the steps", askPh: "Ask about this lesson, CapCut, Canva or content…",
-  aiNote: "AI Teacher answers from the course. For anything personal, ask your teacher on WhatsApp.", aiHello: "Assalamu alaikum! I am your AI Teacher. Ask me anything about editing, content or design from this course.",
+  aiNote: "AI Teacher answers from the course. For anything personal, ask your teacher on WhatsApp.", aiHello: "Hello! I am your AI Teacher. Ask me anything about editing, content or design from this course.",
   certNeed: "Complete every lesson and pass the questions to get your certificate.",
   fullD: "Every lesson of the course opens at once + offline saving inside the app. Learn at your own speed; the certificate opens when every lesson and question is done.",
   hwP: "Send your homework: your video, a screenshot or a photo (max 10 MB). The AI Teacher checks it and gives you feedback." });
@@ -121,7 +121,7 @@ Object.assign(TX.ur, { tag: "ویڈیو ایڈیٹنگ · کانٹینٹ · ڈی
   editing: "ویڈیو ایڈیٹنگ (کیپ کٹ) اے آئی کے ساتھ", content: "کانٹینٹ کریئیشن اے آئی کے ساتھ", combo: "آل اِن ون کریئیٹر اے آئی کے ساتھ", design: "گرافک ڈیزائن اے آئی کے ساتھ",
   dT: "کیپ کٹ میں کٹ، کیپشن، آواز، رنگ، موشن اور کلائنٹ کا کام — ۳۵ اسباق۔", dA: "نِیش، آئیڈیا، ہُک، اسکرپٹ، فون سے شوٹ، ولاگ، گروتھ اور کمائی — ۲۰ اسباق۔", dC: "ویڈیو ایڈیٹنگ + کانٹینٹ کریئیشن + گرافک ڈیزائن (تحفہ) + اے آئی ماسٹرکلاس — ۷۰ اسباق۔", dD: "کینوا اور چیٹ جی پی ٹی امیجز: پوسٹ، تھمب نیل، پوسٹر، لوگو اور برانڈ کٹ — ۵ اسباق۔",
   listen: "قدم دیکھیں", askPh: "اس سبق، کیپ کٹ، کینوا یا کانٹینٹ کے بارے میں پوچھیں…",
-  aiNote: "اے آئی ٹیچر کورس سے جواب دیتا ہے۔ ذاتی بات کے لیے واٹس ایپ پر استاد سے پوچھیں۔", aiHello: "السلام علیکم! میں آپ کا اے آئی ٹیچر ہوں۔ اس کورس کی ایڈیٹنگ، کانٹینٹ یا ڈیزائن کے بارے میں کچھ بھی پوچھیں۔",
+  aiNote: "اے آئی ٹیچر کورس سے جواب دیتا ہے۔ ذاتی بات کے لیے واٹس ایپ پر استاد سے پوچھیں۔", aiHello: "ہیلو! میں آپ کا اے آئی ٹیچر ہوں۔ اس کورس کی ایڈیٹنگ، کانٹینٹ یا ڈیزائن کے بارے میں کچھ بھی پوچھیں۔",
   certNeed: "سرٹیفکیٹ کے لیے ہر سبق مکمل کریں اور سوالوں میں پاس ہوں۔",
   fullD: "کورس کے سارے اسباق ایک ساتھ کھل جائیں گے + ایپ میں آف لائن محفوظ کرنا۔ اپنی رفتار سے سیکھیں؛ سرٹیفکیٹ ہر سبق اور سوال مکمل ہونے پر کھلے گا۔",
   hwP: "اپنا ہوم ورک بھیجیں: اپنی ویڈیو، اسکرین شاٹ یا فوٹو (زیادہ سے زیادہ ۱۰ ایم بی)۔ اے آئی ٹیچر چیک کر کے رائے دے گا۔" });
@@ -131,7 +131,7 @@ Object.assign(TX.hi, { tag: "वीडियो एडिटिंग · कं�
   editing: "वीडियो एडिटिंग (CapCut) ए आई के साथ", content: "कंटेंट क्रिएशन ए आई के साथ", combo: "ऑल-इन-वन क्रिएटर ए आई के साथ", design: "ग्राफ़िक डिज़ाइन ए आई के साथ",
   dT: "CapCut में कट, कैप्शन, आवाज़, रंग, मोशन और क्लाइंट का काम — 35 सबक़।", dA: "निश, आइडिया, हुक, स्क्रिप्ट, फ़ोन से शूट, व्लॉग, ग्रोथ और कमाई — 20 सबक़।", dC: "वीडियो एडिटिंग + कंटेंट क्रिएशन + ग्राफ़िक डिज़ाइन (तोहफ़ा) + ए आई मास्टरक्लास — 70 सबक़।", dD: "Canva और ChatGPT इमेज: पोस्ट, थंबनेल, पोस्टर, लोगो और ब्रांड किट — 5 सबक़।",
   listen: "क़दम देखें", askPh: "इस सबक़, CapCut, Canva या कंटेंट के बारे में पूछें…",
-  aiNote: "ए आई टीचर कोर्स से जवाब देता है। निजी बात के लिए WhatsApp पर उस्ताद से पूछें।", aiHello: "अस्सलामु अलैकुम! मैं आपका ए आई टीचर हूँ। इस कोर्स की एडिटिंग, कंटेंट या डिज़ाइन के बारे में कुछ भी पूछें।",
+  aiNote: "ए आई टीचर कोर्स से जवाब देता है। निजी बात के लिए WhatsApp पर उस्ताद से पूछें।", aiHello: "हेलो! मैं आपका ए आई टीचर हूँ। इस कोर्स की एडिटिंग, कंटेंट या डिज़ाइन के बारे में कुछ भी पूछें।",
   certNeed: "सर्टिफ़िकेट के लिए हर सबक़ पूरा करें और सवालों में पास हों।",
   fullD: "कोर्स के सारे सबक़ एक साथ खुल जाएँगे + ऐप में ऑफ़लाइन सेव। अपनी रफ़्तार से सीखें; सर्टिफ़िकेट हर सबक़ और सवाल पूरा होने पर खुलेगा।",
   hwP: "अपना होमवर्क भेजें: अपनी वीडियो, स्क्रीनशॉट या फ़ोटो (ज़्यादा से ज़्यादा 10 MB)। ए आई टीचर चेक करके राय देगा।" });
@@ -337,7 +337,7 @@ function buy(c, fullOnly) {
     const owned = c === "combo" ? has("editing") && has("content") : has(c);
     const line = (label, inr, usd, link, linkI) => `<div class="opt"><b>${label}</b><span>${rupee(inr)} · <bdi dir="ltr">$${usd}</bdi></span>
       ${link ? `<a class="btn pri sm" href="${link}" target="_blank" rel="noopener">${t("enroll")} – India</a>` : ""}${linkI ? `<a class="btn sm" href="${linkI}" target="_blank" rel="noopener">${t("intl")}</a>` : ""}
-      <a class="btn cy sm" target="_blank" rel="noopener" href="https://wa.me/${WA}?text=${encodeURIComponent(`Assalamu Alaikum, I want "${TX.en[c]}" – ${label === t("fullT") ? "Full Access add-on" : "course"} (₹${inr} / $${usd}). My email: ${S.user ? S.user.email || "" : ""}`)}">${t("payWa")}</a></div>`;
+      <a class="btn cy sm" target="_blank" rel="noopener" href="https://wa.me/${WA}?text=${encodeURIComponent(`Hello, I want "${TX.en[c]}" – ${label === t("fullT") ? "Full Access add-on" : "course"} (₹${inr} / $${usd}). My email: ${S.user ? S.user.email || "" : ""}`)}">${t("payWa")}</a></div>`;
     const m = modal(`<h3>${t(c)}</h3><p class="mini">${t("payNote")}</p><div style="display:grid;gap:10px;margin-top:10px">
       ${owned || fullOnly ? "" : line(t("dailyT"), C.inr, C.usd, C.pay, C.payIntl)}
       ${owned ? line(t("fullT"), C.fInr, C.fUsd, C.payFull, C.payFullIntl) : fullOnly ? `<p class="mini"><b>1.</b> ${t("dailyT")}</p>` + line(t("dailyT"), C.inr, C.usd, C.pay, C.payIntl) + `<p class="mini"><b>2.</b> ${t("fullT")} (+)</p>` + line(t("fullT"), C.fInr, C.fUsd, C.payFull, C.payFullIntl) + `<p class="mini">= ${rupee(C.inr + C.fInr)} · <bdi dir="ltr">$${C.usd + C.fUsd}</bdi></p>` : line(t("fullT") + " (" + t("dailyT") + " + " + t("fullT") + ")", C.inr + C.fInr, C.usd + C.fUsd, "", "")}
@@ -524,7 +524,7 @@ function buyAddon(c) {
   const go = () => { const both = liveOf("editing") && liveOf("content");
     const line = (k, label) => { const C = COURSES[k]; return `<div class="opt"><b>${label}</b><span>${rupee(C.aInr)} · <bdi dir="ltr">$${C.aUsd}</bdi> <small>${pick(ADDX.only)}</small></span>
       ${C.aPay ? `<a class="btn pri sm" href="${C.aPay}" target="_blank" rel="noopener">${t("enroll")} – India</a>` : ""}${C.aPayIntl ? `<a class="btn sm" href="${C.aPayIntl}" target="_blank" rel="noopener">${t("intl")}</a>` : ""}
-      <a class="btn cy sm" target="_blank" rel="noopener" href="https://wa.me/${WA}?text=${encodeURIComponent(`Assalamu Alaikum, I am a live-class student. I want the AI practice add-on: ${label} (₹${C.aInr} / $${C.aUsd}). My email: ${S.user ? S.user.email || "" : ""}`)}">${t("payWa")}</a></div>`; };
+      <a class="btn cy sm" target="_blank" rel="noopener" href="https://wa.me/${WA}?text=${encodeURIComponent(`Hello, I am a live-class student. I want the AI practice add-on: ${label} (₹${C.aInr} / $${C.aUsd}). My email: ${S.user ? S.user.email || "" : ""}`)}">${t("payWa")}</a></div>`; };
     modal(`<h3>🎓 ${pick(ADDX.b)}</h3><p class="mini">${pick(ADDX.p)}</p><div style="display:grid;gap:10px;margin-top:10px">${line(c, t(c))}${both ? line("combo", pick(ADDX.both)) : ""}</div>`);
     if (S.user && db) db.collection("users").doc(S.user.uid).set({ lastEnroll: { course: COURSES[c].addon, ts: Date.now() } }, { merge: true }).catch(() => {}); };
   S.user ? go() : loginBox(go);
@@ -902,23 +902,22 @@ async function drawCert(cv, d) {
 const AIX = { model: null, tried: false, hist: [] };
 const withTimeout = (p, ms) => Promise.race([p, new Promise((_, rej) => setTimeout(() => rej(new Error("timeout")), ms))]);
 async function ustadKnowledge() {
-  const [ot, oa] = await Promise.all([outline("editing"), outline("content")]);
+  const [ot, oa, og] = await Promise.all([outline("editing"), outline("content"), outline("design")]);
   const syl = (o, n) => n + ":\n" + o.weeks.map((w, i) => `Week ${i + 1} ${w.title.en}: ` + w.days.map((d, j) => `D${j + 1} ${d.title.en}`).join("; ")).join("\n");
   let cur = "";
   if (LESSON.data && /lesson=/.test(location.hash)) cur = "\nTHE STUDENT IS NOW ON THIS LESSON (" + LESSON.id + "):\n" + LESSON.data.moments.map(m => m.en + (m.ar ? " [" + m.ar + "]" : "")).join("\n");
-  return `You are "AI Teacher", the complete teacher inside "Learn with Quranic Science AI" (quranicscience.info), a self-paced course for Tajweed (Hafs 'an 'Asim, Indo-Pak 15-line mushaf conventions) and beginner Arabic speaking/Qur'anic Arabic. There is no human teacher in this course: you explain, correct and guide.
+  return `You are "AI Teacher", the complete teacher inside "Learn with Quranic Science AI" (quranicscience.info), self-paced creator courses: Video Editing (CapCut), Content Creation and Graphic Design (All-in-One Creator). Students come from every background and faith, so keep a neutral, friendly, professional tone: no religious greetings or phrases. There is no human teacher in these self-paced lessons: you explain, correct and guide.
 RULES (very important):
-1. Answer ONLY about Tajweed, Qur'an reading, Arabic language and this course (lessons, homework, time slot, certificate). For other topics, politely say you only help with this course.
-2. Be accurate. Use the standard rules of Tajweed for Hafs 'an 'Asim via ash-Shatibiyyah (e.g. madd muttasil and munfasil 4-5 counts, madd lazim 6, ghunnah 2 counts, qalqalah letters قطب جد, isti'la letters خص ضغط قظ, izhar letters ء ه ع ح غ خ, idgham letters ينمو and ل ر, iqlab before ب, ikhfa 15 letters).
-3. If you are not fully sure, say so honestly instead of guessing. Never invent rules, ayat, references or hadith.
-4. Never give fatwas or rulings on halal/haram, fiqh disputes or personal matters; refer to a qualified scholar.
-5. When quoting the Qur'an, quote exactly in Arabic with diacritics and give the surah:ayah. Do not paraphrase the Arabic.
-6. Reply in the student's language: Urdu script → Urdu, Devanagari → Hindi-Urdu, Roman Urdu → Roman Urdu, English → English. Keep answers short (under 120 words), kind and clear, with one example.
-7. Plain text only; no markdown symbols. For a list start lines with •.
-COURSE FACTS: daily mode opens one lesson a day at the student's own fixed time (6 days a week; the time cannot be changed once chosen). Full Access opens all lessons at once with offline saving inside the app. Certificate after all 72 lessons and 70% in the final exam. Prices: Tajweed with AI ₹1,479 ($18), Arabic with AI ₹2,999 ($36), both ₹3,999 ($48); Full Access +₹999 ($12) for Tajweed, +₹1,009 ($11) for Arabic, +₹1,519 ($17) for both.
+1. Answer ONLY about video editing, content creation, social media growth, graphic design, AI tools used in these lessons, and this course (lessons, homework, time slot, certificate). For other topics, politely say you only help with this course.
+2. Be accurate and practical: give short step-by-step instructions with the exact tool, menu or setting name. If you are not fully sure, say so honestly instead of guessing. Never invent features, prices or results.
+3. Never promise income or guaranteed results. Never give legal, medical or financial advice.
+4. Reply in the student's language: Urdu script → Urdu, Devanagari → Hindi-Urdu, Roman Urdu → Roman Urdu, English → English. Keep answers short (under 120 words), kind and clear, with one example.
+5. Plain text only; no markdown symbols. For a list start lines with •.
+COURSE FACTS: daily mode opens one lesson a day at the student's own fixed time (6 days a week; the time cannot be changed once chosen). Full Access opens all lessons at once with offline saving inside the app. Certificate after all lessons and 70% in the final exam. Prices: Video Editing with AI ₹4,189 ($52), Content Creation with AI ₹4,179 ($53), All-in-One Creator with AI ₹9,799 ($122); Full Access add-on +₹1,999 ($25), +₹1,989 ($24) and +₹4,499 ($55) respectively.
 COURSE SYLLABUS:
-${syl(ot, "TAJWEED (72 lessons)")}
-${syl(oa, "ARABIC (72 lessons)")}${cur}`;
+${syl(ot, "VIDEO EDITING (CapCut)")}
+${syl(oa, "CONTENT CREATION")}
+${syl(og, "GRAPHIC DESIGN (All-in-One)")}${cur}`;
 }
 async function aiModel() {
   if (AIX.model || AIX.tried) return AIX.model; AIX.tried = true;

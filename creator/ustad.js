@@ -14,7 +14,7 @@
   var reduce = false; try { reduce = matchMedia("(prefers-reduced-motion:reduce)").matches; } catch (e) {}
   function load() {
     if (ready === "loading" || ready === true) return; ready = "loading"; var n = 0;
-    ORDER.forEach(function (k) { var im = new Image(); im.onload = function () { if (++n === ORDER.length) { ready = true; instances.forEach(draw); } }; im.src = BASE + FILES[k] + "?v=2"; IMG[k] = im; });
+    ORDER.forEach(function (k) { var im = new Image(); im.onload = function () { if (++n === ORDER.length) { ready = true; instances.forEach(draw); } }; im.src = BASE + FILES[k] + "?v=3"; IMG[k] = im; });
   }
 
   /* ---------- text -> mouth shapes ---------- */

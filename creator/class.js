@@ -29,7 +29,7 @@ const CX = {
   youFirst: { en: "Read it yourself first…", ur: "پہلے خود پڑھیں…", hi: "पहले ख़ुद पढ़ें…" },
   stop: { en: "Pause", ur: "روکیں", hi: "रोकें" },
   tapHint: { en: "Tap any box to hear it again. Repeat aloud every time.", ur: "کسی بھی خانے کو چھوئیں اور دوبارہ سنیں۔ ہر بار بلند آواز سے دہرائیں۔", hi: "किसी भी ख़ाने को छुएँ और दोबारा सुनें। हर बार बुलंद आवाज़ से दोहराएँ।" },
-  allRounds: { en: "All 3 rounds done — mashaAllah!", ur: "تینوں دور مکمل — ماشاءاللہ!", hi: "तीनों दौर पूरे — माशाअल्लाह!" },
+  allRounds: { en: "All 3 rounds done — well done!", ur: "تینوں دور مکمل — شاباش!", hi: "तीनों दौर पूरे — शाबाश!" },
   again: { en: "Do another round", ur: "ایک دور اور کریں", hi: "एक दौर और करें" },
   revNone: { en: "This is your first lesson, so there is nothing to revise yet. Continue to the next step.", ur: "یہ آپ کا پہلا سبق ہے، اس لیے ابھی دہرائی نہیں ہے۔ اگلے مرحلے پر جائیں۔", hi: "यह आपका पहला सबक़ है, इसलिए अभी दोहराई नहीं है। अगले चरण पर जाएँ।" },
   revP: { en: "Read yesterday's words again with the qari. Revision makes the lesson stay.", ur: "کل کے الفاظ قاری کے ساتھ دوبارہ پڑھیں۔ دہرائی سے سبق پکا ہوتا ہے۔", hi: "कल के अल्फ़ाज़ क़ारी के साथ दोबारा पढ़ें। दोहराई से सबक़ पक्का होता है।" },
