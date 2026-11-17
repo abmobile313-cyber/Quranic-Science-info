@@ -699,7 +699,7 @@ function drawMoment() {
   app.innerHTML = lessonHead() + `<section class="stage">
     <div class="vo uteach" id="vo"><div class="uface" id="uface"></div><div class="uinfo"><b>🎓 ${t("ustad")}</b><div class="uline"><span class="eq"><i></i><i></i><i></i></span><button class="btn sm" id="rv">↻ ${t("replay")}</button></div></div></div>
     <div class="say">${esc(pick(m))}</div>
-    ${visualHTML(m.v || (window.autoV && autoV(m)))}${m.ar ? tilesHTML(m.ar, m.wq, m.aw) : ""}
+    ${visualHTML((window.storeV && storeV(m)) || m.v || (window.autoV && autoV(m)))}${m.ar ? tilesHTML(m.ar, m.wq, m.aw) : ""}
     ${/^(Homework|Weekly test|Test|Speaking test)\b/.test(m.en || "") ? `<p class="mini hwhint">📤 ${t("hwHint")}</p>` : ""}
     <div class="tools">${m.q ? `<button class="btn cy" id="qb">🕋 ${t("listen")}</button>` : m.wq || m.aw ? `<button class="btn cy" id="qb">🔊 ${t("arVoice")}</button>` : ""}${m.q || m.wq || m.v || m.ar ? `<button class="btn sm" id="rp" title="${t("repeat")}">🔁 ×${S.rep}</button>` : ""}${m.rec ? `<button class="btn rec" id="rb">🎙️ ${t("rec")}</button><button class="btn" id="pb" disabled>▶ ${t("mine")}</button>` : ""}</div>
   </section><div class="nav"><button class="btn big" id="bk" ${i === 0 ? "disabled" : ""}>${t("back")}</button><button class="btn pri big" id="nx">${i === data.moments.length - 1 ? (typeof CL !== "undefined" && CL.on ? t("next") : t("toQuiz")) : t("next")}</button></div>`;

@@ -372,13 +372,61 @@
     var f = GAPP.frames; for (var n in f) for (var h in f[n].hs) { var z = f[n].hs[h]; if (h !== "newchat") z[0] += 150; }
     GAPP.zones.chat = [480, 80, 880, 680]; GAPP.zones.composer = [570, 770, 760, 84];
   })();
-  var APPS = { canva: CAPP, insta: IAPP, gpt: GAPP, zoom: ZAPP };
+
+  /* ============================== PLAY STORE / APP STORE (phone 360x780) ============================== */
+  var SW = 360, SH = 780;
+  function stBar(txt, focus) {
+    return R(0, 0, SW, SH, "#fff") + R(0, 0, SW, 30, "#fff") + Tx(18, 20, 12, "9:41", "#111", 600) + R(16, 44, 328, 46, "#f1f3f4", 23) + Tx(46, 73, 16, txt || "Search apps & games", txt ? "#111" : "#5f6368", 400) + C(34, 67, 6, "none", "#5f6368") + Ln(38, 72, 43, 77, "#5f6368", 1.6) + (focus ? R(16, 44, 328, 46, "none", 23, "#1a73e8") : "");
+  }
+  function stIcon(x, y, s) { return R(x, y, s, s, "#000", s * .22) + Pa("M" + (x + s * .3) + " " + (y + s * .3) + "l" + s * .4 + " " + s * .2 + "l-" + s * .4 + " " + s * .2 + "z", "#fff") + Pa("M" + (x + s * .22) + " " + (y + s * .76) + "h" + s * .56, 0, "#00e5ff", 2.5); }
+  function stSearch() {
+    var s = stBar("CapCut", true) + Tx(18, 126, 13, "Suggested for you", "#5f6368", 500);
+    var rows = [["CapCut - Video Editor", "ByteDance Pte. Ltd.", "4.6 ★ · 500M+"], ["CapCut Templates", "Video maker", "4.3 ★ · 10M+"], ["InShot Video Editor", "InShot Inc.", "4.8 ★ · 500M+"]];
+    rows.forEach(function (r, i) { var y = 146 + i * 96; s += stIcon(18, y, 64) + Tx(98, y + 24, 16, r[0], "#111", 600) + Tx(98, y + 46, 13, r[1], "#5f6368", 400) + Tx(98, y + 66, 12, r[2], "#5f6368", 400) + R(262, y + 14, 80, 34, i === 0 ? "#1a73e8" : "#fff", 17, "#1a73e8") + Tx(302, y + 36, 13, "Install", i === 0 ? "#fff" : "#1a73e8", 600, "middle"); });
+    s += R(0, 724, SW, 56, "#fff", 0, "#e0e0e0"); ["Games", "Apps", "Search", "Books"].forEach(function (t, i) { s += Tx(45 + i * 90, 758, 12, t, t === "Apps" ? "#1a73e8" : "#5f6368", 500, "middle"); });
+    return s;
+  }
+  function stPage(state) {
+    var s = R(0, 0, SW, SH, "#fff") + Tx(18, 20, 12, "9:41", "#111", 600) + Pa("M24 60l-10 8 10 8", 0, "#444", 2.4) + stIcon(18, 100, 84) + Tx(116, 126, 20, "CapCut - Video Editor", "#111", 700) + Tx(116, 150, 14, "ByteDance Pte. Ltd.", "#1a73e8", 500) + Tx(116, 172, 12, "Contains ads · In-app purchases", "#5f6368", 400);
+    s += Tx(60, 232, 15, "4.6 ★", "#111", 700, "middle") + Tx(60, 250, 11, "12M reviews", "#5f6368", 400, "middle") + Tx(180, 232, 15, "500M+", "#111", 700, "middle") + Tx(180, 250, 11, "Downloads", "#5f6368", 400, "middle") + Tx(300, 232, 15, "3+", "#111", 700, "middle") + Tx(300, 250, 11, "Rated for 3+", "#5f6368", 400, "middle");
+    if (state === "installing") s += R(18, 280, 270, 44, "#e8f0fe", 22) + R(18, 280, 150, 44, "#a8c7fa", 22) + Tx(153, 308, 15, "Installing… 56%", "#0b57d0", 600, "middle") + R(298, 280, 44, 44, "#fff", 22, "#cfd3da") + Tx(320, 309, 16, "✕", "#444", 600, "middle");
+    else if (state === "done") s += R(18, 280, 154, 44, "#fff", 22, "#cfd3da") + Tx(95, 308, 15, "Uninstall", "#1a73e8", 600, "middle") + R(186, 280, 156, 44, "#1a73e8", 22) + Tx(264, 308, 15, "Open", "#fff", 600, "middle");
+    else s += R(18, 280, 324, 44, "#1a73e8", 22) + Tx(180, 308, 16, "Install", "#fff", 600, "middle");
+    s += R(18, 350, 324, 2, "#eee");
+    [0, 1, 2].forEach(function (i) { s += R(18 + i * 112, 372, 100, 190, ["#222", "#3a2a5a", "#0b3b4a"][i], 12) + Tx(68 + i * 112, 470, 12, ["Edit", "Captions", "Export"][i], "#fff", 600, "middle"); });
+    s += Tx(18, 596, 16, "About this app", "#111", 700) + Tx(18, 620, 13, "Free video editor with templates, auto captions,", "#5f6368", 400) + Tx(18, 640, 13, "effects, music and one-tap export.", "#5f6368", 400);
+    return s;
+  }
+  function stLogin() {
+    var s = R(0, 0, SW, SH, "#fff") + Tx(18, 20, 12, "9:41", "#111", 600) + stIcon(138, 90, 84) + Tx(180, 220, 22, "Welcome to CapCut", "#111", 700, "middle") + Tx(180, 246, 13, "Sign in to save your projects", "#5f6368", 400, "middle");
+    [["Continue with Google", "#fff", "#111"], ["Continue with TikTok", "#fff", "#111"], ["Continue with Facebook", "#fff", "#111"]].forEach(function (b, i) { var y = 296 + i * 64; s += R(28, y, 304, 50, b[1], 25, "#cfd3da") + Tx(180, y + 31, 15, b[0], b[2], 600, "middle"); });
+    s += Tx(180, 530, 12, "By continuing you agree to Terms and Privacy Policy", "#8a8f98", 400, "middle");
+    return s;
+  }
+  var SAPP = {
+    key: "store", W: SW, H: SH, plat: "mob", cap: "Play Store · phone", defs: "",
+    zones: { top: [16, 44, 328, 46], list: [0, 120, 360, 300], bottom: [0, 724, 360, 56] },
+    zn: { top: L("Search box", "سرچ باکس", "सर्च बॉक्स"), list: L("Results", "نتائج", "नतीजे"), bottom: L("Menu", "مینو", "मेन्यू") },
+    frames: {
+      search: { hs: { box: [16, 44, 328, 46], first: [18, 146, 324, 64], inst: [262, 160, 80, 34] } },
+      page: { hs: { inst: [18, 280, 324, 44], icon: [18, 100, 84, 84], shots: [18, 372, 324, 190] } },
+      installing: { hs: { bar: [18, 280, 270, 44] } },
+      done: { hs: { open: [186, 280, 156, 44] } },
+      login: { hs: { google: [28, 296, 304, 50] } }
+    },
+    kw: [
+      [/log ?in|sign ?in|google account|account/, "search", [["search", "box", "Search CapCut"], ["page", "inst", "Install"], ["done", "open", "Open"], ["login", "google", "Log in with Google"]]],
+      [/open/, "done", [["done", "open", "Open"]]],
+      [/./, "search", [["search", "box", "Search CapCut"], ["page", "inst", "Install"], ["installing", "bar", "Installing"], ["done", "open", "Open"]]]
+    ]
+  };
+  var APPS = { canva: CAPP, insta: IAPP, gpt: GAPP, zoom: ZAPP, store: SAPP };
   var DRAW = {
     canva: CF, insta: { profile: inProfile, settings: inSettings, type: inType, reel: inReel, caption: inCaption, insights: inInsights, active: inActive, viewreel: inViewReel },
-    gpt: { chat: gptChat, result: gptResult }, zoom: { meeting: function () { return zmMeeting(false); }, share: function () { return zmMeeting(true); } }
+    gpt: { chat: gptChat, result: gptResult }, store: { search: stSearch, page: function () { return stPage(); }, installing: function () { return stPage('installing'); }, done: function () { return stPage('done'); }, login: stLogin }, zoom: { meeting: function () { return zmMeeting(false); }, share: function () { return zmMeeting(true); } }
   };
-  var DEFAULT_FRAME = { canva: "editor", insta: "profile", gpt: "chat", zoom: "meeting" };
-  var HLZ = { canva: { top: "file" }, insta: {}, gpt: {}, zoom: {} };
+  var DEFAULT_FRAME = { canva: "editor", insta: "profile", gpt: "chat", zoom: "meeting", store: "search" };
+  var HLZ = { canva: { top: "file" }, insta: {}, gpt: {}, zoom: {}, store: {} };
 
   /* ============================== build a pane ============================== */
   var esc2 = function (s) { return (typeof esc === "function" ? esc(s) : String(s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; })); };
@@ -414,6 +462,12 @@
   }
   window.QSApps = { html: appHTML, has: function (ui) { return !!APPS[ui]; }, apps: APPS, draw: DRAW, svg: svg };
 
+  window.storeV = function (m) {
+    var t = ((m && m.en) || "").toLowerCase();
+    if (!/play store|app store|\binstall\b|download capcut|download (the )?app/.test(t)) return null;
+    if (/export|save (the )?video|gallery/.test(t) && !/play store|app store|install/.test(t)) return null;
+    return { ui: "store", hl: ["top"], btn: /log ?in|sign ?in|google/.test(t) ? "Log in with Google" : "Install CapCut" };
+  };
   /* a lesson step that only mentions a tool in words gets a screen too */
   window.autoV = function (m) {
     if (!m || m.v) return null;
