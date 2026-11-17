@@ -1,4 +1,4 @@
-/* AI Ustad — a real, calm teacher face with lips that follow every word.
+/* AI Teacher — a real, calm teacher face with lips that follow every word.
    5 mouth photos (closed / small / "oo" / "ee" / wide) are cross-faded on a canvas.
    What drives the lips:
      1. recorded voice from our own site  -> the real loudness of the clip (decoded once) + the vowels of the text
@@ -210,7 +210,7 @@
   function mount(el, opts) {
     if (!el) return null; load();
     if (!document.getElementById("ustd-css")) { var st = document.createElement("style"); st.id = "ustd-css"; st.textContent = CSS; document.head.appendChild(st); }
-    el.innerHTML = ""; var root = document.createElement("div"); root.className = "ustd"; root.setAttribute("role", "img"); root.setAttribute("aria-label", (opts && opts.label) || "AI Ustad");
+    el.innerHTML = ""; var root = document.createElement("div"); root.className = "ustd"; root.setAttribute("role", "img"); root.setAttribute("aria-label", (opts && opts.label) || "AI Teacher");
     var wrap = document.createElement("span"); wrap.className = "uw"; var cv = document.createElement("canvas"); cv.width = W; cv.height = H; wrap.appendChild(cv); root.appendChild(wrap); el.appendChild(root);
     var inst = { root: root, wrap: wrap, cv: cv, g: cv.getContext("2d") }; instances.push(inst); draw(inst); kick(); return inst;
   }

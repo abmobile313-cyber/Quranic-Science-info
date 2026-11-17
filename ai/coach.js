@@ -47,6 +47,12 @@
 
   /* ---- mistake explanations (kid-friendly) ---- */
   const VN = { a: L("fatha (zabar) – open mouth, “a”", "زبر – منہ کھول کر «اَ»", "ज़बर – मुँह खोलकर «अ»"), u: L("damma (pesh) – round lips, “u”", "پیش – ہونٹ گول کر کے «اُ»", "पेश – होंठ गोल करके «उ»"), i: L("kasra (zer) – smile a little, “i”", "زیر – ہلکا سا مسکرا کر «اِ»", "ज़ेर – हल्का मुस्कुराकर «इ»") };
+  /* each letter tip has a recorded Ustad voice (ustad/say/lt_<codepoint>.mp3) */
+  const LTV = ["ص","س","ض","د","ط","ت","ظ","ذ","ز","ث","ح","ه","ع","ء","ق","ك","خ","غ","ش","ف","ا","ب","ج","ر","ل","م","ن","و","ي"];
+  const mtBtn = (t, c) => ` <button class="btn sm" data-mt="${t}"${LTV.includes(c) && (t === "sub" || t === "del") ? ` data-lt="${c}"` : ""} aria-label="voice">🔊</button>`;
+  const zBtn = c => { const z = LAB_Z[c]; return z && ZONES[z] ? ` <button class="btn sm" data-zs="${z}" aria-label="voice">🔊</button>` : ""; };
+  const sayAudio = n => { const a = new Audio((LANG === "en" ? "ustad/say/en/" : "ustad/say/") + n + ".mp3"); if (LANG === "en") a.addEventListener("error", () => { if (a.__fb) return; a.__fb = 1; a.src = "ustad/say/" + n + ".mp3"; a.play().catch(() => {}); }); return a; };
+  const ltBtn = c => LTV.includes(c) ? ` <button class="btn sm" data-lt="${c}" aria-label="voice">🔊</button>` : "";
   const LT = { /* what the correct letter feels like */
     "ص": L("Saad is HEAVY: lift the back of your tongue, round the lips, fill the mouth. Seen (س) is light.", "صاد موٹا ہے: زبان کا پچھلا حصہ اوپر اٹھائیں، ہونٹ گول، منہ بھرا ہوا۔ سین (س) باریک ہوتا ہے۔", "साद मोटा है: ज़बान का पिछला हिस्सा ऊपर उठाइए, होंठ गोल, मुँह भरा हुआ। सीन (स) बारीक होता है।"),
     "س": L("Seen is light: a thin whistle, tongue tip near the lower teeth.", "سین باریک ہے: پتلی سیٹی جیسی آواز، زبان کی نوک نیچے کے دانتوں کے پاس۔", "सीन बारीक है: पतली सीटी जैसी आवाज़, ज़बान की नोक नीचे के दाँतों के पास।"),
@@ -67,7 +73,16 @@
     "خ": L("Khaa (خ): air rubs at the top of the throat, whispered.", "خا (خ): حلق کے اوپری حصے پر ہوا کی رگڑ، سرگوشی کی طرح۔", "ख़ा (خ): हल्क़ के ऊपरी हिस्से पर हवा की रगड़, सरगोशी की तरह।"),
     "غ": L("Ghayn (غ): like a gentle gargle at the top of the throat, with voice.", "غین (غ): حلق کے اوپری حصے میں ہلکے غرارے جیسی، آواز کے ساتھ۔", "ग़ैन (غ): हल्क़ के ऊपरी हिस्से में हल्के ग़रारे जैसी, आवाज़ के साथ।"),
     "ش": L("Sheen (ش): the middle of the tongue touches the palate, air spreads out.", "شین (ش): زبان کا درمیان تالو سے لگتا ہے، ہوا پھیلتی ہے۔", "शीन (ش): ज़बान का बीच तालू से लगता है, हवा फैलती है।"),
-    "ف": L("Faa (ف): upper front teeth touch the inside of the lower lip.", "فا (ف): اوپر کے اگلے دانت نچلے ہونٹ کے اندرونی حصے کو چھوتے ہیں۔", "फ़ा (ف): ऊपर के अगले दाँत नीचे के होंठ के अंदरूनी हिस्से को छूते हैं।")
+    "ف": L("Faa (ف): upper front teeth touch the inside of the lower lip.", "فا (ف): اوپر کے اگلے دانت نچلے ہونٹ کے اندرونی حصے کو چھوتے ہیں۔", "फ़ा (ف): ऊपर के अगले दाँत नीचे के होंठ के अंदरूनी हिस्से को छूते हैं।"),
+    "ا": L("Alif: a long open sound from the empty space of the mouth (jauf); lips relaxed, no touching.", "الف: منہ کے خالی حصے (جوف) سے لمبی کھلی آواز؛ ہونٹ ڈھیلے، کہیں ٹکراؤ نہیں۔", "अलिफ़: मुँह की ख़ाली जगह (जौफ़) से लंबी खुली आवाज़; होंठ ढीले, कहीं टकराव नहीं।"),
+    "ب": L("Baa: both lips close fully, then open with a small pop.", "با: دونوں ہونٹ پورے بند ہو کر ہلکی سی آواز کے ساتھ کھلتے ہیں۔", "बा: दोनों होंठ पूरे बंद होकर हल्की-सी आवाज़ के साथ खुलते हैं।"),
+    "ج": L("Jeem: the middle of the tongue touches the palate, then releases softly with voice.", "جیم: زبان کا درمیان تالو سے لگ کر نرمی سے آواز کے ساتھ چھوٹتا ہے۔", "जीम: ज़बान का बीच तालू से लगकर नर्मी से आवाज़ के साथ छूटता है।"),
+    "ر": L("Raa: the tongue tip taps the gum once or twice, quickly; full after fatha or damma, thin after kasra.", "را: زبان کی نوک مسوڑھے کو ایک دو بار جلدی سے چھوتی ہے؛ زبر اور پیش پر موٹا، زیر پر باریک۔", "रा: ज़बान की नोक मसूड़े को एक-दो बार जल्दी से छूती है; ज़बर और पेश पर मोटा, ज़ेर पर बारीक।"),
+    "ل": L("Laam: the tongue tip rests on the gum behind the upper front teeth; the voice flows along both sides.", "لام: زبان کی نوک اوپر کے اگلے دانتوں کے پیچھے مسوڑھے پر، آواز دونوں کناروں سے نکلتی ہے۔", "लाम: ज़बान की नोक ऊपर के अगले दाँतों के पीछे मसूड़े पर, आवाज़ दोनों किनारों से निकलती है।"),
+    "م": L("Meem: lips closed, the sound goes through the nose (ghunna).", "میم: ہونٹ بند، آواز ناک سے گزرتی ہے، یعنی غُنّہ۔", "मीम: होंठ बंद, आवाज़ नाक से गुज़रती है, यानी ग़ुन्ना।"),
+    "ن": L("Noon: the tongue tip touches the base of the upper front teeth; sound also through the nose.", "نون: زبان کی نوک اوپر کے اگلے دانتوں کی جڑ سے لگتی ہے، آواز ناک سے بھی نکلتی ہے۔", "नून: ज़बान की नोक ऊपर के अगले दाँतों की जड़ से लगती है, आवाज़ नाक से भी निकलती है।"),
+    "و": L("Waaw: lips in a small round circle, not touching; a long sound after damma.", "واؤ: ہونٹ چھوٹے گول گھیرے میں، آپس میں نہیں ملتے؛ پیش کے بعد لمبی آواز۔", "वाव: होंठ छोटे गोल घेरे में, आपस में नहीं मिलते; पेश के बाद लंबी आवाज़।"),
+    "ي": L("Yaa: the middle of the tongue rises toward the palate, lips slightly spread; a long sound after kasra.", "یا: زبان کا درمیان تالو کی طرف اٹھتا ہے، ہونٹ ہلکے پھیلے ہوئے؛ زیر کے بعد لمبی آواز۔", "या: ज़बान का बीच तालू की तरफ़ उठता है, होंठ हल्के फैले हुए; ज़ेर के बाद लंबी आवाज़।")
   };
   const MSG = {
     sub: L("You read “{h}” instead of “{c}”.", "آپ نے «{c}» کی جگہ «{h}» پڑھا۔", "आपने «{c}» की जगह «{h}» पढ़ा।"),
@@ -86,14 +101,14 @@
     const c = iss.c, h = iss.hc || iss.h, v = iss.e && iss.e.v ? P(VN[iss.e.v.replace(/^an$/, "a").replace(/^un$/, "u").replace(/^in$/, "i")] || L("", "", "")) : "";
     const m = { c, h, v };
     let lines = [];
-    if (iss.type === "sub") lines = ["😮 " + fill(P(MSG.sub), m), LT[c] ? "👅 " + P(LT[c]) : "", zoneTxt(c) ? "📍 " + fill(x("from"), m) + " " + zoneTxt(c) : ""];
-    else if (iss.type === "del") lines = ["😮 " + fill(P(MSG.del), m), LT[c] ? "👅 " + P(LT[c]) : "", zoneTxt(c) ? "📍 " + zoneTxt(c) : ""];
-    else if (iss.type === "madd-miss") lines = ["😮 " + fill(P(MSG.madd), m)];
-    else if (iss.type === "vowel") lines = ["😮 " + fill(P(MSG.vowel), m)];
-    else if (iss.type === "vowel-extra") lines = ["😮 " + fill(P(MSG.vextra), m)];
-    else if (iss.type === "tashdeed-miss") lines = ["😮 " + fill(P(MSG.tmiss), m)];
-    else if (iss.type === "tashdeed-extra") lines = ["😮 " + fill(P(MSG.textra), m)];
-    else if (iss.type === "extra") lines = ["😮 " + fill(P(MSG.extra), m)];
+    if (iss.type === "sub") lines = ["😮 " + fill(P(MSG.sub), m) + mtBtn("sub", c), LT[c] ? "👅 " + P(LT[c]) + ltBtn(c) : "", zoneTxt(c) ? "📍 " + fill(x("from"), m) + " " + zoneTxt(c) + zBtn(c) : ""];
+    else if (iss.type === "del") lines = ["😮 " + fill(P(MSG.del), m) + mtBtn("del", c), LT[c] ? "👅 " + P(LT[c]) + ltBtn(c) : "", zoneTxt(c) ? "📍 " + zoneTxt(c) + zBtn(c) : ""];
+    else if (iss.type === "madd-miss") lines = ["😮 " + fill(P(MSG.madd), m) + mtBtn("madd", c)];
+    else if (iss.type === "vowel") lines = ["😮 " + fill(P(MSG.vowel), m) + mtBtn("vowel", c)];
+    else if (iss.type === "vowel-extra") lines = ["😮 " + fill(P(MSG.vextra), m) + mtBtn("vextra", c)];
+    else if (iss.type === "tashdeed-miss") lines = ["😮 " + fill(P(MSG.tmiss), m) + mtBtn("tmiss", c)];
+    else if (iss.type === "tashdeed-extra") lines = ["😮 " + fill(P(MSG.textra), m) + mtBtn("textra", c)];
+    else if (iss.type === "extra") lines = ["😮 " + fill(P(MSG.extra), m) + mtBtn("extra", c)];
     return lines.filter(Boolean);
   }
 
@@ -298,18 +313,30 @@
     window.QSUstad && QSUstad.mount($("#chu"));
     const LB = wireLab(app); CS.lab = LB;
     $(".mlab", app).addEventListener("mlpart", e => { const r = REG.find(q => q.id === PART[e.detail]); if (!r) return; CS.tab = "m"; CS.run++; closeMic(); LB.stop(); tab(); playRegion(r, $(`.rgt[data-r="${r.id}"]`)); });
-    const hash = () => { const stop = () => { CS.run++; closeMic(); LB && LB.stop(); try { speechSynthesis.cancel(); } catch (e) {} removeEventListener("hashchange", stop); }; addEventListener("hashchange", stop, { once: false }); };
+    const hash = () => { const stop = () => { CS.run++; closeMic(); LB && LB.stop(); stopSay(); removeEventListener("hashchange", stop); }; addEventListener("hashchange", stop, { once: false }); };
     hash();
     $("#chAuto").onclick = e => { CS.auto = !CS.auto; LS.set("qsai-coach-auto", CS.auto); e.currentTarget.classList.toggle("on", CS.auto); };
-    $("#chTts").onclick = e => { CS.tts = !CS.tts; LS.set("qsai-coach-tts", CS.tts); e.currentTarget.classList.toggle("on", CS.tts); if (CS.tts) ust(x("hello"), "talk"); else try { speechSynthesis.cancel(); } catch (er) {} };
+    $("#chTts").onclick = e => { CS.tts = !CS.tts; LS.set("qsai-coach-tts", CS.tts); e.currentTarget.classList.toggle("on", CS.tts); if (CS.tts) ust(x("hello"), "talk"); else stopSay(); };
     $$(".tabs button", app).forEach(b => b.onclick = () => { CS.tab = b.dataset.t; CS.run++; closeMic(); LB.stop(); tab(); });
     tab();
 
     /* ---- Ustad: face + speech bubble ---- */
     function mood(m) { const u = $("#chu"); if (!u) return; u.className = "ustw " + m; }
     function ust(msg, m) { const b = $("#chb"); if (!b) return; b.innerHTML = msg; mood(m || "talk"); if (window.QSUstad) { if (m === "happy") QSUstad.emote(); else if ((m || "talk") === "talk" && !CS.tts) QSUstad.say(msg.replace(/<[^>]+>/g, " ")); } if (m === "talk" || m === "happy" || m === "sad") setTimeout(() => $("#chu") && $("#chu").classList.contains(m) && mood("idle"), Math.min(9000, 1200 + msg.length * 55)); speak(msg); }
+    /* the Ustad's own recorded voice (never the phone's voice): fixed phrases are pre-recorded; other lines are shown as text only */
+    const SAYK = ["hello", "helloM", "helloA", "listen", "think", "nospeech", "micNo", "aiNo", "okAll", "wordOk", "drill", "tries", "fast", "unsure", "playAll"];
+    let sayEl = null;
+    app.addEventListener("click", e => { const b = e.target.closest && e.target.closest("[data-lt],[data-mt],[data-zs]"); if (!b) return; stopSay(); const lt = () => { try { sayEl = sayAudio("lt_" + b.dataset.lt.codePointAt(0).toString(16)); sayEl.play().catch(() => {}); } catch (er) {} };
+      if (b.dataset.zs) { try { sayEl = sayAudio("z_" + b.dataset.zs); sayEl.play().catch(() => {}); } catch (er) {} return; }
+      if (b.dataset.mt) { try { sayEl = sayAudio("m_" + b.dataset.mt); if (b.dataset.lt) sayEl.onended = lt; sayEl.play().catch(() => {}); } catch (er) {} } else lt(); });
+    const cleanT = t => String(t).replace(/<[^>]+>/g, " ").replace(/[\u{1F300}-\u{1FAFF}\u2600-\u27BF\u2B50]/gu, " ").replace(/\s+/g, " ").trim();
+    function stopSay() { try { sayEl && sayEl.pause(); } catch (e) {} sayEl = null; }
     function speak(msg) {
-      if (!CS.tts || !window.speechSynthesis) return; try { speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(msg.replace(/<[^>]+>/g, " ").replace(/[📍👅😮👉⬆️🎬⭐]/g, " ")); u.lang = LANG === "ur" ? "ur-PK" : LANG === "hi" ? "hi-IN" : "en-IN"; u.rate = 0.92; speechSynthesis.speak(u); } catch (e) {}
+      if (!CS.tts) return; stopSay(); const t = cleanT(msg);
+      let k = SAYK.find(key => X[key] && cleanT(x(key)) === t); if (!k && X.fix == null && cleanT(P(MSG.fix)) === t) k = "fix";
+      if (!k) { const p = SAYK.find(key => X[key] && t.endsWith(cleanT(x(key)))); k = p || (t.endsWith(cleanT(P(MSG.fix))) ? "fix" : null); }
+      if (!k) return;
+      try { sayEl = sayAudio("" + k); sayEl.play().catch(() => {}); } catch (e) {}
     }
     const talking = ms => { mood("talk"); setTimeout(() => mood("idle"), ms); };
 
@@ -327,7 +354,7 @@
     }
     async function pickLetter(c, btn) {
       CS.run++; closeMic(); const my2 = CS.run; $$(".cht", app).forEach(k => k.classList.toggle("on", k === btn)); const a = LET.find(r => r[0] === c), z = LAB_Z[c], ex = await exampleOf(c);
-      $("#chInfo").innerHTML = `<div class="card"><div class="big">${c}</div><div class="row"><b>${lname(a)}</b>${z ? `<span class="mini">📍 ${x("from")} ${esc(P(ZONES[z][3]))}</span>` : ""}</div>${LT[c] ? `<p style="margin:0">👅 ${esc(P(LT[c]))}</p>` : ""}
+      $("#chInfo").innerHTML = `<div class="card"><div class="big">${c}</div><div class="row"><b>${lname(a)}</b>${z ? `<span class="mini">📍 ${x("from")} ${esc(P(ZONES[z][3]))}${zBtn(c)}</span>` : ""}</div>${LT[c] ? `<p style="margin:0">👅 ${esc(P(LT[c]))}${ltBtn(c)}</p>` : ""}
         ${ex ? `<div class="row"><span class="mini">${x("ex")}</span><span class="ar" style="font-size:32px;color:var(--gold2)">${esc(disp(ex.text))}</span></div>` : ""}
         <div class="row"><button class="btn sm cy" id="chL1">🔊 ${x("listenQ")}</button><button class="btn sm" id="chL2">🎬 ${x("see3d")}</button></div></div>`;
       const play = () => LB.say(c, btn); $("#chL1").onclick = play; $("#chL2").onclick = () => LB.say(c, btn);
@@ -393,7 +420,7 @@
     }
     async function attempt() {
       if (CS.busy) { MIC.cancel && MIC.cancel("manual"); return; }
-      const tgt = CS.tgt, m = CS.run; if (!tgt) return; CS.busy = true; LB.stop(); stopAll(); try { speechSynthesis.cancel(); } catch (e) {}
+      const tgt = CS.tgt, m = CS.run; if (!tgt) return; CS.busy = true; LB.stop(); stopAll(); stopSay();
       const mic = $("#chMic"), lv = $("#chLv"), stt = $("#chSt"), res = $("#chRes"); res.innerHTML = "";
       let rec;
       try { mic.classList.add("on"); stt.textContent = x("listen"); mood("listen"); rec = await listen({ silenceMs: tgt.kind === "ayah" ? 1500 : 1100, maxMs: tgt.kind === "ayah" ? 60000 : 12000, waitMs: 9000, onLevel: r => lv && (lv.style.width = Math.min(100, r * 700) + "%") }); }
@@ -420,7 +447,7 @@
         const wt = esc(disp(w.text));
         if (w.status === "unsure") { html += `<div class="iss h"><span class="ar">${wt}</span>🤔 ${x("unsure")}</div>`; return; }
         const blocks = w.issues.map(iss => explain(w, iss).map(l => `<div>${esc(l)}</div>`).join("")).filter(Boolean), cs = [...new Set(w.issues.map(i => i.c).filter(Boolean))];
-        html += `<div class="iss"><span class="ar">${wt}</span>${w.status === "missed" ? `<div>😮 ${P(MSG.missed)}</div>` : blocks.join('<hr style="border:0;border-top:1px dashed var(--line);width:100%">')}<div>👉 ${P(MSG.fix)}</div><div class="row">${cs.map(c => `<button class="btn sm" data-3d="${c}">🎬 ${x("see3d")} «${c}»</button>`).join("")}<button class="btn sm cy" data-q="${w.i}">🔊 ${x("listenQ")}</button></div>${w.unsure ? `<div class="mini">🤔 ${x("unsure")}</div>` : ""}</div>`;
+        html += `<div class="iss"><span class="ar">${wt}</span>${w.status === "missed" ? `<div>😮 ${P(MSG.missed)}${mtBtn("missed", "")}</div>` : blocks.join('<hr style="border:0;border-top:1px dashed var(--line);width:100%">')}<div>👉 ${P(MSG.fix)}</div><div class="row">${cs.map(c => `<button class="btn sm" data-3d="${c}">🎬 ${x("see3d")} «${c}»</button>`).join("")}<button class="btn sm cy" data-q="${w.i}">🔊 ${x("listenQ")}</button></div>${w.unsure ? `<div class="mini">🤔 ${x("unsure")}</div>` : ""}</div>`;
       });
       if (r.extra && r.extra.length) html += `<div class="iss h">➕ ${x("extra")}<span class="ar">${esc(r.extra.map(e => e.letters).join(" · "))}</span></div>`;
       if (r.unsure && !bad.length) html += `<div class="iss h">🤔 ${x("unsure")}</div>`;

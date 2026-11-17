@@ -5,16 +5,16 @@
 
 /* ---------- wording that differs from the Tajweed / Arabic app ---------- */
 Object.assign(LIVEX.note, { en: "You are in our live class with AI practice. The same lesson as your class opens here on the same day: practise the steps, the quiz and homework.", ur: "آپ ہماری لائیو کلاس میں ہیں۔ آپ کی کلاس والا سبق اسی دن یہاں کھلتا ہے: قدم، سوال اور ہوم ورک کی مشق کریں۔", hi: "आप हमारी लाइव क्लास में हैं। आपकी क्लास वाला सबक़ उसी दिन यहाँ खुलता है: क़दम, सवाल और होमवर्क की मश्क़ करें।" });
-Object.assign(ADDX.p, { en: "Add the AI Ustad to your live class: the same lesson as your class opens here on the same day, with step-by-step screens, practice, quizzes and homework that goes to your teacher.", ur: "اپنی لائیو کلاس کے ساتھ اے آئی استاد شامل کریں: آپ کی کلاس والا سبق اسی دن یہاں کھلے گا، قدم بہ قدم اسکرین، پریکٹس، سوال اور ہوم ورک جو آپ کے استاد تک جاتا ہے۔", hi: "अपनी लाइव क्लास के साथ ए आई उस्ताद जोड़ें: आपकी क्लास वाला सबक़ उसी दिन यहाँ खुलेगा, क़दम-ब-क़दम स्क्रीन, प्रैक्टिस, सवाल और होमवर्क जो आपके उस्ताद तक जाता है।" });
+Object.assign(ADDX.p, { en: "Add the AI Teacher to your live class: the same lesson as your class opens here on the same day, with step-by-step screens, practice, quizzes and homework that goes to your teacher.", ur: "اپنی لائیو کلاس کے ساتھ اے آئی ٹیچر شامل کریں: آپ کی کلاس والا سبق اسی دن یہاں کھلے گا، قدم بہ قدم اسکرین، پریکٹس، سوال اور ہوم ورک جو آپ کے استاد تک جاتا ہے۔", hi: "अपनी लाइव क्लास के साथ ए आई टीचर जोड़ें: आपकी क्लास वाला सबक़ उसी दिन यहाँ खुलेगा, क़दम-ब-क़दम स्क्रीन, प्रैक्टिस, सवाल और होमवर्क जो आपके उस्ताद तक जाता है।" });
 Object.assign(ADDX.both, { en: "All-in-One (all courses)", ur: "آل اِن ون (سب کورس)", hi: "ऑल-इन-वन (सब कोर्स)" });
 
-/* ---------- AI Ustad knows the creator syllabus ---------- */
+/* ---------- AI Teacher knows the creator syllabus ---------- */
 ustadKnowledge = async function () {
   const [oe, oc, od] = await Promise.all([outline("editing"), outline("content"), outline("design")]);
   const syl = (o, n) => n + ":\n" + o.weeks.map((w, i) => `Week ${i + 1} ${w.title.en}: ` + w.days.map(d => `${d.n ? "Day " + d.n + " " : ""}${d.title.en}`).join("; ")).join("\n");
   let cur = "";
   if (LESSON.data && /lesson=/.test(location.hash)) cur = "\nTHE STUDENT IS NOW ON THIS LESSON (" + LESSON.id + "):\n" + LESSON.data.moments.map(m => m.en + (m.v && m.v.steps ? " Steps: " + m.v.steps.map(x => x.en).join(" / ") : "")).join("\n") + (LESSON.data.task ? "\nPractice: " + LESSON.data.task.steps.map(x => x.en).join(" / ") : "");
-  return `You are "AI Ustad", the teacher inside "Learn with Quranic Science AI – Creator courses" (quranicscience.info): Video Editing in CapCut (35 lessons), Content Creation for Instagram and YouTube (20 lessons) and Graphic Design in Canva with ChatGPT images (5 lessons, All-in-One students only). The same syllabus is taught in our live Zoom classes.
+  return `You are "AI Teacher", the teacher inside "Learn with Quranic Science AI – Creator courses" (quranicscience.info): Video Editing in CapCut (35 lessons), Content Creation for Instagram and YouTube (20 lessons) and Graphic Design in Canva with ChatGPT images (5 lessons, All-in-One students only). The same syllabus is taught in our live Zoom classes.
 RULES (very important):
 1. Answer ONLY about video editing (CapCut), content creation, graphic design (Canva, ChatGPT images) and this course (lessons, homework, time slot, certificate). For other topics, politely say you only help with this course.
 2. Be practical and exact: name the CapCut or Canva button and the order of taps. CapCut and Canva change their menus sometimes; if a button may have moved, say so and suggest the search box. Mention when a feature may need the paid (Pro) version, and give the free way.
@@ -22,7 +22,7 @@ RULES (very important):
 4. Keep the student halal and honest: no copied content, no music with instruments in Islamic videos, no fake reviews, label paid posts.
 5. Reply in the student's language: Urdu script → Urdu, Devanagari → Hindi-Urdu, Roman Urdu → Roman Urdu, English → English. Keep answers short (under 120 words), kind and clear, with one example.
 6. Plain text only; no markdown symbols. For a list start lines with •.
-COURSE FACTS: daily mode opens one lesson a day at the student's own fixed time (6 days a week). Full Access opens all lessons at once. Certificate after every lesson and question is done. Prices (AI Ustad): Video Editing ₹4,189 ($52), Content Creation ₹4,179 ($53), All-in-One ₹9,799 ($122); Full Access extra: ₹1,999, ₹1,989, ₹4,499. Live teacher classes: Video Editing ₹5,989, Content Creation ₹5,979, All-in-One ₹13,999.
+COURSE FACTS: daily mode opens one lesson a day at the student's own fixed time (6 days a week). Full Access opens all lessons at once. Certificate after every lesson and question is done. Prices (AI Teacher): Video Editing ₹4,189 ($52), Content Creation ₹4,179 ($53), All-in-One ₹9,799 ($122); Full Access extra: ₹1,999, ₹1,989, ₹4,499. Live teacher classes: Video Editing ₹5,989, Content Creation ₹5,979, All-in-One ₹13,999.
 COURSE SYLLABUS:
 ${syl(oe, "VIDEO EDITING (35 lessons)")}
 ${syl(oc, "CONTENT CREATION (20 lessons)")}
@@ -72,7 +72,7 @@ const CRX = {
   pracP: { en: "Do each step in the app, then tick it. Take your time: practice is where you really learn.", ur: "ہر قدم ایپ میں کریں، پھر نشان لگائیں۔ آرام سے کریں: اصل سیکھنا پریکٹس میں ہوتا ہے۔", hi: "हर क़दम ऐप में करें, फिर निशान लगाएँ। आराम से करें: असल सीखना प्रैक्टिस में होता है।" },
   goal: { en: "What you will make", ur: "آپ کیا بنائیں گے", hi: "आप क्या बनाएँगे" },
   allOk: { en: "All steps done — well done! Keep your file; you will send it as homework at the end.", ur: "سب قدم مکمل — شاباش! اپنی فائل سنبھال کر رکھیں؛ آخر میں ہوم ورک میں بھیجیں گے۔", hi: "सब क़दम पूरे — शाबाश! अपनी फ़ाइल संभाल कर रखें; आख़िर में होमवर्क में भेजेंगे।" },
-  stuck: { en: "Stuck? Ask the AI Ustad (button at the bottom).", ur: "اٹک گئے؟ اے آئی استاد سے پوچھیں (نیچے کا بٹن)۔", hi: "अटक गए? ए आई उस्ताद से पूछें (नीचे का बटन)।" }
+  stuck: { en: "Stuck? Ask the AI Teacher (button at the bottom).", ur: "اٹک گئے؟ اے آئی ٹیچر سے پوچھیں (نیچے کا بٹن)۔", hi: "अटक गए? ए आई टीचर से पूछें (नीचे का बटन)।" }
 };
 function phRev() {
   const Q = (CL.prev && CL.prev.quiz) || [];

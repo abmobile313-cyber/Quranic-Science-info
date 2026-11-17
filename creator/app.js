@@ -19,7 +19,7 @@ const DAYS = { en: ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Fri
 
 /* ============ text ============ */
 const TX = {
- en: { tag: "Tajweed · Arabic · AI Ustad", heroEy: "New · Self-paced", hero1: "Learn Tajweed & Arabic with your own", hero2: "AI Ustad",
+ en: { tag: "Tajweed · Arabic · AI Teacher", heroEy: "New · Self-paced", hero1: "Learn Tajweed & Arabic with your own", hero2: "AI Teacher",
   heroP: "Short voice lessons in your language, real qari recitation, practice with your own recording, homework checked by AI, 3 questions after every lesson, progress you can see, and a certificate at the end.",
   f1: "72 lessons per course", f2: "Voice in every step", f3: "Real qari audio", f4: "AI checks your homework", f5: "Certificate",
   courses: "Choose your course", editing: "Tajweed with AI", content: "Arabic Speaking with AI", combo: "Tajweed + Arabic with AI",
@@ -31,9 +31,9 @@ const TX = {
   next: "Next", back: "Back", listen: "Listen to qari", replay: "Replay voice", rec: "Record yourself", stop: "Stop", mine: "Play my voice", toQuiz: "Start the questions",
   q: "Question", of: "of", right: "Correct!", wrong: "Not quite.", cont: "Continue", done: "Lesson complete", saved: "Saved to your progress.", yourScore: "Your score",
   nextL: "Next lesson", toCourse: "Back to course", lowNote: "You can continue, but wrong answers lower your course score. Review this lesson if you like.",
-  ask: "Ask AI Ustad", ustad: "AI Ustad", send: "Send", askPh: "Ask about this lesson, a Tajweed rule or an Arabic word…",
-  aiNote: "AI Ustad answers from the course. For fatwa or personal issues, please ask a scholar.", aiHello: "Assalamu alaikum! I am your AI Ustad. Ask me anything about Tajweed or Arabic from this course.",
-  aiFail: "The AI Ustad is not available right now. Please try again in a minute, or message us on WhatsApp.",
+  ask: "Ask AI Teacher", ustad: "AI Teacher", send: "Send", askPh: "Ask about this lesson, a Tajweed rule or an Arabic word…",
+  aiNote: "AI Teacher answers from the course. For fatwa or personal issues, please ask a scholar.", aiHello: "Assalamu alaikum! I am your AI Teacher. Ask me anything about Tajweed or Arabic from this course.",
+  aiFail: "The AI Teacher is not available right now. Please try again in a minute, or message us on WhatsApp.",
   cert: "Certificate", certNeed: "Complete all 72 lessons and score at least 70% in the final exam to get your certificate.", dl: "Download",
   free: "Free", voiceOff: "Voice off", voiceOn: "Voice on", micNo: "Microphone not allowed. Please allow it in your browser.", payNote: "After payment your course opens automatically on the same account (same mobile/email).",
   payWa: "Enroll on WhatsApp", owner: "Owner preview: all lessons open.",
@@ -42,12 +42,12 @@ const TX = {
   slotH: "Choose your daily class time", slotP: "Your next lesson will open every day at this time, 6 days a week. Choose carefully — once saved, the time and the day off CANNOT be changed.",
   slotTime: "Daily time", slotOff: "Weekly day off", slotSave: "Save my time (final)", slotIs: "Your class time", offIs: "day off", nextAt: "Next lesson opens",
   waitSlot: "This lesson opens at your class time", needSlot: "Choose your daily class time first",
-  hw: "Homework", hwP: "Send your homework: a voice recording, a photo of your writing, or a short video (max 10 MB). The AI Ustad checks it and gives you feedback.",
-  hwVoice: "Record voice", hwPhoto: "Photo", hwVideo: "Short video", hwSending: "Uploading…", hwSent: "Homework sent ✓", hwChecking: "AI Ustad is checking…", hwMine: "My homework", hwNone: "No homework sent yet.", hwHint: "Send this homework at the end of the lesson, after the questions (📤 Homework box).",
+  hw: "Homework", hwP: "Send your homework: a voice recording, a photo of your writing, or a short video (max 10 MB). The AI Teacher checks it and gives you feedback.",
+  hwVoice: "Record voice", hwPhoto: "Photo", hwVideo: "Short video", hwSending: "Uploading…", hwSent: "Homework sent ✓", hwChecking: "AI Teacher is checking…", hwMine: "My homework", hwNone: "No homework sent yet.", hwHint: "Send this homework at the end of the lesson, after the questions (📤 Homework box).",
   hwBig: "File is too big (max 10 MB).", fb: "Feedback", offline: "Offline", offH: "Offline lessons", offP: "Full Access students can save whole courses inside this app and study without internet. Saved lessons can only be opened here.",
   offDl: "Save for offline", offDone: "Saved for offline ✓", offNone: "Nothing saved yet.", offNeed: "Offline saving is for Full Access students.", saving: "Saving…",
   photoL: "Your photo (for the certificate)", photoBtn: "Choose photo", fullBadge: "Full Access", certReady: "Your certificate is ready", protect: "Lessons are protected and can only be played inside Quranic Science.", arVoice: "Arabic pronunciation", repeat: "Repeat", playAll: "Play all, step by step", tapLetter: "Tap a letter to hear the qari" },
- ur: { tag: "تجوید · عربی · اے آئی استاد", heroEy: "نیا · اپنی رفتار سے", hero1: "تجوید اور عربی سیکھیں اپنے", hero2: "اے آئی استاد کے ساتھ",
+ ur: { tag: "تجوید · عربی · اے آئی ٹیچر", heroEy: "نیا · اپنی رفتار سے", hero1: "تجوید اور عربی سیکھیں اپنے", hero2: "اے آئی ٹیچر کے ساتھ",
   heroP: "آپ کی زبان میں آواز والے چھوٹے اسباق، اصل قاری کی تلاوت، اپنی آواز ریکارڈ کر کے مشق، اے آئی سے ہوم ورک کی جانچ، ہر سبق کے بعد تین سوال، نظر آنے والی پروگریس، اور آخر میں سرٹیفکیٹ۔",
   f1: "ہر کورس میں ۷۲ اسباق", f2: "ہر قدم پر آواز", f3: "اصل قاری کی آواز", f4: "اے آئی ہوم ورک چیک کرتا ہے", f5: "سرٹیفکیٹ",
   courses: "اپنا کورس چنیں", editing: "اے آئی کے ساتھ تجوید", content: "اے آئی کے ساتھ عربی بول چال", combo: "اے آئی کے ساتھ تجوید + عربی",
@@ -59,9 +59,9 @@ const TX = {
   next: "آگے", back: "پیچھے", listen: "قاری کی آواز سنیں", replay: "آواز دوبارہ", rec: "اپنی آواز ریکارڈ کریں", stop: "روکیں", mine: "اپنی آواز سنیں", toQuiz: "سوال شروع کریں",
   q: "سوال", of: "میں سے", right: "درست!", wrong: "صحیح نہیں۔", cont: "آگے بڑھیں", done: "سبق مکمل", saved: "آپ کی پروگریس میں محفوظ ہو گیا۔", yourScore: "آپ کا نمبر",
   nextL: "اگلا سبق", toCourse: "کورس پر واپس", lowNote: "آپ آگے بڑھ سکتے ہیں، لیکن غلط جواب آپ کے کورس کے نمبر کم کرتے ہیں۔ چاہیں تو یہ سبق دوبارہ دیکھیں۔",
-  ask: "اے آئی استاد سے پوچھیں", ustad: "اے آئی استاد", send: "بھیجیں", askPh: "اس سبق، تجوید کے قاعدے یا عربی لفظ کے بارے میں پوچھیں…",
-  aiNote: "اے آئی استاد کورس کی بنیاد پر جواب دیتا ہے۔ فتویٰ یا ذاتی مسائل کے لیے عالم سے پوچھیں۔", aiHello: "السلام علیکم! میں آپ کا اے آئی استاد ہوں۔ اس کورس سے تجوید یا عربی کے بارے میں کچھ بھی پوچھیں۔",
-  aiFail: "اے آئی استاد ابھی دستیاب نہیں۔ ایک منٹ بعد دوبارہ کوشش کریں، یا واٹس ایپ پر پیغام بھیجیں۔",
+  ask: "اے آئی ٹیچر سے پوچھیں", ustad: "اے آئی ٹیچر", send: "بھیجیں", askPh: "اس سبق، تجوید کے قاعدے یا عربی لفظ کے بارے میں پوچھیں…",
+  aiNote: "اے آئی ٹیچر کورس کی بنیاد پر جواب دیتا ہے۔ فتویٰ یا ذاتی مسائل کے لیے عالم سے پوچھیں۔", aiHello: "السلام علیکم! میں آپ کا اے آئی ٹیچر ہوں۔ اس کورس سے تجوید یا عربی کے بارے میں کچھ بھی پوچھیں۔",
+  aiFail: "اے آئی ٹیچر ابھی دستیاب نہیں۔ ایک منٹ بعد دوبارہ کوشش کریں، یا واٹس ایپ پر پیغام بھیجیں۔",
   cert: "سرٹیفکیٹ", certNeed: "سرٹیفکیٹ کے لیے تمام ۷۲ اسباق مکمل کریں اور فائنل امتحان میں کم از کم ۷۰٪ نمبر لائیں۔", dl: "ڈاؤن لوڈ",
   free: "مفت", voiceOff: "آواز بند", voiceOn: "آواز چالو", micNo: "مائیک کی اجازت نہیں ملی۔ براؤزر میں اجازت دیں۔", payNote: "ادائیگی کے بعد آپ کا کورس اسی اکاؤنٹ (اسی موبائل/ای میل) پر خود کھل جائے گا۔",
   payWa: "واٹس ایپ پر داخلہ", owner: "مالک کا پیش نظارہ: تمام اسباق کھلے ہیں۔",
@@ -70,12 +70,12 @@ const TX = {
   slotH: "اپنی روزانہ کلاس کا وقت چنیں", slotP: "آپ کا اگلا سبق ہر روز اسی وقت کھلے گا، ہفتے میں چھ دن۔ سوچ کر چنیں — ایک بار محفوظ ہونے کے بعد وقت اور چھٹی کا دن بدلا نہیں جا سکے گا۔",
   slotTime: "روزانہ وقت", slotOff: "ہفتہ وار چھٹی", slotSave: "میرا وقت محفوظ کریں (آخری)", slotIs: "آپ کی کلاس کا وقت", offIs: "چھٹی", nextAt: "اگلا سبق کھلے گا",
   waitSlot: "یہ سبق آپ کی کلاس کے وقت کھلے گا", needSlot: "پہلے اپنی روزانہ کلاس کا وقت چنیں",
-  hw: "ہوم ورک", hwP: "اپنا ہوم ورک بھیجیں: آواز کی ریکارڈنگ، لکھائی کی تصویر، یا چھوٹی ویڈیو (زیادہ سے زیادہ ۱۰ ایم بی)۔ اے آئی استاد چیک کر کے رائے دے گا۔",
-  hwVoice: "آواز ریکارڈ کریں", hwPhoto: "تصویر", hwVideo: "چھوٹی ویڈیو", hwSending: "بھیجا جا رہا ہے…", hwSent: "ہوم ورک بھیج دیا ✓", hwChecking: "اے آئی استاد چیک کر رہا ہے…", hwMine: "میرا ہوم ورک", hwNone: "ابھی کوئی ہوم ورک نہیں بھیجا۔", hwHint: "یہ ہوم ورک سبق کے آخر میں، سوالوں کے بعد، 📤 ہوم ورک والے خانے سے بھیجیں۔",
+  hw: "ہوم ورک", hwP: "اپنا ہوم ورک بھیجیں: آواز کی ریکارڈنگ، لکھائی کی تصویر، یا چھوٹی ویڈیو (زیادہ سے زیادہ ۱۰ ایم بی)۔ اے آئی ٹیچر چیک کر کے رائے دے گا۔",
+  hwVoice: "آواز ریکارڈ کریں", hwPhoto: "تصویر", hwVideo: "چھوٹی ویڈیو", hwSending: "بھیجا جا رہا ہے…", hwSent: "ہوم ورک بھیج دیا ✓", hwChecking: "اے آئی ٹیچر چیک کر رہا ہے…", hwMine: "میرا ہوم ورک", hwNone: "ابھی کوئی ہوم ورک نہیں بھیجا۔", hwHint: "یہ ہوم ورک سبق کے آخر میں، سوالوں کے بعد، 📤 ہوم ورک والے خانے سے بھیجیں۔",
   hwBig: "فائل بہت بڑی ہے (زیادہ سے زیادہ ۱۰ ایم بی)۔", fb: "رائے", offline: "آف لائن", offH: "آف لائن اسباق", offP: "فل ایکسیس والے طلبہ پورا کورس اسی ایپ میں محفوظ کر کے بغیر انٹرنیٹ پڑھ سکتے ہیں۔ محفوظ اسباق صرف یہیں کھلیں گے۔",
   offDl: "آف لائن محفوظ کریں", offDone: "آف لائن محفوظ ✓", offNone: "ابھی کچھ محفوظ نہیں۔", offNeed: "آف لائن محفوظ کرنا فل ایکسیس والوں کے لیے ہے۔", saving: "محفوظ ہو رہا ہے…",
   photoL: "آپ کی تصویر (سرٹیفکیٹ کے لیے)", photoBtn: "تصویر چنیں", fullBadge: "فل ایکسیس", certReady: "آپ کا سرٹیفکیٹ تیار ہے", protect: "اسباق محفوظ ہیں اور صرف قرآنک سائنس کے اندر چلتے ہیں۔", arVoice: "عربی تلفظ سنیں", repeat: "دہرائیں", playAll: "سب ترتیب سے سنیں", tapLetter: "حرف پر ٹیپ کریں، قاری کی آواز سنیں" },
- hi: { tag: "तजवीद · अरबी · ए आई उस्ताद", heroEy: "नया · अपनी रफ़्तार से", hero1: "तजवीद और अरबी सीखें अपने", hero2: "ए आई उस्ताद के साथ",
+ hi: { tag: "तजवीद · अरबी · ए आई टीचर", heroEy: "नया · अपनी रफ़्तार से", hero1: "तजवीद और अरबी सीखें अपने", hero2: "ए आई टीचर के साथ",
   heroP: "आपकी ज़बान में आवाज़ वाले छोटे सबक़, असली क़ारी की तिलावत, अपनी आवाज़ रिकॉर्ड करके मश्क़, ए आई से होमवर्क की जाँच, हर सबक़ के बाद तीन सवाल, नज़र आने वाली प्रोग्रेस, और आख़िर में सर्टिफ़िकेट।",
   f1: "हर कोर्स में 72 सबक़", f2: "हर क़दम पर आवाज़", f3: "असली क़ारी की आवाज़", f4: "ए आई होमवर्क चेक करता है", f5: "सर्टिफ़िकेट",
   courses: "अपना कोर्स चुनें", editing: "ए आई के साथ तजवीद", content: "ए आई के साथ अरबी बोलचाल", combo: "ए आई के साथ तजवीद + अरबी",
@@ -87,9 +87,9 @@ const TX = {
   next: "आगे", back: "पीछे", listen: "क़ारी की आवाज़ सुनें", replay: "आवाज़ दोबारा", rec: "अपनी आवाज़ रिकॉर्ड करें", stop: "रोकें", mine: "अपनी आवाज़ सुनें", toQuiz: "सवाल शुरू करें",
   q: "सवाल", of: "में से", right: "सही!", wrong: "सही नहीं।", cont: "आगे बढ़ें", done: "सबक़ पूरा", saved: "आपकी प्रोग्रेस में महफ़ूज़ हो गया।", yourScore: "आपका नंबर",
   nextL: "अगला सबक़", toCourse: "कोर्स पर वापस", lowNote: "आप आगे बढ़ सकते हैं, लेकिन ग़लत जवाब आपके कोर्स के नंबर कम करते हैं। चाहें तो यह सबक़ दोबारा देखें।",
-  ask: "ए आई उस्ताद से पूछें", ustad: "ए आई उस्ताद", send: "भेजें", askPh: "इस सबक़, तजवीद के क़ायदे या अरबी लफ़्ज़ के बारे में पूछें…",
-  aiNote: "ए आई उस्ताद कोर्स की बुनियाद पर जवाब देता है। फ़तवा या ज़ाती मसाइल के लिए आलिम से पूछें।", aiHello: "अस्सलामु अलैकुम! मैं आपका ए आई उस्ताद हूँ। इस कोर्स से तजवीद या अरबी के बारे में कुछ भी पूछें।",
-  aiFail: "ए आई उस्ताद अभी उपलब्ध नहीं। एक मिनट बाद दोबारा कोशिश करें, या व्हाट्सऐप पर मैसेज भेजें।",
+  ask: "ए आई टीचर से पूछें", ustad: "ए आई टीचर", send: "भेजें", askPh: "इस सबक़, तजवीद के क़ायदे या अरबी लफ़्ज़ के बारे में पूछें…",
+  aiNote: "ए आई टीचर कोर्स की बुनियाद पर जवाब देता है। फ़तवा या ज़ाती मसाइल के लिए आलिम से पूछें।", aiHello: "अस्सलामु अलैकुम! मैं आपका ए आई टीचर हूँ। इस कोर्स से तजवीद या अरबी के बारे में कुछ भी पूछें।",
+  aiFail: "ए आई टीचर अभी उपलब्ध नहीं। एक मिनट बाद दोबारा कोशिश करें, या व्हाट्सऐप पर मैसेज भेजें।",
   cert: "सर्टिफ़िकेट", certNeed: "सर्टिफ़िकेट के लिए सारे 72 सबक़ पूरे करें और फ़ाइनल इम्तिहान में कम से कम 70% नंबर लाएँ।", dl: "डाउनलोड",
   free: "मुफ़्त", voiceOff: "आवाज़ बंद", voiceOn: "आवाज़ चालू", micNo: "माइक की इजाज़त नहीं मिली। ब्राउज़र में इजाज़त दें।", payNote: "पेमेंट के बाद आपका कोर्स उसी अकाउंट (उसी मोबाइल/ईमेल) पर ख़ुद खुल जाएगा।",
   payWa: "व्हाट्सऐप पर दाख़िला", owner: "मालिक का प्रीव्यू: सारे सबक़ खुले हैं।",
@@ -98,43 +98,43 @@ const TX = {
   slotH: "अपनी रोज़ाना क्लास का वक़्त चुनें", slotP: "आपका अगला सबक़ हर रोज़ इसी वक़्त खुलेगा, हफ़्ते में छह दिन। सोच कर चुनें — एक बार महफ़ूज़ होने के बाद वक़्त और छुट्टी का दिन बदला नहीं जा सकेगा।",
   slotTime: "रोज़ाना वक़्त", slotOff: "हफ़्तावार छुट्टी", slotSave: "मेरा वक़्त महफ़ूज़ करें (आख़िरी)", slotIs: "आपकी क्लास का वक़्त", offIs: "छुट्टी", nextAt: "अगला सबक़ खुलेगा",
   waitSlot: "यह सबक़ आपकी क्लास के वक़्त खुलेगा", needSlot: "पहले अपनी रोज़ाना क्लास का वक़्त चुनें",
-  hw: "होमवर्क", hwP: "अपना होमवर्क भेजें: आवाज़ की रिकॉर्डिंग, लिखाई की फ़ोटो, या छोटी वीडियो (ज़्यादा से ज़्यादा 10 MB)। ए आई उस्ताद चेक करके राय देगा।",
-  hwVoice: "आवाज़ रिकॉर्ड करें", hwPhoto: "फ़ोटो", hwVideo: "छोटी वीडियो", hwSending: "भेजा जा रहा है…", hwSent: "होमवर्क भेज दिया ✓", hwChecking: "ए आई उस्ताद चेक कर रहा है…", hwMine: "मेरा होमवर्क", hwNone: "अभी कोई होमवर्क नहीं भेजा।", hwHint: "यह होमवर्क सबक़ के आख़िर में, सवालों के बाद, 📤 होमवर्क वाले ख़ाने से भेजें।",
+  hw: "होमवर्क", hwP: "अपना होमवर्क भेजें: आवाज़ की रिकॉर्डिंग, लिखाई की फ़ोटो, या छोटी वीडियो (ज़्यादा से ज़्यादा 10 MB)। ए आई टीचर चेक करके राय देगा।",
+  hwVoice: "आवाज़ रिकॉर्ड करें", hwPhoto: "फ़ोटो", hwVideo: "छोटी वीडियो", hwSending: "भेजा जा रहा है…", hwSent: "होमवर्क भेज दिया ✓", hwChecking: "ए आई टीचर चेक कर रहा है…", hwMine: "मेरा होमवर्क", hwNone: "अभी कोई होमवर्क नहीं भेजा।", hwHint: "यह होमवर्क सबक़ के आख़िर में, सवालों के बाद, 📤 होमवर्क वाले ख़ाने से भेजें।",
   hwBig: "फ़ाइल बहुत बड़ी है (ज़्यादा से ज़्यादा 10 MB)।", fb: "राय", offline: "ऑफ़लाइन", offH: "ऑफ़लाइन सबक़", offP: "फ़ुल ऐक्सेस वाले तलबा पूरा कोर्स इसी ऐप में महफ़ूज़ करके बिना इंटरनेट पढ़ सकते हैं। महफ़ूज़ सबक़ सिर्फ़ यहीं खुलेंगे।",
   offDl: "ऑफ़लाइन महफ़ूज़ करें", offDone: "ऑफ़लाइन महफ़ूज़ ✓", offNone: "अभी कुछ महफ़ूज़ नहीं।", offNeed: "ऑफ़लाइन महफ़ूज़ करना फ़ुल ऐक्सेस वालों के लिए है।", saving: "महफ़ूज़ हो रहा है…",
   photoL: "आपकी फ़ोटो (सर्टिफ़िकेट के लिए)", photoBtn: "फ़ोटो चुनें", fullBadge: "फ़ुल ऐक्सेस", certReady: "आपका सर्टिफ़िकेट तैयार है", protect: "सबक़ महफ़ूज़ हैं और सिर्फ़ क़ुरआनिक साइंस के अंदर चलते हैं।", arVoice: "अरबी तलफ़्फ़ुज़ सुनें", repeat: "दोहराएँ", playAll: "सब तरतीब से सुनें", tapLetter: "हर्फ़ पर टैप करें, क़ारी की आवाज़ सुनें" }
 };
 /* creator courses: same app, creator wording */
-Object.assign(TX.en, { tag: "Video Editing · Content · Design · AI Ustad", heroEy: "New · Learn at your own pace", hero1: "Become a creator with your own", hero2: "AI Ustad",
+Object.assign(TX.en, { tag: "Video Editing · Content · Design · AI Teacher", heroEy: "New · Learn at your own pace", hero1: "Become a creator with your own", hero2: "AI Teacher",
   heroP: "Short voice lessons in your language, step-by-step CapCut and Canva screens, a practice task in every class, homework checked by AI, 3 questions after every lesson, and a certificate at the end. The same syllabus as our live classes.",
   f1: "Day-by-day syllabus", f2: "Voice in every step", f3: "Practice task every class", f4: "AI checks your homework", f5: "Certificate",
   editing: "Video Editing (CapCut) with AI", content: "Content Creation with AI", combo: "All-in-One Creator with AI", design: "Graphic Design with AI",
   dT: "Cuts, captions, sound, colour, motion and client work in CapCut — 35 lessons.", dA: "Niche, ideas, hooks, scripts, phone shooting, vlogs, growth and earning — 20 lessons.", dC: "Video Editing + Content Creation + Graphic Design (gift) + AI Masterclass — 70 lessons.", dD: "Canva and ChatGPT images: posts, thumbnails, posters, logo and brand kit — 5 lessons.",
   listen: "Watch the steps", askPh: "Ask about this lesson, CapCut, Canva or content…",
-  aiNote: "AI Ustad answers from the course. For anything personal, ask your teacher on WhatsApp.", aiHello: "Assalamu alaikum! I am your AI Ustad. Ask me anything about editing, content or design from this course.",
+  aiNote: "AI Teacher answers from the course. For anything personal, ask your teacher on WhatsApp.", aiHello: "Assalamu alaikum! I am your AI Teacher. Ask me anything about editing, content or design from this course.",
   certNeed: "Complete every lesson and pass the questions to get your certificate.",
   fullD: "Every lesson of the course opens at once + offline saving inside the app. Learn at your own speed; the certificate opens when every lesson and question is done.",
-  hwP: "Send your homework: your video, a screenshot or a photo (max 10 MB). The AI Ustad checks it and gives you feedback." });
-Object.assign(TX.ur, { tag: "ویڈیو ایڈیٹنگ · کانٹینٹ · ڈیزائن · اے آئی استاد", heroEy: "نیا · اپنی رفتار سے", hero1: "کریئیٹر بنیں اپنے", hero2: "اے آئی استاد کے ساتھ",
+  hwP: "Send your homework: your video, a screenshot or a photo (max 10 MB). The AI Teacher checks it and gives you feedback." });
+Object.assign(TX.ur, { tag: "ویڈیو ایڈیٹنگ · کانٹینٹ · ڈیزائن · اے آئی ٹیچر", heroEy: "نیا · اپنی رفتار سے", hero1: "کریئیٹر بنیں اپنے", hero2: "اے آئی ٹیچر کے ساتھ",
   heroP: "آپ کی زبان میں آواز والے چھوٹے اسباق، کیپ کٹ اور کینوا کی قدم بہ قدم اسکرین، ہر کلاس میں پریکٹس، اے آئی سے چیک ہونے والا ہوم ورک، ہر سبق کے بعد تین سوال، اور آخر میں سرٹیفکیٹ۔ وہی سلیبس جو ہماری لائیو کلاس کا ہے۔",
   f1: "دن بہ دن سلیبس", f2: "ہر قدم پر آواز", f3: "ہر کلاس میں پریکٹس", f4: "اے آئی ہوم ورک چیک کرتا ہے", f5: "سرٹیفکیٹ",
   editing: "ویڈیو ایڈیٹنگ (کیپ کٹ) اے آئی کے ساتھ", content: "کانٹینٹ کریئیشن اے آئی کے ساتھ", combo: "آل اِن ون کریئیٹر اے آئی کے ساتھ", design: "گرافک ڈیزائن اے آئی کے ساتھ",
   dT: "کیپ کٹ میں کٹ، کیپشن، آواز، رنگ، موشن اور کلائنٹ کا کام — ۳۵ اسباق۔", dA: "نِیش، آئیڈیا، ہُک، اسکرپٹ، فون سے شوٹ، ولاگ، گروتھ اور کمائی — ۲۰ اسباق۔", dC: "ویڈیو ایڈیٹنگ + کانٹینٹ کریئیشن + گرافک ڈیزائن (تحفہ) + اے آئی ماسٹرکلاس — ۷۰ اسباق۔", dD: "کینوا اور چیٹ جی پی ٹی امیجز: پوسٹ، تھمب نیل، پوسٹر، لوگو اور برانڈ کٹ — ۵ اسباق۔",
   listen: "قدم دیکھیں", askPh: "اس سبق، کیپ کٹ، کینوا یا کانٹینٹ کے بارے میں پوچھیں…",
-  aiNote: "اے آئی استاد کورس سے جواب دیتا ہے۔ ذاتی بات کے لیے واٹس ایپ پر استاد سے پوچھیں۔", aiHello: "السلام علیکم! میں آپ کا اے آئی استاد ہوں۔ اس کورس کی ایڈیٹنگ، کانٹینٹ یا ڈیزائن کے بارے میں کچھ بھی پوچھیں۔",
+  aiNote: "اے آئی ٹیچر کورس سے جواب دیتا ہے۔ ذاتی بات کے لیے واٹس ایپ پر استاد سے پوچھیں۔", aiHello: "السلام علیکم! میں آپ کا اے آئی ٹیچر ہوں۔ اس کورس کی ایڈیٹنگ، کانٹینٹ یا ڈیزائن کے بارے میں کچھ بھی پوچھیں۔",
   certNeed: "سرٹیفکیٹ کے لیے ہر سبق مکمل کریں اور سوالوں میں پاس ہوں۔",
   fullD: "کورس کے سارے اسباق ایک ساتھ کھل جائیں گے + ایپ میں آف لائن محفوظ کرنا۔ اپنی رفتار سے سیکھیں؛ سرٹیفکیٹ ہر سبق اور سوال مکمل ہونے پر کھلے گا۔",
-  hwP: "اپنا ہوم ورک بھیجیں: اپنی ویڈیو، اسکرین شاٹ یا فوٹو (زیادہ سے زیادہ ۱۰ ایم بی)۔ اے آئی استاد چیک کر کے رائے دے گا۔" });
-Object.assign(TX.hi, { tag: "वीडियो एडिटिंग · कंटेंट · डिज़ाइन · ए आई उस्ताद", heroEy: "नया · अपनी रफ़्तार से", hero1: "क्रिएटर बनें अपने", hero2: "ए आई उस्ताद के साथ",
+  hwP: "اپنا ہوم ورک بھیجیں: اپنی ویڈیو، اسکرین شاٹ یا فوٹو (زیادہ سے زیادہ ۱۰ ایم بی)۔ اے آئی ٹیچر چیک کر کے رائے دے گا۔" });
+Object.assign(TX.hi, { tag: "वीडियो एडिटिंग · कंटेंट · डिज़ाइन · ए आई टीचर", heroEy: "नया · अपनी रफ़्तार से", hero1: "क्रिएटर बनें अपने", hero2: "ए आई टीचर के साथ",
   heroP: "आपकी ज़बान में आवाज़ वाले छोटे सबक़, CapCut और Canva की क़दम-ब-क़दम स्क्रीन, हर क्लास में प्रैक्टिस, ए आई से चेक होने वाला होमवर्क, हर सबक़ के बाद तीन सवाल, और आख़िर में सर्टिफ़िकेट। वही सिलेबस जो हमारी लाइव क्लास का है।",
   f1: "दिन-ब-दिन सिलेबस", f2: "हर क़दम पर आवाज़", f3: "हर क्लास में प्रैक्टिस", f4: "ए आई होमवर्क चेक करता है", f5: "सर्टिफ़िकेट",
   editing: "वीडियो एडिटिंग (CapCut) ए आई के साथ", content: "कंटेंट क्रिएशन ए आई के साथ", combo: "ऑल-इन-वन क्रिएटर ए आई के साथ", design: "ग्राफ़िक डिज़ाइन ए आई के साथ",
   dT: "CapCut में कट, कैप्शन, आवाज़, रंग, मोशन और क्लाइंट का काम — 35 सबक़।", dA: "निश, आइडिया, हुक, स्क्रिप्ट, फ़ोन से शूट, व्लॉग, ग्रोथ और कमाई — 20 सबक़।", dC: "वीडियो एडिटिंग + कंटेंट क्रिएशन + ग्राफ़िक डिज़ाइन (तोहफ़ा) + ए आई मास्टरक्लास — 70 सबक़।", dD: "Canva और ChatGPT इमेज: पोस्ट, थंबनेल, पोस्टर, लोगो और ब्रांड किट — 5 सबक़।",
   listen: "क़दम देखें", askPh: "इस सबक़, CapCut, Canva या कंटेंट के बारे में पूछें…",
-  aiNote: "ए आई उस्ताद कोर्स से जवाब देता है। निजी बात के लिए WhatsApp पर उस्ताद से पूछें।", aiHello: "अस्सलामु अलैकुम! मैं आपका ए आई उस्ताद हूँ। इस कोर्स की एडिटिंग, कंटेंट या डिज़ाइन के बारे में कुछ भी पूछें।",
+  aiNote: "ए आई टीचर कोर्स से जवाब देता है। निजी बात के लिए WhatsApp पर उस्ताद से पूछें।", aiHello: "अस्सलामु अलैकुम! मैं आपका ए आई टीचर हूँ। इस कोर्स की एडिटिंग, कंटेंट या डिज़ाइन के बारे में कुछ भी पूछें।",
   certNeed: "सर्टिफ़िकेट के लिए हर सबक़ पूरा करें और सवालों में पास हों।",
   fullD: "कोर्स के सारे सबक़ एक साथ खुल जाएँगे + ऐप में ऑफ़लाइन सेव। अपनी रफ़्तार से सीखें; सर्टिफ़िकेट हर सबक़ और सवाल पूरा होने पर खुलेगा।",
-  hwP: "अपना होमवर्क भेजें: अपनी वीडियो, स्क्रीनशॉट या फ़ोटो (ज़्यादा से ज़्यादा 10 MB)। ए आई उस्ताद चेक करके राय देगा।" });
+  hwP: "अपना होमवर्क भेजें: अपनी वीडियो, स्क्रीनशॉट या फ़ोटो (ज़्यादा से ज़्यादा 10 MB)। ए आई टीचर चेक करके राय देगा।" });
 
 const LS = { get(k, d) { try { const v = localStorage.getItem(k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } }, set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} } };
 let LANG = LS.get("qsai-lang", "ur");
@@ -216,6 +216,7 @@ const dv = id => (S.outline[courseOf(id)] || {}).v || 0;
 const getBin = async u => { let r = await fetch(u); if (!r.ok) r = await fetch(u, { cache: "reload" }); return r; };
 async function voiceSrc(id, i) {
   if (FREE.includes(id)) return `vo/${id}-${i}.mp3?v=${dv(id)}`;
+  if (LANG === "en" && typeof i === "number") { const ek = id + "-" + i + "e"; if (voiceUrls[ek]) return voiceUrls[ek]; if (!voiceUrls["x" + ek]) { const er = await getBin(`vo/${ek}.bin?v=${dv(id)}`).catch(() => null); if (er && er.ok) return voiceUrls[ek] = URL.createObjectURL(new Blob([await decryptBuf(await er.arrayBuffer(), courseOf(id))], { type: "audio/mpeg" })); voiceUrls["x" + ek] = 1; } }
   const key = id + "-" + i; if (voiceUrls[key]) return voiceUrls[key];
   const r = await getBin(`vo/${key}.bin?v=${dv(id)}`); if (!r.ok) return null;
   const u = URL.createObjectURL(new Blob([await decryptBuf(await r.arrayBuffer(), courseOf(id))], { type: "audio/mpeg" }));
@@ -742,7 +743,7 @@ async function finish(ans) {
   if (S.user && has(c) && !isFull(c) && !slot()) setTimeout(() => slotBox(), 900);
 }
 
-/* ============ homework (voice / photo / short video) checked by the AI Ustad ============ */
+/* ============ homework (voice / photo / short video) checked by the AI Teacher ============ */
 const hwBox = () => `<section class="stage hwb"><h3 style="margin:0">📤 ${t("hw")}</h3><p class="mini">${t("hwP")}</p>
   <div class="tools"><button class="btn rec" id="hv">🎙️ ${t("hwVoice")}</button><label class="btn">📷 ${t("hwPhoto")}<input type="file" accept="image/*" capture="environment" id="hp" hidden></label>
   <label class="btn">🎥 ${t("hwVideo")}<input type="file" accept="video/*" capture="environment" id="hd" hidden></label></div><div id="hws"></div></section>`;
@@ -824,7 +825,7 @@ async function saveOffline(c, btn) {
   for (const d of ready) { urls.add(`data/${d.id.slice(0, 5)}.bin?v=${o.v || 0}`); }
   const bar = btn.parentNode.querySelector(".bar"); bar.hidden = false; btn.disabled = true; btn.textContent = t("saving");
   const weeks = [...new Set(ready.map(d => d.id.slice(0, 5)))]; let done = 0, total = 0;
-  for (const wk of weeks) { const L = await lessonDataWeek(wk); for (const l of L) { l.moments.forEach((m, i) => { const V = `?v=${o.v || 0}`; [String(i + 1)].concat(m.av ? [(i + 1) + "a"] : []).forEach(n => urls.add(FREE.includes(l.id) ? `vo/${l.id}-${n}.mp3${V}` : `vo/${l.id}-${n}.bin${V}`)); (m.q || []).forEach(q => urls.add(q.w ? QARI_WORD(q.s, q.a, q.w) : QARI_AYAH(q.s, q.a))); }); } }
+  for (const wk of weeks) { const L = await lessonDataWeek(wk); for (const l of L) { l.moments.forEach((m, i) => { const V = `?v=${o.v || 0}`; LANG === "en" && !FREE.includes(l.id) && urls.add(`vo/${l.id}-${i + 1}e.bin${V}`); [String(i + 1)].concat(m.av ? [(i + 1) + "a"] : []).forEach(n => urls.add(FREE.includes(l.id) ? `vo/${l.id}-${n}.mp3${V}` : `vo/${l.id}-${n}.bin${V}`)); (m.q || []).forEach(q => urls.add(q.w ? QARI_WORD(q.s, q.a, q.w) : QARI_AYAH(q.s, q.a))); }); } }
   total = urls.size;
   for (const u of urls) { try { const req = new Request(u, /^https?:/.test(u) ? { mode: "no-cors" } : {}); const res = await fetch(req); await cache.put(req, res); } catch (e) {} done++; bar.firstChild.style.width = Math.round(done * 100 / total) + "%"; }
   const sv = LS.get("qsai-off", {}); sv[c] = { at: Date.now(), n: ready.length }; LS.set("qsai-off", sv);
@@ -889,7 +890,7 @@ async function drawCert(cv, d) {
   x.fillStyle = "#1c1712"; x.font = "700 28px Outfit"; x.fillText("Arsalan Ahmed Shaikh", W2 - 460, 1292); x.fillStyle = "#6b6256"; x.font = "400 22px Outfit"; x.fillText("Founder, Quranic Science", W2 - 460, 1324);
 }
 
-/* ============ AI Ustad ============ */
+/* ============ AI Teacher ============ */
 const AIX = { model: null, tried: false, hist: [] };
 const withTimeout = (p, ms) => Promise.race([p, new Promise((_, rej) => setTimeout(() => rej(new Error("timeout")), ms))]);
 async function ustadKnowledge() {
@@ -897,7 +898,7 @@ async function ustadKnowledge() {
   const syl = (o, n) => n + ":\n" + o.weeks.map((w, i) => `Week ${i + 1} ${w.title.en}: ` + w.days.map((d, j) => `D${j + 1} ${d.title.en}`).join("; ")).join("\n");
   let cur = "";
   if (LESSON.data && /lesson=/.test(location.hash)) cur = "\nTHE STUDENT IS NOW ON THIS LESSON (" + LESSON.id + "):\n" + LESSON.data.moments.map(m => m.en + (m.ar ? " [" + m.ar + "]" : "")).join("\n");
-  return `You are "AI Ustad", the complete teacher inside "Learn with Quranic Science AI" (quranicscience.info), a self-paced course for Tajweed (Hafs 'an 'Asim, Indo-Pak 15-line mushaf conventions) and beginner Arabic speaking/Qur'anic Arabic. There is no human teacher in this course: you explain, correct and guide.
+  return `You are "AI Teacher", the complete teacher inside "Learn with Quranic Science AI" (quranicscience.info), a self-paced course for Tajweed (Hafs 'an 'Asim, Indo-Pak 15-line mushaf conventions) and beginner Arabic speaking/Qur'anic Arabic. There is no human teacher in this course: you explain, correct and guide.
 RULES (very important):
 1. Answer ONLY about Tajweed, Qur'an reading, Arabic language and this course (lessons, homework, time slot, certificate). For other topics, politely say you only help with this course.
 2. Be accurate. Use the standard rules of Tajweed for Hafs 'an 'Asim via ash-Shatibiyyah (e.g. madd muttasil and munfasil 4-5 counts, madd lazim 6, ghunnah 2 counts, qalqalah letters قطب جد, isti'la letters خص ضغط قظ, izhar letters ء ه ع ح غ خ, idgham letters ينمو and ل ر, iqlab before ب, ikhfa 15 letters).

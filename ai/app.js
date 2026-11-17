@@ -184,6 +184,7 @@ const dv = id => (S.outline[courseOf(id)] || {}).v || 0;
 const getBin = async u => { let r = await fetch(u); if (!r.ok) r = await fetch(u, { cache: "reload" }); return r; };
 async function voiceSrc(id, i) {
   if (FREE.includes(id)) return `vo/${id}-${i}.mp3?v=${dv(id)}`;
+  if (LANG === "en" && typeof i === "number") { const ek = id + "-" + i + "e"; if (voiceUrls[ek]) return voiceUrls[ek]; if (!voiceUrls["x" + ek]) { const er = await fetch(`vo/${ek}.bin?v=${dv(id)}`).catch(() => null); if (er && er.ok) return voiceUrls[ek] = URL.createObjectURL(new Blob([await decryptBuf(await er.arrayBuffer(), courseOf(id))], { type: "audio/mpeg" })); voiceUrls["x" + ek] = 1; } }
   const key = id + "-" + i; if (voiceUrls[key]) return voiceUrls[key];
   const r = await getBin(`vo/${key}.bin?v=${dv(id)}`); if (!r.ok) return null;
   const u = URL.createObjectURL(new Blob([await decryptBuf(await r.arrayBuffer(), courseOf(id))], { type: "audio/mpeg" }));
@@ -410,7 +411,6 @@ async function playVoice() {
   stopAll(); const { id, i, data } = LESSON, m = data && data.moments[i]; if (!m) return;
   const box = $("#vo"), after = () => { box && box.classList.remove("playing"); LESSON.tourOff && LESSON.tourOff(); };
   LESSON.tour && LESSON.tour();
-  if (LANG === "en" && window.speechSynthesis) { box && box.classList.add("playing"); if (speakText(pick(m), after)) return; after(); }
   let src = null; try { src = await voiceSrc(id, i + 1); } catch (e) {}
   if (!src) return after();
   voiceEl = new Audio(src); box && box.classList.add("playing"); window.QSUstad && QSUstad.hint(pick(m));
@@ -945,7 +945,7 @@ async function saveOffline(c, btn) {
   const bar = btn.parentNode.querySelector(".bar"); bar.hidden = false; btn.disabled = true; btn.textContent = t("saving");
   const weeks = [...new Set(ready.map(d => d.id.slice(0, 5)))]; let done = 0, total = 0;
   ["istiadha"].concat(Object.values(LETNAME)).forEach(k => urls.add(`arv/${k}.mp3`));
-  for (const wk of weeks) { const L = await lessonDataWeek(wk); for (const l of L) { l.moments.forEach((m, i) => { const V = `?v=${o.v || 0}`; [String(i + 1)].concat(m.av ? [(i + 1) + "a"] : []).forEach(n => urls.add(FREE.includes(l.id) ? `vo/${l.id}-${n}.mp3${V}` : `vo/${l.id}-${n}.bin${V}`)); (m.q || []).forEach(q => urls.add(q.w ? QARI_WORD(q.s, q.a, q.w) : QARI_AYAH(q.s, q.a))); }); } }
+  for (const wk of weeks) { const L = await lessonDataWeek(wk); for (const l of L) { l.moments.forEach((m, i) => { const V = `?v=${o.v || 0}`; LANG === "en" && urls.add(`vo/${l.id}-${i + 1}e.bin${V}`); [String(i + 1)].concat(m.av ? [(i + 1) + "a"] : []).forEach(n => urls.add(FREE.includes(l.id) ? `vo/${l.id}-${n}.mp3${V}` : `vo/${l.id}-${n}.bin${V}`)); (m.q || []).forEach(q => urls.add(q.w ? QARI_WORD(q.s, q.a, q.w) : QARI_AYAH(q.s, q.a))); }); } }
   total = urls.size;
   for (const u of urls) { try { const req = new Request(u, /^https?:/.test(u) ? { mode: "no-cors" } : {}); const res = await fetch(req); await cache.put(req, res); } catch (e) {} done++; bar.firstChild.style.width = Math.round(done * 100 / total) + "%"; }
   const sv = LS.get("qsai-off", {}); sv[c] = { at: Date.now(), n: ready.length }; LS.set("qsai-off", sv);

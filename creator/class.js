@@ -21,7 +21,7 @@ const CX = {
   wait: { en: "Keep practising", ur: "مشق جاری رکھیں", hi: "मश्क़ जारी रखें" },
   doFirst: { en: "Finish this part's practice first", ur: "پہلے اس حصے کی مشق مکمل کریں", hi: "पहले इस हिस्से की मश्क़ पूरी करें" },
   agenda: { en: "Your teacher will take you through these parts. Take your time — a real class is about one hour.", ur: "آپ کے استاد آپ کو یہ سب حصے کروائیں گے۔ آرام سے کریں — ایک پوری کلاس تقریباً ایک گھنٹے کی ہوتی ہے۔", hi: "आपके उस्ताद आपको ये सब हिस्से करवाएँगे। आराम से करें — एक पूरी क्लास तक़रीबन एक घंटे की होती है।" },
-  duaT: { en: "Begin with Bismillah. Keep CapCut (or Canva) open next to this lesson, so you can do every step with us.", ur: "بسم اللہ سے شروع کریں۔ کیپ کٹ (یا کینوا) اس سبق کے ساتھ کھلا رکھیں، تاکہ ہر قدم ہمارے ساتھ کر سکیں۔", hi: "बिस्मिल्लाह से शुरू करें। CapCut (या Canva) इस सबक़ के साथ खुला रखें, ताकि हर क़दम हमारे साथ कर सकें।" },
+  duaT: { en: "Get ready. Keep CapCut (or Canva) open next to this lesson, so you can do every step with us.", ur: "تیار ہو جائیں۔ کیپ کٹ (یا کینوا) اس سبق کے ساتھ کھلا رکھیں، تاکہ ہر قدم ہمارے ساتھ کر سکیں۔", hi: "तैयार हो जाएँ। CapCut (या Canva) इस सबक़ के साथ खुला रखें, ताकि हर क़दम हमारे साथ कर सकें।" },
   r1: { en: "Round 1 · Listen, then repeat", ur: "پہلا دور · سنیں، پھر دہرائیں", hi: "पहला दौर · सुनें, फिर दोहराएँ" },
   r2: { en: "Round 2 · Read together with the qari", ur: "دوسرا دور · قاری کے ساتھ پڑھیں", hi: "दूसरा दौर · क़ारी के साथ पढ़ें" },
   r3: { en: "Round 3 · Read alone, then check with the qari", ur: "تیسرا دور · خود پڑھیں، پھر قاری سے ملائیں", hi: "तीसरा दौर · ख़ुद पढ़ें, फिर क़ारी से मिलाएँ" },
@@ -31,7 +31,7 @@ const CX = {
   tapHint: { en: "Tap any box to hear it again. Repeat aloud every time.", ur: "کسی بھی خانے کو چھوئیں اور دوبارہ سنیں۔ ہر بار بلند آواز سے دہرائیں۔", hi: "किसी भी ख़ाने को छुएँ और दोबारा सुनें। हर बार बुलंद आवाज़ से दोहराएँ।" },
   allRounds: { en: "All 3 rounds done — mashaAllah!", ur: "تینوں دور مکمل — ماشاءاللہ!", hi: "तीनों दौर पूरे — माशाअल्लाह!" },
   again: { en: "Do another round", ur: "ایک دور اور کریں", hi: "एक दौर और करें" },
-  revNone: { en: "This is your first lesson, so there is nothing to revise yet. Warm up with the letters in the Makharij Lab, then continue.", ur: "یہ آپ کا پہلا سبق ہے، اس لیے ابھی دہرائی نہیں ہے۔ مخارج لیب میں حروف سے تیاری کریں، پھر آگے بڑھیں۔", hi: "यह आपका पहला सबक़ है, इसलिए अभी दोहराई नहीं है। मख़ारिज लैब में हुरूफ़ से तैयारी करें, फिर आगे बढ़ें।" },
+  revNone: { en: "This is your first lesson, so there is nothing to revise yet. Continue to the next step.", ur: "یہ آپ کا پہلا سبق ہے، اس لیے ابھی دہرائی نہیں ہے۔ اگلے مرحلے پر جائیں۔", hi: "यह आपका पहला सबक़ है, इसलिए अभी दोहराई नहीं है। अगले चरण पर जाएँ।" },
   revP: { en: "Read yesterday's words again with the qari. Revision makes the lesson stay.", ur: "کل کے الفاظ قاری کے ساتھ دوبارہ پڑھیں۔ دہرائی سے سبق پکا ہوتا ہے۔", hi: "कल के अल्फ़ाज़ क़ारी के साथ दोबारा पढ़ें। दोहराई से सबक़ पक्का होता है।" },
   learnDrill: { en: "Now repeat today's Arabic again and again until it flows.", ur: "اب آج کی عربی بار بار دہرائیں، یہاں تک کہ روانی آ جائے۔", hi: "अब आज की अरबी बार-बार दोहराएँ, यहाँ तक कि रवानी आ जाए।" },
   qaidaP: { en: "Read today's takhti like in a madrasa: every box with the qari, three rounds. These are real words of the Qur'an.", ur: "آج کی تختی مدرسے کی طرح پڑھیں: ہر خانہ قاری کے ساتھ، تین دور۔ یہ قرآن کے اصل الفاظ ہیں۔", hi: "आज की तख़्ती मदरसे की तरह पढ़ें: हर ख़ाना क़ारी के साथ, तीन दौर। ये क़ुरआन के असल अल्फ़ाज़ हैं।" },
@@ -155,13 +155,9 @@ function afterMoments() { CL.done.learnM = 1; CL.done.learn = 1; saveCL(); phLea
 function phOpen() {
   const dua = [{ s: 20, a: 114, w: 15 }, { s: 20, a: 114, w: 16 }, { s: 20, a: 114, w: 17 }];
   shell(`<section class="stage"><h3 class="clsh">🤲 ${pick(CX.ph.open)}</h3><p class="say">${pick(CX.duaT)}</p>
-    <div class="bigar ip">بِسۡمِ اللّٰهِ الرَّحۡمٰنِ الرَّحِيۡمِ</div><button class="btn cy big" id="d1">🔊 ${pick(CX.play)} · بسم الله</button>
     <h3 class="clsh">🗓️ ${pick(CX.cls)}</h3><p class="mini">${pick(CX.agenda)}</p>
     <ol class="agenda">${CL.phases.map(p => `<li><span>${pick(CX.ph[p[0]])}</span><b>~${num(p[1])} ${pick(CX.mins)}</b></li>`).join("")}</ol></section>`);
-  const d1 = $("#d1");
-  d1.onclick = async () => { d1.classList.add("playing"); await playSrc([{ s: 1, a: 1 }]); d1.classList.remove("playing"); };
   setTimeout(() => { CL.done.open = 1; saveCL(); updNext(); }, 15000);
-  if (S.voice) d1.click();
 }
 
 /* ---------- takrar drill (3 rounds), used for revision, lesson practice and the qaida takhti ---------- */
@@ -204,7 +200,7 @@ function phDrill(k) {
   };
 }
 function phRevNone() {
-  shell(`<section class="stage"><h3 class="clsh">🔁 ${pick(CX.ph.rev)}</h3><p class="say">${pick(CX.revNone)}</p><p><a class="btn cy big" href="#lab" target="_blank">🗣️ Makharij Lab</a></p></section>`);
+  shell(`<section class="stage"><h3 class="clsh">🔁 ${pick(CX.ph.rev)}</h3><p class="say">${pick(CX.revNone)}</p></section>`);
 }
 
 /* ---------- listening game ---------- */
@@ -278,16 +274,16 @@ function phRecord() {
 .clsnav .btn{flex:1;max-width:420px;margin-inline-start:auto}
 `; document.head.appendChild(st); })();
 
-/* ---------- one simple, big choice: AI Ustad · real teacher · both ---------- */
+/* ---------- one simple, big choice: AI Teacher · real teacher · both ---------- */
 const WAYX = {
   h: { en: "How do you want to learn?", ur: "آپ کیسے سیکھنا چاہتے ہیں؟", hi: "आप कैसे सीखना चाहते हैं?" },
-  ai: { en: "With the AI Ustad", ur: "اے آئی استاد کے ساتھ", hi: "ए आई उस्ताद के साथ" },
+  ai: { en: "With the AI Teacher", ur: "اے آئی ٹیچر کے ساتھ", hi: "ए आई टीचर के साथ" },
   aiS: { en: "At home, at your own time · 1-hour class every day · from ₹4,179", ur: "گھر بیٹھے، اپنے وقت پر · روز ایک گھنٹے کی کلاس · ₹4,179 سے", hi: "घर बैठे, अपने वक़्त पर · रोज़ एक घंटे की क्लास · ₹4,179 से" },
   live: { en: "With a real teacher", ur: "اصل استاد کے ساتھ", hi: "असल उस्ताद के साथ" },
   liveS: { en: "Live Zoom class, morning or evening batch · teacher checks your work", ur: "لائیو زوم کلاس، صبح یا شام کا بیچ · استاد آپ کا کام چیک کرتے ہیں", hi: "लाइव ज़ूम क्लास, सुबह या शाम का बैच · उस्ताद आपका काम चेक करते हैं" },
   both: { en: "Both together", ur: "دونوں ساتھ", hi: "दोनों साथ" },
-  bothS: { en: "Live class with a teacher + the same lesson with the AI Ustad for daily practice", ur: "استاد کی لائیو کلاس + روز کی مشق کے لیے وہی سبق اے آئی استاد کے ساتھ", hi: "उस्ताद की लाइव क्लास + रोज़ की मश्क़ के लिए वही सबक़ ए आई उस्ताद के साथ" },
-  bothN: { en: "Live class with your teacher + the AI Ustad for daily practice, at one combined fee.", ur: "استاد کی لائیو کلاس + روز کی مشق کے لیے اے آئی استاد، ایک ساتھ کی فیس میں۔", hi: "उस्ताद की लाइव क्लास + रोज़ की मश्क़ के लिए ए आई उस्ताद, एक साथ की फ़ीस में।" }
+  bothS: { en: "Live class with a teacher + the same lesson with the AI Teacher for daily practice", ur: "استاد کی لائیو کلاس + روز کی مشق کے لیے وہی سبق اے آئی ٹیچر کے ساتھ", hi: "उस्ताद की लाइव क्लास + रोज़ की मश्क़ के लिए वही सबक़ ए आई टीचर के साथ" },
+  bothN: { en: "Live class with your teacher + the AI Teacher for daily practice, at one combined fee.", ur: "استاد کی لائیو کلاس + روز کی مشق کے لیے اے آئی ٹیچر، ایک ساتھ کی فیس میں۔", hi: "उस्ताद की लाइव क्लास + रोज़ की मश्क़ के लिए ए आई टीचर, एक साथ की फ़ीस में।" }
 };
 function wayHTML() {
   const sfx = LANG === "ur" ? "-ur" : LANG === "hi" ? "-hi" : "";
