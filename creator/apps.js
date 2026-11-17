@@ -259,7 +259,7 @@
   }
   function inViewReel() {
     var s = R(0, 0, IW, IH, "#1a1a2a") + R(0, 0, IW, IH, "url(#inv)") + inStatus() + Tx(24, 66, 20, "Reels", "#fff", 700);
-    s += R(0, 0, IW, 120, "rgba(255,0,100,.0)") + Tx(180, 380, 30, "Stop doing THIS", "#fff", 800, "middle", ' stroke="#000" stroke-width="1.2" paint-order="stroke"');
+    s += R(0, 0, IW, 120, "rgba(255,0,100,.0)") + Tx(180, 380, 26, "Stop doing THIS", "#fff", 800, "middle", ' stroke="#000" stroke-width="1.2" paint-order="stroke"');
     [["♡", "48K"], ["◌", "212"], ["➤", "1.4K"], ["⋯", ""]].forEach(function (t, i) { s += Tx(328, 480 + i * 60, 26, t[0], "#fff", 600, "middle") + Tx(328, 500 + i * 60, 11, t[1], "#fff", 500, "middle"); });
     s += C(32, 640, 16, "#6a4cff") + Tx(60, 645, 14, "quranicscience", "#fff", 700) + R(180, 630, 62, 24, "none", 6, "#fff") + Tx(211, 647, 12, "Follow", "#fff", 700, "middle") + Tx(20, 676, 13, "Stop doing THIS in your reels 👇 …more", "#fff", 400) + Tx(20, 698, 12, "♪ Original audio", "#ddd", 400) + inNav(1);
     return s;
@@ -482,7 +482,11 @@
     function fi(name) { var i = frames.indexOf(name); if (i < 0) { frames.push(name); i = frames.length - 1; } return i; }
     for (var i = 0; i < A.kw.length; i++) { if (A.kw[i][0].test(w)) { hsFlow = A.kw[i]; break; } }
     var base = hsFlow ? hsFlow[1] : DEFAULT_FRAME[app]; fi(base);
-    hl.forEach(function (k) { if (A.zones[k]) rings.push({ z: A.zones[k], f: 0, k: k, l: A.zn[k] ? pickL(A.zn[k]) : "" }); });
+    hl.forEach(function (k) {
+      if (!A.zones[k]) return;
+      if (hsFlow && hsFlow[2].some(function (st) { return st[1] === k && st[0] === base; })) return; /* frame has its own, more exact zone */
+      rings.push({ z: A.zones[k], f: 0, k: k, l: A.zn[k] ? pickL(A.zn[k]) : "" });
+    });
     if (hsFlow) hsFlow[2].forEach(function (st, j) {
       var h = A.frames[st[0]] && A.frames[st[0]].hs[st[1]]; if (!h) return;
       var f = fi(st[0]); rings.push({ z: h, f: f, l: st[2] });
