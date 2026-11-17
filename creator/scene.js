@@ -10,9 +10,9 @@
   var LAB = {
     import: L("Import", "امپورٹ", "इम्पोर्ट"), select: L("Select the clip", "کلپ منتخب کریں", "क्लिप चुनें"), split: L("Split", "اسپلٹ (کٹ)", "स्प्लिट (कट)"), delete: L("Delete", "ڈیلیٹ", "डिलीट"), trim: L("Trim the end", "سرا چھوٹا کریں", "सिरा छोटा करें"),
     jumpcut: L("Jump cut", "جمپ کٹ", "जंप कट"), speed: L("Speed", "سپیڈ", "स्पीड"), text: L("Add text", "ٹیکسٹ شامل کریں", "टेक्स्ट जोड़ें"), caption: L("Captions", "کیپشنز", "कैप्शन"), filter: L("Filter", "فلٹر", "फ़िल्टर"),
-    zoom: L("Zoom in", "زوم اِن", "ज़ूम इन"), fade: L("Transition", "ٹرانزیشن", "ट्रांज़िशन"), effect: L("Effect", "ایفیکٹ", "इफ़ेक्ट"), audio: L("Audio", "آڈیو", "ऑडियो"), export: L("Export", "ایکسپورٹ", "एक्सपोर्ट"), play: L("Play", "پلے", "प्ले"), undo: L("Undo", "انڈو", "अनडू"), volume: L("Volume", "والیوم", "वॉल्यूम"), broll: L("Drag the clip to the upper track", "کلپ کو اوپر والے ٹریک پر کھینچیں", "क्लिप को ऊपर वाले ट्रैक पर खींचें"), pip: L("Make it small", "اسے چھوٹا کریں", "इसे छोटा करें"), exportdlg: L("Export", "ایکسپورٹ", "एक्सपोर्ट"), xres: L("Resolution", "ریزولوشن", "रेज़ोल्यूशन"), xfps: L("Frame rate", "فریم ریٹ", "फ़्रेम रेट"), xfmt: L("Format", "فارمیٹ", "फ़ॉर्मेट")
+    zoom: L("Zoom in", "زوم اِن", "ज़ूम इन"), fade: L("Transition", "ٹرانزیشن", "ट्रांज़िशन"), effect: L("Effect", "ایفیکٹ", "इफ़ेक्ट"), audio: L("Audio", "آڈیو", "ऑडियो"), export: L("Export", "ایکسپورٹ", "एक्सपोर्ट"), play: L("Play", "پلے", "प्ले"), undo: L("Undo", "انڈو", "अनडू"), volume: L("Volume", "والیوم", "वॉल्यूम"), broll: L("Drag the clip to the upper track", "کلپ کو اوپر والے ٹریک پر کھینچیں", "क्लिप को ऊपर वाले ट्रैक पर खींचें"), pip: L("Make it small", "اسے چھوٹا کریں", "इसे छोटा करें"), exportdlg: L("Export", "ایکسپورٹ", "एक्सपोर्ट"), xres: L("Resolution", "ریزولوشن", "रेज़ोल्यूशन"), xfps: L("Frame rate", "فریم ریٹ", "फ़्रेम रेट"), xfmt: L("Format", "فارمیٹ", "फ़ॉर्मेट"), kbd: L("Keyboard shortcut", "کی بورڈ شارٹ کٹ", "कीबोर्ड शॉर्टकट"), marker: L("Beat markers", "بیٹ مارکر", "बीट मार्कर"), move: L("Drag the picture", "تصویر کھینچیں", "तस्वीर खींचें")
   };
-  var DUR = { import: 1.6, select: .5, split: 1.3, delete: 1.3, trim: 1.6, jumpcut: 4.2, speed: 1.6, text: 2.8, caption: 3.2, filter: 1.8, zoom: 2.2, fade: 1.6, effect: 1.5, export: 5, play: 3.2, undo: .8, volume: .8, audio: 3.2, broll: 3, pip: 3, exportdlg: 1.8, xres: 2.2, xfps: 1.6, xfmt: 1.6 };
+  var DUR = { import: 1.6, select: .5, split: 1.3, delete: 1.3, trim: 1.6, jumpcut: 4.2, speed: 1.6, text: 2.8, caption: 3.2, filter: 1.8, zoom: 2.2, fade: 1.6, effect: 1.5, export: 5, play: 3.2, undo: .8, volume: .8, audio: 3.2, broll: 3, pip: 3, exportdlg: 1.8, xres: 2.2, xfps: 1.6, xfmt: 1.6, kbd: 1.6, marker: 4, move: 2.4 };
 
   /* ---------- words in the narration → editing actions ---------- */
   var RULES = [
@@ -20,12 +20,12 @@
     ["select", /\b(?:select(?:ing)?|tap(?:ping)? on|click(?:ing)? on|choose|pick)\b[^.,;]{0,22}\b(?:clip|video|layer|track|part|piece)\b/ig], ["split", /\b(split(?:ting)?|cut(?:ting|s)?|slic(?:e|ing)|chop(?:ping)?)\b/ig],
     ["delete", /\b(delet(?:e|ing)|remov(?:e|ing)|eras(?:e|ing)|get(?:ting)? rid of|trash)\b/ig], ["trim", /\b(trim(?:ming)?|shorten(?:ing)?)\b/ig], ["speed", /\b(speed(?:ing)?(?: up)?|slow(?:ing)?[- ]?(?:down|motion|mo)|faster|slower)\b/ig],
     ["caption", /\b(captions?|subtitles?)\b/ig], ["text", /\b(text|titles?|fonts?)\b/ig], ["filter", /\b(filters?|colou?r grad(?:e|ing)|colou?r correction)\b/ig], ["zoom", /\b(zoom(?:ing)?|scale|enlarge|punch[- ]in)\b/ig],
-    ["fade", /\b(transitions?|fade|dissolve)\b/ig], ["effect", /(?<!sound )(?<!audio )\b(effects?|glitch|shake|shaky|blur)\b(?! sounds?)/ig], ["export", /\b(export(?:ing)?|render(?:ing)?|save the video|publish)\b(?!\s+(?:settings|dialog|window|panel|menu))/ig], ["exportdlg", /\bexport(?:ing)? (?:settings|dialog|window|panel|menu)\b/ig], ["xres", /\b(resolution|1080p?|720p?)\b/ig], ["xfps", /\b(frame ?rate|fps)\b/ig], ["xfmt", /\b(?:format|mp4)\b/ig], ["play", /\b(?:watch|play|preview)\b/ig], ["undo", /\bundo\b/ig], ["audio", /\b(?:go to|open|tap|click|select|add|choose|pick|use|search|find|drag|import)\s+(?:on\s+)?(?:the\s+|your\s+|some\s+|a\s+)?(?:audio|music|sound ?effects?|sounds?|sfx|song)\b/ig], ["volume", /\b(volume|louder|quieter|mute)\b/ig], ["broll", /\b(?:b-?roll|overlay)\b|\b(?:track|layer) above|\bupper (?:track|layer)|\bon top of (?:your|the) (?:main )?(?:clip|video)/ig], ["pip", /picture[- ]in[- ]picture|\bpip\b|\bin (?:a|the) corner/ig]
+    ["fade", /\b(transitions?|fade|dissolve)\b/ig], ["effect", /(?<!sound )(?<!audio )\b(effects?|glitch|shake|shaky|blur)\b(?! sounds?)/ig], ["export", /\b(export(?:ing)?|render(?:ing)?|save the video|publish)\b(?!\s+(?:settings|dialog|window|panel|menu))/ig], ["exportdlg", /\bexport(?:ing)? (?:settings|dialog|window|panel|menu)\b/ig], ["xres", /\b(resolution|1080p?|720p?)\b/ig], ["xfps", /\b(frame ?rate|fps)\b/ig], ["xfmt", /\b(?:format|mp4)\b/ig], ["play", /\b(?:watch|play|preview)\b/ig], ["kbd", /\bctrl ?\+ ?[a-z]\b/ig], ["marker", /\bpress m\b|\bmark(?:ing)? the beats?\b|\bbeat markers?\b/ig], ["move", /\bdrag(?:ging)? (?:the |your )?(?:video|picture|clip|image) (?:down|up|left|right|a little)/ig], ["undo", /\bundo\b/ig], ["audio", /\b(?:go to|open|tap|click|select|add|choose|pick|use|search|find|drag|import)\s+(?:on\s+)?(?:the\s+|your\s+|some\s+|a\s+)?(?:(?:background|calm|natural|free|good|soft)\s+)?(?:audio|music|sound ?effects?|sounds?|sfx|song)\b/ig], ["volume", /\b(volume|louder|quieter|mute)\b/ig], ["broll", /\b(?:b-?roll|overlay)\b|\b(?:track|layer) above|\bupper (?:track|layer)|\bon top of (?:your|the) (?:main )?(?:clip|video)/ig], ["pip", /picture[- ]in[- ]picture|\bpip\b|\bin (?:a|the) corner/ig]
   ];
   function extract(text, steps) {
     var out = [], src = text || "";
     function scan(s, mapPos) {
-      RULES.forEach(function (r) { r[1].lastIndex = 0; var m; while ((m = r[1].exec(s))) { if (/\b(not|never|don'?t|avoid|without|stop|no|mistake|before)\s+(\w+\s+)?(\w+\s+)?$/i.test(s.slice(Math.max(0, m.index - 28), m.index))) continue; out.push({ k: r[0], pos: mapPos(m.index), idx: m.index }); } });
+      RULES.forEach(function (r) { r[1].lastIndex = 0; var m; while ((m = r[1].exec(s))) { if (/\b(not|never|don'?t|avoid|without|stop|no|mistake|before)\s+(\w+\s+)?(\w+\s+)?$/i.test(s.slice(Math.max(0, m.index - 28), m.index))) continue; if (/^(split|delete|trim)$/.test(r[0]) && /\b(be|been|being|is|are|was|were|get|gets|got)\s+$/i.test(s.slice(Math.max(0, m.index - 14), m.index))) continue; out.push({ k: r[0], pos: mapPos(m.index), idx: m.index, txt: m[0] }); } });
     }
     scan(src, function (i) { return i / Math.max(1, src.length); });
     if (!out.length && steps && steps.length) { /* the narration says nothing editable: use the step list, each step gets its share of time */
@@ -38,7 +38,7 @@
     out.forEach(function (e) {
       var last = res[res.length - 1];
       if (last && last.k === "jumpcut" && (e.k === "split" || e.k === "delete") && e.pos - last.pos < .06) return; /* "jump cut" already covers its own cut */
-      if ((e.k === "broll" || e.k === "pip") && res.some(function (x) { return x.k === e.k; })) return;
+      if ((e.k === "broll" || e.k === "pip" || e.k === "marker") && res.some(function (x) { return x.k === e.k; })) return;
       if (last && last.k === e.k && e.pos - last.pos < .1) return;
       if (res.some(function (x) { return x.k === e.k && Math.abs(x.pos - e.pos) < .05; })) return;
       res.push(e);
@@ -124,6 +124,9 @@
       if (k === "text") { S.textClip = 0; S.txt = 0; } else if (k === "caption") { S.capClip = 0; S.cap = 0; } else if (k === "filter") S.flt = 0; else if (k === "speed") S.spd = 0; else if (k === "zoom") S.zoom = 0;
     },
     audio: function (S, e, p) { S.aud = p > .78 ? ease((p - .78) / .22) : 0; },
+    kbd: function (S, e, p) { S.kbd = Math.sin(Math.PI * cl(p, 0, 1)) * 1.2; S.kbdT = String(e.txt || "").replace(/\s*\+\s*/, " + ").replace(/^ctrl/i, "Ctrl").replace(/ ([a-z])$/, function (m, c) { return " " + c.toUpperCase(); }); },
+    marker: function (S, e, p) { S.touched = true; S.mk = ease(p); S.kbd = p < .96 ? 1 : 0; S.kbdT = "M"; },
+    move: function (S, e, p) { S.mv = ease(p); },
     xres: function (S, e, p) { S.xres = ease(cl((p - .35) / .5, 0, 1)); },
     play: function (S, e, p, C) { S.touched = true; var x0 = C.PH, x1 = C.strip.x + C.strip.w * .94; S.ph = p < 1 ? x0 + (x1 - x0) * p : null; },
     broll: function (S, e, p) { S.touched = true; S.over = ease(p); },
@@ -131,7 +134,7 @@
     volume: function (S, e, p) { S.vol = Math.sin(Math.PI * cl(p, 0, 1)); S.volv = 1 - .6 * ease(p); }
   };
   function replay(C, evs, t) {
-    var S = { pieces: [], touched: false, flash: null, spd: 0, jump: 0, white: 0, textClip: 0, txt: 0, capClip: 0, cap: 0, flt: 0, zoom: 0, fade: 0, shake: 0, exp: -1, aud: 0, over: 0, pip: 0, xres: 0, ph: null, undo: 0, vol: 0, volv: 1, lastVis: "" }, st = C.strip;
+    var S = { pieces: [], touched: false, flash: null, spd: 0, jump: 0, white: 0, textClip: 0, txt: 0, capClip: 0, cap: 0, flt: 0, zoom: 0, fade: 0, shake: 0, exp: -1, aud: 0, over: 0, pip: 0, xres: 0, ph: null, kbd: 0, kbdT: "", mk: 0, mv: 0, undo: 0, vol: 0, volv: 1, lastVis: "" }, st = C.strip;
     if (!(evs.length && evs[0].k === "import")) S.pieces.push({ s0: st.x, sw: st.w, x: st.x, w: st.w, op: 1, sel: false });
     evs.forEach(function (e) { var p = (t - e.tc) / e.dur; if (p <= 0) return; p = Math.min(1, p); var h = HND[e.k]; if (h) h(S, e, p, C); if (/^(text|caption|filter|speed|zoom)$/.test(e.k)) S.lastVis = e.k; });
     return S;
@@ -186,6 +189,9 @@
           var rx0 = mob && e.k === "xres" ? C.xk.x0 : rc[0]; var ry0 = mob && e.k === "xres" ? C.xk.y : rc[1]; e.cur.push({ t: tc - .5, x: rx0, y: ry0 }, { t: tc, x: rx0, y: ry0 });
           if (mob && e.k === "xres") e.cur.push({ t: tc + e.dur * .6, x: C.xk.x1, y: C.xk.y });
           e.ring = (e.ring || []).concat([{ r: row, t0: tc - .3, t1: tc + e.dur + .4 }]); zr(null); break; }
+        case "kbd": e.frames = [{ t: tc - 1, f: "edit" }]; e.clicks = []; e.cur = []; zr(null); break;
+        case "marker": { var m0 = cx(C.strip); e.cur.push({ t: tc - tr, x: C.strip.x + C.strip.w * .2, y: C.strip.y - 20 }, { t: tc + e.dur * .8, x: C.strip.x + C.strip.w * .86, y: C.strip.y - 20 }); e.clicks = [tc]; e.frames = [{ t: tc - 1, f: "edit" }]; zr(C.tl); break; }
+        case "move": { var pm = cx(C.player); e.cur.push({ t: tc - tr, x: pm[0], y: pm[1] - 24 }, { t: tc, x: pm[0], y: pm[1] - 24 }, { t: tc + e.dur * .8, x: pm[0], y: pm[1] + 24 }); e.clicks = [tc]; e.ring = [{ r: C.player, t0: tc - .3, t1: tc + e.dur }]; e.frames = [{ t: tc - 1, f: "edit" }]; zr(null); break; }
         case "play": click(B.play, tc); e.frames = [{ t: tc - 1, f: mob ? "edit" : "edit" }]; zr(C.tl); break;
         case "broll": {
           if (mob) { click(C.ovBtn, tc - .25); e.frames = [{ t: tc - 1, f: "tools2" }, { t: tc + .5, f: "edit" }]; }
@@ -229,7 +235,7 @@
       var tc = Math.max(tcs[i], prevEnd + (wt ? .6 : 1.0)), dd = DUR[e.k] || 1.2;
       if (e.k === "delete") { var hasSel = list.some(function (x) { return x.k === "select" || x.k === "jumpcut"; }); var splitBefore = list.some(function (x) { return x.k === "split"; }); if (splitBefore && !hasSel) { var ts = Math.max(prevEnd + .3, tc - 1.7); if (ts + 1.2 < tc) { list.push({ k: "select", tc: ts, dur: DUR.select, idx: -1 }); } else { tc = Math.max(tc, prevEnd + 2.2); list.push({ k: "select", tc: tc - 1.6, dur: DUR.select, idx: -1 }); } } }
       if (tc + Math.min(dd, 1.6) > d - .1) { tc = d - Math.min(dd, 1.6) - .15; if (tc < prevEnd + .2) return; }
-      list.push({ k: e.k, tc: tc, dur: Math.min(dd, Math.max(.8, d - tc)), idx: -1 }); prevEnd = tc + (e.k === "select" || e.k === "split" || e.k === "delete" ? 1.0 : Math.min(dd, 2.2));
+      list.push({ k: e.k, tc: tc, dur: Math.min(dd, Math.max(.8, d - tc)), idx: -1, txt: e.txt }); prevEnd = tc + (e.k === "select" || e.k === "split" || e.k === "delete" ? 1.0 : Math.min(dd, 2.2));
     });
     if (!list.length) return null;
     list.sort(function (a, b) { return a.tc - b.tc; });
@@ -249,6 +255,8 @@
     var pipG = el("g", { display: "none" }, gS), pipS = el("svg", { overflow: "hidden", preserveAspectRatio: "none" }, pipG), pipB = el("rect", { fill: "none", stroke: "#fff", "stroke-width": plat === "pc" ? 4 : 2 }, pipG); el("image", { href: urlOf("edit"), width: W, height: H, preserveAspectRatio: "none" }, pipS);
     var xg = el("g", { display: "none" }, svg), xpr = el("rect", { fill: plat === "pc" ? C.xpatchCol : "rgb(24,24,24)" }, xg), xtx = el("text", { "font-size": plat === "pc" ? 22 : 12, "font-weight": 600, fill: "#ececec", "font-family": "Segoe UI,Outfit,Arial,sans-serif" }, xg), xtr = el("line", { stroke: "rgb(95,164,173)", "stroke-width": 3, "stroke-linecap": "round" }, xg), xtg = el("line", { stroke: "rgb(52,52,52)", "stroke-width": 3, "stroke-linecap": "round" }, xg), xkn = el("circle", { r: 8, fill: "#fff" }, xg); xtx.textContent = "1080p";
     var ac = C.aclip, aclip = el("g", { display: "none" }, gS), arc = el("rect", { x: ac[0], y: ac[1], width: ac[2], height: ac[3], rx: plat === "pc" ? 5 : 3, fill: "#1b8a6b", stroke: "#7ff0cb", "stroke-width": plat === "pc" ? 1.5 : 1 }, aclip), awv = (function () { var d = "", n = Math.floor(ac[2] / (plat === "pc" ? 5 : 3)); for (var q = 0; q < n; q++) { var hh = (.25 + .65 * Math.abs(Math.sin(q * 1.7) * Math.cos(q * .53))) * ac[3] * .8, xx = ac[0] + 4 + q * (plat === "pc" ? 5 : 3), yy = ac[1] + ac[3] / 2; d += "M" + xx + " " + (yy - hh / 2) + "V" + (yy + hh / 2); } return el("path", { d: d, stroke: "#c9fff0", "stroke-width": plat === "pc" ? 2 : 1.2, fill: "none", "stroke-linecap": "round" }, aclip); })(), aclp = el("clipPath", { id: "acl" + plat }, svg); el("rect", { x: ac[0], y: ac[1], width: ac[2], height: ac[3] }, aclp); awv.setAttribute("clip-path", "url(#acl" + plat + ")");
+    var mkG = el("g", { display: "none" }, gS), mks = []; for (var mi = 0; mi < 6; mi++) mks.push(el("path", { fill: "#ff9f1c", stroke: "#fff", "stroke-width": plat === "pc" ? 1.5 : 1 }, mkG));
+    var kbG = el("g", { display: "none" }, svg), kbR = el("rect", { rx: C.fs * .3, fill: "rgba(20,20,20,.92)", stroke: "#fff", "stroke-width": plat === "pc" ? 3 : 1.5 }, kbG), kbT = el("text", { "text-anchor": "middle", "font-size": C.fs * 1.05, "font-weight": 800, fill: "#fff", "font-family": "Outfit,Arial,sans-serif" }, kbG);
     var badge = el("g", { display: "none" }, gS); el("rect", { x: C.badge[0], y: C.badge[1], width: plat === "pc" ? 56 : 30, height: plat === "pc" ? 28 : 16, rx: 8, fill: "#ffc43c" }, badge); var bt = el("text", { x: C.badge[0] + (plat === "pc" ? 28 : 15), y: C.badge[1] + (plat === "pc" ? 21 : 12), "text-anchor": "middle", "font-size": plat === "pc" ? 19 : 10, "font-weight": 800, fill: "#1b1306", "font-family": "Outfit,Arial,sans-serif" }, badge); bt.textContent = "2×";
     if (plat === "mob") { var plus = el("svg", { x: 284, y: 448, width: 36, height: 42, viewBox: "284 448 36 42", overflow: "hidden", preserveAspectRatio: "none" }, gS); el("image", { href: src, width: W, height: H, preserveAspectRatio: "none" }, plus); }
     var tclip = el("g", { display: "none" }, gS), tcr = el("rect", { x: C.textClip[0], y: C.textClip[1], width: C.textClip[2], height: C.textClip[3], rx: 6, fill: "#c4574a" }, tclip), tct = el("text", { x: C.textClip[0] + 10, y: C.textClip[1] + C.textClip[3] * .68, "font-size": plat === "pc" ? 20 : 10, fill: "#fff", "font-weight": 700, "font-family": "Outfit,Arial,sans-serif" }, tclip);
@@ -312,7 +320,8 @@
       /* the player */
       var sc = (1 + .35 * S.zoom) * (S.jump ? 1.22 : 1), dx = 0, dy = 0;
       if (S.shake > 0 && S.shake < 1) { var a = 1 - S.shake; dx = Math.sin(S.shake * 90) * (mobil ? 5 : 22) * a; dy = Math.cos(S.shake * 70) * (mobil ? 3 : 14) * a; }
-      var playerOn = S.zoom > 0 || S.jump || S.flt > 0 || (S.shake > 0 && S.shake < 1);
+      dy += S.mv * (mobil ? 7 : 30);
+      var playerOn = S.mv > 0 || S.zoom > 0 || S.jump || S.flt > 0 || (S.shake > 0 && S.shake < 1);
       pBase.setAttribute("display", playerOn ? "" : "none"); pFilt.setAttribute("display", S.flt > 0 ? "" : "none");
       if (playerOn) { var vb = vbPlayer(sc, dx, dy); pBase.setAttribute("viewBox", vb); pFilt.setAttribute("viewBox", vb); pFilt.style.clipPath = "inset(0 " + ((1 - S.flt) * 100).toFixed(1) + "% 0 0)"; }
       var vw = plat === "pc" ? 120 : 60, vx0 = pr[0] + pr[2] - (plat === "pc" ? 150 : 76); vg.setAttribute("display", S.vol > .02 ? "" : "none"); if (S.vol > .02) { vfl.setAttribute("width", vw * S.volv); vkn.setAttribute("cx", vx0 + vw * S.volv); }
@@ -323,6 +332,11 @@
       if (showT) { var ft = "Your text here", n = Math.max(1, Math.round(S.txt * ft.length)), tw = ft.length * C.fs * .56, cxp = pr[0] + pr[2] / 2, cyp = pr[1] + pr[3] * .78; ttx.textContent = ft.slice(0, n); ttx.setAttribute("x", cxp); ttx.setAttribute("y", cyp); tbox.setAttribute("x", cxp - tw / 2 - 10); tbox.setAttribute("y", cyp - C.fs * .95); tbox.setAttribute("width", tw + 20); tbox.setAttribute("height", C.fs * 1.4); }
       var lines = ["Hello everyone, welcome", "Today we learn editing", "Let's start now"], ci = S.cap > 0 ? Math.min(2, Math.floor(S.cap * 3)) : -1; cg.setAttribute("display", ci >= 0 ? "" : "none");
       if (ci >= 0) { var tx3 = lines[ci], fw3 = tx3.length * C.fs * .42 + 26, cxc = pr[0] + pr[2] / 2, cyc = pr[1] + pr[3] * .9; ctx.textContent = tx3; ctx.setAttribute("x", cxc); ctx.setAttribute("y", cyc); cbg.setAttribute("x", cxc - fw3 / 2); cbg.setAttribute("y", cyc - C.fs * .75); cbg.setAttribute("width", fw3); cbg.setAttribute("height", C.fs * 1.05); }
+      /* beat markers, keyboard key pill */
+      mkG.setAttribute("display", S.mk > 0 && ovOn ? "" : "none");
+      if (S.mk > 0) { var nmk = Math.min(6, Math.floor(S.mk * 6.4)), mw = plat === "pc" ? 14 : 8, my = strip.y - (plat === "pc" ? 26 : 12); mks.forEach(function (pth, q) { if (q >= nmk) { pth.setAttribute("display", "none"); return; } var mxk = strip.x + strip.w * (q + 1) / 7; pth.setAttribute("display", ""); pth.setAttribute("d", "M" + (mxk - mw / 2) + " " + my + "h" + mw + "v" + mw * .8 + "l-" + mw / 2 + " " + mw * .6 + "l-" + mw / 2 + " -" + mw * .6 + "z"); }); }
+      var kon = S.kbd > .05; kbG.setAttribute("display", kon ? "" : "none");
+      if (kon) { var ktx = S.kbdT || "", kw = Math.max(C.fs * 1.6, ktx.length * C.fs * .72 + C.fs), kh = C.fs * 1.7, kx = pr[0] + pr[2] / 2, ky = pr[1] + pr[3] * .42; kbR.setAttribute("x", kx - kw / 2); kbR.setAttribute("y", ky - kh / 2); kbR.setAttribute("width", kw); kbR.setAttribute("height", kh); kbT.setAttribute("x", kx); kbT.setAttribute("y", ky + C.fs * .36); kbT.textContent = ktx; kbG.setAttribute("opacity", Math.min(1, S.kbd)); }
       /* the export settings: resolution changes to 1080p */
       var xon = S.xres > 0 && (fn === "dialog" || fn === "export"); xg.setAttribute("display", xon ? "" : "none");
       if (xon) {
