@@ -583,6 +583,8 @@ const LABX = {
   title: { en: "Makharij Lab", ur: "مخارج لیب", hi: "मख़ारिज लैब" },
   desc: { en: "A live animation: see where every Arabic letter comes from, how the tongue, lips and throat move, where they touch, and how the air flows. Free for everyone.", ur: "زندہ اینیمیشن: ہر عربی حرف کہاں سے نکلتا ہے، زبان، ہونٹ اور حلق کیسے ہلتے ہیں، کہاں لگتے ہیں اور ہوا کیسے بہتی ہے۔ سب کے لیے مفت۔", hi: "चलती हुई एनिमेशन: हर अरबी हर्फ़ कहाँ से निकलता है, ज़बान, होंठ और हल्क़ कैसे हिलते हैं, कहाँ लगते हैं और हवा कैसे बहती है। सबके लिए मुफ़्त।" } };
 const LAB_ORDER = [["ء","h1"],["ه","h1"],["ع","h2"],["ح","h2"],["غ","h3"],["خ","h3"],["ق","l1"],["ك","l2"],["ج","l3"],["ش","l3"],["ي","l3"],["ض","l4"],["ل","l5"],["ن","l5"],["ر","l5"],["ط","l6"],["د","l6"],["ت","l6"],["ص","l7"],["س","l7"],["ز","l7"],["ظ","l8"],["ذ","l8"],["ث","l8"],["ف","s1"],["ب","s2"],["م","s2"],["و","s2"],["ا","jawf"],["غُنّة","kh"]];
+/* harakat of each letter of the Lafz words: a = fatha (open), u = damma (rounded), i = kasra (spread), 0 = sukun */
+const LAB_V = ["i0i", "a0aai", "0a0u", "ai", "a0uu", "u0", "aau"];
 const LAB_Z = Object.fromEntries(LAB_ORDER.filter(x => x[0].length === 1));
 /* Lafz mode: a real Qur'an word, letter by letter (word audio from the word-by-word qari) */
 const LAB_WORDS = [["بِسْمِ", 1, 1, 1, "بسم"], ["ٱلرَّحْمَٰنِ", 1, 1, 3, "رحمان"], ["ٱلْحَمْدُ", 1, 2, 1, "لحمد"], ["رَبِّ", 1, 2, 3, "رب"], ["نَعْبُدُ", 1, 5, 2, "نعبد"], ["قُلْ", 112, 1, 1, "قل"], ["أَحَدٌ", 112, 1, 4, "ءحد"]];
@@ -634,7 +636,10 @@ function wireLab(root, opt) {
       tag.hidden = true; cam(true, lab.at(c, z)); cap(c, z);
       await lab.to(c, z, slow ? 1500 : 900); if (my !== busy) return;
       tag.textContent = c; tag.hidden = false;
-      await new Promise(r => setTimeout(r, slow ? 3200 : 2000)); if (my !== busy) return;
+      const vw = (LAB_V[i] || "")[k];
+      await new Promise(r => setTimeout(r, vw && vw !== "0" ? (slow ? 1800 : 1100) : (slow ? 3200 : 2000))); if (my !== busy) return;
+      if (vw && vw !== "0") { await lab.to(c, z, slow ? 1000 : 600, vw); if (my !== busy) return;
+        await new Promise(r => setTimeout(r, slow ? 1600 : 1000)); if (my !== busy) return; }
     }
     ems.forEach(e => { e.classList.remove("on"); e.classList.add("ok"); }); tag.hidden = true; cam(false);
     await lab.rest(600); if (my !== busy) return;

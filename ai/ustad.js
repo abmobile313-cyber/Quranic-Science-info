@@ -74,7 +74,7 @@
 
   /* ---------- state shared by every mounted face ---------- */
   var instances = [], S = { mode: "idle", pl: null, t0: 0, dur: 0, el: null, env: null, envDt: .03, start: 0, end: 1, shape: "c", open: 0, hintText: "", hintAt: 0, boundary: -1, emote: 0, raf: 0, lastT: 0, tts: null };
-  var W5 = { c: 1, s: 0, e: 0, o: 0, a: 0 }, TG = { c: 1, s: 0, e: 0, o: 0, a: 0 };
+  var OPEN = 0, W5 = { c: 1, s: 0, e: 0, o: 0, a: 0 }, TG = { c: 1, s: 0, e: 0, o: 0, a: 0 };
 
   function targetFrom(shape, o) {
     var t = { c: 0, s: 0, e: 0, o: 0, a: 0 };
@@ -112,7 +112,12 @@
     if (!instances.length) return;
     var st = stateAt(now);
     if (S.emote > now) { st = { shape: "e", open: .8 }; }
-    var tg = targetFrom(st.shape, st.open), sp = S.mode === "idle" ? .22 : .5, sum = 0, k;
+    /* one smooth opening path closed -> small -> wide (these photos blend cleanly, no double lips); the vowel only tints it a little */
+    var oo = st.shape === "_" || st.shape === "c" ? st.open * (st.shape === "c" ? .3 : .5) : st.open;
+    OPEN += (oo - OPEN) * (oo > OPEN ? .38 : .2);                       /* quick to open, slower to close, like a real jaw */
+    var tg = targetFrom("a", Math.max(0, Math.min(1, OPEN))), sp = S.mode === "idle" ? .22 : .45, sum = 0, k, mv;
+    if (st.shape === "o") { mv = tg.a * .3 + tg.s * .25; tg.a *= .7; tg.s *= .75; tg.o = mv; }
+    else if (st.shape === "e") { mv = tg.a * .35 + tg.s * .3; tg.a *= .65; tg.s *= .7; tg.e = mv; }
     for (k in W5) { W5[k] += (tg[k] - W5[k]) * sp; if (W5[k] < .005) W5[k] = 0; sum += W5[k]; }
     if (!sum) { W5.c = 1; sum = 1; }
     var dt = (now - S.lastT) / 1000; S.lastT = now;

@@ -33,19 +33,43 @@
     kh: P({ vel: 1, u: [2, 7], l: [-2, -14], c: [1000, 425], glow: "nose", air: "nose", jaw: 0, vib: "nose" })
   };
   const HEAVY = "خصضغطقظ", HUSH = "فحثهشخصسكت"; // mahmoosah (whispered) letters: the voice box does not buzz
-  function letterPose(ch, zone) {
+  /* lips + jaw for every letter: [upper dx, upper dy, lower dx, lower dy, jaw].  dx>0 = pushed forward (rounded), dx<0 = pulled back (spread),
+     dy<0 = upper lip lifts, dy>0 = lower lip drops. ف ب م keep their closing presets from the zone. */
+  const LIP = {
+    "ا": [0, -6, 0, 9, 17], "ء": [0, -2, 0, 5, 10], "ه": [0, -3, 0, 6, 13], "ع": [0, -5, 0, 8, 15], "ح": [0, -3, 0, 6, 12],
+    "غ": [7, -1, 7, 2, 7], "خ": [5, -1, 5, 2, 7], "ق": [8, -1, 8, 1, 6], "ك": [-3, -1, -3, 3, 6],
+    "ج": [3, -1, 3, 1, 5], "ش": [11, -1, 11, -2, 4], "ي": [-9, -2, -9, 1, 4],
+    "ض": [7, 0, 7, -2, 5], "ل": [-2, -2, -2, 4, 6], "ن": [-1, -1, -1, 2, 4], "ر": [3, -2, 3, 3, 5],
+    "ط": [9, 0, 9, -3, 5], "د": [0, -1, 0, 3, 5], "ت": [-2, -1, -2, 2, 4],
+    "ص": [10, -1, 10, -2, 3], "س": [-6, -1, -6, 0, 3], "ز": [-6, -1, -6, 0, 3],
+    "ظ": [9, -1, 9, -1, 5], "ذ": [0, -3, 0, 4, 5], "ث": [0, -3, 0, 4, 5],
+    "و": [18, 2, 18, -6, 4]
+  };
+  /* vowel (harakat) shapes, applied once the letter is released: a = open, u = rounded, i = spread */
+  function addVowel(p, v) {
+    if (!v || v === "0") return p;
+    p.c = null; p.air = p.air === "nose" ? "nose" : "mouth";
+    const lipLetter = p.l[1] < -8; // ف ب م: the lips open from the closure
+    if (v === "a") { p.jaw = Math.max(p.jaw, 14); p.u = [p.u[0], Math.min(p.u[1], 0) - 7]; p.l = [Math.min(p.l[0], 0), 11]; for (const i of [3, 4, 5, 6, 7]) p.d[i] = [p.d[i][0], Math.max(p.d[i][1], 600 + (i - 3) * 2)]; }
+    if (v === "u") { p.jaw = 3; p.u = [34, 4]; p.l = [34, -10]; for (const i of [5, 6, 7, 8]) p.d[i] = [p.d[i][0], p.d[i][1] - 14]; }
+    if (v === "i") { p.jaw = 5; p.u = [-14, -1]; p.l = [-14, 2]; for (const i of [1, 2, 3, 4]) p.d[i] = [p.d[i][0], p.d[i][1] - 12]; }
+    if (lipLetter && v === "a") p.l = [0, 10];
+    return p;
+  }
+  function letterPose(ch, zone, vowel) {
     const p = JSON.parse(JSON.stringify(Z[zone] || REST));
     if (HEAVY.includes(ch) && !["l1", "h3"].includes(zone)) // isti'la: the back of the tongue rises toward the palate
       for (const i of [5, 6, 7]) p.d[i] = [p.d[i][0], Math.max(p.d[i][1] - 20, 546)];
     if (ch === "ر") { p.d[0] = [953, 551]; p.d[1] = [934, 560]; p.c = [952, 549]; p.vib = "trill"; }
     if (ch === "ن") { p.vel = 1; p.air = "nose"; }
     if (ch === "م") { p.vel = 1; p.air = "nose"; }
-    if (ch === "و") { p.jaw = 4; p.u = [18, 3]; p.l = [18, -9]; p.c = [1074, 623]; p.air = "lips"; for (const i of [5, 6, 7]) p.d[i] = [p.d[i][0], p.d[i][1] - 14]; }
+    if (LIP[ch]) { const t = LIP[ch], g = 1.7; p.u = [t[0] * g, t[1] * g]; p.l = [t[2] * g, t[3] * g]; p.jaw = t[4] * 1.15; }
+    if (ch === "و") { p.c = [1074, 623]; p.air = "lips"; for (const i of [5, 6, 7]) p.d[i] = [p.d[i][0], p.d[i][1] - 14]; }
     if (ch === "ب") { p.air = "burst"; p.vib = "burst"; }
     if (ch === "ق" || ch === "ك") p.vib = "tap";
     if (!HUSH.includes(ch) && !p.vib) p.vib = "voice";
     if (ch === "ي") p.d[0] = [976, 643];
-    return p;
+    return addVowel(p, vowel);
   }
   /* ---------- labels & paths (image coordinates) ---------- */
   const LBL = {
@@ -217,7 +241,7 @@
     if (gl) Promise.all([load(base.replace(/mouth3d\.js.*$/, "mk/mkb.webp")), load(base.replace(/mouth3d\.js.*$/, "mk/mkp.webp")), load(base.replace(/mouth3d\.js.*$/, "mk/mkm.png"))]).then(a => setup(...a)).catch(() => {});
     const onResize = () => { if (ready) { resize(); frame(cur); } }; window.addEventListener("resize", onResize);
     return {
-      to(ch, zone, ms) { return go(letterPose(ch, zone), ms || 650, ch); },
+      to(ch, zone, ms, vowel) { return go(letterPose(ch, zone, vowel), ms || 650, ch); },
       rest(ms) { return go(JSON.parse(JSON.stringify(REST)), ms || 500, ""); },
       labels(on, lg) { showLbl = on; if (lg) L = lg; labels(); },
       destroy() { cancelAnimationFrame(raf); window.removeEventListener("resize", onResize); try { const e = gl && gl.getExtension("WEBGL_lose_context"); e && e.loseContext(); } catch (e) {} },
