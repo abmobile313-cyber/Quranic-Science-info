@@ -61,13 +61,13 @@
     for (var q = 1; q < out.length; q++) if (out[q] < out[q - 1]) out[q] = out[q - 1];
     return out.map(function (wi) { return Math.max(0, ws(Math.min(n - 1, wi)) - 1.05); });
   }
-  function apply(pane, p, d, ticksOnly, t) {
+  function apply(pane, p, d, ticksOnly, t, known) {
     var rings = [].slice.call(pane.querySelectorAll(".uhl:not(.usr)")), lis = [].slice.call(pane.querySelectorAll(".usteps li")), k = 0, zm = pane.querySelector(".uzoom"); if (!zm || !rings.length) return;
     var W = +zm.getAttribute("data-w"), H = +zm.getAttribute("data-h");
     var n = lis.length || rings.length, w = lis.length ? lis.map(function (l) { return l.textContent.length + 14; }) : [], tot = w.reduce(function (x, y) { return x + y; }, 0), q = clamp((p - .05) / .9, 0, .999), acc = 0;
     if (lis.length) { for (k = 0; k < lis.length; k++) { acc += w[k] / tot; if (q < acc) break; } k = Math.min(k, lis.length - 1); } else k = Math.min(n - 1, Math.floor(q * n));
     var ri = lis.length ? Math.min(rings.length - 1, Math.floor(k * rings.length / lis.length)) : Math.min(rings.length - 1, k);
-    if (pane.__rt === undefined) { pane.__rt = null; try { var nr = narration(); if (nr.text) pane.__rt = ringTimes(pane, nr.text, nr.wt, d, rings); } catch (e) {} }
+    if (pane.__rt === undefined && known !== false) { pane.__rt = null; try { var nr = narration(); if (nr.text) pane.__rt = ringTimes(pane, nr.text, nr.wt, d, rings); } catch (e) {} }
     if (pane.__rt && typeof t === "number") { ri = 0; for (var u = 0; u < pane.__rt.length; u++) { if (t >= pane.__rt[u]) ri = u; } if (lis.length) { k = Math.min(lis.length - 1, Math.floor(ri * lis.length / rings.length)); } else k = ri; }
     lis.forEach(function (l, j) { l.className = j < k ? "done" : j === k ? "on" : "wait"; });
     if (!ticksOnly && pane.__k !== ri) { pane.__k = ri; go(pane, ri, rings, W, H); }
@@ -97,7 +97,7 @@
     if (window.QSBoard && document.querySelector(".uboard")) { var nb = narration(); QSBoard.tick(a.currentTime, nb.wt, d || 20); }
     var nar = null; [].forEach.call(document.querySelectorAll(".uimap .upane:not([hidden])"), function (pane) {
       if (pane.__sc === undefined && d > 0 && window.QSScene && !pane.getAttribute("data-app")) { pane.__sc = null; try { if (!nar) nar = narration(); pane.__sc = QSScene.start(pane, nar.text, pane.__steps || [].map.call(pane.querySelectorAll(".usteps li"), function (li) { return li.getAttribute("data-en") || ""; }), d, undefined, nar.wt) || null; } catch (e) { pane.__sc = null; } }
-      if (pane.__sc) { try { pane.__sc.update(a.currentTime); } catch (e) {} apply(pane, p, d || 20, true, a.currentTime); } else apply(pane, p, d || 20, false, a.currentTime);
+      if (pane.__sc) { try { pane.__sc.update(a.currentTime); } catch (e) {} apply(pane, p, d || 20, true, a.currentTime, d > 0); } else apply(pane, p, d || 20, false, a.currentTime, d > 0);
     });
     if (ended || (a.paused && a.currentTime > 0 && !a.seeking)) { if (ended) setTimeout(function () { if (cur === a) reset(); }, 1800); else reset(); cur = null; return; }
     raf = requestAnimationFrame(loop);

@@ -474,6 +474,7 @@
     var t = ((m.en || "") + " ").toLowerCase(), lid = "";
     try { lid = (LESSON && LESSON.id) || ""; } catch (e) {}
     var first = function (res) { var best = null, bi = 1e9; res.forEach(function (r) { var i = t.search(r[0]); if (i >= 0 && i < bi) { bi = i; best = r[1]; } }); return best; };
+    if (/\b(homework|project \d|test \d|final project|your practice|practice today)\b/.test(t)) return { ui: "board", txt: { en: m.en, ur: m.ur, hi: m.hi } };
     var talk = /^(today|homework|project|week|end of|look back|what next|welcome|assalamu|quick revision|then answer|bring|final project)\b/.test(t.trim());
     if (talk) return { ui: "board", txt: { en: m.en, ur: m.ur, hi: m.hi } };
     var igUi = lid[0] === "v" ? /insight|trial reel|collab|paid partnership|professional account/.test(t) : /insight|profile|bio|hashtag|caption|trial|collab|paid partnership|highlight|professional account|algorithm|watch time|sends|swipe|followers|most active|reach/.test(t);

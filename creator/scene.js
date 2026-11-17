@@ -10,9 +10,9 @@
   var LAB = {
     import: L("Import", "امپورٹ", "इम्पोर्ट"), select: L("Select the clip", "کلپ منتخب کریں", "क्लिप चुनें"), split: L("Split", "اسپلٹ (کٹ)", "स्प्लिट (कट)"), delete: L("Delete", "ڈیلیٹ", "डिलीट"), trim: L("Trim the end", "سرا چھوٹا کریں", "सिरा छोटा करें"),
     jumpcut: L("Jump cut", "جمپ کٹ", "जंप कट"), speed: L("Speed", "سپیڈ", "स्पीड"), text: L("Add text", "ٹیکسٹ شامل کریں", "टेक्स्ट जोड़ें"), caption: L("Captions", "کیپشنز", "कैप्शन"), filter: L("Filter", "فلٹر", "फ़िल्टर"),
-    zoom: L("Zoom in", "زوم اِن", "ज़ूम इन"), fade: L("Transition", "ٹرانزیشن", "ट्रांज़िशन"), effect: L("Effect", "ایفیکٹ", "इफ़ेक्ट"), audio: L("Audio", "آڈیو", "ऑडियो"), export: L("Export", "ایکسپورٹ", "एक्सपोर्ट"), play: L("Play", "پلے", "प्ले"), undo: L("Undo", "انڈو", "अनडू"), volume: L("Volume", "والیوم", "वॉल्यूम")
+    zoom: L("Zoom in", "زوم اِن", "ज़ूम इन"), fade: L("Transition", "ٹرانزیشن", "ट्रांज़िशन"), effect: L("Effect", "ایفیکٹ", "इफ़ेक्ट"), audio: L("Audio", "آڈیو", "ऑडियो"), export: L("Export", "ایکسپورٹ", "एक्सपोर्ट"), play: L("Play", "پلے", "प्ले"), undo: L("Undo", "انڈو", "अनडू"), volume: L("Volume", "والیوم", "वॉल्यूम"), broll: L("Drag the clip to the upper track", "کلپ کو اوپر والے ٹریک پر کھینچیں", "क्लिप को ऊपर वाले ट्रैक पर खींचें"), pip: L("Make it small", "اسے چھوٹا کریں", "इसे छोटा करें"), exportdlg: L("Export", "ایکسپورٹ", "एक्सपोर्ट"), xres: L("Resolution", "ریزولوشن", "रेज़ोल्यूशन"), xfps: L("Frame rate", "فریم ریٹ", "फ़्रेम रेट"), xfmt: L("Format", "فارمیٹ", "फ़ॉर्मेट")
   };
-  var DUR = { import: 1.6, select: .5, split: 1.3, delete: 1.3, trim: 1.6, jumpcut: 4.2, speed: 1.6, text: 2.8, caption: 3.2, filter: 1.8, zoom: 2.2, fade: 1.6, effect: 1.5, export: 5, play: .8, undo: .8, volume: .8, audio: 3.2 };
+  var DUR = { import: 1.6, select: .5, split: 1.3, delete: 1.3, trim: 1.6, jumpcut: 4.2, speed: 1.6, text: 2.8, caption: 3.2, filter: 1.8, zoom: 2.2, fade: 1.6, effect: 1.5, export: 5, play: 3.2, undo: .8, volume: .8, audio: 3.2, broll: 3, pip: 3, exportdlg: 1.8, xres: 2.2, xfps: 1.6, xfmt: 1.6 };
 
   /* ---------- words in the narration → editing actions ---------- */
   var RULES = [
@@ -20,23 +20,25 @@
     ["select", /\b(?:select(?:ing)?|tap(?:ping)? on|click(?:ing)? on|choose|pick)\b[^.,;]{0,22}\b(?:clip|video|layer|track|part|piece)\b/ig], ["split", /\b(split(?:ting)?|cut(?:ting|s)?|slic(?:e|ing)|chop(?:ping)?)\b/ig],
     ["delete", /\b(delet(?:e|ing)|remov(?:e|ing)|eras(?:e|ing)|get(?:ting)? rid of|trash)\b/ig], ["trim", /\b(trim(?:ming)?|shorten(?:ing)?)\b/ig], ["speed", /\b(speed(?:ing)?(?: up)?|slow(?:ing)?[- ]?(?:down|motion|mo)|faster|slower)\b/ig],
     ["caption", /\b(captions?|subtitles?)\b/ig], ["text", /\b(text|titles?|fonts?)\b/ig], ["filter", /\b(filters?|colou?r grad(?:e|ing)|colou?r correction)\b/ig], ["zoom", /\b(zoom(?:ing)?|scale|enlarge|punch[- ]in)\b/ig],
-    ["fade", /\b(transitions?|fade|dissolve)\b/ig], ["effect", /(?<!sound )(?<!audio )\b(effects?|glitch|shake|shaky|blur)\b(?! sounds?)/ig], ["export", /\b(export(?:ing)?|render(?:ing)?|save the video|publish)\b/ig], ["undo", /\bundo\b/ig], ["audio", /\b(?:go to|open|tap|click|select|add|choose|pick|use|search|find|drag|import)\s+(?:on\s+)?(?:the\s+|your\s+|some\s+|a\s+)?(?:audio|music|sound ?effects?|sounds?|sfx|song)\b/ig], ["volume", /\b(volume|louder|quieter|mute)\b/ig]
+    ["fade", /\b(transitions?|fade|dissolve)\b/ig], ["effect", /(?<!sound )(?<!audio )\b(effects?|glitch|shake|shaky|blur)\b(?! sounds?)/ig], ["export", /\b(export(?:ing)?|render(?:ing)?|save the video|publish)\b(?!\s+(?:settings|dialog|window|panel|menu))/ig], ["exportdlg", /\bexport(?:ing)? (?:settings|dialog|window|panel|menu)\b/ig], ["xres", /\b(resolution|1080p?|720p?)\b/ig], ["xfps", /\b(frame ?rate|fps)\b/ig], ["xfmt", /\b(?:format|mp4)\b/ig], ["play", /\b(?:watch|play|preview)\b/ig], ["undo", /\bundo\b/ig], ["audio", /\b(?:go to|open|tap|click|select|add|choose|pick|use|search|find|drag|import)\s+(?:on\s+)?(?:the\s+|your\s+|some\s+|a\s+)?(?:audio|music|sound ?effects?|sounds?|sfx|song)\b/ig], ["volume", /\b(volume|louder|quieter|mute)\b/ig], ["broll", /\b(?:b-?roll|overlay)\b|\b(?:track|layer) above|\bupper (?:track|layer)|\bon top of (?:your|the) (?:main )?(?:clip|video)/ig], ["pip", /picture[- ]in[- ]picture|\bpip\b|\bin (?:a|the) corner/ig]
   ];
   function extract(text, steps) {
     var out = [], src = text || "";
     function scan(s, mapPos) {
-      RULES.forEach(function (r) { r[1].lastIndex = 0; var m; while ((m = r[1].exec(s))) { if (/\b(not|never|don'?t|avoid|without|stop|no|mistake)\s+(\w+\s+)?(\w+\s+)?$/i.test(s.slice(Math.max(0, m.index - 28), m.index))) continue; out.push({ k: r[0], pos: mapPos(m.index), idx: m.index }); } });
+      RULES.forEach(function (r) { r[1].lastIndex = 0; var m; while ((m = r[1].exec(s))) { if (/\b(not|never|don'?t|avoid|without|stop|no|mistake|before)\s+(\w+\s+)?(\w+\s+)?$/i.test(s.slice(Math.max(0, m.index - 28), m.index))) continue; out.push({ k: r[0], pos: mapPos(m.index), idx: m.index }); } });
     }
     scan(src, function (i) { return i / Math.max(1, src.length); });
     if (!out.length && steps && steps.length) { /* the narration says nothing editable: use the step list, each step gets its share of time */
       var tot = steps.reduce(function (a, s) { return a + s.length + 14; }, 0), acc = 0;
       steps.forEach(function (s) { var st = acc / tot; acc += s.length + 14; RULES.forEach(function (r) { r[1].lastIndex = 0; var m = r[1].exec(s); if (m) out.push({ k: r[0], pos: st + .5 * (s.length + 14) / tot * .6, idx: 0, st: 1 }); }); });
     }
+    if (!/export/i.test(src)) out = out.filter(function (e) { return !/^(xres|xfps|xfmt)$/.test(e.k); });
     out.sort(function (a, b) { return a.pos - b.pos; });
     var res = [];
     out.forEach(function (e) {
       var last = res[res.length - 1];
       if (last && last.k === "jumpcut" && (e.k === "split" || e.k === "delete") && e.pos - last.pos < .06) return; /* "jump cut" already covers its own cut */
+      if ((e.k === "broll" || e.k === "pip") && res.some(function (x) { return x.k === e.k; })) return;
       if (last && last.k === e.k && e.pos - last.pos < .1) return;
       if (res.some(function (x) { return x.k === e.k && Math.abs(x.pos - e.pos) < .05; })) return;
       res.push(e);
@@ -52,7 +54,7 @@
       btn: { split: [220, 745, 34, 34], delete: [382, 745, 34, 34], text: [164, 58, 64, 56], caption: [474, 58, 70, 56], filter: [552, 58, 64, 56], effect: [312, 58, 64, 56], fade: [382, 58, 86, 56], export: [1640, 8, 106, 46], speed: [1446, 64, 74, 42], play: [992, 678, 34, 36], undo: [112, 745, 34, 34], volume: [92, 58, 62, 56], audio: [92, 58, 62, 56] },
       aclip: [450, 1022, 250, 26], aSearch: [212, 134, 376, 36], aSong: [610, 388, 40, 40], aDrop: [520, 1035],
       importBtn: [380, 288, 150, 52], dlgExport: [1246, 898, 112, 44], dlgBar: [430, 884, 1060, 72], dlgCol: "rgb(38,38,38)", filterThumb: [365, 225, 130, 130], knob: [1428, 294, 22, 28], knobEnd: 1580,
-      tl: [200, 730, 820, 330], plr: [660, 150, 700, 440], textClip: [300, 862, 210, 34], capClip: [300, 862, 150, 34], badge: [282, 912]
+      over: [286, 792, 300, 82], ovFrom: [365, 225, 130, 130], ovBtn: null, xr: { res: [1116, 389, 336, 34], br: [1116, 446, 336, 34], codec: [1116, 503, 336, 34], fmt: [1116, 560, 336, 34], fps: [1116, 617, 336, 34] }, xpatch: [1124, 392, 120, 28], xpatchCol: "rgb(59,59,59)", xtxt: [1130, 413, 22], tl: [200, 730, 820, 330], plr: [660, 150, 700, 440], textClip: [300, 862, 210, 34], capClip: [300, 862, 150, 34], badge: [282, 912]
     },
     mob: {
       W: 320, H: 698, base: "edit", img: { edit: "m-edit", clip: "m-clip", tools2: "m-tools2", filters: "m-filters", export: "m-export", home: "m-home", sound: "m-sound", audio: "m-audio" },
@@ -60,7 +62,7 @@
       btn: { split: [42, 606, 48, 58], delete: [236, 606, 48, 58], text: [99, 606, 46, 58], caption: [242, 606, 46, 58], filter: [195, 606, 44, 58], effect: [194, 606, 46, 58], fade: [147, 606, 46, 58], export: [266, 40, 40, 40], speed: [90, 606, 48, 58], play: [142, 350, 36, 36], undo: [284, 355, 24, 24], volume: [143, 606, 48, 58], audio: [51, 606, 46, 58] },
       aclip: [161, 497, 130, 16], aSearch: [15, 82, 298, 30], aSong: [14, 452, 300, 56], aDrop: [200, 505],
       importBtn: [13, 160, 295, 96], dlgExport: null, dlgBar: [10, 342, 300, 40], dlgCol: "rgb(14,14,14)", filterThumb: [128, 516, 56, 76], knob: null, knobEnd: 0,
-      tl: [0, 380, 320, 170], plr: [0, 110, 320, 210], textClip: [20, 424, 110, 18], capClip: [20, 424, 80, 18], badge: [8, 452]
+      over: [20, 402, 130, 38], ovFrom: [60, 520, 70, 80], ovBtn: [8, 606, 46, 58], xr: { res: [8, 90, 304, 50], br: [8, 258, 304, 50], codec: [8, 258, 304, 50], fmt: [8, 175, 304, 50], fps: [8, 175, 304, 50] }, xk: { y: 126, x0: 113, x1: 206 }, tl: [0, 380, 320, 170], plr: [0, 110, 320, 210], textClip: [20, 424, 110, 18], capClip: [20, 424, 80, 18], badge: [8, 452]
     }
   };
   var cx = function (r) { return [r[0] + r[2] / 2, r[1] + r[3] / 2]; };
@@ -122,10 +124,14 @@
       if (k === "text") { S.textClip = 0; S.txt = 0; } else if (k === "caption") { S.capClip = 0; S.cap = 0; } else if (k === "filter") S.flt = 0; else if (k === "speed") S.spd = 0; else if (k === "zoom") S.zoom = 0;
     },
     audio: function (S, e, p) { S.aud = p > .78 ? ease((p - .78) / .22) : 0; },
+    xres: function (S, e, p) { S.xres = ease(cl((p - .35) / .5, 0, 1)); },
+    play: function (S, e, p, C) { S.touched = true; var x0 = C.PH, x1 = C.strip.x + C.strip.w * .94; S.ph = p < 1 ? x0 + (x1 - x0) * p : null; },
+    broll: function (S, e, p) { S.touched = true; S.over = ease(p); },
+    pip: function (S, e, p) { S.touched = true; S.over = 1; S.pip = ease(p); },
     volume: function (S, e, p) { S.vol = Math.sin(Math.PI * cl(p, 0, 1)); S.volv = 1 - .6 * ease(p); }
   };
   function replay(C, evs, t) {
-    var S = { pieces: [], touched: false, flash: null, spd: 0, jump: 0, white: 0, textClip: 0, txt: 0, capClip: 0, cap: 0, flt: 0, zoom: 0, fade: 0, shake: 0, exp: -1, aud: 0, undo: 0, vol: 0, volv: 1, lastVis: "" }, st = C.strip;
+    var S = { pieces: [], touched: false, flash: null, spd: 0, jump: 0, white: 0, textClip: 0, txt: 0, capClip: 0, cap: 0, flt: 0, zoom: 0, fade: 0, shake: 0, exp: -1, aud: 0, over: 0, pip: 0, xres: 0, ph: null, undo: 0, vol: 0, volv: 1, lastVis: "" }, st = C.strip;
     if (!(evs.length && evs[0].k === "import")) S.pieces.push({ s0: st.x, sw: st.w, x: st.x, w: st.w, op: 1, sel: false });
     evs.forEach(function (e) { var p = (t - e.tc) / e.dur; if (p <= 0) return; p = Math.min(1, p); var h = HND[e.k]; if (h) h(S, e, p, C); if (/^(text|caption|filter|speed|zoom)$/.test(e.k)) S.lastVis = e.k; });
     return S;
@@ -172,6 +178,24 @@
           click(B.audio, tc); click(C.aSearch, tc + dd2 * .27); click(C.aSong, tc + dd2 * .5);
           e.cur.push({ t: tc + dd2 * .78, x: C.aDrop[0], y: C.aDrop[1] }); e.clicks = [tc, tc + dd2 * .27, tc + dd2 * .5];
           e.frames = [{ t: tc - 1, f: "edit" }, { t: tc + .35, f: fk }, { t: tc + dd2 * .74, f: "edit" }]; zr(null); break; }
+        case "exportdlg": if (mob) { click(B.export, tc); e.frames = [{ t: tc - 1, f: "edit" }, { t: tc + .6, f: "export" }]; } else { click(B.export, tc); e.frames = [{ t: tc - 1, f: "edit" }, { t: tc + .55, f: "dialog" }]; } zr(null); break;
+        case "xres": case "xfps": case "xfmt": {
+          var opened = evs.slice(0, i).some(function (x) { return /^(xres|xfps|xfmt|exportdlg|export)$/.test(x.k); }), row = C.xr[e.k === "xres" ? "res" : e.k === "xfps" ? "fps" : "fmt"], rc = cx(row);
+          if (!opened) { click(B.export, tc - 1.5); e.frames = mob ? [{ t: tc - 2.2, f: "edit" }, { t: tc - .9, f: "export" }] : [{ t: tc - 2.2, f: "edit" }, { t: tc - .9, f: "dialog" }]; e.clicks = [tc - 1.5, tc]; }
+          else { e.frames = [{ t: tc - .5, f: mob ? "export" : "dialog" }]; e.clicks = [tc]; }
+          var rx0 = mob && e.k === "xres" ? C.xk.x0 : rc[0]; var ry0 = mob && e.k === "xres" ? C.xk.y : rc[1]; e.cur.push({ t: tc - .5, x: rx0, y: ry0 }, { t: tc, x: rx0, y: ry0 });
+          if (mob && e.k === "xres") e.cur.push({ t: tc + e.dur * .6, x: C.xk.x1, y: C.xk.y });
+          e.ring = (e.ring || []).concat([{ r: row, t0: tc - .3, t1: tc + e.dur + .4 }]); zr(null); break; }
+        case "play": click(B.play, tc); e.frames = [{ t: tc - 1, f: mob ? "edit" : "edit" }]; zr(C.tl); break;
+        case "broll": {
+          if (mob) { click(C.ovBtn, tc - .25); e.frames = [{ t: tc - 1, f: "tools2" }, { t: tc + .5, f: "edit" }]; }
+          var ms = cx(C.ovFrom), ov = C.over, ox = ov[0] + ov[2] * .15, oy = ov[1] + ov[3] / 2;
+          e.cur.push({ t: tc - tr, x: ms[0], y: ms[1] }, { t: tc, x: ms[0], y: ms[1] }, { t: tc + e.dur * .75, x: ox + 40, y: oy }); e.clicks = [tc];
+          e.ring = (e.ring || []).concat(mob ? [{ r: ov, t0: tc + e.dur * .45, t1: tc + e.dur + .6 }] : [{ r: C.ovFrom, t0: tc - .3, t1: tc + .5 }, { r: ov, t0: tc + e.dur * .45, t1: tc + e.dur + .6 }]); if (mob) e.label = "Overlay → Add overlay"; if (!mob) e.frames = [{ t: tc - 1, f: "edit" }]; zr(null); break; }
+        case "pip": {
+          var pr0 = C.player, cn = [pr0[0] + pr0[2] * .98, pr0[1] + pr0[3] * .98], cn2 = [pr0[0] + pr0[2] * .72, pr0[1] + pr0[3] * .6];
+          e.cur.push({ t: tc - tr, x: cn[0], y: cn[1] }, { t: tc, x: cn[0], y: cn[1] }, { t: tc + e.dur * .8, x: cn2[0], y: cn2[1] }); e.clicks = [tc];
+          e.ring = [{ r: [cn[0] - 22, cn[1] - 22, 44, 44], t0: tc - .3, t1: tc + .6 }]; e.frames = [{ t: tc - 1, f: "edit" }]; zr(null); break; }
         case "fade": click(B.fade, tc); e.frames = [{ t: tc - 1, f: "edit" }]; zr(null); break;
         case "effect": click(B.effect, tc); e.frames = [{ t: tc - 1, f: "edit" }]; zr(null); break;
         case "export":
@@ -196,6 +220,7 @@
   }
   function start(pane, narr, steps, dur, lang, wt) {
     var plat = pane.getAttribute("data-p"), C = CFG[plat], zm = pane.querySelector(".uzoom"), cu = pane.querySelector(".ucur"), tip = pane.querySelector(".uclk"); if (!C || !zm || !cu) return null;
+    if (pane.querySelectorAll(".uhl").length >= 3) steps = null; /* a map/tour moment: the zone rings walk through the areas */
     var evs = extract(narr, steps); if (!evs.length) return null;
     /* real times: leave a little silence at the start, then spread by position in the narration */
     var d = dur, tcs = evs.map(function (e) { var wtm = e.st ? null : wordTime(narr, e, wt, d); return wtm != null ? Math.max(.45, wtm + .05) : Math.max(1.0, .25 + e.pos * (d - .6)); });
@@ -220,6 +245,9 @@
     for (var i = 0; i < 4; i++) { var ps = el("svg", { overflow: "hidden", display: "none", preserveAspectRatio: "none" }, gS); el("image", { href: src, width: W, height: H, preserveAspectRatio: "none" }, ps); var bd = el("rect", { fill: "none", stroke: "#fff", "stroke-width": plat === "pc" ? 3 : 2, display: "none" }, gS); pool.push({ s: ps, b: bd }); }
     var phl = el("rect", { x: C.PH - 1.5, y: strip.y - 2, width: 3, height: strip.h + 4, fill: "#fff", display: "none" }, gS);
     var flash = el("rect", { y: strip.y - 6, width: plat === "pc" ? 4 : 2, height: strip.h + 12, fill: "#fff", opacity: 0 }, gS);
+    var ovG = el("g", { display: "none" }, gS), ovS = el("svg", { overflow: "hidden", preserveAspectRatio: "none" }, ovG); el("image", { href: src, width: W, height: H, preserveAspectRatio: "none" }, ovS); var ovB = el("rect", { fill: "none", stroke: "#a78bfa", "stroke-width": plat === "pc" ? 3 : 2 }, ovG), ovT = el("text", { "font-size": plat === "pc" ? 18 : 9, fill: "#fff", "font-weight": 800, "font-family": "Outfit,Arial,sans-serif" }, ovG); ovT.textContent = "B-roll";
+    var pipG = el("g", { display: "none" }, gS), pipS = el("svg", { overflow: "hidden", preserveAspectRatio: "none" }, pipG), pipB = el("rect", { fill: "none", stroke: "#fff", "stroke-width": plat === "pc" ? 4 : 2 }, pipG); el("image", { href: urlOf("edit"), width: W, height: H, preserveAspectRatio: "none" }, pipS);
+    var xg = el("g", { display: "none" }, svg), xpr = el("rect", { fill: plat === "pc" ? C.xpatchCol : "rgb(24,24,24)" }, xg), xtx = el("text", { "font-size": plat === "pc" ? 22 : 12, "font-weight": 600, fill: "#ececec", "font-family": "Segoe UI,Outfit,Arial,sans-serif" }, xg), xtr = el("line", { stroke: "rgb(95,164,173)", "stroke-width": 3, "stroke-linecap": "round" }, xg), xtg = el("line", { stroke: "rgb(52,52,52)", "stroke-width": 3, "stroke-linecap": "round" }, xg), xkn = el("circle", { r: 8, fill: "#fff" }, xg); xtx.textContent = "1080p";
     var ac = C.aclip, aclip = el("g", { display: "none" }, gS), arc = el("rect", { x: ac[0], y: ac[1], width: ac[2], height: ac[3], rx: plat === "pc" ? 5 : 3, fill: "#1b8a6b", stroke: "#7ff0cb", "stroke-width": plat === "pc" ? 1.5 : 1 }, aclip), awv = (function () { var d = "", n = Math.floor(ac[2] / (plat === "pc" ? 5 : 3)); for (var q = 0; q < n; q++) { var hh = (.25 + .65 * Math.abs(Math.sin(q * 1.7) * Math.cos(q * .53))) * ac[3] * .8, xx = ac[0] + 4 + q * (plat === "pc" ? 5 : 3), yy = ac[1] + ac[3] / 2; d += "M" + xx + " " + (yy - hh / 2) + "V" + (yy + hh / 2); } return el("path", { d: d, stroke: "#c9fff0", "stroke-width": plat === "pc" ? 2 : 1.2, fill: "none", "stroke-linecap": "round" }, aclip); })(), aclp = el("clipPath", { id: "acl" + plat }, svg); el("rect", { x: ac[0], y: ac[1], width: ac[2], height: ac[3] }, aclp); awv.setAttribute("clip-path", "url(#acl" + plat + ")");
     var badge = el("g", { display: "none" }, gS); el("rect", { x: C.badge[0], y: C.badge[1], width: plat === "pc" ? 56 : 30, height: plat === "pc" ? 28 : 16, rx: 8, fill: "#ffc43c" }, badge); var bt = el("text", { x: C.badge[0] + (plat === "pc" ? 28 : 15), y: C.badge[1] + (plat === "pc" ? 21 : 12), "text-anchor": "middle", "font-size": plat === "pc" ? 19 : 10, "font-weight": 800, fill: "#1b1306", "font-family": "Outfit,Arial,sans-serif" }, badge); bt.textContent = "2×";
     if (plat === "mob") { var plus = el("svg", { x: 284, y: 448, width: 36, height: 42, viewBox: "284 448 36 42", overflow: "hidden", preserveAspectRatio: "none" }, gS); el("image", { href: src, width: W, height: H, preserveAspectRatio: "none" }, plus); }
@@ -266,6 +294,7 @@
       var fn = frameAt(t); if (fn !== lastFrame) { lastFrame = fn; [].forEach.call(zm.querySelectorAll(".uimg"), function (im) { im.classList.toggle("on", im.getAttribute("data-sf") === fn); }); }
       /* the timeline */
       var ovOn = fn === "edit" || fn === "clip" || fn === "tools2"; gS.style.display = ovOn ? "" : "none";
+      phl.setAttribute("x", (S.ph != null ? S.ph : C.PH) - 1.5);
       var show = S.touched; mask.setAttribute("display", show ? "" : "none"); phl.setAttribute("display", show ? "" : "none");
       pool.forEach(function (p, k) {
         var P = show ? S.pieces[k] : null; if (!P || P.w < 1) { p.s.setAttribute("display", "none"); p.b.setAttribute("display", "none"); return; }
@@ -277,6 +306,9 @@
       badge.setAttribute("display", S.spd > .3 ? "" : "none");
       var tcs2 = S.textClip > 0 || S.capClip > 0; tclip.setAttribute("display", tcs2 ? "" : "none");
       if (tcs2) { var w2 = (S.textClip > 0 ? C.textClip[2] : C.capClip[2]) * (S.textClip > 0 ? S.textClip : S.capClip); tcr.setAttribute("width", Math.max(1, w2)); tct.textContent = S.textClip > 0 ? "Your text" : "Captions"; tct.setAttribute("opacity", w2 > 60 ? 1 : 0); }
+      /* b-roll on the upper track / picture-in-picture */
+      if (S.over > 0) { var Ov = C.over, q1 = S.over, mx = C.ovFrom, ox0 = mx[0], oy0 = mx[1], ox1 = Ov[0], oy1 = Ov[1], ow0 = mx[2] * .8, oh0 = mx[3] * .55, ox = ox0 + (ox1 - ox0) * q1, oy = oy0 + (oy1 - oy0) * q1, ow = ow0 + (Ov[2] - ow0) * q1, oh = oh0 + (Ov[3] - oh0) * q1; ovG.setAttribute("display", ""); ovS.setAttribute("x", ox); ovS.setAttribute("y", oy); ovS.setAttribute("width", ow); ovS.setAttribute("height", oh); ovS.setAttribute("viewBox", strip.x + " " + strip.y + " " + strip.w * .5 + " " + strip.h); ovB.setAttribute("x", ox); ovB.setAttribute("y", oy); ovB.setAttribute("width", ow); ovB.setAttribute("height", oh); ovT.setAttribute("x", ox + 8); ovT.setAttribute("y", oy + (plat === "pc" ? 24 : 12)); ovT.setAttribute("display", q1 > .95 ? "" : "none"); } else ovG.setAttribute("display", "none");
+      if (S.pip > 0) { var pq = S.pip, pw = pr[2] * (1 - .62 * pq), ph = pr[3] * (1 - .62 * pq), px = pr[0] + (pr[2] * .96 - pw) * pq + (1 - pq) * 0, py = pr[1] + (pr[3] * .94 - ph) * pq; pipG.setAttribute("display", ""); pipS.setAttribute("x", px); pipS.setAttribute("y", py); pipS.setAttribute("width", pw); pipS.setAttribute("height", ph); pipS.setAttribute("viewBox", pr.join(" ")); pipB.setAttribute("x", px); pipB.setAttribute("y", py); pipB.setAttribute("width", pw); pipB.setAttribute("height", ph); } else pipG.setAttribute("display", "none");
       /* the player */
       var sc = (1 + .35 * S.zoom) * (S.jump ? 1.22 : 1), dx = 0, dy = 0;
       if (S.shake > 0 && S.shake < 1) { var a = 1 - S.shake; dx = Math.sin(S.shake * 90) * (mobil ? 5 : 22) * a; dy = Math.cos(S.shake * 70) * (mobil ? 3 : 14) * a; }
@@ -291,6 +323,12 @@
       if (showT) { var ft = "Your text here", n = Math.max(1, Math.round(S.txt * ft.length)), tw = ft.length * C.fs * .56, cxp = pr[0] + pr[2] / 2, cyp = pr[1] + pr[3] * .78; ttx.textContent = ft.slice(0, n); ttx.setAttribute("x", cxp); ttx.setAttribute("y", cyp); tbox.setAttribute("x", cxp - tw / 2 - 10); tbox.setAttribute("y", cyp - C.fs * .95); tbox.setAttribute("width", tw + 20); tbox.setAttribute("height", C.fs * 1.4); }
       var lines = ["Hello everyone, welcome", "Today we learn editing", "Let's start now"], ci = S.cap > 0 ? Math.min(2, Math.floor(S.cap * 3)) : -1; cg.setAttribute("display", ci >= 0 ? "" : "none");
       if (ci >= 0) { var tx3 = lines[ci], fw3 = tx3.length * C.fs * .42 + 26, cxc = pr[0] + pr[2] / 2, cyc = pr[1] + pr[3] * .9; ctx.textContent = tx3; ctx.setAttribute("x", cxc); ctx.setAttribute("y", cyc); cbg.setAttribute("x", cxc - fw3 / 2); cbg.setAttribute("y", cyc - C.fs * .75); cbg.setAttribute("width", fw3); cbg.setAttribute("height", C.fs * 1.05); }
+      /* the export settings: resolution changes to 1080p */
+      var xon = S.xres > 0 && (fn === "dialog" || fn === "export"); xg.setAttribute("display", xon ? "" : "none");
+      if (xon) {
+        if (plat === "pc") { var xp = C.xpatch, xt = C.xtxt; xpr.setAttribute("x", xp[0]); xpr.setAttribute("y", xp[1]); xpr.setAttribute("width", xp[2]); xpr.setAttribute("height", xp[3]); xtx.setAttribute("x", xt[0]); xtx.setAttribute("y", xt[1]); xtx.setAttribute("opacity", S.xres); xpr.setAttribute("opacity", S.xres > .5 ? 1 : S.xres * 2); xtr.setAttribute("display", "none"); xtg.setAttribute("display", "none"); xkn.setAttribute("display", "none"); }
+        else { var kx = C.xk.x0 + (C.xk.x1 - C.xk.x0) * S.xres, ky = C.xk.y; xpr.setAttribute("x", 12); xpr.setAttribute("y", ky - 12); xpr.setAttribute("width", 296); xpr.setAttribute("height", 24); xtx.setAttribute("display", "none"); xtg.setAttribute("x1", 18); xtg.setAttribute("x2", 300); xtg.setAttribute("y1", ky); xtg.setAttribute("y2", ky); xtr.setAttribute("x1", 18); xtr.setAttribute("x2", kx); xtr.setAttribute("y1", ky); xtr.setAttribute("y2", ky); xkn.setAttribute("cx", kx); xkn.setAttribute("cy", ky); xkn.setAttribute("r", 7); xkn.setAttribute("display", ""); xtr.setAttribute("display", ""); xtg.setAttribute("display", ""); }
+      }
       /* the export bar */
       var showE = S.exp >= 0 && fn !== "edit" && fn !== "clip" && fn !== "home" && S.exp > 0; ex.setAttribute("display", showE ? "" : "none");
       if (showE) { var pe = Math.round(S.exp * 100); etx.textContent = pe >= 100 ? "✔  Export successful" : "Exporting…  " + pe + "%"; ebar.setAttribute("width", (D[2] - 28) * S.exp); }
