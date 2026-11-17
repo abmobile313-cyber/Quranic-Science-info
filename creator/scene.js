@@ -10,9 +10,9 @@
   var LAB = {
     import: L("Import", "امپورٹ", "इम्पोर्ट"), select: L("Select the clip", "کلپ منتخب کریں", "क्लिप चुनें"), split: L("Split", "اسپلٹ (کٹ)", "स्प्लिट (कट)"), delete: L("Delete", "ڈیلیٹ", "डिलीट"), trim: L("Trim the end", "سرا چھوٹا کریں", "सिरा छोटा करें"),
     jumpcut: L("Jump cut", "جمپ کٹ", "जंप कट"), speed: L("Speed", "سپیڈ", "स्पीड"), text: L("Add text", "ٹیکسٹ شامل کریں", "टेक्स्ट जोड़ें"), caption: L("Captions", "کیپشنز", "कैप्शन"), filter: L("Filter", "فلٹر", "फ़िल्टर"),
-    zoom: L("Zoom in", "زوم اِن", "ज़ूम इन"), fade: L("Transition", "ٹرانزیشن", "ट्रांज़िशन"), effect: L("Effect", "ایفیکٹ", "इफ़ेक्ट"), export: L("Export", "ایکسپورٹ", "एक्सपोर्ट"), play: L("Play", "پلے", "प्ले"), undo: L("Undo", "انڈو", "अनडू"), volume: L("Volume", "والیوم", "वॉल्यूम")
+    zoom: L("Zoom in", "زوم اِن", "ज़ूम इन"), fade: L("Transition", "ٹرانزیشن", "ट्रांज़िशन"), effect: L("Effect", "ایفیکٹ", "इफ़ेक्ट"), audio: L("Audio", "آڈیو", "ऑडियो"), export: L("Export", "ایکسپورٹ", "एक्सपोर्ट"), play: L("Play", "پلے", "प्ले"), undo: L("Undo", "انڈو", "अनडू"), volume: L("Volume", "والیوم", "वॉल्यूम")
   };
-  var DUR = { import: 1.6, select: .5, split: 1.3, delete: 1.3, trim: 1.6, jumpcut: 4.2, speed: 1.6, text: 2.8, caption: 3.2, filter: 1.8, zoom: 2.2, fade: 1.6, effect: 1.5, export: 5, play: .8, undo: .8, volume: .8 };
+  var DUR = { import: 1.6, select: .5, split: 1.3, delete: 1.3, trim: 1.6, jumpcut: 4.2, speed: 1.6, text: 2.8, caption: 3.2, filter: 1.8, zoom: 2.2, fade: 1.6, effect: 1.5, export: 5, play: .8, undo: .8, volume: .8, audio: 3.2 };
 
   /* ---------- words in the narration → editing actions ---------- */
   var RULES = [
@@ -20,17 +20,17 @@
     ["select", /\b(?:select(?:ing)?|tap(?:ping)? on|click(?:ing)? on|choose|pick)\b[^.,;]{0,22}\b(?:clip|video|layer|track|part|piece)\b/ig], ["split", /\b(split(?:ting)?|cut(?:ting|s)?|slic(?:e|ing)|chop(?:ping)?)\b/ig],
     ["delete", /\b(delet(?:e|ing)|remov(?:e|ing)|eras(?:e|ing)|get(?:ting)? rid of|trash)\b/ig], ["trim", /\b(trim(?:ming)?|shorten(?:ing)?)\b/ig], ["speed", /\b(speed(?:ing)?(?: up)?|slow(?:ing)?[- ]?(?:down|motion|mo)|faster|slower)\b/ig],
     ["caption", /\b(captions?|subtitles?)\b/ig], ["text", /\b(text|titles?|fonts?)\b/ig], ["filter", /\b(filters?|colou?r grad(?:e|ing)|colou?r correction)\b/ig], ["zoom", /\b(zoom(?:ing)?|scale|enlarge|punch[- ]in)\b/ig],
-    ["fade", /\b(transitions?|fade|dissolve)\b/ig], ["effect", /\b(effects?|glitch|shake|shaky|blur)\b/ig], ["export", /\b(export(?:ing)?|render(?:ing)?|save the video|publish)\b/ig], ["undo", /\bundo\b/ig], ["volume", /\b(volume|louder|quieter|mute)\b/ig]
+    ["fade", /\b(transitions?|fade|dissolve)\b/ig], ["effect", /(?<!sound )(?<!audio )\b(effects?|glitch|shake|shaky|blur)\b(?! sounds?)/ig], ["export", /\b(export(?:ing)?|render(?:ing)?|save the video|publish)\b/ig], ["undo", /\bundo\b/ig], ["audio", /\b(?:go to|open|tap|click|select|add|choose|pick|use|search|find|drag|import)\s+(?:on\s+)?(?:the\s+|your\s+|some\s+|a\s+)?(?:audio|music|sound ?effects?|sounds?|sfx|song)\b/ig], ["volume", /\b(volume|louder|quieter|mute)\b/ig]
   ];
   function extract(text, steps) {
     var out = [], src = text || "";
     function scan(s, mapPos) {
-      RULES.forEach(function (r) { r[1].lastIndex = 0; var m; while ((m = r[1].exec(s))) out.push({ k: r[0], pos: mapPos(m.index), idx: m.index }); });
+      RULES.forEach(function (r) { r[1].lastIndex = 0; var m; while ((m = r[1].exec(s))) { if (/\b(not|never|don'?t|avoid|without|stop|no|mistake)\s+(\w+\s+)?(\w+\s+)?$/i.test(s.slice(Math.max(0, m.index - 28), m.index))) continue; out.push({ k: r[0], pos: mapPos(m.index), idx: m.index }); } });
     }
     scan(src, function (i) { return i / Math.max(1, src.length); });
     if (!out.length && steps && steps.length) { /* the narration says nothing editable: use the step list, each step gets its share of time */
       var tot = steps.reduce(function (a, s) { return a + s.length + 14; }, 0), acc = 0;
-      steps.forEach(function (s) { var st = acc / tot; acc += s.length + 14; RULES.forEach(function (r) { r[1].lastIndex = 0; var m = r[1].exec(s); if (m) out.push({ k: r[0], pos: st + .5 * (s.length + 14) / tot * .6, idx: 0 }); }); });
+      steps.forEach(function (s) { var st = acc / tot; acc += s.length + 14; RULES.forEach(function (r) { r[1].lastIndex = 0; var m = r[1].exec(s); if (m) out.push({ k: r[0], pos: st + .5 * (s.length + 14) / tot * .6, idx: 0, st: 1 }); }); });
     }
     out.sort(function (a, b) { return a.pos - b.pos; });
     var res = [];
@@ -49,14 +49,16 @@
     pc: {
       W: 1919, H: 1079, base: "edit", img: { edit: "pc-edit", import: "pc-import", dialog: "pc-export", text: "pc-text", trans: "pc-trans", audio: "pc-audio" },
       strip: { x: 270, y: 906, w: 542, h: 108 }, mask: [266, 905, 552, 113], maskCol: "rgb(47,47,47)", PH: 450, gap: 9, jL: 150, player: [690, 192, 640, 358], fs: 46,
-      btn: { split: [220, 745, 34, 34], delete: [382, 745, 34, 34], text: [164, 58, 64, 56], caption: [474, 58, 70, 56], filter: [552, 58, 64, 56], effect: [312, 58, 64, 56], fade: [382, 58, 86, 56], export: [1640, 8, 106, 46], speed: [1446, 64, 74, 42], play: [992, 678, 34, 36], undo: [112, 745, 34, 34], volume: [92, 58, 62, 56] },
+      btn: { split: [220, 745, 34, 34], delete: [382, 745, 34, 34], text: [164, 58, 64, 56], caption: [474, 58, 70, 56], filter: [552, 58, 64, 56], effect: [312, 58, 64, 56], fade: [382, 58, 86, 56], export: [1640, 8, 106, 46], speed: [1446, 64, 74, 42], play: [992, 678, 34, 36], undo: [112, 745, 34, 34], volume: [92, 58, 62, 56], audio: [92, 58, 62, 56] },
+      aclip: [450, 1022, 250, 26], aSearch: [212, 134, 376, 36], aSong: [610, 388, 40, 40], aDrop: [520, 1035],
       importBtn: [380, 288, 150, 52], dlgExport: [1246, 898, 112, 44], dlgBar: [430, 884, 1060, 72], dlgCol: "rgb(38,38,38)", filterThumb: [365, 225, 130, 130], knob: [1428, 294, 22, 28], knobEnd: 1580,
       tl: [200, 730, 820, 330], plr: [660, 150, 700, 440], textClip: [300, 862, 210, 34], capClip: [300, 862, 150, 34], badge: [282, 912]
     },
     mob: {
       W: 320, H: 698, base: "edit", img: { edit: "m-edit", clip: "m-clip", tools2: "m-tools2", filters: "m-filters", export: "m-export", home: "m-home", sound: "m-sound", audio: "m-audio" },
       strip: { x: 0, y: 449, w: 320, h: 42 }, mask: [0, 445, 320, 50], maskCol: "rgb(10,10,10)", PH: 161, gap: 5, jL: 56, player: [0, 125, 320, 180], fs: 17,
-      btn: { split: [42, 606, 48, 58], delete: [236, 606, 48, 58], text: [99, 606, 46, 58], caption: [242, 606, 46, 58], filter: [195, 606, 44, 58], effect: [194, 606, 46, 58], fade: [147, 606, 46, 58], export: [266, 40, 40, 40], speed: [90, 606, 48, 58], play: [142, 350, 36, 36], undo: [284, 355, 24, 24], volume: [143, 606, 48, 58] },
+      btn: { split: [42, 606, 48, 58], delete: [236, 606, 48, 58], text: [99, 606, 46, 58], caption: [242, 606, 46, 58], filter: [195, 606, 44, 58], effect: [194, 606, 46, 58], fade: [147, 606, 46, 58], export: [266, 40, 40, 40], speed: [90, 606, 48, 58], play: [142, 350, 36, 36], undo: [284, 355, 24, 24], volume: [143, 606, 48, 58], audio: [51, 606, 46, 58] },
+      aclip: [161, 497, 130, 16], aSearch: [15, 82, 298, 30], aSong: [14, 452, 300, 56], aDrop: [200, 505],
       importBtn: [13, 160, 295, 96], dlgExport: null, dlgBar: [10, 342, 300, 40], dlgCol: "rgb(14,14,14)", filterThumb: [128, 516, 56, 76], knob: null, knobEnd: 0,
       tl: [0, 380, 320, 170], plr: [0, 110, 320, 210], textClip: [20, 424, 110, 18], capClip: [20, 424, 80, 18], badge: [8, 452]
     }
@@ -114,12 +116,18 @@
     zoom: function (S, e, p) { S.zoom = ease(p); },
     fade: function (S, e, p) { S.fade = Math.sin(Math.PI * p); },
     effect: function (S, e, p) { S.shake = p; },
-    export: function (S, e, p) { S.exp = cl((p - .42) / .5, 0, 1); }
+    export: function (S, e, p) { S.exp = cl((p - .42) / .5, 0, 1); },
+    undo: function (S, e, p) {
+      S.undo = Math.sin(Math.PI * p); if (p < .5) return; var k = S.lastVis;
+      if (k === "text") { S.textClip = 0; S.txt = 0; } else if (k === "caption") { S.capClip = 0; S.cap = 0; } else if (k === "filter") S.flt = 0; else if (k === "speed") S.spd = 0; else if (k === "zoom") S.zoom = 0;
+    },
+    audio: function (S, e, p) { S.aud = p > .78 ? ease((p - .78) / .22) : 0; },
+    volume: function (S, e, p) { S.vol = Math.sin(Math.PI * cl(p, 0, 1)); S.volv = 1 - .6 * ease(p); }
   };
   function replay(C, evs, t) {
-    var S = { pieces: [], touched: false, flash: null, spd: 0, jump: 0, white: 0, textClip: 0, txt: 0, capClip: 0, cap: 0, flt: 0, zoom: 0, fade: 0, shake: 0, exp: -1 }, st = C.strip;
+    var S = { pieces: [], touched: false, flash: null, spd: 0, jump: 0, white: 0, textClip: 0, txt: 0, capClip: 0, cap: 0, flt: 0, zoom: 0, fade: 0, shake: 0, exp: -1, aud: 0, undo: 0, vol: 0, volv: 1, lastVis: "" }, st = C.strip;
     if (!(evs.length && evs[0].k === "import")) S.pieces.push({ s0: st.x, sw: st.w, x: st.x, w: st.w, op: 1, sel: false });
-    evs.forEach(function (e) { var p = (t - e.tc) / e.dur; if (p <= 0) return; p = Math.min(1, p); var h = HND[e.k]; if (h) h(S, e, p, C); });
+    evs.forEach(function (e) { var p = (t - e.tc) / e.dur; if (p <= 0) return; p = Math.min(1, p); var h = HND[e.k]; if (h) h(S, e, p, C); if (/^(text|caption|filter|speed|zoom)$/.test(e.k)) S.lastVis = e.k; });
     return S;
   }
 
@@ -159,6 +167,11 @@
           if (mob) { var pc = cx(C.player); e.cur.push({ t: tc - tr, x: pc[0] - 30, y: pc[1] + 20 }, { t: tc, x: pc[0] - 30, y: pc[1] + 20 }, { t: tc + e.dur * .8, x: pc[0] + 40, y: pc[1] - 24 }); e.frames = [{ t: tc - 1, f: "edit" }]; zr(null); }
           else { var k = cx(C.knob); e.cur.push({ t: tc - tr, x: k[0], y: k[1] }, { t: tc, x: k[0], y: k[1] }, { t: tc + e.dur * .8, x: C.knobEnd, y: k[1] }); e.ring = [{ r: [1368, 262, 520, 60], t0: tc - .3, t1: tc + e.dur }]; e.frames = [{ t: tc - 1, f: "edit" }]; zr(null); }
           break;
+        case "audio": {
+          var fk = mob ? "sound" : "audio", dd2 = e.dur;
+          click(B.audio, tc); click(C.aSearch, tc + dd2 * .27); click(C.aSong, tc + dd2 * .5);
+          e.cur.push({ t: tc + dd2 * .78, x: C.aDrop[0], y: C.aDrop[1] }); e.clicks = [tc, tc + dd2 * .27, tc + dd2 * .5];
+          e.frames = [{ t: tc - 1, f: "edit" }, { t: tc + .35, f: fk }, { t: tc + dd2 * .74, f: "edit" }]; zr(null); break; }
         case "fade": click(B.fade, tc); e.frames = [{ t: tc - 1, f: "edit" }]; zr(null); break;
         case "effect": click(B.effect, tc); e.frames = [{ t: tc - 1, f: "edit" }]; zr(null); break;
         case "export":
@@ -173,14 +186,22 @@
   /* ---------- build + draw ---------- */
   function el(tag, at, par) { var n = document.createElementNS(NS, tag), sa = n.setAttribute; n.setAttribute = function (k, v) { if (k === "display") { this.style.display = v; return; } return sa.call(this, k, v); }; for (var k in at) n.setAttribute(k, at[k]); if (par) par.appendChild(n); return n; }
 
-  function start(pane, narr, steps, dur, lang) {
+  /* word-level timing: wt = start of every spoken word as thousandths of the clip length (made by aligning the voice file with its text) */
+  function wordTime(narr, e, wt, d) {
+    if (!wt || !wt.length || !e || !(e.idx >= 0) || !narr) return null;
+    var re = /\S+/g, m, n = 0, wi = -1; while ((m = re.exec(narr))) { if (wi < 0 && m.index + m[0].length > e.idx) wi = n; n++; }
+    if (wi < 0 || !n) return null;
+    var j = wt.length === n ? wi : Math.min(wt.length - 1, Math.floor(wi / n * wt.length));
+    return wt[j] / 1000 * d;
+  }
+  function start(pane, narr, steps, dur, lang, wt) {
     var plat = pane.getAttribute("data-p"), C = CFG[plat], zm = pane.querySelector(".uzoom"), cu = pane.querySelector(".ucur"), tip = pane.querySelector(".uclk"); if (!C || !zm || !cu) return null;
     var evs = extract(narr, steps); if (!evs.length) return null;
     /* real times: leave a little silence at the start, then spread by position in the narration */
-    var d = dur, tcs = evs.map(function (e) { return Math.max(1.0, .25 + e.pos * (d - .6)); });
+    var d = dur, tcs = evs.map(function (e) { var wtm = e.st ? null : wordTime(narr, e, wt, d); return wtm != null ? Math.max(.45, wtm + .05) : Math.max(1.0, .25 + e.pos * (d - .6)); });
     var list = [], prevEnd = 0;
     evs.forEach(function (e, i) {
-      var tc = Math.max(tcs[i], prevEnd + 1.0), dd = DUR[e.k] || 1.2;
+      var tc = Math.max(tcs[i], prevEnd + (wt ? .6 : 1.0)), dd = DUR[e.k] || 1.2;
       if (e.k === "delete") { var hasSel = list.some(function (x) { return x.k === "select" || x.k === "jumpcut"; }); var splitBefore = list.some(function (x) { return x.k === "split"; }); if (splitBefore && !hasSel) { var ts = Math.max(prevEnd + .3, tc - 1.7); if (ts + 1.2 < tc) { list.push({ k: "select", tc: ts, dur: DUR.select, idx: -1 }); } else { tc = Math.max(tc, prevEnd + 2.2); list.push({ k: "select", tc: tc - 1.6, dur: DUR.select, idx: -1 }); } } }
       if (tc + Math.min(dd, 1.6) > d - .1) { tc = d - Math.min(dd, 1.6) - .15; if (tc < prevEnd + .2) return; }
       list.push({ k: e.k, tc: tc, dur: Math.min(dd, Math.max(.8, d - tc)), idx: -1 }); prevEnd = tc + (e.k === "select" || e.k === "split" || e.k === "delete" ? 1.0 : Math.min(dd, 2.2));
@@ -192,13 +213,14 @@
     /* DOM: overlay svg, extra frame images */
     pane.classList.add("sceneon"); var W = C.W, H = C.H, urlOf = function (n) { return BASE + C.img[n] + ".webp" + IV; };
     var frames = {}; [].forEach.call(pane.querySelectorAll(".uimg"), function (im) { var k = im.getAttribute("data-sf"); if (k) frames[k] = im; });
-    ["edit", "import", "dialog", "clip", "tools2", "filters", "export", "home"].forEach(function (n) { if (!C.img[n] || frames[n]) return; var used = list.some(function (e) { return e.frames.some(function (f) { return f.f === n; }); }); if (!used && n !== "edit") return; var im = document.createElement("img"); im.className = "uimg"; im.setAttribute("data-sf", n); im.src = urlOf(n); im.alt = ""; im.style.position = "absolute"; zm.insertBefore(im, zm.querySelector(".uov") || zm.querySelector(".uhl")); frames[n] = im; });
+    Object.keys(C.img).forEach(function (n) { if (!C.img[n] || frames[n]) return; var used = list.some(function (e) { return e.frames.some(function (f) { return f.f === n; }); }); if (!used && n !== "edit") return; var im = document.createElement("img"); im.className = "uimg"; im.setAttribute("data-sf", n); im.src = urlOf(n); im.alt = ""; im.style.position = "absolute"; zm.insertBefore(im, zm.querySelector(".uov") || zm.querySelector(".uhl")); frames[n] = im; });
     var svg = el("svg", { class: "uov", viewBox: "0 0 " + W + " " + H, preserveAspectRatio: "none" }); svg.style.cssText = "position:absolute;left:0;top:0;width:100%;height:100%;max-width:none;max-height:none;margin:0;pointer-events:none;display:block"; zm.insertBefore(svg, zm.querySelector(".uhl"));
     var src = urlOf("edit"), gS = el("g", {}, svg), strip = C.strip;
     var mask = el("rect", { x: C.mask[0], y: C.mask[1], width: C.mask[2], height: C.mask[3], fill: C.maskCol, display: "none" }, gS), pool = [];
     for (var i = 0; i < 4; i++) { var ps = el("svg", { overflow: "hidden", display: "none", preserveAspectRatio: "none" }, gS); el("image", { href: src, width: W, height: H, preserveAspectRatio: "none" }, ps); var bd = el("rect", { fill: "none", stroke: "#fff", "stroke-width": plat === "pc" ? 3 : 2, display: "none" }, gS); pool.push({ s: ps, b: bd }); }
     var phl = el("rect", { x: C.PH - 1.5, y: strip.y - 2, width: 3, height: strip.h + 4, fill: "#fff", display: "none" }, gS);
     var flash = el("rect", { y: strip.y - 6, width: plat === "pc" ? 4 : 2, height: strip.h + 12, fill: "#fff", opacity: 0 }, gS);
+    var ac = C.aclip, aclip = el("g", { display: "none" }, gS), arc = el("rect", { x: ac[0], y: ac[1], width: ac[2], height: ac[3], rx: plat === "pc" ? 5 : 3, fill: "#1b8a6b", stroke: "#7ff0cb", "stroke-width": plat === "pc" ? 1.5 : 1 }, aclip), awv = (function () { var d = "", n = Math.floor(ac[2] / (plat === "pc" ? 5 : 3)); for (var q = 0; q < n; q++) { var hh = (.25 + .65 * Math.abs(Math.sin(q * 1.7) * Math.cos(q * .53))) * ac[3] * .8, xx = ac[0] + 4 + q * (plat === "pc" ? 5 : 3), yy = ac[1] + ac[3] / 2; d += "M" + xx + " " + (yy - hh / 2) + "V" + (yy + hh / 2); } return el("path", { d: d, stroke: "#c9fff0", "stroke-width": plat === "pc" ? 2 : 1.2, fill: "none", "stroke-linecap": "round" }, aclip); })(), aclp = el("clipPath", { id: "acl" + plat }, svg); el("rect", { x: ac[0], y: ac[1], width: ac[2], height: ac[3] }, aclp); awv.setAttribute("clip-path", "url(#acl" + plat + ")");
     var badge = el("g", { display: "none" }, gS); el("rect", { x: C.badge[0], y: C.badge[1], width: plat === "pc" ? 56 : 30, height: plat === "pc" ? 28 : 16, rx: 8, fill: "#ffc43c" }, badge); var bt = el("text", { x: C.badge[0] + (plat === "pc" ? 28 : 15), y: C.badge[1] + (plat === "pc" ? 21 : 12), "text-anchor": "middle", "font-size": plat === "pc" ? 19 : 10, "font-weight": 800, fill: "#1b1306", "font-family": "Outfit,Arial,sans-serif" }, badge); bt.textContent = "2×";
     if (plat === "mob") { var plus = el("svg", { x: 284, y: 448, width: 36, height: 42, viewBox: "284 448 36 42", overflow: "hidden", preserveAspectRatio: "none" }, gS); el("image", { href: src, width: W, height: H, preserveAspectRatio: "none" }, plus); }
     var tclip = el("g", { display: "none" }, gS), tcr = el("rect", { x: C.textClip[0], y: C.textClip[1], width: C.textClip[2], height: C.textClip[3], rx: 6, fill: "#c4574a" }, tclip), tct = el("text", { x: C.textClip[0] + 10, y: C.textClip[1] + C.textClip[3] * .68, "font-size": plat === "pc" ? 20 : 10, fill: "#fff", "font-weight": 700, "font-family": "Outfit,Arial,sans-serif" }, tclip);
@@ -206,6 +228,8 @@
     var pBase = mk(false), pFilt = mk(true);
     var white = el("rect", { x: pr[0], y: pr[1], width: pr[2], height: pr[3], fill: "#fff", opacity: 0 }, gS), black = el("rect", { x: pr[0], y: pr[1], width: pr[2], height: pr[3], fill: "#000", opacity: 0 }, gS);
     var tx = el("g", { display: "none" }, gS), tbox = el("rect", { fill: "none", stroke: "#fff", "stroke-width": plat === "pc" ? 2 : 1, "stroke-dasharray": "6 4" }, tx), ttx = el("text", { "text-anchor": "middle", "font-size": C.fs, "font-weight": 800, fill: "#fff", stroke: "#000", "stroke-width": C.fs * .08, "paint-order": "stroke", "font-family": "Outfit,Arial,sans-serif" }, tx);
+    var vg = el("g", { display: "none" }, gS), vbg = el("rect", { x: pr[0] + pr[2] - (plat === "pc" ? 190 : 100), y: pr[1] + 10, width: plat === "pc" ? 180 : 90, height: plat === "pc" ? 34 : 20, rx: 10, fill: "rgba(0,0,0,.7)" }, vg), vtr = el("rect", { x: pr[0] + pr[2] - (plat === "pc" ? 150 : 76), y: pr[1] + (plat === "pc" ? 24 : 18), width: plat === "pc" ? 120 : 60, height: plat === "pc" ? 6 : 3, rx: 3, fill: "#555" }, vg), vfl = el("rect", { x: pr[0] + pr[2] - (plat === "pc" ? 150 : 76), y: pr[1] + (plat === "pc" ? 24 : 18), width: 100, height: plat === "pc" ? 6 : 3, rx: 3, fill: "#2fe0d8" }, vg), vkn = el("circle", { cy: pr[1] + (plat === "pc" ? 27 : 19.5), r: plat === "pc" ? 8 : 4, fill: "#fff" }, vg), vtx = el("text", { x: pr[0] + pr[2] - (plat === "pc" ? 176 : 94), y: pr[1] + (plat === "pc" ? 33 : 17), "font-size": plat === "pc" ? 18 : 9, fill: "#fff", "font-family": "Outfit,Arial,sans-serif" }, vg); vtx.textContent = "🔊";
+    var ug = el("g", { display: "none" }, gS), ubg = el("rect", { x: pr[0] + 10, y: pr[1] + 10, width: plat === "pc" ? 120 : 64, height: plat === "pc" ? 34 : 20, rx: 10, fill: "rgba(255,196,60,.95)" }, ug), utx = el("text", { x: pr[0] + (plat === "pc" ? 70 : 42), y: pr[1] + (plat === "pc" ? 33 : 24), "text-anchor": "middle", "font-size": plat === "pc" ? 19 : 10, "font-weight": 800, fill: "#1b1306", "font-family": "Outfit,Arial,sans-serif" }, ug); utx.textContent = "↶ Undo";
     var cg = el("g", { display: "none" }, gS), cbg = el("rect", { fill: "rgba(0,0,0,.62)", rx: 8 }, cg), ctx = el("text", { "text-anchor": "middle", "font-size": C.fs * .72, "font-weight": 700, fill: "#fff", "font-family": "Outfit,Arial,sans-serif" }, cg);
     var ex = el("g", { display: "none" }, svg), D = C.dlgBar; el("rect", { x: D[0], y: D[1], width: D[2], height: D[3], fill: C.dlgCol }, ex); var etx = el("text", { x: D[0] + 14, y: D[1] + D[3] * (plat === "pc" ? .42 : .5), "font-size": plat === "pc" ? 26 : 12, "font-weight": 700, fill: "#fff", "font-family": "Outfit,Arial,sans-serif" }, ex), ebg = el("rect", { x: D[0] + 14, y: D[1] + D[3] * .62, width: D[2] - 28, height: plat === "pc" ? 14 : 6, rx: 7, fill: "#444" }, ex), ebar = el("rect", { x: D[0] + 14, y: D[1] + D[3] * .62, width: 0, height: plat === "pc" ? 14 : 6, rx: 7, fill: "#31e8e0" }, ex);
     var ring = document.createElement("i"); ring.className = "uhl show usr"; ring.style.display = "none"; zm.appendChild(ring);
@@ -249,6 +273,7 @@
         p.b.setAttribute("display", P.sel ? "" : "none"); p.b.setAttribute("x", P.x + 1); p.b.setAttribute("y", strip.y + 1); p.b.setAttribute("width", Math.max(1, P.w - 2)); p.b.setAttribute("height", strip.h - 2);
       });
       if (S.flash && S.flash.a > .02) { flash.setAttribute("x", S.flash.x - 2); flash.setAttribute("opacity", S.flash.a); } else flash.setAttribute("opacity", 0);
+      if (S.aud > .02) { aclip.setAttribute("display", ""); arc.setAttribute("width", Math.max(1, C.aclip[2] * S.aud)); aclp.firstChild.setAttribute("width", Math.max(1, C.aclip[2] * S.aud)); } else aclip.setAttribute("display", "none");
       badge.setAttribute("display", S.spd > .3 ? "" : "none");
       var tcs2 = S.textClip > 0 || S.capClip > 0; tclip.setAttribute("display", tcs2 ? "" : "none");
       if (tcs2) { var w2 = (S.textClip > 0 ? C.textClip[2] : C.capClip[2]) * (S.textClip > 0 ? S.textClip : S.capClip); tcr.setAttribute("width", Math.max(1, w2)); tct.textContent = S.textClip > 0 ? "Your text" : "Captions"; tct.setAttribute("opacity", w2 > 60 ? 1 : 0); }
@@ -258,6 +283,8 @@
       var playerOn = S.zoom > 0 || S.jump || S.flt > 0 || (S.shake > 0 && S.shake < 1);
       pBase.setAttribute("display", playerOn ? "" : "none"); pFilt.setAttribute("display", S.flt > 0 ? "" : "none");
       if (playerOn) { var vb = vbPlayer(sc, dx, dy); pBase.setAttribute("viewBox", vb); pFilt.setAttribute("viewBox", vb); pFilt.style.clipPath = "inset(0 " + ((1 - S.flt) * 100).toFixed(1) + "% 0 0)"; }
+      var vw = plat === "pc" ? 120 : 60, vx0 = pr[0] + pr[2] - (plat === "pc" ? 150 : 76); vg.setAttribute("display", S.vol > .02 ? "" : "none"); if (S.vol > .02) { vfl.setAttribute("width", vw * S.volv); vkn.setAttribute("cx", vx0 + vw * S.volv); }
+      ug.setAttribute("display", S.undo > .05 ? "" : "none");
       white.setAttribute("opacity", (S.white || 0) * .9); black.setAttribute("opacity", S.fade * .95);
       /* typed text and captions on the picture */
       var showT = S.txt > 0; tx.setAttribute("display", showT ? "" : "none");
@@ -280,7 +307,7 @@
     function stop() { pane.classList.remove("sceneon"); if (svg.parentNode) svg.remove(); if (ring.parentNode) ring.remove(); [].forEach.call(zm.querySelectorAll(".uimg"), function (im) { var k = im.getAttribute("data-sf"); if (k && !im.hasAttribute("data-keep")) { /* leave frames */ } }); cu.classList.remove("click"); cu.style.opacity = 0; zm.style.setProperty("--z", 1); zm.style.transform = ""; }
     return { update: update, stop: stop, events: list };
   }
-  window.QSScene = { start: start, extract: extract, CFG: CFG, replay: replay };
+  window.QSScene = { wordTime: wordTime, start: start, extract: extract, CFG: CFG, replay: replay };
 
   var st = document.createElement("style"); st.textContent = ".sceneon .uhl:not(.usr){display:none!important}.sceneon .uzoom{transition:none!important}.sceneon .usr{border-color:#ffc43c}.sceneon .ucur{transition:none!important}";
   document.head.appendChild(st);

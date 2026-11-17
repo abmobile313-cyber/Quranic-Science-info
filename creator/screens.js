@@ -96,7 +96,7 @@
     function hsOf(sc, name) { var s = SC[sc]; if (!s) return null; if (s.hs[name]) return s.hs[name]; return isPC && PCC[name] ? PCC[name] : null; }
     function add(z, f, l) { rings.push({ z: z, f: f, l: l }); }
     for (var i = 0; i < KW.length; i++) { if (KW[i][0].test(w)) { var h = hsOf(base, KW[i][1]); if (h) { btnHs = KW[i][1]; break; } } }
-    hl.forEach(function (k) { if (Z[k]) add(Z[k], 0, pick(ZN[k])); });
+    hl.forEach(function (k) { if (Z[k]) { add(Z[k], 0, pick(ZN[k])); rings[rings.length - 1].k = k; } });
     if (btnHs) {
       var bz = hsOf(base, btnHs), lab = d.btn || btnHs, cx = bz[0] + bz[2] / 2, cy = bz[1] + bz[3] / 2;
       if (rings.length > 1) { var last = rings[rings.length - 1].z; if (cx > last[0] && cx < last[0] + last[2] && cy > last[1] && cy < last[1] + last[3]) rings.pop(); }
@@ -112,7 +112,7 @@
     var P = buildPane(plat, d), SC = plat === "pc" ? PCS : MS, i;
     var imgs = P.frames.map(function (f, k) { return '<img class="uimg' + (k === 0 ? " on" : "") + '" data-f="' + k + '" data-sf="' + f + '" src="' + BASE + SC[f].src + ".webp" + IV + '" alt="" decoding="async"' + (k ? ' loading="lazy"' : "") + ">"; }).join("");
     var rings = P.rings.map(function (r) {
-      var z = r.z; return '<i class="uhl' + (r.f ? "" : " f0") + '" data-z="' + z.join(",") + '" data-f="' + r.f + '" data-l="' + esc(r.l || "") + '" style="left:' + pct(z[0], P.W) + ";top:" + pct(z[1], P.H) + ";width:" + pct(z[2], P.W) + ";height:" + pct(z[3], P.H) + '"></i>';
+      var z = r.z; return '<i class="uhl' + (r.f ? "" : " f0") + '"' + (r.k ? ' data-k="' + r.k + '"' : "") + ' data-z="' + z.join(",") + '" data-f="' + r.f + '" data-l="' + esc(r.l || "") + '" style="left:' + pct(z[0], P.W) + ";top:" + pct(z[1], P.H) + ";width:" + pct(z[2], P.W) + ";height:" + pct(z[3], P.H) + '"></i>';
     }).join("");
     var cur = '<b class="ucur" style="left:0;top:0"><svg viewBox="0 0 40 44"><g transform="translate(8 8)"><circle class="uclick" cx="0" cy="0" r="9"/><path d="M0 0v18.5l4.6-4.3 3.4 7.9 3.4-1.5-3.3-7.7H14.4z" fill="#fff" stroke="#111" stroke-width="1.4" stroke-linejoin="round"/></g></svg></b>';
     var tip = P.btn ? '<div class="uclk on" data-i="👆 ' + esc(P.btn) + '">👆 ' + esc(P.btn) + "</div>" : '<div class="uclk"></div>';
@@ -124,6 +124,8 @@
   function platDefault(own) { var p = null; try { p = localStorage.getItem("qscr-plat"); } catch (e) {} if (p === "pc" || p === "mob") return p; try { if (matchMedia("(pointer:coarse)").matches && innerWidth < 800) return "mob"; } catch (e) {} return own; }
 
   uiHTML = function (v) {
+    if (v.ui === "board" && window.QSBoard) return QSBoard.html(v);
+    if (window.QSApps && QSApps.has(v.ui)) return QSApps.html(v);
     if (v.ui !== "desk" && v.ui !== "phone") return oldUI(v);
     var own = v.ui === "desk" ? "pc" : "mob", other = own === "pc" ? "mob" : "pc";
     var main = { hl: v.hl, btn: v.btn, steps: v.steps, sub: v.sub, tab: v.tab }, alt = v.alt || null;
