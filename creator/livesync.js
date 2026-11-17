@@ -42,20 +42,20 @@
       if (lab) { tip.textContent = "👆 " + lab; tip.classList.add("on"); }
     }, 1000));
   }
-  function apply(pane, p, d) {
-    var rings = [].slice.call(pane.querySelectorAll(".uhl")), lis = [].slice.call(pane.querySelectorAll(".usteps li")), k = 0, zm = pane.querySelector(".uzoom"); if (!zm || !rings.length) return;
+  function apply(pane, p, d, ticksOnly) {
+    var rings = [].slice.call(pane.querySelectorAll(".uhl:not(.usr)")), lis = [].slice.call(pane.querySelectorAll(".usteps li")), k = 0, zm = pane.querySelector(".uzoom"); if (!zm || !rings.length) return;
     var W = +zm.getAttribute("data-w"), H = +zm.getAttribute("data-h");
     var n = lis.length || rings.length, w = lis.length ? lis.map(function (l) { return l.textContent.length + 14; }) : [], tot = w.reduce(function (x, y) { return x + y; }, 0), q = clamp((p - .05) / .9, 0, .999), acc = 0;
     if (lis.length) { for (k = 0; k < lis.length; k++) { acc += w[k] / tot; if (q < acc) break; } k = Math.min(k, lis.length - 1); } else k = Math.min(n - 1, Math.floor(q * n));
     var ri = lis.length ? Math.min(rings.length - 1, Math.floor(k * rings.length / lis.length)) : Math.min(rings.length - 1, k);
     lis.forEach(function (l, j) { l.className = j < k ? "done" : j === k ? "on" : "wait"; });
-    if (pane.__k !== ri) { pane.__k = ri; go(pane, ri, rings, W, H); }
+    if (!ticksOnly && pane.__k !== ri) { pane.__k = ri; go(pane, ri, rings, W, H); }
     var b = prog(pane); b.firstChild.firstChild.style.width = Math.round(p * 100) + "%"; b.lastChild.textContent = fmt(p * d) + " / " + fmt(d);
   }
   function reset() {
     timers.forEach(clearTimeout); timers = [];
     [].forEach.call(document.querySelectorAll(".uimap .upane"), function (pane) {
-      pane.__k = -1; pane.__f = 0; pane.__t = (pane.__t || 0) + 1;
+      if (pane.__sc) { try { pane.__sc.stop(); } catch (e) {} } pane.__sc = undefined; pane.__k = -1; pane.__f = 0; pane.__t = (pane.__t || 0) + 1;
       [].forEach.call(pane.querySelectorAll(".usteps li"), function (l) { l.className = ""; });
       [].forEach.call(pane.querySelectorAll(".uhl"), function (r) { r.style.opacity = ""; r.classList.remove("press", "show", "hide"); });
       var c = pane.querySelector(".ucur"); if (c) { c.style.opacity = 0; c.classList.remove("click"); }
@@ -65,11 +65,15 @@
       var b = pane.querySelector(".uprog"); if (b) b.remove();
     });
   }
+  function narration() { var t = ""; try { var m = LESSON.data.moments[LESSON.i]; t = (m && (m.en || "")) || ""; } catch (e) {} return { text: t }; }
   function loop() {
     var a = cur; if (!a) return;
     var d = a.duration && isFinite(a.duration) ? a.duration : 0, ended = a.ended, p = ended ? 1 : d ? Math.min(1, a.currentTime / d) : 0;
     if (a.paused && !ended && a.currentTime === 0) { raf = requestAnimationFrame(loop); return; }
-    [].forEach.call(document.querySelectorAll(".uimap .upane:not([hidden])"), function (pane) { apply(pane, p, d || 20); });
+    var nar = null; [].forEach.call(document.querySelectorAll(".uimap .upane:not([hidden])"), function (pane) {
+      if (pane.__sc === undefined && d > 0 && window.QSScene) { pane.__sc = null; try { if (!nar) nar = narration(); pane.__sc = QSScene.start(pane, nar.text, pane.__steps || [].map.call(pane.querySelectorAll(".usteps li"), function (li) { return li.getAttribute("data-en") || ""; }), d) || null; } catch (e) { pane.__sc = null; } }
+      if (pane.__sc) { try { pane.__sc.update(a.currentTime); } catch (e) {} apply(pane, p, d || 20, true); } else apply(pane, p, d || 20);
+    });
     if (ended || (a.paused && a.currentTime > 0 && !a.seeking)) { if (ended) setTimeout(function () { if (cur === a) reset(); }, 1800); else reset(); cur = null; return; }
     raf = requestAnimationFrame(loop);
   }

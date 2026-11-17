@@ -110,13 +110,13 @@
   function pct(v, t) { return (v / t * 100).toFixed(3) + "%"; }
   function pane(plat, d) {
     var P = buildPane(plat, d), SC = plat === "pc" ? PCS : MS, i;
-    var imgs = P.frames.map(function (f, k) { return '<img class="uimg' + (k === 0 ? " on" : "") + '" data-f="' + k + '" src="' + BASE + SC[f].src + ".webp" + IV + '" alt="" decoding="async"' + (k ? ' loading="lazy"' : "") + ">"; }).join("");
+    var imgs = P.frames.map(function (f, k) { return '<img class="uimg' + (k === 0 ? " on" : "") + '" data-f="' + k + '" data-sf="' + f + '" src="' + BASE + SC[f].src + ".webp" + IV + '" alt="" decoding="async"' + (k ? ' loading="lazy"' : "") + ">"; }).join("");
     var rings = P.rings.map(function (r) {
       var z = r.z; return '<i class="uhl' + (r.f ? "" : " f0") + '" data-z="' + z.join(",") + '" data-f="' + r.f + '" data-l="' + esc(r.l || "") + '" style="left:' + pct(z[0], P.W) + ";top:" + pct(z[1], P.H) + ";width:" + pct(z[2], P.W) + ";height:" + pct(z[3], P.H) + '"></i>';
     }).join("");
     var cur = '<b class="ucur" style="left:0;top:0"><svg viewBox="0 0 40 44"><g transform="translate(8 8)"><circle class="uclick" cx="0" cy="0" r="9"/><path d="M0 0v18.5l4.6-4.3 3.4 7.9 3.4-1.5-3.3-7.7H14.4z" fill="#fff" stroke="#111" stroke-width="1.4" stroke-linejoin="round"/></g></svg></b>';
     var tip = P.btn ? '<div class="uclk on" data-i="👆 ' + esc(P.btn) + '">👆 ' + esc(P.btn) + "</div>" : '<div class="uclk"></div>';
-    var steps = d.steps && d.steps.length ? '<ol class="usteps">' + d.steps.map(function (s) { return "<li>" + T(s) + "</li>"; }).join("") + "</ol>" : "";
+    var steps = d.steps && d.steps.length ? '<ol class="usteps">' + d.steps.map(function (s) { return '<li data-en="' + esc(s.en || "") + '">' + T(s) + "</li>"; }).join("") + "</ol>" : "";
     var where = (d.hl || []).filter(function (k) { return ZN[k]; }).map(function (k) { return T(ZN[k]); }).join(" · ");
     return '<div class="upane" data-p="' + plat + '" data-c="' + plat + '"><div class="uscr ' + plat + '" style="aspect-ratio:' + P.W + "/" + P.H + '" role="img" aria-label="' + CAP[plat] + '"><div class="uzoom" data-w="' + P.W + '" data-h="' + P.H + '">' + imgs + rings + cur + "</div>" + tip + "</div>" + (where ? '<div class="uwhere">📍 ' + where + "</div>" : "") + steps + "</div>";
   }
