@@ -104,6 +104,10 @@ body.ur .day.done:after{right:auto;left:10px}
 .nav{display:flex;justify-content:space-between;gap:10px;margin-top:14px}
 .vo{display:flex;align-items:center;gap:10px;color:var(--mut);font-size:13px}
 .eq{display:flex;gap:3px;align-items:flex-end;height:16px}.eq i{width:3px;background:var(--gold);border-radius:2px;height:4px}
+.uteach{display:grid;grid-template-columns:116px minmax(0,1fr);gap:14px;align-items:center;padding:12px;border-radius:22px;background:linear-gradient(135deg,rgba(60,70,40,.45),rgba(16,24,31,.35));border:1px solid var(--line);color:var(--fg)}
+.uteach .uface{width:116px;height:116px;border-radius:26px;overflow:hidden;border:2px solid rgba(255,233,168,.75);box-shadow:0 10px 26px -10px rgba(0,0,0,.7)}
+.uteach .uinfo{display:grid;gap:8px;min-width:0}.uteach .uinfo b{font-size:16px}.uteach .uline{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+@media (max-width:520px){.uteach{grid-template-columns:92px minmax(0,1fr);gap:10px}.uteach .uface{width:92px;height:92px;border-radius:22px}}
 .playing .eq i{animation:eq .9s ease-in-out infinite}.playing .eq i:nth-child(2){animation-delay:.15s}.playing .eq i:nth-child(3){animation-delay:.3s}
 @keyframes eq{50%{height:16px}}
 .rec.on{background:rgba(255,107,107,.15);border-color:var(--bad);color:#ffd0d0}
@@ -115,14 +119,14 @@ body.ur .day.done:after{right:auto;left:10px}
 .res{text-align:center;padding:26px 10px}.res .big{font:800 54px/1 Outfit;color:var(--gold2)}
 /* ustad */
 .fab{position:fixed;right:max(16px,env(safe-area-inset-right,0px));bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:30;display:flex;align-items:center;gap:8px;padding:12px 16px;border-radius:999px;border:0;background:linear-gradient(135deg,var(--mar2),var(--mar));color:#fff;font:700 15px/1 Outfit;box-shadow:0 14px 34px -12px rgba(160,29,52,.9)}
-.fab img{width:26px;height:26px;border-radius:8px}
+.fab img{width:34px;height:34px;border-radius:50%;object-fit:cover;object-position:50% 20%;border:2px solid #ffe9a8}
 .drawer{position:fixed;inset:auto 0 0 auto;width:min(420px,100%);height:min(640px,88vh);z-index:40;background:var(--bg2);border:1px solid var(--line);border-radius:22px 22px 0 0;display:flex;flex-direction:column;box-shadow:0 -20px 60px -20px #000;transform:translateY(110%);transition:transform .3s;padding-bottom:env(safe-area-inset-bottom,0px)}
 @media(min-width:700px){.drawer{right:16px;bottom:16px;border-radius:22px}}
 .drawer{visibility:hidden}.drawer.open{transform:none;visibility:visible}
 @media(max-width:520px){.brand small{display:none}.brand b{font-size:13px}.seg button{padding:6px 8px}.who .btn{white-space:nowrap}}
 bdi{unicode-bidi:isolate}
 .dh{display:flex;align-items:center;gap:10px;padding:14px 16px;border-bottom:1px solid var(--line)}
-.dh img{width:34px;height:34px;border-radius:10px}.dh b{flex:1}
+.dh img{width:38px;height:38px;border-radius:50%;object-fit:cover;object-position:50% 20%;border:2px solid #ffe9a8}.dh b{flex:1}
 .log{flex:1;overflow:auto;padding:14px;display:flex;flex-direction:column;gap:10px}
 .msg{max-width:88%;padding:10px 13px;border-radius:16px;white-space:pre-wrap;font-size:15px}
 .msg.u{align-self:flex-end;background:rgba(227,170,60,.16);border:1px solid var(--line)}
@@ -225,9 +229,9 @@ select.btn{appearance:auto}
 </div></header>
 <main id="app" class="wrap"></main>
 <footer class="foot"><div class="wrap"><span>© 2026 Quranic Science · Learn with Quranic Science AI</span><span><a href="/">quranicscience.info</a> · <a href="/terms">Terms</a> · <a href="/privacy">Privacy</a> · <a href="/refund-policy">Refund policy</a></span></div></footer>
-<button class="fab" id="fab"><img src="icon-192.png" alt=""><span data-t="ask"></span></button>
+<button class="fab" id="fab"><img src="ustad/thumb.webp" alt=""><span data-t="ask"></span></button>
 <aside class="drawer" id="drawer" aria-label="AI Ustad">
-  <div class="dh"><img src="icon-192.png" alt=""><b data-t="ustad"></b><button class="x" id="dx" aria-label="Close">×</button></div>
+  <div class="dh"><img src="ustad/thumb.webp" alt=""><b data-t="ustad"></b><button class="x" id="dx" aria-label="Close">×</button></div>
   <div class="log" id="log"></div>
   <p class="note" data-t="aiNote"></p>
   <form class="dform" id="dform"><textarea id="dq" data-ph="askPh"></textarea><button class="btn pri" data-t="send"></button></form>
@@ -238,8 +242,9 @@ select.btn{appearance:auto}
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
-<script src="class.js?v=1"></script>
-<script src="app.js?v=3"></script>
+<script src="ustad.js?v=1"></script>
+<script src="class.js?v=2"></script>
+<script src="app.js?v=4"></script>
 <script src="creator.js?v=1"></script>
 </body>
 </html>

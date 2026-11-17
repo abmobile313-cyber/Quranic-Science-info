@@ -1,5 +1,5 @@
 /* Creator Courses · Quranic Science AI — offline shell. */
-const V = "qscr-v3", SHELL = ["./", "index.html", "class.js?v=1", "app.js?v=3", "creator.js?v=1", "icon-192.png", "icon-512.png", "manifest.webmanifest", "data/editing.json", "data/content.json", "data/design.json"];
+const V = "qscr-v4", SHELL = ["./", "index.html", "class.js?v=2", "app.js?v=4", "ustad.js?v=1", "ustad/v_closed.webp", "ustad/v_small.webp", "ustad/v_oo.webp", "ustad/v_ee.webp", "ustad/v_open.webp", "ustad/thumb.webp", "creator.js?v=1", "icon-192.png", "icon-512.png", "manifest.webmanifest", "data/editing.json", "data/content.json", "data/design.json"];
 self.addEventListener("install", e => { e.waitUntil(caches.open(V).then(c => c.addAll(SHELL)).catch(() => {})); self.skipWaiting(); });
 self.addEventListener("activate", e => { e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => k.startsWith("qscr-v") && k !== V).map(k => caches.delete(k))))); self.clients.claim(); });
 self.addEventListener("fetch", e => {

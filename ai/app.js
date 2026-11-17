@@ -413,7 +413,7 @@ async function playVoice() {
   if (LANG === "en" && window.speechSynthesis) { box && box.classList.add("playing"); if (speakText(pick(m), after)) return; after(); }
   let src = null; try { src = await voiceSrc(id, i + 1); } catch (e) {}
   if (!src) return after();
-  voiceEl = new Audio(src); box && box.classList.add("playing");
+  voiceEl = new Audio(src); box && box.classList.add("playing"); window.QSUstad && QSUstad.hint(pick(m));
   voiceEl.onended = after; voiceEl.onerror = () => box && box.classList.remove("playing");
   voiceEl.play().catch(() => box && box.classList.remove("playing"));
 }
@@ -421,8 +421,8 @@ async function playVoice() {
 async function playArabic(btn) {
   const { id, i } = LESSON; stopAll(); let src = null; try { src = await voiceSrc(id, (i + 1) + "a"); } catch (e) {}
   if (!src) return; btn = btn || $("#ab"); btn && btn.classList.add("playing");
-  let left = S.rep || 1; voiceEl = new Audio(src);
-  voiceEl.onended = () => { if (--left > 0 && btn && btn.classList.contains("playing")) setTimeout(() => voiceEl.play().catch(() => {}), 500); else btn && btn.classList.remove("playing"); };
+  let left = S.rep || 1; voiceEl = new Audio(src); const arTxt = (LESSON.data && LESSON.data.moments[i] && LESSON.data.moments[i].ar) || ""; window.QSUstad && QSUstad.hint(arTxt);
+  voiceEl.onended = () => { if (--left > 0 && btn && btn.classList.contains("playing")) setTimeout(() => { window.QSUstad && QSUstad.hint(arTxt); voiceEl.play().catch(() => {}); }, 500); else btn && btn.classList.remove("playing"); };
   voiceEl.onerror = () => btn && btn.classList.remove("playing"); voiceEl.play().catch(() => btn && btn.classList.remove("playing"));
 }
 /* every letter has a real qari example word (word-by-word Qur'an audio) */
@@ -783,13 +783,14 @@ function drawMoment() {
   const { data, i } = LESSON, m = data.moments[i], app = $("#app");
   if (!m) return typeof CL !== "undefined" && CL.on ? afterMoments() : drawQuiz(0, []);
   app.innerHTML = lessonHead() + `<section class="stage">
-    <div class="vo" id="vo"><span class="eq"><i></i><i></i><i></i></span><button class="btn sm" id="rv">↻ ${t("replay")}</button></div>
+    <div class="vo uteach" id="vo"><div class="uface" id="uface"></div><div class="uinfo"><b>🎓 ${t("ustad")}</b><div class="uline"><span class="eq"><i></i><i></i><i></i></span><button class="btn sm" id="rv">↻ ${t("replay")}</button></div>${m.ar ? `<div class="uboard">${esc(String(m.ar).split(/\s+/).slice(0, 4).join(" "))}</div>` : ""}</div></div>
     <div class="say">${esc(pick(m))}</div>
     <div class="labslot" id="labslot"></div>
     ${visualHTML(m.v)}${m.ar ? tilesHTML(m.ar, m.wq, m.aw) : ""}
     ${/^(Homework|Weekly test|Test|Speaking test)\b/.test(m.en || "") ? `<p class="mini hwhint">📤 ${t("hwHint")}</p>` : ""}
     <div class="tools">${m.q ? `<button class="btn cy" id="qb">🕋 ${t("listen")}</button>` : m.wq || m.aw ? `<button class="btn cy" id="qb">🔊 ${t("arVoice")}</button>` : ""}${m.q || m.wq || m.v || m.ar ? `<button class="btn sm" id="rp" title="${t("repeat")}">🔁 ×${S.rep}</button>` : ""}${m.rec ? `<button class="btn rec" id="rb">🎙️ ${t("rec")}</button><button class="btn" id="pb" disabled>▶ ${t("mine")}</button>` : ""}</div>
   </section><div class="nav"><button class="btn big" id="bk" ${i === 0 ? "disabled" : ""}>${t("back")}</button><button class="btn pri big" id="nx">${i === data.moments.length - 1 ? (typeof CL !== "undefined" && CL.on ? t("next") : t("toQuiz")) : t("next")}</button></div>`;
+  window.QSUstad && QSUstad.mount($("#uface"));
   $("#vt").onclick = () => { S.voice = !S.voice; LS.set("qsai-voice", S.voice); S.voice ? playVoice() : stopAll(); $("#vt").textContent = S.voice ? "🔊 " + t("voiceOn") : "🔇 " + t("voiceOff"); };
   $("#rv").onclick = () => playVoice();
   if ($("#qb")) $("#qb").onclick = e => playQari(qariList(m, app), e.currentTarget);

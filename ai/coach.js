@@ -242,17 +242,17 @@
   <path d="M60 52c14-16 66-16 80 0" fill="none" stroke="#d9cfb5" stroke-width="2.5"/><path d="M72 40c10-8 46-8 56 0" fill="none" stroke="#d9cfb5" stroke-width="2.5"/><path d="M88 30c8-5 16-5 24 0" fill="none" stroke="#d9cfb5" stroke-width="2.5"/>
   <g class="u-glow"><circle cx="100" cy="100" r="104" fill="none" stroke="#2cc4f2" stroke-width="3" opacity="0"/></g></svg>`;
   /* the same friendly Ustad face on the floating "Ask AI Ustad" button and in the chat drawer */
-  const putFace = () => document.querySelectorAll(".uav").forEach(e => { if (!e.querySelector("svg")) { e.innerHTML = AVATAR; } }); putFace(); setTimeout(putFace, 800);
+  const putFace = () => {}; /* the fab and drawer already show the real Ustad photo (ustad/thumb.webp) */
 
   /* ================= the page ================= */
   const CS = { tab: "h", sel: null, s: 112, a: 1, words: [], tgt: null, drill: null, tries: {}, auto: LS.get("qsai-coach-auto", true), tts: LS.get("qsai-coach-tts", false), run: 0, lab: null, busy: false, mood: "idle" };
   const css = `
-.cch{--cg:#2cc4f2}.cch .chd{display:grid;grid-template-columns:96px minmax(0,1fr);gap:12px;align-items:center;margin:8px 0 12px}
-.cch .ustw{width:96px;height:110px;position:relative;border-radius:22px;background:radial-gradient(circle at 50% 35%,#27323a,#10181f);border:1px solid var(--line);overflow:hidden}
+.cch{--cg:#2cc4f2}.cch .chd{display:grid;grid-template-columns:112px minmax(0,1fr);gap:12px;align-items:center;margin:8px 0 12px}
+.cch .ustw{width:112px;height:124px;position:relative;border-radius:22px;background:#d8c7a3;border:2px solid rgba(255,233,168,.7);overflow:hidden;box-shadow:0 10px 24px -12px rgba(0,0,0,.7)}
 .cch .ust{width:100%;height:100%;display:block}.cch .u-mo{transition:ry .08s}.cch .talk .u-mo{animation:umo .32s infinite alternate}@keyframes umo{from{ry:1}to{ry:7}}
 .cch .talk .ust{animation:ubob .6s infinite alternate ease-in-out}@keyframes ubob{to{transform:translateY(2px)}}
 .cch .u-e{animation:ublink 5s infinite}@keyframes ublink{0%,94%,100%{ry:6.5}96%{ry:.6}}
-.cch .listen .u-glow circle{opacity:.9;animation:ugl 1.2s infinite}@keyframes ugl{50%{opacity:.25}}
+.cch .listen{box-shadow:0 0 0 3px var(--cg),0 0 22px rgba(44,196,242,.6)!important;animation:ugl 1.2s infinite}@keyframes ugl{50%{box-shadow:0 0 0 3px rgba(44,196,242,.3)}}
 .cch .think .u-p{transform:translateY(-3px)}.cch .happy .u-m0{d:path("M84 122q16 14 32 0")}.cch .sad .u-b{transform:translateY(-3px)}.cch .sad .u-m0{d:path("M88 130q12-8 24 0")}
 .cch .bub{background:var(--card2);border:1px solid var(--line);border-radius:18px;padding:12px 14px;font-size:15px;line-height:1.7;position:relative;min-height:60px}
 .cch .bub b{color:var(--gold2)}.cch .tabs{display:flex;gap:6px;margin:6px 0 12px;flex-wrap:wrap}.cch .tabs button{flex:1;min-width:92px;padding:10px 8px;border-radius:14px;border:1px solid var(--line);background:var(--card);font:700 15px Outfit,inherit}
@@ -290,11 +290,12 @@
     if (!$("#cch-css")) { const st = document.createElement("style"); st.id = "cch-css"; st.textContent = css; document.head.appendChild(st); }
     if (arg && /^[hma]$/.test(arg)) CS.tab = arg;
     app.innerHTML = `<section class="sec cch"><p><a class="btn sm" href="#home">← ${t("back")}</a></p><h2>🎓 ${x("title")}</h2><p class="lead">${x("sub")}</p>
-      <div class="chd"><div class="ustw" id="chu">${AVATAR}</div><div class="bub" id="chb"></div></div>
+      <div class="chd"><div class="ustw" id="chu"></div><div class="bub" id="chb"></div></div>
       <div class="tog"><button id="chAuto" class="${CS.auto ? "on" : ""}">🔁 ${x("auto")}</button><button id="chTts" class="${CS.tts ? "on" : ""}">🔊 ${x("voice")}</button></div>
       ${labHTML(new Set())}
       <div class="tabs" role="tablist"><button role="tab" data-t="h">🔤 ${x("tabH")}</button><button role="tab" data-t="m">🗺️ ${x("tabM")}</button><button role="tab" data-t="a">📖 ${x("tabA")}</button></div>
       <div id="chBody"></div><div id="chCheck"></div><p class="mini">ℹ️ ${x("honest")}</p></section>`;
+    window.QSUstad && QSUstad.mount($("#chu"));
     const LB = wireLab(app); CS.lab = LB;
     $(".mlab", app).addEventListener("mlpart", e => { const r = REG.find(q => q.id === PART[e.detail]); if (!r) return; CS.tab = "m"; CS.run++; closeMic(); LB.stop(); tab(); playRegion(r, $(`.rgt[data-r="${r.id}"]`)); });
     const hash = () => { const stop = () => { CS.run++; closeMic(); LB && LB.stop(); try { speechSynthesis.cancel(); } catch (e) {} removeEventListener("hashchange", stop); }; addEventListener("hashchange", stop, { once: false }); };
@@ -306,7 +307,7 @@
 
     /* ---- Ustad: face + speech bubble ---- */
     function mood(m) { const u = $("#chu"); if (!u) return; u.className = "ustw " + m; }
-    function ust(msg, m) { const b = $("#chb"); if (!b) return; b.innerHTML = msg; mood(m || "talk"); if (m === "talk" || m === "happy" || m === "sad") setTimeout(() => $("#chu") && $("#chu").classList.contains(m) && mood("idle"), Math.min(9000, 1200 + msg.length * 55)); speak(msg); }
+    function ust(msg, m) { const b = $("#chb"); if (!b) return; b.innerHTML = msg; mood(m || "talk"); if (window.QSUstad) { if (m === "happy") QSUstad.emote(); else if ((m || "talk") === "talk" && !CS.tts) QSUstad.say(msg.replace(/<[^>]+>/g, " ")); } if (m === "talk" || m === "happy" || m === "sad") setTimeout(() => $("#chu") && $("#chu").classList.contains(m) && mood("idle"), Math.min(9000, 1200 + msg.length * 55)); speak(msg); }
     function speak(msg) {
       if (!CS.tts || !window.speechSynthesis) return; try { speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(msg.replace(/<[^>]+>/g, " ").replace(/[📍👅😮👉⬆️🎬⭐]/g, " ")); u.lang = LANG === "ur" ? "ur-PK" : LANG === "hi" ? "hi-IN" : "en-IN"; u.rate = 0.92; speechSynthesis.speak(u); } catch (e) {}
     }
