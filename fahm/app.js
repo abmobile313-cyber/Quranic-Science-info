@@ -270,7 +270,7 @@ async function init() {
   try { VID = await (await fetch('video/manifest.json')).json(); } catch (e) { VID = {}; }
   if (st.s >= D.surahs.length) st.s = 0;
   FahmSfx.setLevel(st.sfx); scene.onBorn = it => { if (playing && st.sfx) FahmSfx.cue(it.a); };
-  FahmReader.init({ st: () => st, save, toast, openMenu, onClose: () => document.body.classList.toggle('noscroll', anyFull()) });
+  FahmReader.init({ D: () => D, st: () => st, save, toast, openMenu, onClose: () => document.body.classList.toggle('noscroll', anyFull()) });
   applyUi(); bind(); renderAyah(false); scene.start(); iosHint();
   try { history.replaceState({ b: 1 }, ''); history.pushState({ a: 1 }, ''); window.addEventListener('popstate', () => { if (window.__fahmBack()) history.pushState({ a: 1 }, ''); }); } catch (e) { }
   window.__fahm = { scene, st, goTo, D, lemKey };
