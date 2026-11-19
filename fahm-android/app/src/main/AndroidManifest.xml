@@ -7,7 +7,7 @@
         <intent><action android:name="android.speech.RecognitionService" /></intent>
     </queries>
     <application
-        android:label="Fahm"
+        android:label="Fahmul Quraan"
         android:icon="@mipmap/ic_launcher"
         android:roundIcon="@mipmap/ic_launcher"
         android:theme="@style/AppTheme"

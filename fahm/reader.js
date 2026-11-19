@@ -20,6 +20,9 @@ const RS = {
 Object.assign(RS.ur, { target: 'روزانہ ہدف', resume: 'جہاں چھوڑا تھا وہیں سے', from: 'کہاں سے', to: 'کہاں تک', reps: 'کتنے دَور', quick: 'جلدی چنیں', qFat: 'فاتحہ', qJuz: 'پارہ ۳۰ (موجودہ حصہ)', qAll: 'سب ۱۱ سورتیں', history: 'پچھلی رپورٹیں', daur: 'دَور', kWrong: 'لفظ بدلا', kSkip: 'لفظ چھوٹا', kJump: 'آیت بدلی', clean: 'درست آیات', hard: 'سخت غلطی', stall: 'اٹکا', doubt: 'شک', time: 'وقت', wpm: 'لفظ/منٹ', atka: 'یہاں اٹکے', secHard: 'سخت غلطیاں اور ان کا اثر', secStall: 'کہاں کہاں اٹکے (لقمہ)', secDoubt: 'شک والی جگہیں', doubtNote: 'یہاں ریکارڈر نے صاف نہیں سنا یا چھوٹا لفظ ہلکا چھوٹا؛ بہاؤ نہیں توڑا گیا، دوبارہ دیکھ لیں۔', secOk: 'کیا درست رہا', daurRep: 'دَور کی رپورٹ', ask: 'کیا آپ نے یہ ساری غلطیاں نوٹ کر لیں؟ کیا الگ دَور شروع کریں؟', noteNext: 'نوٹ کر لیں — اگلا دَور', noteFinal: 'نوٹ کر لیں — آخری رپورٹ', again: 'اسی دَور کو دوبارہ', stopFinal: 'رکیں — آخری رپورٹ دکھائیں', finalRep: 'آخری رپورٹ', copy: 'رپورٹ کاپی کریں', newPlan: 'نیا ہدف / دَور', close: 'بند کریں', daurs: 'دَور', avgClean: 'اوسط درست', trend: 'پہلے سے آخری دَور', secRange: 'ہدف', secPer: 'ہر دَور', secRep: 'بار بار کی غلطیاں', secImpact: 'غلطیوں سے ترجمے/معنی کا نقصان', secOkAll: 'ہر دَور میں درست رہی آیات', limits: 'نوٹ: غلطی صرف الفاظ کی سطح پر پکڑی جاتی ہے؛ زبر/زیر/تجوید کی پہچان ریکارڈر نہیں کر سکتا۔', times: 'بار', info: 'نوٹ: آواز کی پہچان انٹرنیٹ سے ہوتی ہے، صرف الفاظ جانچتی ہے (حرکات/تجوید نہیں)۔ حافظ موڈ صرف سخت غلطی (آیت بدلنا، لمبا چھوٹنا) پر روکتا ہے۔', sS: 'سخت', sN: 'درمیانی', sH: 'حافظ (تیز رفتار)' });
 Object.assign(RS.ru, { target: 'Rozana target', resume: 'Jahan chhoda tha wahin se', from: 'Kahan se', to: 'Kahan tak', reps: 'Kitne daur', quick: 'Jaldi chunein', qFat: 'Fatiha', qJuz: 'Para 30 (maujooda hissa)', qAll: 'Sab 11 surah', history: 'Pichhli reports', daur: 'Daur', kWrong: 'Lafz badla', kSkip: 'Lafz chhoota', kJump: 'Ayat badli', clean: 'Durust ayat', hard: 'Sakht galti', stall: 'Atke', doubt: 'Shak', time: 'Waqt', wpm: 'lafz/min', atka: 'Yahan atke', secHard: 'Sakht galtiyan aur unka asar', secStall: 'Kahan kahan atke (lukma)', secDoubt: 'Shak wali jagahein', doubtNote: 'Yahan recogniser ne saaf nahin suna ya chhota lafz halka chhoota; rawani nahin todi gayi, dobara dekh lein.', secOk: 'Kya durust raha', daurRep: 'Daur ki report', ask: 'Kya aapne yeh saari galtiyan note kar li? Kya alag daur shuru karein?', noteNext: 'Note kar li — agla daur', noteFinal: 'Note kar li — final report', again: 'Isi daur ko dobara', stopFinal: 'Rukein — final report dikhayein', finalRep: 'Final report', copy: 'Report copy karein', newPlan: 'Naya target / daur', close: 'Band karein', daurs: 'Daur', avgClean: 'Ausat durust', trend: 'Pehle se aakhri daur', secRange: 'Target', secPer: 'Har daur', secRep: 'Baar baar ki galtiyan', secImpact: 'Galtiyon se tarjme/matlab ka nuksan', secOkAll: 'Har daur mein durust rahi ayat', limits: 'Note: galti sirf alfaaz ki satah par pakdi jaati hai; zabar/zer/tajweed ki pehchan recogniser nahin kar sakta.', times: 'baar', info: 'Note: awaaz ki pehchan internet se hoti hai aur sirf alfaaz jaanchti hai (harakat/tajweed nahin). Hafiz mode sirf sakht galti (ayat badalna, lamba chhootna) par rokta hai.', sS: 'Sakht', sN: 'Darmiyani', sH: 'Hafiz (tez raftar)' });
 Object.assign(RS.en, { target: 'Daily target', resume: 'Continue where you left off', from: 'From', to: 'To', reps: 'Number of rounds', quick: 'Quick pick', qFat: 'Fatiha', qJuz: 'Juz 30 (available part)', qAll: 'All 11 surahs', history: 'Past reports', daur: 'Round', kWrong: 'Word changed', kSkip: 'Word skipped', kJump: 'Ayah changed', clean: 'Clean ayat', hard: 'Hard mistakes', stall: 'Stalls', doubt: 'Doubts', time: 'Time', wpm: 'words/min', atka: 'Stalled here', secHard: 'Hard mistakes and their effect', secStall: 'Where you stalled (prompt)', secDoubt: 'Doubtful spots', doubtNote: 'The recogniser did not hear these clearly or a small word slipped; the flow was not interrupted — please recheck.', secOk: 'What went right', daurRep: 'Round report', ask: 'Did you note all these mistakes? Start another round?', noteNext: 'Noted — next round', noteFinal: 'Noted — final report', again: 'Repeat this round', stopFinal: 'Stop — show final report', finalRep: 'Final report', copy: 'Copy report', newPlan: 'New target / rounds', close: 'Close', daurs: 'Rounds', avgClean: 'Avg clean', trend: 'First to last round', secRange: 'Target', secPer: 'Each round', secRep: 'Repeated mistakes', secImpact: 'Loss to translation / meaning', secOkAll: 'Ayat clean in every round', limits: 'Note: mistakes are caught at word level only; zabar/zer/tajweed cannot be detected by the recogniser.', times: 'times', info: 'Note: recognition needs internet and checks words only (not harakat/tajweed). Hafiz mode interrupts only for hard mistakes (changed ayah, long skip).', sS: 'Strict', sN: 'Normal', sH: 'Hafiz (fast pace)' });
+Object.assign(RS.ru, { wrongF: 'Galti note ho gayi — padhte rahein', flowL: 'Rawani', flowOn: 'Bina roke (beep + note)', flowOff: 'Ustad (ruk kar sunaye)', tickL: 'Chhoti galti par tik', on: 'On', off: 'Off', recL: 'Meri awaaz record (taqabul ke liye, tajurba)', cQari: 'Qari', cMine: 'Meri awaaz', noRecYet: 'Is jagah ki recording nahin mili (record On karke naya daur shuru karein).', secHk: 'Harkaat ki jaanch-list (mushaf se khud tasdeeq karein)', hkNote: 'Mic harkat nahin sunta. In lafzon par zabar/zer/pesh/shadda badalne se maani badal jate hain. ⚠ = is ayat mein aaj shak/galti bhi thi. Qari button se sahi tilawat sunkar milayein.' });
+Object.assign(RS.en, { wrongF: 'Mistake noted — keep going', flowL: 'Flow', flowOn: 'No stopping (beep + note)', flowOff: 'Ustad (stops and recites)', tickL: 'Tick on small slips', on: 'On', off: 'Off', recL: 'Record my voice (to compare, experimental)', cQari: 'Qari', cMine: 'My voice', noRecYet: 'No recording for this spot (turn recording On and start a new round).', secHk: 'Harakat check-list (verify against the mushaf)', hkNote: 'The mic cannot hear harakat. For these words a wrong fatha/kasra/damma/shadda changes the meaning. ⚠ = this ayah also had a doubt/mistake today. Play the qari and compare.' });
+Object.assign(RS.ur, { wrongF: 'غلطی نوٹ ہو گئی — پڑھتے رہیں', flowL: 'روانی', flowOn: 'بغیر روکے (بیپ + نوٹ)', flowOff: 'استاد (رک کر سنائے)', tickL: 'چھوٹی غلطی پر ٹِک', on: 'آن', off: 'آف', recL: 'میری آواز ریکارڈ (موازنے کے لیے، تجرباتی)', cQari: 'قاری', cMine: 'میری آواز', noRecYet: 'اس جگہ کی ریکارڈنگ نہیں ملی۔', secHk: 'حرکات کی جانچ فہرست (مصحف سے خود تصدیق کریں)', hkNote: 'مائیک حرکات نہیں سنتا۔ ان الفاظ پر زبر/زیر/پیش/شدّ بدلنے سے معنی بدل جاتے ہیں۔ ⚠ = اس آیت میں آج شک/غلطی بھی تھی۔ قاری سے سن کر ملائیں۔' });
 const R = k => (RS[A.st().ui] || RS.en)[k];
 const rau = new Audio(); rau.preload = 'auto';
 const rec = () => A.st().rec;
@@ -166,6 +169,18 @@ function beep() {
   try { if (navigator.vibrate) navigator.vibrate(180); } catch (e) { }
 }
 
+function beep2() {   /* hard mistake in flow mode: two short loud beeps, nothing stops */
+  unlockAc(); if (!ac) return; const t0 = ac.currentTime, c = ac.createDynamicsCompressor(); c.connect(ac.destination);
+  [0, 0.26].forEach(d => { const o = ac.createOscillator(), g = ac.createGain(); o.type = 'square'; o.frequency.value = 880; g.gain.setValueAtTime(0.0001, t0 + d); g.gain.exponentialRampToValueAtTime(1, t0 + d + 0.01); g.gain.setValueAtTime(1, t0 + d + 0.15); g.gain.exponentialRampToValueAtTime(0.0001, t0 + d + 0.19); o.connect(g); g.connect(c); o.start(t0 + d); o.stop(t0 + d + 0.2); });
+  try { if (navigator.vibrate) navigator.vibrate([120, 70, 120]); } catch (e) { }
+}
+function tick() {    /* small slip: one soft short tick */
+  unlockAc(); if (!ac) return; const t = ac.currentTime, o = ac.createOscillator(), g = ac.createGain(); o.type = 'sine'; o.frequency.value = 1400; g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.5, t + 0.008); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.09); o.connect(g); g.connect(ac.destination); o.start(t); o.stop(t + 0.1);
+  try { if (navigator.vibrate) navigator.vibrate(40); } catch (e) { }
+}
+const flowOn = () => (A.st().hflow || 'flow') === 'flow';
+const tickOn = () => (A.st().htick || 'on') === 'on';
+
 /* ---------- speech recognition layer ---------- */
 function nativeOk() { try { return !!(window.FahmAndroid && window.FahmAndroid.speechAvailable && window.FahmAndroid.speechAvailable()); } catch (e) { return false; } }
 function webOk() { return !!(window.SpeechRecognition || window.webkitSpeechRecognition); }
@@ -241,13 +256,19 @@ function onHeard(idx, text, fin) {
   hz.prev = { idx, toks };
   if (toks.length > done) hz.lastAct = Date.now();
   const nt = toks.slice(done); if (!nt.length) { if (fin) hz.proc[idx] = Math.max(done, toks.length); return; }
-  const p0 = hz.tr.p, r = hz.tr.feed(nt, fin); hz.proc[idx] = fin ? toks.length : done + r.used;
-  for (const ev of r.ev) {
-    if (ev.t === 'ok') { setOk(ev.from, ev.to); hz.lastAct = Date.now(); hz.cur.words += ev.to - ev.from; }
-    else if (ev.t === 'soft') { const w = SC[ev.idx]; if (w) hz.cur.soft.push({ ai: w.ai, idx: ev.idx, kind: ev.kind, n: ev.n || 0, heard: ev.heard, t: Date.now() - hz.cur.t0 }); }
-    else if (ev.t === 'mistake') { hzMistake(ev); return; }
-    else if (ev.t === 'end') { hzDaurEnd(); return; }
+  const p0 = hz.tr.p; let rest = nt, used = 0;
+  while (rest.length) {
+    const r = hz.tr.feed(rest, fin); used += r.used; let hard = false;
+    for (const ev of r.ev) {
+      if (ev.t === 'ok') { setOk(ev.from, ev.to); hz.lastAct = Date.now(); hz.cur.words += ev.to - ev.from; }
+      else if (ev.t === 'soft') { const w = SC[ev.idx]; if (w) { hz.cur.soft.push({ ai: w.ai, idx: ev.idx, kind: ev.kind, n: ev.n || 0, heard: ev.heard, t: Date.now() - hz.cur.t0, abs: Date.now() }); if (flowOn() && tickOn()) tick(); } }
+      else if (ev.t === 'mistake') { if (!flowOn()) { hz.proc[idx] = done + used; hzMistake(ev); return; } hzFlowMistake(ev); if (hz.tr.done()) { hz.proc[idx] = done + used; hzDaurEnd(); return; } hard = true; }
+      else if (ev.t === 'end') { hz.proc[idx] = done + used; hzDaurEnd(); return; }
+    }
+    if (!hard || r.used <= 0) break;
+    rest = rest.slice(r.used);
   }
+  hz.proc[idx] = fin ? toks.length : done + used;
   if (hz.tr.p !== p0) { const w = SC[posAi()]; if (w) ensureLoc(w.loc); markNext(); savePos(w.ai); }
 }
 function busyOn() { hz.busy = true; hz.busyAt = Date.now(); }
@@ -255,9 +276,24 @@ function busyOff() { hz.busy = false; if (hz.busyAt) { hz.cur.busyMs += Date.now
 function hzResume(ai) {
   const y = AY[ai]; clearAyahMarks(ai); hz.tr.setPos(y.first); markNext(); busyOff(); hz.lastAct = Date.now() + 600; hzStatus('listen'); recStart();
 }
+/* flow mode: hard mistake = two beeps + note, but the recitation is never interrupted */
+function hzFlowMistake(ev) {
+  const w = SC[ev.idx]; if (!w) return;
+  const now = Date.now(), dup = hz.lastHard && now - hz.lastHard < 2000; hz.lastHard = now;
+  let np = hz.tr.p, a = ev.idx, b = ev.idx + 1;
+  if (ev.kind === 'skip') { b = ev.idx + (ev.n || 1); np = ev.idx + (ev.n || 1) + 1; }
+  else if (ev.kind === 'wrong') { b = ev.idx + Math.max(1, (ev.heard || []).length); np = b; }
+  else if (ev.kind === 'jump') { const to = ev.to || 0, ta = SC[to] && SC[to].ai; np = (ta != null && ta >= hz.fi && ta <= hz.ti) ? Math.min(hz.tr.lim, to + Math.max(2, (ev.heard || []).length)) : ev.idx; }
+  if (!dup) {
+    hz.cur.mist.push({ ai: w.ai, idx: ev.idx, kind: ev.kind, n: ev.n || 0, to: ev.to, heard: ev.heard, t: now - hz.cur.t0, abs: now });
+    for (let i = a; i < Math.min(b, SC.length); i++) { const e = q(SC[i].loc); if (e) { e.classList.add('bad'); e.classList.remove('ok'); } okSet.delete(SC[i].loc); }
+    beep2(); hzStatus('wrongF', 'bad'); setTimeout(() => { if (hz.on && !hz.busy) hzStatus('listen'); }, 1200);
+  }
+  hz.tr.setPos(Math.min(np, hz.tr.lim)); hz.lastAct = now;
+}
 function hzMistake(ev) {
   busyOn(); recStop(); const w = SC[ev.idx], ai = w.ai, y = AY[ai];
-  hz.cur.mist.push({ ai, idx: ev.idx, kind: ev.kind, n: ev.n || 0, to: ev.to, heard: ev.heard, t: Date.now() - hz.cur.t0 });
+  hz.cur.mist.push({ ai, idx: ev.idx, kind: ev.kind, n: ev.n || 0, to: ev.to, heard: ev.heard, t: Date.now() - hz.cur.t0, abs: Date.now() });
   const e = q(w.loc); if (e) { e.classList.add('bad'); e.classList.remove('ok'); } okSet.delete(w.loc);
   hzStatus('wrong', 'bad'); beep();
   setTimeout(() => { if (!hz.on) return; playOnce(y.s, y.a, true, () => { if (hz.on) hzResume(ai); }); }, 650);
@@ -265,7 +301,7 @@ function hzMistake(ev) {
 function hzLukma() {
   if (hz.busy || !hz.tr || hz.tr.done()) return; busyOn(); recStop();
   const w = SC[hz.tr.p], ai = w.ai, y = AY[ai]; hzStatus('luq', 'warn');
-  hz.cur.stalls.push({ ai, idx: hz.tr.p, t: Date.now() - hz.cur.t0, wait: silOf() });
+  hz.cur.stalls.push({ ai, idx: hz.tr.p, t: Date.now() - hz.cur.t0, abs: Date.now(), wait: silOf() });
   ensureLoc(w.loc); playOnce(y.s, y.a, true, () => { if (hz.on) hzResume(ai); });
 }
 
@@ -318,6 +354,7 @@ function hzStart(fromAi, plan) {
   hz.on = true; hz.want = true; hz.started = Date.now();
   $('#rrep').hidden = true; $('#rhz').hidden = false; $('#rhMode').textContent = R(st.hmode); $('#rMic').classList.add('on'); $('#rpage').classList.toggle('mem', st.hmode === 'mem');
   clearInterval(hz.sil); hz.sil = setInterval(() => { if (hz.on && !hz.busy && Date.now() - hz.lastAct > silOf() * 1000) hzLukma(); }, 250);
+  recBegin();
   hzBeginDaur(hz.startAi);
 }
 function hzBeginDaur(ai) {
@@ -327,7 +364,7 @@ function hzBeginDaur(ai) {
   recStart();
 }
 function hzStop() {
-  hz.on = false; hz.want = false; hz.busy = false; recStop(); clearInterval(hz.sil); stopAudio(); $('#rhz').hidden = true; $('#rMic').classList.remove('on');
+  recEnd(); hz.on = false; hz.want = false; hz.busy = false; recStop(); clearInterval(hz.sil); stopAudio(); $('#rhz').hidden = true; $('#rMic').classList.remove('on');
   $('#rpage').classList.remove('mem'); document.querySelectorAll('#rpage .nx,#rpage .bad,#rpage .ok').forEach(e => e.classList.remove('nx', 'bad', 'ok')); okSet = new Set();
 }
 function hzDaurEnd() {
@@ -335,6 +372,44 @@ function hzDaurEnd() {
   A.st().hlast = { s: AY[hz.fi].s, a: AY[hz.fi].a }; A.save();
   setTimeout(() => showDaurReport(d), 700);
 }
+
+/* ----- own-voice recording (optional, web only) + compare with the qari ----- */
+function recBegin() {
+  try { if (hz.rec) recEnd(); } catch (e) { } hz.rec = null; hz.recBuf = null;
+  if ((A.st().hrec || 'off') !== 'on' || hz.native || !navigator.mediaDevices || !window.MediaRecorder) return;
+  navigator.mediaDevices.getUserMedia({ audio: true }).then(str => {
+    if (!hz.on) { str.getTracks().forEach(t => t.stop()); return; }
+    const mr = new MediaRecorder(str), r = { mr, str, chunks: [], t0: Date.now() }; hz.rec = r;
+    mr.ondataavailable = e => { if (e.data && e.data.size) r.chunks.push(e.data); }; mr.start(1000);
+  }).catch(() => { });
+}
+function recEnd() { const r = hz.rec; if (!r) return; try { r.mr.stop(); } catch (e) { } try { r.str.getTracks().forEach(t => t.stop()); } catch (e) { } }
+let cau = null, msrc = null;
+function stopCmp() { if (cau) { try { cau.pause(); } catch (e) { } } if (msrc) { try { msrc.stop(); } catch (e) { } msrc = null; } }
+function playQari(ai) { const y = AY[ai]; if (!y) return; stopCmp(); stopAudio(); cau = cau || new Audio(); cau.src = auUrl(y.s, y.a); const pr = cau.play(); if (pr && pr.catch) pr.catch(() => A.toast(R('audioErr'))); }
+async function playMine(offMs) {
+  const r = hz.rec; if (!r || !r.chunks.length) { A.toast(R('noRecYet')); return; }
+  stopCmp(); stopAudio(); unlockAc(); if (!ac) return;
+  try {
+    if (!hz.recBuf || hz.recBufN !== r.chunks.length) { const ab = await new Blob(r.chunks, { type: r.mr.mimeType || 'audio/webm' }).arrayBuffer(); hz.recBuf = await ac.decodeAudioData(ab); hz.recBufN = r.chunks.length; }
+    const b = ac.createBufferSource(); b.buffer = hz.recBuf; b.connect(ac.destination); b.start(0, Math.max(0, offMs / 1000 - 3), 9); msrc = b;
+  } catch (e) { A.toast(R('noRecYet')); }
+}
+function cmpBtns(m) {
+  const mine = hz.rec && m.abs && m.abs >= hz.rec.t0 ? `<button class="po sm" data-hm="${m.abs - hz.rec.t0}">▶ ${esc(R('cMine'))}</button>` : '';
+  return `<span class="cmp"><button class="po sm" data-hq="${m.ai}">▶ ${esc(R('cQari'))}</button>${mine}</span>`;
+}
+const hkNote = k => { const v = window.FahmHK && window.FahmHK[k]; return v ? (A.st().ui === 'en' ? v[1] : v[0]) : ''; };
+function hkRows(flag, onlyFlag) {
+  const out = [], seen = new Set();
+  for (let ai = VM.fi; ai <= VM.ti; ai++) {
+    const y = AY[ai], fl = flag.has(ai); if (onlyFlag && !fl) continue;
+    for (let i = y.first; i <= y.last; i++) { const w = SC[i], k = w.s + ':' + w.a + ':' + w.w, n = hkNote(k); if (!n) continue;
+      out.push({ fl, html: `<div class="ri"><b>${esc(ayRef(ai))}</b> · ${fl ? '⚠ ' : ''}<span class="ar">${esc(M.w[w.s + ':' + w.a][w.w - 1].replace(/[۝].*/, ''))}</span> <button class="po sm" data-hq="${ai}">▶ ${esc(R('cQari'))}</button><br><small>${esc(n)}</small></div>` }); }
+  }
+  out.sort((a, b) => (b.fl ? 1 : 0) - (a.fl ? 1 : 0)); return out.map(x => x.html).join('');
+}
+const flagSet = list => { const f = new Set(); list.forEach(d => { d.mist.forEach(m => f.add(m.ai)); d.stalls.forEach(m => f.add(m.ai)); d.soft.forEach(m => f.add(m.ai)); }); return f; };
 
 /* ----- reports ----- */
 const fmtT = ms => { const s = Math.round(ms / 1000), m = Math.floor(s / 60); return m + ':' + String(s % 60).padStart(2, '0'); };
@@ -370,15 +445,15 @@ function impact(m, soft) {
 const kindTxt = k => ({ wrong: R('kWrong'), skip: R('kSkip'), jump: R('kJump') }[k] || k);
 function section(title, body, cls) { return body ? `<div class="rs ${cls || ''}"><h5>${esc(title)}</h5>${body}</div>` : ''; }
 function mistakeList(list, soft) {
-  return list.map(m => { const y = AY[m.ai], w = SC[m.idx]; return `<div class="ri"><b>${esc(ayRef(m.ai))}</b> · ${esc(kindTxt(m.kind))} · ${esc(M.w[w.s + ':' + w.a][w.w - 1])}<br><small>${esc(impact(m, soft))}</small></div>`; }).join('');
+  return list.map(m => { const y = AY[m.ai], w = SC[m.idx]; return `<div class="ri"><b>${esc(ayRef(m.ai))}</b> · ${esc(kindTxt(m.kind))} · ${esc(M.w[w.s + ':' + w.a][w.w - 1])} ${cmpBtns(m)}<br><small>${esc(impact(m, soft))}</small></div>`; }).join('');
 }
 function daurHtml(d, final) {
   if (!DICT) dictBuild(); const s = dStats(d);
   const cards = `<div class="rc"><div><b>${A.st().ui === 'ur' ? ad(s.cleanPct) : s.cleanPct}%</b><small>${esc(R('clean'))}</small></div><div><b>${d.mist.length}</b><small>${esc(R('hard'))}</small></div><div><b>${d.stalls.length}</b><small>${esc(R('stall'))}</small></div><div><b>${d.soft.length}</b><small>${esc(R('doubt'))}</small></div><div><b>${fmtT(d.t1 - d.t0)}</b><small>${esc(R('time'))}</small></div><div><b>${s.wpm}</b><small>${esc(R('wpm'))}</small></div></div>`;
-  const stalls = d.stalls.map(x => `<div class="ri"><b>${esc(ayRef(x.ai))}</b> · ${esc(R('atka'))}: ${esc(M.w[SC[x.idx].s + ':' + SC[x.idx].a][SC[x.idx].w - 1])}</div>`).join('');
-  const soft = d.soft.map(m => `<div class="ri"><b>${esc(ayRef(m.ai))}</b> · ${esc(M.w[SC[m.idx].s + ':' + SC[m.idx].a][SC[m.idx].w - 1])}${m.heard && m.heard.length ? ' ← ' + esc(heardTxt(m)) : ''}</div>`).join('');
+  const stalls = d.stalls.map(x => `<div class="ri"><b>${esc(ayRef(x.ai))}</b> · ${esc(R('atka'))}: ${esc(M.w[SC[x.idx].s + ':' + SC[x.idx].a][SC[x.idx].w - 1])} ${cmpBtns(x)}</div>`).join('');
+  const soft = d.soft.map(m => `<div class="ri"><b>${esc(ayRef(m.ai))}</b> · ${esc(M.w[SC[m.idx].s + ':' + SC[m.idx].a][SC[m.idx].w - 1])}${m.heard && m.heard.length ? ' ← ' + esc(heardTxt(m)) : ''} ${cmpBtns(m)}</div>`).join('');
   const clean = s.clean.length ? `<div class="ri">${s.clean.map(i => esc(ayRef(i))).join(' · ')}</div>` : '';
-  return cards + section(R('secHard'), mistakeList(d.mist), 'bad') + section(R('secStall'), stalls, 'warn') + section(R('secDoubt'), soft && `<p class="pn">${esc(R('doubtNote'))}</p>` + soft) + section(R('secOk'), clean, 'ok');
+  return cards + section(R('secHard'), mistakeList(d.mist), 'bad') + section(R('secStall'), stalls, 'warn') + section(R('secDoubt'), soft && `<p class="pn">${esc(R('doubtNote'))}</p>` + soft) + section(R('secOk'), clean, 'ok') + (() => { const h = hkRows(flagSet([d]), true); return h ? section(R('secHk'), `<p class="pn">${esc(R('hkNote'))}</p>` + h, 'warn') : ''; })();
 }
 function showDaurReport(d) {
   VM = { fi: hz.fi, ti: hz.ti }; const last = hz.daur >= (hz.plan.reps || 1);
@@ -396,11 +471,11 @@ function finalHtml(all, meta) {
   const everClean = []; for (let i = meta.fi; i <= meta.ti; i++) if (!cnt[i] && !st[i]) everClean.push(i);
   const tot = all.reduce((a, d) => a + dStats(d).cleanPct, 0), avg = Math.round(tot / all.length);
   const allMist = all.flatMap(d => d.mist.map(m => Object.assign({ daur: d.n }, m)));
-  const imp = allMist.map(m => `<div class="ri"><b>${esc(R('daur'))} ${m.daur} · ${esc(ayRef(m.ai))}</b><br><small>${esc(impact(m))}</small></div>`).join('');
+  const imp = allMist.map(m => `<div class="ri"><b>${esc(R('daur'))} ${m.daur} · ${esc(ayRef(m.ai))}</b> ${cmpBtns(m)}<br><small>${esc(impact(m))}</small></div>`).join('');
   const trend = all.length > 1 ? (() => { const a = dStats(all[0]).cleanPct, b = dStats(all[all.length - 1]).cleanPct; return `<p class="pn">${esc(R('trend'))}: ${a}% → ${b}%</p>`; })() : '';
   return `<div class="rc"><div><b>${all.length}</b><small>${esc(R('daurs'))}</small></div><div><b>${avg}%</b><small>${esc(R('avgClean'))}</small></div><div><b>${allMist.length}</b><small>${esc(R('hard'))}</small></div></div>${trend}` +
     section(R('secRange'), `<div class="ri">${esc(ayRef(meta.fi))} → ${esc(ayRef(meta.ti))}</div>`) + section(R('secPer'), rows) + section(R('secRep'), rep + stl, 'bad') + section(R('secImpact'), imp, 'bad') +
-    section(R('secOkAll'), everClean.length ? `<div class="ri">${everClean.map(i => esc(ayRef(i))).join(' · ')}</div>` : '', 'ok') + `<p class="pn">${esc(R('limits'))}</p>`;
+    section(R('secOkAll'), everClean.length ? `<div class="ri">${everClean.map(i => esc(ayRef(i))).join(' · ')}</div>` : '', 'ok') + section(R('secHk'), `<p class="pn">${esc(R('hkNote'))}</p>` + hkRows(flagSet(all), false), 'warn') + `<p class="pn">${esc(R('limits'))}</p>`;
 }
 function reportText(all, meta) {
   const tmp = document.createElement('div'); tmp.innerHTML = finalHtml(all, meta).replace(/<\/(div|h5|p|small)>/g, '\n$&').replace(/<br>/g, '\n'); return tmp.textContent.replace(/\n{2,}/g, '\n').trim();
@@ -442,7 +517,10 @@ function popHafiz() {
   const st = A.st(); const sw = (k, v, t, on) => `<button class="po sm ${on ? 'on' : ''}" data-hk="${k}" data-hv="${v}">${esc(t)}</button>`;
   $('#rpop').innerHTML = `<h4>${esc(R('hafiz'))}</h4><div class="pr"><span>${esc(R('sens'))}</span>${sw('hs', 'h', R('sH'), (st.hs || 'h') === 'h')}${sw('hs', 'n', R('sN'), st.hs === 'n')}${sw('hs', 's', R('sS'), st.hs === 's')}</div>` +
     `<div class="pr"><span>${esc(R('sil'))}</span>${[3.5, 4, 5].map(v => sw('hsil', v, v + ' ' + R('sec'), (st.hsil || 4) === v)).join('')}</div>` +
-    `<div class="pr"><span></span>${sw('hmode', 'look', R('look'), (st.hmode || 'look') === 'look')}${sw('hmode', 'mem', R('mem'), st.hmode === 'mem')}</div><p class="pn">${esc(R('info'))}</p>`;
+    `<div class="pr"><span></span>${sw('hmode', 'look', R('look'), (st.hmode || 'look') === 'look')}${sw('hmode', 'mem', R('mem'), st.hmode === 'mem')}</div>` +
+    `<div class="pr"><span>${esc(R('flowL'))}</span>${sw('hflow', 'flow', R('flowOn'), (st.hflow || 'flow') === 'flow')}${sw('hflow', 'ustad', R('flowOff'), st.hflow === 'ustad')}</div>` +
+    `<div class="pr"><span>${esc(R('tickL'))}</span>${sw('htick', 'on', R('on'), (st.htick || 'on') === 'on')}${sw('htick', 'off', R('off'), st.htick === 'off')}</div>` +
+    `<div class="pr"><span>${esc(R('recL'))}</span>${sw('hrec', 'on', R('on'), st.hrec === 'on')}${sw('hrec', 'off', R('off'), (st.hrec || 'off') === 'off')}</div><p class="pn">${esc(R('info'))}</p>`;
   $('#rpop').hidden = false;
 }
 function applyZoom(d) { const st = A.st(); st.rz = Math.max(1, Math.min(1.8, Math.round(((st.rz || 1) + d) * 100) / 100)); A.save(); sizePage(); fit(); }
@@ -478,6 +556,8 @@ function init(api) {
   $('#rhStop').onclick = hzStopAsk; $('#rhSet').onclick = () => { if ($('#rpop').hidden || $('#rpop').dataset.pk !== 'h') { $('#rpop').dataset.pk = 'h'; popHafiz(); } else popClose(); };
   $('#rhMode').onclick = () => { const st = A.st(); st.hmode = st.hmode === 'mem' ? 'look' : 'mem'; A.save(); $('#rpage').classList.toggle('mem', st.hmode === 'mem'); $('#rhMode').textContent = R(st.hmode); };
   $('#rrep').addEventListener('click', e => {
+    const q1 = e.target.closest('[data-hq]'); if (q1) { playQari(+q1.dataset.hq); return; }
+    const m1 = e.target.closest('[data-hm]'); if (m1) { playMine(+m1.dataset.hm); return; }
     const b = e.target.closest('[data-rn]'); if (!b) return; const k = b.dataset.rn;
     if (k === 'copy') { const f = $('#rrep')._fin; if (f) { const t = reportText(f.all, f.meta); try { navigator.clipboard.writeText(t); A.toast('✓'); } catch (x) { A.toast(t.slice(0, 200)); } } return; }
     if (k === 'close') { $('#rrep').hidden = true; return; }

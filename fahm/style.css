@@ -71,7 +71,19 @@ svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2;stroke-l
 #nz h4{margin:0 0 4px;color:var(--cyan);font-size:13px;letter-spacing:.4px;text-transform:uppercase}
 #nz p{margin:0 0 8px;color:#dfe6f5;font-size:14px}
 #nz small{color:var(--mut);font-size:11.5px;display:block;line-height:1.4}
-#credits{color:var(--mut);font-size:11px;margin:0 4px 6px;line-height:1.5}
+#credits{margin:6px 0 10px}
+.brand{background:var(--glass);border:1px solid var(--bd);border-radius:18px;padding:14px 14px 12px;text-align:center;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
+.brand .bn b{display:block;font-size:18px;letter-spacing:.5px;color:#e8b84a}
+.brand .bn em{display:block;font-style:normal;font-size:12.5px;color:var(--cyan);margin-top:2px}
+.brand .bf{margin:12px 0 6px;font-size:11.5px;color:var(--mut);text-transform:uppercase;letter-spacing:.6px}
+.brow{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
+.bl{display:inline-flex;align-items:center;gap:7px;padding:9px 13px;border-radius:999px;border:1px solid var(--bd);background:rgba(255,255,255,.05);color:inherit;text-decoration:none;font-size:13px}
+.bl svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.bl.fb svg{fill:currentColor;stroke:none}.bl.fb{color:#6aa7ff}.bl.ig{color:#ff7ab6}.bl.yt{color:#ff5a5a}.bl.web{color:#e8b84a}.bl.wa{color:#4cd989}
+.bl:active{transform:scale(.96)}
+.bct{display:flex;flex-direction:column;gap:7px;align-items:center}.bct>a{color:inherit;font-size:13px;text-decoration:none;word-break:break-all}
+.bcr{margin-top:10px;font-size:10.5px;color:var(--mut);text-align:start}.bcr summary{cursor:pointer;text-align:center}.bcr p{margin:6px 0 0;line-height:1.5}
+.bby{margin:8px 0 0;font-size:11px;color:var(--mut)}
 #bar{display:flex;align-items:center;justify-content:center;gap:14px;padding:8px 12px calc(10px + var(--sa));background:linear-gradient(0deg,rgba(5,7,14,.95),rgba(5,7,14,.55));border-top:1px solid var(--bd);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px)}
 .nb{width:46px;height:46px;border-radius:50%;display:grid;place-items:center;background:var(--glass);border:1px solid var(--bd)}
 .nb.big{width:60px;height:60px;background:linear-gradient(145deg,#e8b84a,#b9862b);color:#1b1304;border:0;box-shadow:0 8px 24px rgba(232,184,74,.4)}

@@ -76,7 +76,7 @@ function renderTrans() {
 function renderNZ() {
   const { S } = cur(), n = window.FAHM_NZ[S.n]; if (!n) { $('#nz').innerHTML = ''; return; }
   $('#nz').innerHTML = `<h4>${T('nzh')}</h4><p>${esc(st.ui === 'en' ? n.en : st.ui === 'ur' ? (window.FAHM_NZ_UR[S.n] || '') : n.ur)}</p><small>${T('nzn')}</small>`;
-  $('#credits').textContent = T('credits');
+  $('#credits').innerHTML = brandHtml();
 }
 
 /* ---------- 3D word scene ---------- */
@@ -87,6 +87,25 @@ function showLab() {
   $('#labN').textContent = spec && spec.n ? pick(spec.n) : '';
   if (window.FahmLab && FahmLab.ok) FahmLab.show(spec, { key, ar: W.ar, root: W.root });
 }
+
+/* ---------- Quranic Science branding footer ---------- */
+const BRAND = { fb: 'https://www.facebook.com/share/16J4k6RuE7n/', ig: 'https://www.instagram.com/quranicscienceofficial/', yt: 'https://www.youtube.com/@quranicscienceofficial01', web: 'https://quranicscience.info', wa: 'https://wa.me/919272527913', mail: 'quranicscience01@gmail.com', ph: '+91 92725 27913' };
+function brandHtml() {
+  const u = st.ui, L = { ur: { tag: 'علم جو سوچ بدل دے', f: 'ہمیں فالو کریں', c: 'ہم سے رابطہ', e: 'ای میل', w: 'واٹس ایپ', cr: 'ماخذ اور شکریہ', by: 'فہم — Quranic Science کی طرف سے مفت' }, ru: { tag: 'Ilm Jo Soch Badal De', f: 'Hamein follow karein', c: 'Contact us', e: 'Email', w: 'WhatsApp', cr: 'Mukhaiz aur shukriya', by: 'Fahm — Quranic Science ki taraf se muft' }, en: { tag: 'Ilm Jo Soch Badal De', f: 'Follow us', c: 'Contact us', e: 'Email', w: 'WhatsApp', cr: 'Sources & credits', by: 'Fahm — free from Quranic Science' } }[u] || {};
+  const ic = {
+    fb: '<svg viewBox="0 0 24 24"><path d="M14 8h3V4h-3a4 4 0 0 0-4 4v3H7v4h3v6h4v-6h3l1-4h-4V8z"/></svg>',
+    ig: '<svg viewBox="0 0 24 24"><rect x="3.5" y="3.5" width="17" height="17" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.2" cy="6.8" r=".8" style="fill:currentColor"/></svg>',
+    yt: '<svg viewBox="0 0 24 24"><rect x="2.5" y="5.5" width="19" height="13" rx="4"/><path d="M10 9.2v5.6l5-2.8z" style="fill:currentColor"/></svg>',
+    web: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3.2 3 14.8 0 18M12 3c-3 3.2-3 14.8 0 18"/></svg>',
+    wa: '<svg viewBox="0 0 24 24"><path d="M4 20l1.2-4A8 8 0 1 1 8 18.8L4 20z"/><path d="M9 8.5c0 3 3.5 6.5 6.5 6.5l1-1.6-2-1-1 .8c-1-.4-2-1.4-2.4-2.4l.8-1-1-2L9 8.5z" style="fill:currentColor"/></svg>'
+  };
+  const a = (k, t, h) => `<a class="bl ${k}" href="${h}" target="_blank" rel="noopener" aria-label="${t}">${ic[k]}<span>${t}</span></a>`;
+  return `<div class="brand"><div class="bn"><b>Quranic Science</b><em>${L.tag}</em></div>` +
+    `<p class="bf">${L.f}</p><div class="brow">${a('fb', 'Facebook', BRAND.fb)}${a('ig', 'Instagram', BRAND.ig)}${a('yt', 'YouTube', BRAND.yt)}${a('web', 'Website', BRAND.web)}</div>` +
+    `<p class="bf">${L.c}</p><div class="bct"><a href="mailto:${BRAND.mail}">✉ ${L.e}: ${BRAND.mail}</a>${a('wa', L.w + ' ' + BRAND.ph, BRAND.wa)}<a href="${BRAND.web}" target="_blank" rel="noopener">🌐 quranicscience.info</a></div>` +
+    `<details class="bcr"><summary>${L.cr}</summary><p>${esc(T('credits'))}</p></details><p class="bby">${L.by}</p></div>`;
+}
+
 /* ---------- optional real-footage clip per ayah (video/manifest.json) ---------- */
 function videoFor(key) {
   const v = $('#sv'), box = $('.story-box'), f = VID[key];
