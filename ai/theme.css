@@ -63,10 +63,14 @@ main.wrap{padding-bottom:110px}
   .fab{width:54px;height:54px;padding:4px;justify-content:center;right:max(12px,env(safe-area-inset-right,0px));bottom:calc(88px + env(safe-area-inset-bottom,0px))}
   .fab>span[data-t]{display:none}
   .fab .uav{width:44px;height:44px}
-  .stage .labslot,.stage .labdock,.stage .labslot .mlab{display:contents}
+  /* the 3D lab opens as ONE complete block: big head first, the letters straight under it (always together on screen), then the explanation */
   .stage .vo{order:-3}
-  .stage .labslot .mlwrap{order:-2;position:sticky;top:calc(var(--hh) + 4px);z-index:8;margin:0 -10px;padding:6px;background:#0d141b;border-radius:18px;box-shadow:0 14px 22px -12px rgba(0,0,0,.7)}
+  .stage .labslot{order:-2;margin:6px 0 10px}
+  .stage .labslot .mlab{display:flex;flex-direction:column;gap:10px;padding:10px}
+  .stage .labslot .mlwrap{position:static;margin:0;padding:4px;background:#0d141b;border-radius:18px}
   .stage .say{order:-1}
-  .stage .labslot .mlside{background:#fbf3ea;color:#3b2418;border:1px solid #e9cdb4;border-radius:22px;padding:12px}
-  .ml3{width:min(100%,32vh)}.mlsvg{max-height:32vh}
+  .mlab .mlside{display:flex;flex-direction:column;gap:10px}
+  .mlab .mlside>.mlkh{order:1}.mlab .mlside>.mlkeys{order:2}.mlab .mlside>.mlctl{order:3}.mlab .mlside>.mlcap{order:4}.mlab .mlside>.mlwords{order:5}
+  .mlab .mlkeys{grid-template-columns:repeat(5,minmax(0,1fr))}
+  .ml3{width:min(100%,420px);margin-inline:auto}.mlsvg{max-height:none}
 }

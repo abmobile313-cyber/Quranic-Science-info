@@ -183,8 +183,10 @@
       return [x, y];
     }
     const jawW = v => sm(640, 760, v[1]) * sm(690, 860, v[0]);
-    function frame(p) {
+    function frame(p0) {
       if (!ready) return;
+      /* lips and jaw are drawn a little bigger than anatomy so a student can SEE round (و ُ), spread (ي ِ), open (ا َ) and closed (ب م) from a phone */
+      const p = Object.assign({}, p0, { jaw: (p0.jaw || 0) * 2.5, u: [p0.u[0] * 1.8, p0.u[1] * 1.6], l: [p0.l[0] * 1.8, p0.l[1] * 1.6] });
       gl.clearColor(0.04, 0.06, 0.09, 1); gl.clear(gl.COLOR_BUFFER_BIT);
       drawMesh(MP, MP.V.map(v => plateWarp(v, p)), 1, null);            // plate (tongue, velum and lips removed), warped
       // soft palate: lowered = 1 (breathing / nasal), raised = 0 (closes the nose)
@@ -248,6 +250,36 @@
           if (e < end) raf = requestAnimationFrame(step); else { cur = JSON.parse(JSON.stringify(REST)); frame(cur); q("m3ch").textContent = ""; res(); } };
         raf = requestAnimationFrame(step); });
     }
+    /* REAL speech for one Arabic word: segs = [{ch, zone, v: "a"|"u"|"i"|"", long, dbl}] from phonemize(); getP() = how far the real recording is (0..1, >1 = finished).
+       Every sound gets time by its true length (a long vowel / a doubled letter lasts longer), the lips take the shape of the vowel while the tongue is still on the letter
+       (only ب م ف و really decide the lips), so "ya-lid", "a-had", "wa-n-naas" move exactly as they are said, and follow the recording itself (never a fixed clock). */
+    let pend = null;
+    function speak(segs, getP) {
+      cancelAnimationFrame(raf); if (pend) { const r0 = pend; pend = null; r0(); }
+      q("m3pt").style.opacity = 0; q("m3air").innerHTML = ""; q("m3glow").innerHTML = "";
+      const LOCK = "بمفو", cl = o => JSON.parse(JSON.stringify(o)), K = [{ t: 0, p: cl(cur), ch: "" }]; let t = 0;
+      segs.forEach(sg => {
+        const V = letterPose(sg.ch, sg.zone, sg.v || ""), C = letterPose(sg.ch, sg.zone, ""); C.air = null;
+        if (!LOCK.includes(sg.ch) && sg.v) { const k = .6; C.u = [lerp(C.u[0], V.u[0], k), lerp(C.u[1], V.u[1], k)]; C.l = [lerp(C.l[0], V.l[0], k), lerp(C.l[1], V.l[1], k)]; C.jaw = lerp(C.jaw || 0, V.jaw || 0, k); } /* lips already go to the coming vowel */
+        const cw = sg.dbl ? 1.7 : sg.ch === "ء" ? .7 : 1;
+        t += cw * .7; K.push({ t, p: cl(C), ch: sg.ch }); t += cw * .3;                       /* the letter is reached, then held (longer when doubled) */
+        if (sg.dbl) { t += .5; K.push({ t, p: cl(C), ch: sg.ch }); }                           /* tashdeed: the closure is kept, then released */
+        if (sg.v) { const vw = sg.long ? 2.6 : 1.15; t += vw * .4; K.push({ t, p: cl(V), ch: sg.ch }); t += vw * .6; K.push({ t, p: cl(V), ch: sg.ch }); }  /* vowel opens, rounds or spreads, and a madd keeps it */
+        else if (!sg.dbl) { t += .35; K.push({ t, p: cl(C), ch: sg.ch }); }                    /* final letter with sukun: held shut/touching */
+      });
+      const END = t, R = cl(REST);
+      return new Promise(res => {
+        pend = res; let done = 0, lp = null;
+        const fin = () => { if (done++) return; pend = null; if (lp) cur = lp; go(R, 380, "").then(res); };
+        const step = () => {
+          if (!pend) return; const p = getP();
+          if (p >= 1.02) return fin();
+          const e = Math.max(0, Math.min(1, p)) * END; let i = 1; while (i < K.length - 1 && K[i].t < e) i++;
+          const a = K[i - 1], b = K[i], k = Math.max(0, Math.min(1, (e - a.t) / Math.max(1e-6, b.t - a.t)));
+          lp = mix(a.p, b.p, k < .5 ? 2 * k * k : 1 - 2 * (1 - k) * (1 - k)); frame(lp); q("m3ch").textContent = (k < .5 ? a.ch : b.ch) || "";
+          raf = requestAnimationFrame(step); };
+        raf = requestAnimationFrame(step); });
+    }
     /* after the pose is reached the organs keep moving for a moment, like a real voice:
        throat walls pulse (halq letters), the voice box buzzes (voiced letters), the tongue tip trills (ر), lips burst (ب) */
     function alive(T) {
@@ -272,7 +304,7 @@
     const onResize = () => { if (ready) { resize(); frame(cur); } }; window.addEventListener("resize", onResize);
     return {
       to(ch, zone, ms, vowel) { return go(letterPose(ch, zone, vowel), ms || 650, ch); },
-      flow,
+      flow, speak,
       rest(ms) { return go(JSON.parse(JSON.stringify(REST)), ms || 500, ""); },
       labels(on, lg) { showLbl = on; if (lg) L = lg; labels(); },
       destroy() { cancelAnimationFrame(raf); window.removeEventListener("resize", onResize); try { const e = gl && gl.getExtension("WEBGL_lose_context"); e && e.loseContext(); } catch (e) {} },

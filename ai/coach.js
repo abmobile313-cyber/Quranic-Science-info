@@ -417,7 +417,7 @@
     async function walkWord(i) { /* letter by letter in 3D, no chopped audio, then the whole word */
       CS.run++; const m2 = CS.run, w = CS.words[i]; const cs = [...CORE.skeleton(w)];
       for (const c of cs) { if (m2 !== CS.run) return; const z = LAB_Z[c]; if (!z) continue; await LB.lab.to(c, z, 800); await new Promise(r => setTimeout(r, 900)); }
-      if (m2 !== CS.run) return; await LB.lab.rest(500); await playQari([{ s: CS.s, a: CS.a, w: i + 1 }], $("#chW1"));
+      if (m2 !== CS.run) return; await LB.lab.rest(500); await (LB.live ? LB.live(w, { s: CS.s, a: CS.a, w: i + 1 }, $("#chW1")) : playQari([{ s: CS.s, a: CS.a, w: i + 1 }], $("#chW1")));
     }
 
     /* ---- the check panel ---- */

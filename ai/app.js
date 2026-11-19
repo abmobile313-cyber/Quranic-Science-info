@@ -626,11 +626,42 @@ const LABX = {
   title: { en: "Makharij Lab", ur: "مخارج لیب", hi: "मख़ारिज लैब" },
   desc: { en: "A live animation: see where every Arabic letter comes from, how the tongue, lips and throat move, where they touch, and how the air flows. Free for everyone.", ur: "زندہ اینیمیشن: ہر عربی حرف کہاں سے نکلتا ہے، زبان، ہونٹ اور حلق کیسے ہلتے ہیں، کہاں لگتے ہیں اور ہوا کیسے بہتی ہے۔ سب کے لیے مفت۔", hi: "चलती हुई एनिमेशन: हर अरबी हर्फ़ कहाँ से निकलता है, ज़बान, होंठ और हल्क़ कैसे हिलते हैं, कहाँ लगते हैं और हवा कैसे बहती है। सबके लिए मुफ़्त।" } };
 const LAB_ORDER = [["ء","h1"],["ه","h1"],["ع","h2"],["ح","h2"],["غ","h3"],["خ","h3"],["ق","l1"],["ك","l2"],["ج","l3"],["ش","l3"],["ي","l3"],["ض","l4"],["ل","l5"],["ن","l5"],["ر","l5"],["ط","l6"],["د","l6"],["ت","l6"],["ص","l7"],["س","l7"],["ز","l7"],["ظ","l8"],["ذ","l8"],["ث","l8"],["ف","s1"],["ب","s2"],["م","s2"],["و","s2"],["ا","jawf"],["غُنّة","kh"]];
-/* harakat of each letter of the Lafz words: a = fatha (open), u = damma (rounded), i = kasra (spread), 0 = sukun */
-const LAB_V = ["i0i", "a0aai", "0a0u", "ai", "a0uu", "u0", "aau"];
 const LAB_Z = Object.fromEntries(LAB_ORDER.filter(x => x[0].length === 1));
 /* Lafz mode: a real Qur'an word, letter by letter (word audio from the word-by-word qari) */
-const LAB_WORDS = [["بِسْمِ", 1, 1, 1, "بسم"], ["ٱلرَّحْمَٰنِ", 1, 1, 3, "رحمان"], ["ٱلْحَمْدُ", 1, 2, 1, "لحمد"], ["رَبِّ", 1, 2, 3, "رب"], ["نَعْبُدُ", 1, 5, 2, "نعبد"], ["قُلْ", 112, 1, 1, "قل"], ["أَحَدٌ", 112, 1, 4, "ءحد"]];
+const LAB_WORDS = [["بِسْمِ", 1, 1, 1], ["ٱللَّهِ", 1, 1, 2], ["ٱلرَّحْمَٰنِ", 1, 1, 3], ["ٱلْحَمْدُ", 1, 2, 1], ["رَبِّ", 1, 2, 3], ["نَعْبُدُ", 1, 5, 2],
+  ["قُلْ", 112, 1, 1], ["أَحَدٌ", 112, 1, 4], ["لَمْ", 112, 3, 1], ["يَلِدْ", 112, 3, 2], ["وَلَمْ", 112, 3, 3], ["يُولَدْ", 112, 3, 4], ["كُفُوًا", 112, 4, 4],
+  ["أَعُوذُ", 114, 1, 2], ["بِرَبِّ", 114, 1, 3], ["ٱلنَّاسِ", 114, 1, 4], ["وَٱلنَّاسِ", 114, 6, 3]];
+/* An Arabic word with harakat -> what the mouth does, sound by sound: {ch, zone, v: a|u|i|"", long (madd), dbl (shaddah)}.
+   The qari recites the word alone (waqf), so the last short vowel drops: yalid, ahad, naas, rabb; a final fathatan = long aa. */
+function phonemize(word) {
+  const L = [];
+  for (const ch of String(word || "")) {
+    if (/[ً-ٰٓۥۦ]/.test(ch)) { if (L.length) L[L.length - 1].m += ch; continue; }
+    if (/[ء-يٱ]/.test(ch)) L.push({ b: ch, m: "" });
+  }
+  const S = []; let wasl = false;
+  const vowOf = m => m.includes("َ") ? "a" : m.includes("ُ") ? "u" : m.includes("ِ") ? "i" : m.includes("ً") ? "a" : m.includes("ٌ") ? "u" : m.includes("ٍ") ? "i" : "";
+  for (let i = 0; i < L.length; i++) {
+    let { b, m } = L[i]; const nx = L[i + 1], pv = S[S.length - 1], last = i === L.length - 1, v0 = vowOf(m), sh = m.includes("ّ"), tan = /[ًٌٍ]/.test(m);
+    if ("أإؤئء".includes(b)) b = "ء";
+    if (b === "ٱ") { wasl = true; if (i === 0) S.push({ ch: "ا", zone: LAB_Z["ا"], v: nx && nx.b === "ل" ? "a" : "i", long: false, dbl: false }); continue; } /* hamzat wasl: spoken only at the start */
+    const bare = !v0 && !sh;
+    if ((b === "ا" || b === "ى") && bare && pv && pv.v === "a" && !pv.long) { pv.long = true; continue; }          /* madd alif */
+    if (b === "و" && bare && pv && pv.v === "u" && !pv.long) { pv.long = true; continue; }                          /* madd waw */
+    if ((b === "ي" || b === "ى") && bare && pv && pv.v === "i" && !pv.long) { pv.long = true; continue; }          /* madd ya */
+    if (b === "ل" && wasl && bare && nx && nx.m.includes("ّ")) { wasl = false; continue; }                    /* the lam of "al-" before a sun letter is silent */
+    wasl = false;
+    if (nx && nx.b === b && bare && nx.m.includes("ّ")) continue;                                             /* ٱللَّه: the first lam joins the doubled one */
+    if (b === "ة") b = "ه";
+    if (!LAB_Z[b]) continue;
+    let v = v0, long = false;
+    if (m.includes("ٰ")) { long = true; v = v || "a"; }
+    if (m.includes("ۥ")) { long = true; v = "u"; } if (m.includes("ۦ")) { long = true; v = "i"; }
+    if (last && !long) { if (tan && v0 === "a") long = true; else v = ""; }
+    S.push({ ch: b, zone: LAB_Z[b], v, long, dbl: sh });
+  }
+  return S;
+}
 function labAudio(c) { return c === "غُنّة" ? [{ s: 108, a: 1, w: 1 }] : (LETNAME[c] ? [{ k: LETNAME[c] }] : []).concat(lettersQ(c)); }
 const keysHTML = zones => LAB_ORDER.filter(([, z]) => !zones || zones.has(z)).map(([c, z]) => `<button class="mlk${c.length > 1 ? " wide" : ""}" data-c="${c}" data-z="${z}"><b class="ar">${c}</b></button>`).join("");
 function labHTML(zones) {
@@ -667,30 +698,38 @@ function wireLab(root, opt) {
     $$(".ml3c,.ml3o", box).forEach(e => e.style.transform = `translate(${tx * 100}%,${ty * 100}%) scale(${s})`);
     const tag = $(".mltag", box); if (on) { const x = pt[0] * s + tx, y = pt[1] * s + ty; tag.style.left = (x < .62 ? x * 100 + 7 : x * 100 - 7) + "%"; tag.style.top = y * 100 + "%"; tag.classList.toggle("lft", x >= .62); } };
   async function sayWord(i, btn) {
-    const w = LAB_WORDS[i], my = ++busy; all = false; $(".mlall", fig).classList.remove("on");
+    const w = LAB_WORDS[i], segs = phonemize(w[0]), my = ++busy; all = false; $(".mlall", fig).classList.remove("on");
     $$(".mlw", fig).forEach(k => k.classList.toggle("on", k === btn)); $$(".mlk", fig).forEach(k => k.classList.remove("on"));
     const wd = $(".mlwd", box), tag = $(".mltag", box); box.classList.add("wm"); lab.labels(false, LANG);
-    wd.hidden = false; wd.innerHTML = `<span>${w[0]}</span><i>${[...w[4]].map(c => `<em>${c}</em>`).join("")}</i>`;
+    wd.hidden = false; wd.innerHTML = `<span>${w[0]}</span><i>${segs.map(sg => `<em>${sg.ch}</em>`).join("")}</i>`;
     await playQari([{ s: w[1], a: w[2], w: w[3] }], btn); if (my !== busy) return;
     const ems = $$("em", wd);
-    for (let k = 0; k < ems.length; k++) {
-      const c = w[4][k], z = LAB_Z[c]; if (!z) continue;
+    for (let k = 0; k < segs.length; k++) {
+      const { ch: c, zone: z, v: vw } = segs[k]; if (!z) continue;
       ems.forEach((e, j) => { e.classList.toggle("on", j === k); e.classList.toggle("ok", j < k); });
       tag.hidden = true; cam(true, lab.at(c, z)); cap(c, z);
       await lab.to(c, z, slow ? 1500 : 900); if (my !== busy) return;
       tag.textContent = c; tag.hidden = false;
-      const vw = (LAB_V[i] || "")[k];
-      await new Promise(r => setTimeout(r, vw && vw !== "0" ? (slow ? 1800 : 1100) : (slow ? 3200 : 2000))); if (my !== busy) return;
-      if (vw && vw !== "0") { await lab.to(c, z, slow ? 1000 : 600, vw); if (my !== busy) return;
+      await new Promise(r => setTimeout(r, vw ? (slow ? 1800 : 1100) : (slow ? 3200 : 2000))); if (my !== busy) return;
+      if (vw) { await lab.to(c, z, slow ? 1000 : 600, vw); if (my !== busy) return;
         await new Promise(r => setTimeout(r, slow ? 1600 : 1000)); if (my !== busy) return; }
     }
     ems.forEach(e => { e.classList.remove("on"); e.classList.add("ok"); }); tag.hidden = true; cam(false);
     await lab.rest(600); if (my !== busy) return;
-    /* then the whole word once more at natural speed: the mouth flows through every letter and vowel while the qari recites it */
-    const segs = [...w[4]].map((c, k) => ({ ch: c, zone: LAB_Z[c], v: (LAB_V[i] || "")[k] || "" })).filter(x => x.zone);
-    cam(false);
-    await Promise.all([playQari([{ s: w[1], a: w[2], w: w[3] }], btn), lab.flow ? lab.flow(segs, Math.max(1100, segs.length * 520)) : 0]); if (my !== busy) return;
+    /* then the whole word once more at natural speed: lips, jaw and tongue follow the real recording sound by sound */
+    cam(false); await sayLive(w[0], { s: w[1], a: w[2], w: w[3] }, btn); if (my !== busy) return;
     endWord();
+  }
+  /* a whole word at natural speed: the qari recites it and the mouth moves with the REAL recording (progress read from the audio itself) */
+  async function sayLive(text, ref, btn) {
+    const segs = phonemize(text), src = ref.w ? QARI_WORD(ref.s, ref.a, ref.w) : null; let meta = null;
+    if (src) { try { await clipBuffer(src); meta = clipMeta[src] || null; } catch (e) {} }
+    const t0 = performance.now(), est = meta ? meta.dur : Math.max(.9, segs.length * .42);
+    const getP = () => { const a = qariEl;
+      if (a && typeof a.currentTime === "number" && a.duration) { if (a.ended) return 1.1; if (a.paused && !a.currentTime) return 0; return (a.currentTime - (meta ? meta.lead : .08)) / (meta ? meta.dur : Math.max(.3, a.duration - .15)); }
+      return Math.min(1.1, (performance.now() - t0 - 250) / (est * 1000)); };
+    const ps = playQari([ref], btn);
+    if (lab.speak && segs.length) await Promise.all([ps, lab.speak(segs, getP)]); else await ps;
   }
   function endWord() { if (!box || !box.classList.contains("wm")) return; box.classList.remove("wm"); cam(false); $(".mlwd", box).hidden = true; $(".mltag", box).hidden = true; lab.labels(lbl, LANG); $$(".mlw", fig).forEach(k => k.classList.remove("on")); }
   $$(".mlw", fig).forEach(b => b.onclick = () => sayWord(+b.dataset.i, b));
@@ -718,7 +757,7 @@ function wireLab(root, opt) {
   }
   function setZones(zones) { $(".mlkeys", fig).innerHTML = keysHTML(zones); const w = $(".mlwords", fig); w && (w.hidden = !!zones); $(".mlkh", fig).hidden = false; cap(); }
   if (opt.parts) fig.addEventListener("mlpart", e => part(e.detail));
-  return { say: (c, b, z, aud) => (z || LAB_Z[c]) ? say(c, z || LAB_Z[c], b, aud) : null, lab, el: fig, tour, part, setZones, stop: () => { busy++; all = false; endWord(); },
+  return { say: (c, b, z, aud) => (z || LAB_Z[c]) ? say(c, z || LAB_Z[c], b, aud) : null, live: (text, ref, btn) => { busy++; return sayLive(text, ref, btn); }, lab, el: fig, tour, part, setZones, stop: () => { busy++; all = false; endWord(); },
     destroy: () => { busy++; all = false; try { lab.destroy && lab.destroy(); } catch (e) {} } };
 }
 async function viewLab() {
@@ -728,13 +767,13 @@ async function viewLab() {
 }
 /* ---- qari playback: a run of neighbouring words of one ayah is read as ONE smooth recitation, never as separate pieces ---- */
 const ACTX = () => (ACTX.c = ACTX.c || new (window.AudioContext || window.webkitAudioContext)());
-const clipBuf = {}, ayahDone = (() => { try { return JSON.parse(localStorage.getItem("qsai-ayw") || "{}"); } catch (e) { return {}; } })();
+const clipBuf = {}, clipMeta = {}, ayahDone = (() => { try { return JSON.parse(localStorage.getItem("qsai-ayw") || "{}"); } catch (e) { return {}; } })();
 async function clipBuffer(src) {
   if (clipBuf[src]) return clipBuf[src];
   const r = await fetch(src); if (!r.ok) throw new Error("clip"); const b = await ACTX().decodeAudioData(await r.arrayBuffer());
   const d = b.getChannelData(0), th = .012, sr = b.sampleRate; let st = 0, en = d.length - 1;
   while (st < en && Math.abs(d[st]) < th) st++; while (en > st && Math.abs(d[en]) < th) en--;
-  st = Math.max(0, st - (sr * .015 | 0)); en = Math.min(d.length - 1, en + (sr * .03 | 0));
+  st = Math.max(0, st - (sr * .015 | 0)); en = Math.min(d.length - 1, en + (sr * .03 | 0)); clipMeta[src] = { lead: st / sr, dur: (en - st + 1) / sr };
   const out = ACTX().createBuffer(1, en - st + 1, sr); out.copyToChannel(d.slice(st, en + 1), 0); return clipBuf[src] = out;
 }
 /* does this ayah end right after word k? (the word clip k+1 does not exist) */
