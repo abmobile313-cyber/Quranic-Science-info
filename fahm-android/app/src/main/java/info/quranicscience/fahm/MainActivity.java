@@ -45,6 +45,7 @@ public class MainActivity extends Activity {
                     case "webmanifest": mime = "application/manifest+json"; break;
                     case "woff2": mime = "font/woff2"; break;
                     case "png": mime = "image/png"; break;
+                    case "mp4": mime = "video/mp4"; break;
                     case "svg": mime = "image/svg+xml"; break;
                     default: mime = "application/octet-stream";
                 }

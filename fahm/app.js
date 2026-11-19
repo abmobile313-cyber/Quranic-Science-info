@@ -19,7 +19,7 @@ const lName = c => I.lang[st.ui][c] || c;
 const tName = c => I.translator[st.ui][c] || '';
 const rName = r => (I.reciter[r] || {})[st.ui] || r;
 const pick = o => o ? (st.ui === 'ur' ? o.ur : st.ui === 'ru' ? o.ru : o.en) : '';
-let D, scene, rootIdx = {}, playing = false, timer = null, bounds = [], hist = [], readerOn = false, rIdx = 0, rS = 0, rPlaying = false, exitAt = 0;
+let VID = {}, D, scene, rootIdx = {}, playing = false, timer = null, bounds = [], hist = [], readerOn = false, rIdx = 0, rS = 0, rPlaying = false, exitAt = 0;
 const au = new Audio(); au.preload = 'auto';
 let wordAu = null;
 
@@ -37,6 +37,7 @@ function renderAyah(keepPlay) {
   $('#ayahNo').textContent = `${T('ayah')} \u2066${A.v} / ${S.ayat.length}\u2069`; $('#storyH').textContent = T('story');
   $('#words').innerHTML = A.words.map((w, i) => { const [m, c] = wordMeaning(w); return `<button class="w" data-i="${i}"><span class="a ar">${esc(w.ar)}</span><span class="m ${c}">${esc(m)}</span></button>`; }).join('');
   const spec = window.FAHM_SCENES[`${S.n}:${A.v}`] || { sky: 'night', items: [], cx: { ur: '', en: '' } };
+  videoFor(`${S.n}:${A.v}`);
   scene.set(spec); scene.all(); $('#cx').textContent = capOf(spec, `${S.n}:${A.v}`) || '';
   renderTrans(); renderNZ(); setWord(st.w, false, true); computeBounds(); save(); navUi();
   if (!keepPlay) stopAll();
@@ -83,6 +84,12 @@ function showLab() {
   $('#labM').textContent = m; $('#labM').className = st.ui === 'ur' ? 'u' : '';
   $('#labN').textContent = spec && spec.n ? pick(spec.n) : '';
   if (window.FahmLab && FahmLab.ok) FahmLab.show(spec, { key, ar: W.ar, root: W.root });
+}
+/* ---------- optional real-footage clip per ayah (video/manifest.json) ---------- */
+function videoFor(key) {
+  const v = $('#sv'), box = $('.story-box'), f = VID[key];
+  if (!f) { box.classList.remove('hasv'); try { v.pause(); } catch (e) { } v.removeAttribute('src'); v.load(); return; }
+  box.classList.add('hasv'); v.muted = true; v.loop = true; v.playsInline = true; v.src = (location.hostname === 'appassets.androidplatform.net' ? 'https://quranicscience.info/fahm/video/' : 'video/') + f; v.currentTime = 0; const p = v.play(); if (p && p.catch) p.catch(() => { });
 }
 /* ---------- navigation ---------- */
 function navUi() {
@@ -156,7 +163,7 @@ function prev() { if (st.a > 0) goTo(st.s, st.a - 1); else if (st.s > 0) goTo(st
 
 /* ---------- audio ---------- */
 function setPlaying(p) { playing = p; $('#icoPlay').style.display = p ? 'none' : ''; $('#icoPause').style.display = p ? '' : 'none'; $('#sPlay').innerHTML = p ? '<svg viewBox="0 0 24 24"><path d="M7 5h4v14H7zM13 5h4v14h-4z" style="fill:currentColor;stroke:none"/></svg>' : '<svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z" style="fill:currentColor;stroke:none"/></svg>'; }
-function stopAll() { FahmSfx.stop(); clearInterval(timer); timer = null; try { au.pause(); } catch (e) { } if (wordAu) { try { wordAu.pause(); } catch (e) { } } try { speechSynthesis.cancel(); } catch (e) { } setPlaying(false); }
+function stopAll() { FahmSfx.stop(); try { $('#sv').pause(); } catch (e) { } clearInterval(timer); timer = null; try { au.pause(); } catch (e) { } if (wordAu) { try { wordAu.pause(); } catch (e) { } } try { speechSynthesis.cancel(); } catch (e) { } setPlaying(false); }
 function computeBounds() {
   const { A } = cur(), wts = A.words.map(w => stripD(w.ar).length + 1.2), tot = wts.reduce((x, y) => x + y, 0); bounds = []; let acc = 0;
   wts.forEach(x => { acc += x / tot; bounds.push(acc); });
@@ -164,7 +171,7 @@ function computeBounds() {
 function idxAt(frac) { for (let i = 0; i < bounds.length; i++) if (frac <= bounds[i]) return i; return bounds.length - 1; }
 function ayahUrl() { const { S, A } = cur(); return `https://everyayah.com/data/${st.rec}/${pad(S.n)}${pad(A.v)}.mp3`; }
 function playAyah() {
-  stopAll(); FahmSfx.unlock(); FahmSfx.setLevel(st.sfx); setPlaying(true); scene.set(scene.spec); setWord(0, true, true); if (st.sfx) FahmSfx.start(scene.spec.sky);
+  stopAll(); FahmSfx.unlock(); FahmSfx.setLevel(st.sfx); setPlaying(true); { const v = $('#sv'); if (v.getAttribute('src')) { v.currentTime = 0; const p = v.play(); if (p && p.catch) p.catch(() => { }); } } scene.set(scene.spec); setWord(0, true, true); if (st.sfx) FahmSfx.start(scene.spec.sky);
   const { A } = cur(); let failed = false;
   const fallback = () => {
     if (failed) return; failed = true; toast(T('audioErr')); const per = 1100; let i = 0; setWord(0, true, true);
@@ -271,6 +278,7 @@ async function init() {
   scene = (window.FahmStory && FahmStory.ok()) ? new FahmStory($('#cv')) : new FahmScene($('#cv')); if (window.FahmLab) FahmLab.lang = st.ui, FahmLab.init($('#stage'));
   D = await (await fetch('data.json')).json();
   D.surahs.forEach((S, si) => S.ayat.forEach((A, ai) => A.words.forEach((w, wi) => { if (w.root) (rootIdx[w.root] = rootIdx[w.root] || []).push({ s: si, a: ai, w: wi }); })));
+  try { VID = await (await fetch('video/manifest.json')).json(); } catch (e) { VID = {}; }
   if (st.s >= D.surahs.length) st.s = 0;
   FahmSfx.setLevel(st.sfx); scene.onBorn = it => { if (playing && st.sfx) FahmSfx.cue(it.a); };
   applyUi(); bind(); renderAyah(false); scene.start(); iosHint();
