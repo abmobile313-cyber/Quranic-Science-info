@@ -96,6 +96,8 @@
     missed: L("This word was not heard.", "یہ لفظ سنائی نہیں دیا۔", "यह लफ़्ज़ सुनाई नहीं दिया।"),
     fix: L("Listen to the qari, watch the 3D, then say it again.", "قاری کو سنیں، 3D دیکھیں، پھر دوبارہ پڑھیں۔", "क़ारी को सुनिए, 3D देखिए, फिर दोबारा पढ़िए।")
   };
+  /* the explanation lines carry small 🔊 buttons: escape the text, keep the buttons */
+  const safeL = l => String(l).split(/(<button[^>]*>[^<]*<\/button>)/).map((p, i) => i % 2 ? p : esc(p)).join("");
   const zoneTxt = c => { const z = LAB_Z[c]; return z && ZONES[z] ? P(ZONES[z][3]) : ""; };
   function explain(w, iss) {
     const c = iss.c, h = iss.hc || iss.h, v = iss.e && iss.e.v ? P(VN[iss.e.v.replace(/^an$/, "a").replace(/^un$/, "u").replace(/^in$/, "i")] || L("", "", "")) : "";
@@ -193,6 +195,7 @@
   /* how long the qari takes (speech only) — to compare speed */
   const REFD = new Map();
   async function refDur(url) {
+    if (!url) return 0;
     if (REFD.has(url)) return REFD.get(url);
     try { const ab = await (await fetch(url)).arrayBuffer(), ctx = MIC.ctx || new (window.AudioContext || window.webkitAudioContext)(), b = await ctx.decodeAudioData(ab); const d = stats(b.getChannelData(0), b.sampleRate).dur; REFD.set(url, d); return d; }
     catch (e) { REFD.set(url, 0); return 0; }
@@ -260,7 +263,7 @@
   const putFace = () => {}; /* the fab and drawer already show the real Ustad photo (ustad/thumb.webp) */
 
   /* ================= the page ================= */
-  const CS = { tab: "h", sel: null, s: 112, a: 1, words: [], tgt: null, drill: null, tries: {}, auto: LS.get("qsai-coach-auto", true), tts: LS.get("qsai-coach-tts", false), run: 0, lab: null, busy: false, mood: "idle" };
+  const CS = { tab: "h", sel: null, s: 112, a: 1, words: [], tgt: null, drill: null, tries: {}, auto: LS.get("qsai-coach-auto", true), tts: LS.get("qsai-coach-tts", true), pre: null, run: 0, lab: null, busy: false, mood: "idle" };
   const css = `
 .cch{--cg:#2cc4f2}.cch .chd{display:grid;grid-template-columns:112px minmax(0,1fr);gap:12px;align-items:center;margin:8px 0 12px}
 .cch .ustw{width:112px;height:124px;position:relative;border-radius:22px;background:#d8c7a3;border:2px solid rgba(255,233,168,.7);overflow:hidden;box-shadow:0 10px 24px -12px rgba(0,0,0,.7)}
@@ -318,7 +321,7 @@
     $("#chAuto").onclick = e => { CS.auto = !CS.auto; LS.set("qsai-coach-auto", CS.auto); e.currentTarget.classList.toggle("on", CS.auto); };
     $("#chTts").onclick = e => { CS.tts = !CS.tts; LS.set("qsai-coach-tts", CS.tts); e.currentTarget.classList.toggle("on", CS.tts); if (CS.tts) ust(x("hello"), "talk"); else stopSay(); };
     $$(".tabs button", app).forEach(b => b.onclick = () => { CS.tab = b.dataset.t; CS.run++; closeMic(); LB.stop(); tab(); });
-    tab();
+    Promise.resolve().then(tab);   /* after the rest of this function has set up its voice helpers (the Ustad now speaks from the first screen) */
 
     /* ---- Ustad: face + speech bubble ---- */
     function mood(m) { const u = $("#chu"); if (!u) return; u.className = "ustw " + m; }
@@ -330,13 +333,18 @@
       if (b.dataset.zs) { try { sayEl = sayAudio("z_" + b.dataset.zs); sayEl.play().catch(() => {}); } catch (er) {} return; }
       if (b.dataset.mt) { try { sayEl = sayAudio("m_" + b.dataset.mt); if (b.dataset.lt) sayEl.onended = lt; sayEl.play().catch(() => {}); } catch (er) {} } else lt(); });
     const cleanT = t => String(t).replace(/<[^>]+>/g, " ").replace(/[\u{1F300}-\u{1FAFF}\u2600-\u27BF\u2B50]/gu, " ").replace(/\s+/g, " ").trim();
-    function stopSay() { try { sayEl && sayEl.pause(); } catch (e) {} sayEl = null; }
+    function stopSay() { try { sayEl && sayEl.pause(); } catch (e) {} sayEl = null; try { CS.vres && CS.vres(); } catch (e) {} CS.vres = null; }
+    /* resolves when the Ustad has finished speaking (so the automatic next step never cuts him off) */
+    const afterVoice = ms => (CS.tts && CS.vp ? CS.vp : Promise.resolve()).then(() => new Promise(r => setTimeout(r, ms)));
     function speak(msg) {
-      if (!CS.tts) return; stopSay(); const t = cleanT(msg);
+      CS.vp = null; if (!CS.tts) return; stopSay(); const t = cleanT(msg);
       let k = SAYK.find(key => X[key] && cleanT(x(key)) === t); if (!k && X.fix == null && cleanT(P(MSG.fix)) === t) k = "fix";
       if (!k) { const p = SAYK.find(key => X[key] && t.endsWith(cleanT(x(key)))); k = p || (t.endsWith(cleanT(P(MSG.fix))) ? "fix" : null); }
       if (!k) return;
-      try { sayEl = sayAudio("" + k); sayEl.play().catch(() => {}); } catch (e) {}
+      const pre = CS.pre; CS.pre = null;
+      let vres; CS.vp = new Promise(r => { vres = r; }); CS.vres = vres;
+      const go = names => { const n = names.shift(); if (!n) { vres(); return; } try { sayEl = sayAudio(n); sayEl.onended = () => go(names); sayEl.onerror = () => go(names); sayEl.play().catch(() => go(names)); } catch (e) { vres(); } };
+      go(((pre && pre.length) ? pre.slice() : []).concat(["" + k]));   /* the first mistake is told by voice (what went wrong, then how that letter feels), then the general guidance */
     }
     const talking = ms => { mood("talk"); setTimeout(() => mood("idle"), ms); };
 
@@ -420,7 +428,7 @@
     }
     async function attempt() {
       if (CS.busy) { MIC.cancel && MIC.cancel("manual"); return; }
-      const tgt = CS.tgt, m = CS.run; if (!tgt) return; CS.busy = true; LB.stop(); stopAll(); stopSay();
+      CS.pre = null; const tgt = CS.tgt, m = CS.run; if (!tgt) return; CS.busy = true; LB.stop(); stopAll(); stopSay();
       const mic = $("#chMic"), lv = $("#chLv"), stt = $("#chSt"), res = $("#chRes"); res.innerHTML = "";
       let rec;
       try { mic.classList.add("on"); stt.textContent = x("listen"); mood("listen"); rec = await listen({ silenceMs: tgt.kind === "ayah" ? 1500 : 1100, maxMs: tgt.kind === "ayah" ? 60000 : 12000, waitMs: 9000, onLevel: r => lv && (lv.style.width = Math.min(100, r * 700) + "%") }); }
@@ -446,7 +454,7 @@
       bad.forEach(w => {
         const wt = esc(disp(w.text));
         if (w.status === "unsure") { html += `<div class="iss h"><span class="ar">${wt}</span>🤔 ${x("unsure")}</div>`; return; }
-        const blocks = w.issues.map(iss => explain(w, iss).map(l => `<div>${esc(l)}</div>`).join("")).filter(Boolean), cs = [...new Set(w.issues.map(i => i.c).filter(Boolean))];
+        const blocks = w.issues.map(iss => explain(w, iss).map(l => `<div>${safeL(l)}</div>`).join("")).filter(Boolean), cs = [...new Set(w.issues.map(i => i.c).filter(Boolean))];
         html += `<div class="iss"><span class="ar">${wt}</span>${w.status === "missed" ? `<div>😮 ${P(MSG.missed)}${mtBtn("missed", "")}</div>` : blocks.join('<hr style="border:0;border-top:1px dashed var(--line);width:100%">')}<div>👉 ${P(MSG.fix)}</div><div class="row">${cs.map(c => `<button class="btn sm" data-3d="${c}">🎬 ${x("see3d")} «${c}»</button>`).join("")}<button class="btn sm cy" data-q="${w.i}">🔊 ${x("listenQ")}</button></div>${w.unsure ? `<div class="mini">🤔 ${x("unsure")}</div>` : ""}</div>`;
       });
       if (r.extra && r.extra.length) html += `<div class="iss h">➕ ${x("extra")}<span class="ar">${esc(r.extra.map(e => e.letters).join(" · "))}</span></div>`;
@@ -462,17 +470,18 @@
       /* Ustad's reaction, then keep going by itself */
       if (r.pass) {
         mood("happy"); if (tgt.kind === "ayah") { ust("🌟 " + x("okAll"), "happy"); try { const bs = LS.get("qsai-coach-best", {}), k = CS.s + ":" + CS.a; bs[k] = Math.max(bs[k] || 0, r.score); LS.set("qsai-coach-best", bs); } catch (e) {} }
-        else if (tgt.wordIdx != null) { ust("🌟 " + x("wordOk"), "happy"); if (CS.auto) setTimeout(() => { if (m === CS.run) { armAyah(); setTimeout(() => CS.auto && CS.run === m && attempt(), 900); } }, 1800); }
+        else if (tgt.wordIdx != null) { ust("🌟 " + x("wordOk"), "happy"); if (CS.auto) afterVoice(1200).then(() => { if (m === CS.run) { armAyah(); setTimeout(() => CS.auto && CS.run === m && attempt(), 900); } }); }
         else ust("🌟 " + x("okAll"), "happy");
       } else {
         const worst = r.words.findIndex(w => w.status !== "ok" && w.status !== "unsure");
-        if (r.unsure && worst < 0) { ust(x("unsure"), "sad"); if (CS.auto) setTimeout(() => CS.run === m && attempt(), 1800); return; }
+        if (r.unsure && worst < 0) { ust(x("unsure"), "sad"); if (CS.auto) afterVoice(1200).then(() => CS.run === m && attempt()); return; }
         const msg = tgt.kind === "ayah" && worst >= 0 ? x("drill") : (CS.tries[key] >= 3 ? x("tries") : P(MSG.fix));
+        CS.pre = issueNames(r);
         ust(`<b>${sc}%</b> — ${msg}`, "sad");
         if (CS.auto) {
           if (tgt.kind === "ayah" && worst >= 0) { /* fix the worst word first, on its own */
-            setTimeout(async () => { if (m !== CS.run) return; const b = $(`.chw[data-i="${worst}"]`); pickWordSilent(worst, b); const m2 = CS.run; await playQari([{ s: CS.s, a: CS.a, w: worst + 1 }], b); if (m2 === CS.run && CS.auto) attempt(); }, 2600);
-          } else setTimeout(async () => { if (m !== CS.run) return; await playQari(tgt.clip, $("#chQ1")); if (m === CS.run && CS.auto) attempt(); }, 2600);
+            afterVoice(1200).then(async () => { if (m !== CS.run) return; const b = $(`.chw[data-i="${worst}"]`); pickWordSilent(worst, b); const m2 = CS.run; await playQari([{ s: CS.s, a: CS.a, w: worst + 1 }], b); if (m2 === CS.run && CS.auto) attempt(); });
+          } else afterVoice(1200).then(async () => { if (m !== CS.run) return; await playQari(tgt.clip, $("#chQ1")); if (m === CS.run && CS.auto) attempt(); });
         }
       }
     }
@@ -521,5 +530,34 @@
   }
   addEventListener("hashchange", dockSync); setTimeout(dockSync, 0); setInterval(dockSync, 900);
   window.MkDock = { say(c, btn) { if (!LAB_Z[c]) return null; dockOpen(); return DK.lb ? DK.lb.say(c, btn) : Promise.resolve(); } };
+  /* ================= the same check, usable from the class "record" step ================= */
+  const MT = { sub: "sub", del: "del", "madd-miss": "madd", vowel: "vowel", "vowel-extra": "vextra", "tashdeed-miss": "tmiss", "tashdeed-extra": "textra", extra: "extra" };
+  const lthex = c => "lt_" + String(c).codePointAt(0).toString(16);
+  /* the voice clips that tell the FIRST mistake: what went wrong, then (for a wrong/missing letter) how that letter feels */
+  function issueNames(r) {
+    if (!r || !r.words) return [];
+    const w = r.words.find(q => q.status !== "ok" && q.status !== "unsure"); if (!w) return [];
+    if (w.status === "missed" || !w.issues || !w.issues.length) return ["m_missed"];
+    const i = w.issues[0], t = MT[i.type]; if (!t) return [];
+    const n = ["m_" + t]; if ((t === "sub" || t === "del") && LTV.includes(i.c)) n.push(lthex(i.c)); return n;
+  }
+  const rateOf2 = sc => P(X.rate.find(q => sc >= q[0])[1]);
+  function resultHTML(r) {
+    if (!$("#cch-css")) { const st = document.createElement("style"); st.id = "cch-css"; st.textContent = css; document.head.appendChild(st); }
+    const bad = r.words.filter(w => w.status !== "ok"), sc = r.unsure && !bad.length ? null : r.score;
+    let h = `<div class="ay">${r.words.map((w, k) => `<button class="chw ${w.status}" data-qi="${w.i != null ? w.i : k}">${esc(disp(w.text))}</button>`).join("")}</div>`;
+    if (sc != null) h += `<div class="sc"><div class="ring" style="--p:${sc}"><span>${sc}%</span></div><div><div class="rate">${rateOf2(sc)}</div><div class="mini">${x("score")}</div></div></div>`;
+    if (r.pass) h += `<div class="okb">✅ ${x("okAll")}</div>`;
+    bad.forEach(w => {
+      const wt = esc(disp(w.text));
+      if (w.status === "unsure") { h += `<div class="iss h"><span class="ar">${wt}</span>🤔 ${x("unsure")}</div>`; return; }
+      const blocks = (w.issues || []).map(iss => explain(w, iss).map(l => `<div>${safeL(l)}</div>`).join("")).filter(Boolean);
+      h += `<div class="iss"><span class="ar">${wt}</span>${w.status === "missed" ? `<div>😮 ${P(MSG.missed)}${mtBtn("missed", "")}</div>` : blocks.join('<hr style="border:0;border-top:1px dashed var(--line);width:100%">')}<div>👉 ${P(MSG.fix)}</div><div class="row"><button class="btn sm cy" data-qi="${w.i != null ? w.i : 0}">🔊 ${x("listenQ")}</button></div></div>`;
+    });
+    if (r.extra && r.extra.length) h += `<div class="iss h">➕ ${x("extra")}<span class="ar">${esc(r.extra.map(e => e.letters).join(" · "))}</span></div>`;
+    if (r.unsure && !bad.length) h += `<div class="iss h">🤔 ${x("unsure")}</div>`;
+    return `<div class="cch"><div class="rs">${h}</div></div>`;
+  }
+  window.CoachCheck = { listen, evaluate, toWav, stopListen: () => { MIC.cancel && MIC.cancel("manual"); }, closeMic, resultHTML, issueNames, sayAudio };
   window.viewCoach = viewCoach; window.CoachState = CS;
 })();

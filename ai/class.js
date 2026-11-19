@@ -38,7 +38,12 @@ const CX = {
   play: { en: "Play", ur: "سنیں", hi: "सुनें" },
   right: { en: "Right!", ur: "درست!", hi: "सही!" }, wrong: { en: "Not this one — listen again", ur: "یہ نہیں — دوبارہ سنیں", hi: "यह नहीं — दोबारा सुनें" },
   recP: { en: "Read these aloud and record yourself. Then play your voice and the qari one after the other and find the difference.", ur: "انہیں بلند آواز سے پڑھیں اور ریکارڈ کریں۔ پھر اپنی آواز اور قاری کی آواز باری باری سنیں اور فرق پہچانیں۔", hi: "इन्हें बुलंद आवाज़ से पढ़ें और रिकॉर्ड करें। फिर अपनी आवाज़ और क़ारी की आवाज़ बारी-बारी सुनें और फ़र्क़ पहचानें।" },
-  chk: { en: "Check my recitation (AI Ustad listens & corrects)", ur: "میری تلاوت چیک کریں (AI استاد سنتا اور درست کراتا ہے)", hi: "मेरी तिलावत चेक करें (AI उस्ताद सुनकर सुधारता है)" },
+  chk: { en: "Practise more in the Tajweed Coach", ur: "ٹجوید کوچ میں مزید مشق کریں", hi: "तजवीद कोच में और मश्क़ करें" },
+  lis: { en: "Listening… read now. It stops by itself when you are quiet.", ur: "سن رہا ہوں… اب پڑھیں۔ آپ کے خاموش ہوتے ہی رک جائے گا۔", hi: "सुन रहा हूँ… अब पढ़िए। आपके ख़ामोश होते ही रुक जाएगा।" },
+  chking: { en: "AI Ustad is listening to your recording…", ur: "AI استاد آپ کی ریکارڈنگ سن رہا ہے…", hi: "AI उस्ताद आपकी रिकॉर्डिंग सुन रहा है…" },
+  noSp: { en: "I could not hear any recitation. Come closer to the phone and try again.", ur: "مجھے کوئی تلاوت سنائی نہیں دی۔ فون کے قریب آ کر دوبارہ کوشش کریں۔", hi: "मुझे कोई तिलावत सुनाई नहीं दी। फ़ोन के क़रीब आकर दोबारा कोशिश कीजिए।" },
+  aiNo: { en: "The AI could not check right now (internet?). Please try again.", ur: "AI ابھی چیک نہیں کر سکا (انٹرنیٹ؟)۔ دوبارہ کوشش کریں۔", hi: "AI अभी चेक नहीं कर सका (इंटरनेट?)। दोबारा कोशिश कीजिए।" },
+  recAgain: { en: "Record again", ur: "دوبارہ ریکارڈ کریں", hi: "दोबारा रिकॉर्ड करें" },
   recB: { en: "Record my reading", ur: "میری تلاوت ریکارڈ کریں", hi: "मेरी तिलावत रिकॉर्ड करें" },
   mine: { en: "My voice", ur: "میری آواز", hi: "मेरी आवाज़" }, qari: { en: "Qari", ur: "قاری", hi: "क़ारी" },
   took: { en: "Class time", ur: "کلاس کا وقت", hi: "क्लास का वक़्त" },
@@ -132,7 +137,16 @@ function nextPhase() {
 }
 const navNext = () => `<div class="nav clsnav"><span></span><button class="btn pri big" id="clsNx" disabled>…</button></div>`;
 function wireNext() { const b = $("#clsNx"); if (b) { b.onclick = () => { if (!b.disabled) nextPhase(); }; updNext(); } }
-function shell(inner) { LESSON.tour = LESSON.tourOff = null; $("#app").innerHTML = lessonHead() + inner + navNext(); $("#vt") && ($("#vt").onclick = () => { S.voice = !S.voice; LS.set("qsai-voice", S.voice); if (!S.voice) stopAll(); $("#vt").textContent = S.voice ? "🔊 " + t("voiceOn") : "🔇 " + t("voiceOff"); }); wireNext(); }
+const ustBar = () => `<div class="vo uteach" id="vo"><div class="uface" id="uface"></div><div class="uinfo"><b>🎓 ${t("ustad")}</b><div class="uline"><span class="eq"><i></i><i></i><i></i></span><button class="btn sm" id="rv">↻ ${t("replay")}</button></div></div></div>`;
+/* every class screen: lesson head, the visible Ustad (when the screen has a narrated intro), the content, the next button */
+function shell(inner, intro) {
+  LESSON.tour = LESSON.tourOff = null; CL.gid = (CL.gid || 0) + 1; CL.intro = intro || null;
+  $("#app").innerHTML = lessonHead() + (intro ? ustBar() : "") + inner + navNext();
+  if (intro && window.QSUstad && $("#uface")) QSUstad.mount($("#uface"));
+  if ($("#rv")) $("#rv").onclick = () => narr(CL.intro, true);
+  $("#vt") && ($("#vt").onclick = () => { S.voice = !S.voice; LS.set("qsai-voice", S.voice); if (!S.voice) stopAll(); else if (CL.intro) narr(CL.intro); $("#vt").textContent = S.voice ? "🔊 " + t("voiceOn") : "🔇 " + t("voiceOff"); });
+  wireNext();
+}
 
 function drawPhase() {
   const k = curK();
@@ -154,64 +168,88 @@ function phOpen() {
     <div class="bigar ip">بِسۡمِ اللّٰهِ الرَّحۡمٰنِ الرَّحِيۡمِ</div><button class="btn cy big" id="d1">🔊 ${pick(CX.play)} · بسم الله</button>
     <div class="bigar ip">رَّبِّ زِدۡنِيۡ عِلۡمًا</div><button class="btn cy big" id="d2">🔊 ${pick(CX.play)} · رَبِّ زِدۡنِيۡ عِلۡمًا</button>
     <h3 class="clsh">🗓️ ${pick(CX.cls)}</h3><p class="mini">${pick(CX.agenda)}</p>
-    <ol class="agenda">${CL.phases.map(p => `<li><span>${pick(CX.ph[p[0]])}</span><b>~${num(p[1])} ${pick(CX.mins)}</b></li>`).join("")}</ol></section>`);
-  const d1 = $("#d1"), d2 = $("#d2");
-  d1.onclick = async () => { d1.classList.add("playing"); await playSrc([{ s: 1, a: 1 }]); d1.classList.remove("playing"); };
-  d2.onclick = async () => { d2.classList.add("playing"); for (let r = 0; r < 3 && curK() === "open"; r++) { await playSrc(dua); await sleep(2600); } d2.classList.remove("playing"); CL.done.open = 1; saveCL(); updNext(); };
+    <ol class="agenda">${CL.phases.map(p => `<li><span>${pick(CX.ph[p[0]])}</span><b>~${num(p[1])} ${pick(CX.mins)}</b></li>`).join("")}</ol></section>`, "p_open");
+  const gid = CL.gid, alive = () => gid === CL.gid && curK() === "open", d1 = $("#d1"), d2 = $("#d2");
+  let run = 0;   /* ONE token for both buttons: starting one of them stops the other (Bismillah and the dua never play on top of each other) */
+  const idle = () => { d1.classList.remove("playing"); d2.classList.remove("playing"); };
+  d1.onclick = async () => { const my = ++run; idle(); d1.classList.add("playing"); await playSrc([{ s: 1, a: 1 }]); if (my === run) d1.classList.remove("playing"); };
+  d2.onclick = async () => {
+    const my = ++run; idle(); d2.classList.add("playing");
+    for (let r = 0; r < 3; r++) { if (my !== run || !alive()) return; await playSrc(dua); if (my !== run || !alive()) return; if (r < 2) await sleep(2600); }
+    if (my !== run || !alive()) return; d2.classList.remove("playing"); CL.done.open = 1; saveCL(); updNext(); if (S.voice) narr("p_open2");
+  };
   setTimeout(() => { CL.done.open = 1; updNext(); }, 30000);
-  if (S.voice) d2.click();
+  /* with the voice on, the Ustad guides it: greeting, then Bismillah, then the dua three times, then what comes next */
+  if (S.voice) (async () => {
+    const my = ++run; if (!(await narr("p_open")) || !alive() || my !== run) return;
+    d1.classList.add("playing"); await playSrc([{ s: 1, a: 1 }]); if (my !== run || !alive()) return; d1.classList.remove("playing");
+    await sleep(700); if (my !== run || !alive()) return; d2.click();
+  })();
 }
 
 /* ---------- takrar drill (3 rounds), used for revision, lesson practice and the qaida takhti ---------- */
 function phDrill(k) {
   let items, title, note, kindT = "";
-  if (k === "rev") { items = lessonItems(CL.prev, 14); title = CX.ph.rev; note = CX.revP;
-    const pq = CL.prev && CL.prev.id ? null : null; }
+  if (k === "rev") { items = lessonItems(CL.prev, 14); title = CX.ph.rev; note = CX.revP; }
   else if (k === "learn") { items = lessonItems(LESSON.data, 24); title = CX.ph.learn; note = CX.learnDrill; }
   else { items = qaidaItems(CL.qd); title = CX.ph[k]; note = CX.qaidaP; kindT = CL.qd ? pick(CX.kinds[CL.qd.k] || {}) : ""; }
   if (k !== "learn" && k !== "rev" && LESSON.c === "arabic") items = items.slice(0, 14);
   if (!items.length) { CL.done[k] = 1; saveCL(); return k === "rev" ? phRevNone() : nextPhase(); }
-  const ay = items.some(x => x.ay);
+  const ay = items.some(x => x.ay), intro = k === "rev" ? "p_rev" : k === "learn" ? "p_learn" : "p_qaida", kindKey = k !== "rev" && k !== "learn" && CL.qd ? "k_" + CL.qd.k : null;
   shell(`<section class="stage"><h3 class="clsh">${k === "rev" ? "🔁" : k === "learn" ? "📘" : "📜"} ${pick(title)}</h3>${kindT ? `<p class="kindt">${esc(kindT)}</p>` : ""}<p class="say">${pick(note)}</p>
     <div class="tkctl"><button class="btn pri big" id="tkGo">▶ <span id="tkR">${pick(CX.r1)}</span></button><button class="btn big" id="tkStop" hidden>⏸ ${pick(CX.stop)}</button></div>
     <p class="tkst" id="tkst">${pick(CX.tapHint)}</p>
     <div class="tkg ${ay ? "ayg" : ""}">${items.map((x, i) => x.L
       ? `<div class="tkw"><button class="tki" data-i="${i}"><span class="ar ip">${esc(x.ar)}</span><small>${esc(x.sub)}</small><i class="tkd"><b></b><b></b><b></b></i></button><button class="tkx" data-i="${i}" aria-label="${esc(x.sub)}"><small>${pick(CX.fromL).replace("{n}", esc(x.sub))}</small><span class="ar ip">${esc(x.ex)}</span><i>🔊</i></button></div>`
       : `<button class="tki" data-i="${i}"><span class="ar ${x.ip ? "ip" : ""}">${esc(x.ar)}</span>${x.sub ? `<small>${esc(x.sub)}</small>` : ""}${x.ex ? `<small class="ar ip ex">${pick(CX.letterOf)} ${esc(x.ex)}</small>` : ""}<i class="tkd"><b></b><b></b><b></b></i></button>`).join("")}</div>
-    <div class="labslot" id="labslot"></div></section>`);
+    <div class="labslot" id="labslot"></div></section>`, intro);
+  const gid = CL.gid, alive = () => gid === CL.gid && curK() === k;
   const zs = new Set(); items.forEach(x => [...bare(x.ar)].forEach(ch => LAB_Z[ch] && zs.add(LAB_Z[ch])));
   const LBD = labMount($("#labslot"), zs.size ? zs : null), lettersOf = t => [...new Set([...bare(t)].filter(ch => LAB_Z[ch]))].slice(0, 6);
   const tiles = $$(".tki"), cnt = items.map(() => 0);
   const mark = i => { cnt[i]++; const d = $$(".tkd b", tiles[i]); d.forEach((b, j) => b.classList.toggle("on", j < cnt[i])); if (cnt.every(n => n >= 2) && !CL.done[k]) { CL.done[k] = 1; saveCL(); updNext(); } };
-  let run = false, round = 0;
+  let run = false, round = 0, auto = false;
   tiles.forEach((b, i) => b.onclick = async () => { if (run) return; tiles.forEach(x => x.classList.remove("cur")); b.classList.add("cur"); const it = items[i];
     if (it.L) { if (LBD && LAB_Z[it.L]) await LBD.say(it.L, null, null, it.nm); else await playSrc(it.nm); }   /* letter box: the letter's own name, with the 3D head showing where it comes from */
     else { LBD && LBD.tour(lettersOf(it.ar), 900); await playSrc(it.src); LBD && LBD.stop(); }
     mark(i); b.classList.remove("cur"); });
   $$(".tkx").forEach(b => b.onclick = async () => { if (run) return; const it = items[+b.dataset.i]; b.classList.add("cur"); LBD && LBD.tour(lettersOf(it.ex), 900); await playSrc(it.exs); LBD && LBD.stop(); b.classList.remove("cur"); });
-  const st = $("#tkst"), go = $("#tkGo"), stp = $("#tkStop"), lbl = [CX.r1, CX.r2, CX.r3];
-  stp.onclick = () => { run = false; stopAll(); };
-  go.onclick = async () => {
+  const st = $("#tkst"), go = $("#tkGo"), stp = $("#tkStop"), lbl = [CX.r1, CX.r2, CX.r3], RK = ["p_r1", "p_r2", "p_r3"];
+  stp.onclick = () => { run = false; auto = false; stopAll(); if (S.voice) narr("p_tap"); };
+  /* one round: the Ustad names the round, then every box is played; "now you say it" is spoken once at the first box */
+  async function doRound() {
     run = true; go.hidden = true; stp.hidden = false;
-    for (let i = 0; i < items.length && run; i++) {
+    if (S.voice && alive()) { await narr(RK[round]); if (!run || !alive()) return false; }
+    for (let i = 0; i < items.length && run && alive(); i++) {
       const b = tiles[i]; tiles.forEach(x => x.classList.remove("cur", "you")); b.classList.add("cur");
       b.scrollIntoView({ block: "nearest", behavior: "smooth" });
-      if (round === 2) { b.classList.add("you"); st.textContent = "🗣️ " + pick(CX.youFirst); await sleep(ay ? 7000 : 3200); if (!run) break; b.classList.remove("you"); }
+      if (round === 2) { b.classList.add("you"); st.textContent = "🗣️ " + pick(CX.youFirst); if (i === 0 && S.voice) await narr("p_youFirst"); await sleep(ay ? 7000 : 3200); if (!run) break; b.classList.remove("you"); }
       st.textContent = "🔊 " + pick(CX.qari) + " …"; if (LBD) { const L1 = items[i].L ? [items[i].L] : lettersOf(items[i].ar); if (L1.length) LBD.tour(L1, items[i].L ? 1500 : 900); }
       const dur = await playSrc(items[i].src); if (!run) break;
-      if (round === 0) { b.classList.add("you"); st.textContent = "🗣️ " + pick(CX.you); await sleep(Math.max(1600, dur * 1300 + 900)); b.classList.remove("you"); }
+      if (round === 0) { b.classList.add("you"); st.textContent = "🗣️ " + pick(CX.you); if (i === 0 && S.voice) await narr("p_you"); await sleep(Math.max(1600, dur * 1300 + 900)); b.classList.remove("you"); }
       else await sleep(round === 1 ? 700 : 1200);
       mark(i);
     }
+    if (!alive()) return false;
     tiles.forEach(x => x.classList.remove("cur", "you")); stp.hidden = true; go.hidden = false;
-    if (!run) { st.textContent = pick(CX.tapHint); return; }
+    if (!run) { st.textContent = pick(CX.tapHint); return false; }
     run = false; round++;
-    if (round >= 3) { CL.done[k] = 1; saveCL(); updNext(); st.textContent = "🌟 " + pick(CX.allRounds); round = 0; $("#tkR").textContent = pick(CX.again); }
+    if (round >= 3) { CL.done[k] = 1; saveCL(); updNext(); st.textContent = "🌟 " + pick(CX.allRounds); round = 0; $("#tkR").textContent = pick(CX.again); if (S.voice) narr("p_allRounds"); }
     else { $("#tkR").textContent = pick(lbl[round]); st.textContent = pick(CX.tapHint); }
-  };
+    return true;
+  }
+  go.onclick = () => { auto = false; doRound(); };
+  /* with the voice on, the Ustad guides the whole practice by himself: what this part is, which takhti it is, then round 1, 2 and 3 */
+  if (S.voice) (async () => {
+    if (!(await narr(intro)) || !alive()) return;
+    if (kindKey && (!(await narr(kindKey)) || !alive())) return;
+    auto = true;
+    for (let n = 0; n < 3 && auto && alive(); n++) { if (!(await doRound())) break; }
+  })();
 }
 function phRevNone() {
-  shell(`<section class="stage"><h3 class="clsh">🔁 ${pick(CX.ph.rev)}</h3><p class="say">${pick(CX.revNone)}</p><p><a class="btn cy big" href="#lab" target="_blank">🗣️ Makharij Lab</a></p></section>`);
+  shell(`<section class="stage"><h3 class="clsh">🔁 ${pick(CX.ph.rev)}</h3><p class="say">${pick(CX.revNone)}</p><p><a class="btn cy big" href="#lab" target="_blank">🗣️ Makharij Lab</a></p></section>`, "p_revNone");
+  if (S.voice) narr("p_revNone");
 }
 
 /* ---------- listening game ---------- */
@@ -219,40 +257,75 @@ function phGame() {
   const pool = [...qaidaItems(CL.qd), ...lessonItems(LESSON.data, 30)].filter(x => !x.ay && x.ar.length < 30);
   const uniq = []; const seen = new Set(); for (const x of pool) if (!seen.has(x.ar)) { seen.add(x.ar); uniq.push(x); }
   if (uniq.length < 4) { CL.done.game = 1; return nextPhase(); }
-  const N = Math.min(10, uniq.length); let r = 0, ok = 0;
+  const N = Math.min(10, uniq.length); let r = 0, ok = 0, introDone = false;
   const order = uniq.slice().sort(() => Math.random() - .5).slice(0, N);
   const draw = () => {
     if (r >= N) { CL.done.game = 1; saveCL();
-      shell(`<section class="stage res"><div style="font-size:42px">${ok >= N * .8 ? "🌟" : "👍"}</div><h3>${pick(CX.ph.game)}</h3><div class="big">${num(ok)}/${num(N)}</div><p><button class="btn big" id="ga">🔁 ${pick(CX.again)}</button></p></section>`);
-      $("#ga").onclick = () => { CL.done.game = 0; phGame(); }; return; }
+      shell(`<section class="stage res"><div style="font-size:42px">${ok >= N * .8 ? "🌟" : "👍"}</div><h3>${pick(CX.ph.game)}</h3><div class="big">${num(ok)}/${num(N)}</div><p><button class="btn big" id="ga">🔁 ${pick(CX.again)}</button></p></section>`, "p_gameEnd");
+      $("#ga").onclick = () => { CL.done.game = 0; r = 0; ok = 0; introDone = true; phGame(); }; if (S.voice) narr("p_gameEnd"); return; }
     const ans = order[r], opts = [ans, ...uniq.filter(x => x !== ans).sort(() => Math.random() - .5).slice(0, 3)].sort(() => Math.random() - .5);
     shell(`<section class="stage"><h3 class="clsh">👂 ${pick(CX.ph.game)} · ${num(r + 1)}/${num(N)}</h3><p class="say">${pick(CX.gameP)}</p>
       <p style="text-align:center"><button class="btn cy big round" id="gp">🔊 ${pick(CX.play)}</button></p>
-      <div class="gopts">${opts.map((x, i) => `<button class="gopt" data-i="${i}"><span class="ar ${x.ip ? "ip" : ""}">${esc(x.ar)}</span></button>`).join("")}</div><p class="tkst" id="gs"></p></section>`);
-    const play = () => playSrc(ans.src); $("#gp").onclick = play; play();
-    let tries = 0;
+      <div class="gopts">${opts.map((x, i) => `<button class="gopt" data-i="${i}"><span class="ar ${x.ip ? "ip" : ""}">${esc(x.ar)}</span></button>`).join("")}</div><p class="tkst" id="gs"></p></section>`, "p_game");
+    const gid = CL.gid, alive = () => gid === CL.gid && curK() === "game";
+    const play = () => playSrc(ans.src); $("#gp").onclick = play;
+    if (S.voice && r === 0 && !introDone) { introDone = true; narr("p_game").then(v => { if (v && alive()) play(); }); } else play();
+    let tries = 0, lock = false;
     $$(".gopt").forEach(b => b.onclick = async () => {
+      if (lock) return; lock = true;   /* while the Ustad is answering, further taps wait */
       const x = opts[+b.dataset.i];
-      if (x === ans) { b.classList.add("ok"); if (!tries) ok++; $("#gs").textContent = "✓ " + pick(CX.right); await sleep(900); r++; draw(); }
-      else { tries++; b.classList.add("no"); $("#gs").textContent = "✗ " + pick(CX.wrong); await sleep(400); play(); }
+      if (x === ans) { b.classList.add("ok"); if (!tries) ok++; $("#gs").textContent = "✓ " + pick(CX.right); if (S.voice) await narr("p_right"); else await sleep(900); if (!alive()) return; r++; draw(); }
+      else { tries++; b.classList.add("no"); $("#gs").textContent = "✗ " + pick(CX.wrong); if (S.voice) await narr("p_wrong"); else await sleep(400); if (!alive()) return; lock = false; play(); }
     });
   };
   draw();
 }
 
-/* ---------- record & compare ---------- */
+/* ---------- record & check: the AI Ustad listens to the recording, finds every mistake and tells it by voice ---------- */
 function phRecord() {
   let items = qaidaItems(CL.qd); if (!items.length) items = lessonItems(LESSON.data, 6);
-  items = items.filter(x => x.ar.length < 140).slice(0, items[0] && items[0].ay ? 3 : 8);
+  items = items.map(x => x.L ? { ip: 1, ar: x.ex, src: x.exs } : x).filter(x => x.ar && x.ar.length < 140);
+  const dd = new Set(); items = items.filter(x => !dd.has(x.ar) && dd.add(x.ar)).slice(0, items[0] && items[0].ay ? 3 : 8);
   if (!items.length) { CL.done.record = 1; return nextPhase(); }
+  /* words in reading order, each pointing to the audio of the item it belongs to */
+  const split = window.CoachCore ? window.CoachCore.splitWords : s => s.split(/\s+/), ws = [], wsrc = [];
+  items.forEach(x => split(x.ar).forEach(w => { ws.push(w); wsrc.push(x.src); }));
   shell(`<section class="stage"><h3 class="clsh">🎙️ ${pick(CX.ph.record)}</h3><p class="say">${pick(CX.recP)}</p>
     <div class="bigar recar ${items[0].ip ? "ip" : ""}">${items.map(x => esc(x.ar)).join(" · ")}</div>
-    <div class="tkctl"><button class="btn rec big" id="rr">🎙️ ${pick(CX.recB)}</button><button class="btn big" id="rm" disabled>▶ ${pick(CX.mine)}</button><button class="btn cy big" id="rq">🕋 ${pick(CX.qari)}</button></div><p><button class="btn pri big" id="rk">🎯 ${pick(CX.chk)}</button></p><p class="tkst" id="rs"></p></section>`);
-  let url = null;
-  $("#rr").onclick = e => startRec(b => { if (url) URL.revokeObjectURL(url); url = URL.createObjectURL(b); $("#rm").disabled = false; CL.done.record = 1; saveCL(); updNext(); $("#rs").textContent = "✓"; }, e.currentTarget, "🎙️ " + pick(CX.recB));
+    <div class="tkctl"><button class="btn rec big" id="rr">🎙️ ${pick(CX.recB)}</button><button class="btn big" id="rm" disabled>▶ ${pick(CX.mine)}</button><button class="btn cy big" id="rq">🕋 ${pick(CX.qari)}</button></div>
+    <div class="lv2"><i id="rlv"></i></div><p class="tkst" id="rs"></p><div id="rres"></div>
+    <p><a class="btn" id="rk" href="#coach=h">🎯 ${pick(CX.chk)}</a></p></section>`, "p_record");
+  const gid = CL.gid, alive = () => gid === CL.gid && curK() === "record", CC = window.CoachCheck;
+  let url = null, busy = false;
+  const say = n => S.voice ? narr(n) : Promise.resolve(true);
+  const chain = async names => { for (const n of names) { if (!alive() || !S.voice) return; if (!(await narr(n))) return; } };
+  $("#rr").onclick = async e => {
+    const btn = e.currentTarget;
+    if (busy) { CC && CC.stopListen(); return; }
+    if (!CC) { toast(t("micNo")); return; }
+    stopAll(); busy = true; btn.classList.add("on"); btn.textContent = "⏹ " + t("stop"); $("#rs").textContent = "🎙️ " + pick(CX.lis); $("#rres").innerHTML = "";
+    const lv = $("#rlv"); let rec;
+    try { rec = await CC.listen({ silenceMs: 2500, maxMs: 90000, waitMs: 12000, onLevel: r => lv && (lv.style.width = Math.min(100, r * 700) + "%") }); }
+    catch (er) { busy = false; btn.classList.remove("on"); btn.textContent = "🎙️ " + pick(CX.recB); $("#rs").textContent = ""; toast(t("micNo")); if (S.voice && alive()) narr("micNo"); return; }
+    busy = false; btn.classList.remove("on"); btn.textContent = "🎙️ " + pick(CX.recAgain); if (lv) lv.style.width = "0"; if (!alive()) return;
+    if (rec.why === "cancel") { $("#rs").textContent = ""; return; }
+    try { url = "data:audio/wav;base64," + await CC.toWav(rec.pcm, rec.sr, 0, rec.pcm.length / rec.sr); $("#rm").disabled = false; } catch (er) {}
+    CL.done.record = 1; saveCL(); updNext();
+    $("#rs").textContent = "🤔 " + pick(CX.chking); if (S.voice) narr("think");
+    let res = null; try { res = await CC.evaluate(rec, { words: ws, refUrl: null }); } catch (er) { res = null; }
+    if (!alive()) return;
+    if (!res) { $("#rs").textContent = pick(CX.aiNo); say("aiNo"); return; }
+    if (res.err) { $("#rs").textContent = pick(CX.noSp); say("nospeech"); return; }
+    $("#rs").textContent = ""; $("#rres").innerHTML = CC.resultHTML(res);
+    $$("#rres [data-qi]").forEach(b => b.onclick = () => playSrc(wsrc[+b.dataset.qi] || []));
+    $$("#rres [data-lt],#rres [data-mt]").forEach(b => b.onclick = async () => { stopAll(); const n = []; if (b.dataset.mt) n.push("m_" + b.dataset.mt); if (b.dataset.lt) n.push("lt_" + b.dataset.lt.codePointAt(0).toString(16)); for (const x of n) if (!(await narr(x, true))) return; });
+    $("#rres").scrollIntoView({ behavior: "smooth", block: "center" });
+    if (res.pass) await say("p_recOk"); else { if (await say("p_recFix")) await chain(CC.issueNames(res)); }
+  };
   $("#rm").onclick = () => { if (url) { stopAll(); voiceEl = new Audio(url); voiceEl.dataset.nolip = 1; voiceEl.play(); } };
-  $("#rk").onclick = () => { stopAll(); const f = items[0] && items[0].ay && items[0].src && items[0].src[0]; if (f && window.CoachState) { window.CoachState.s = f.s; window.CoachState.a = f.a; } saveCL(); location.hash = f ? "#coach=a" : "#coach=h"; };
   $("#rq").onclick = async e => { const b = e.currentTarget; b.classList.add("playing"); for (const x of items) { await playSrc(x.src); await sleep(500); } b.classList.remove("playing"); };
+  $("#rk").onclick = () => { stopAll(); saveCL(); };
+  if (S.voice) narr("p_record");
 }
 
 /* styles for the class (big, simple buttons) */

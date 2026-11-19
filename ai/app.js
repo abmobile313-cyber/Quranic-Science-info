@@ -441,6 +441,42 @@ function speakText(text, onend) {
     u.onend = u.onerror = () => onend && onend(); speechSynthesis.speak(u); voiceEl = { pause() { try { speechSynthesis.cancel(); } catch (e) {} } }; return true;
   } catch (e) { return false; }
 }
+/* the Ustad's recorded guide voice for every part of the class (ustad/say/<key>.mp3, English folder first when the app is English).
+   Resolves true when it finished, false when something else took over (so a guided flow simply stops there). Silent when the voice switch is off. */
+function narr(key, force) {
+  if (!S.voice && !force) return Promise.resolve(true);
+  stopAll(); const tok = ++QTOK, box = $("#vo");
+  return new Promise(res => {
+    let a = null, fb = 0, fin = false;
+    const done = ok => { if (fin) return; fin = true; box && box.classList.remove("playing"); if (qariEl && qariEl.__n === tok) qariEl = null; res(ok && tok === QTOK); };
+    const go = en => { if (tok !== QTOK) { done(false); return; }   /* a newer voice has started meanwhile (late fallback): stay quiet */
+      a = new Audio((en ? "ustad/say/en/" : "ustad/say/") + key + ".mp3"); a.onended = () => done(true);
+      a.onerror = () => { if (en && !fb) { fb = 1; go(false); } else done(true); };
+      box && box.classList.add("playing");
+      /* play() first: the "one voice at a time" hook pauses the current qariEl whenever ANY audio starts, so the stop-handle is registered only after this clip has started */
+      const pr = a.play(); qariEl = { __n: tok, pause() { try { a.pause(); } catch (e) {} done(false); } };
+      pr && pr.catch && pr.catch(() => { if (en && !fb) { fb = 1; go(false); } else done(true); }); };
+    go(LANG === "en");
+  });
+}
+/* reads a question / explanation aloud with the phone's own voice: English text in English, Urdu/Hindi in the Hindustani voice (Devanagari text),
+   and the Arabic letters or words inside it in an Arabic voice when the phone has one */
+function speakMixed(text, onend) {
+  try {
+    if (!window.speechSynthesis || !text) { onend && onend(); return false; }
+    speechSynthesis.cancel();
+    const base = LANG === "en" ? "en-IN" : "hi-IN", AR = /[؀-ۿݐ-ݿ]/;
+    const clean = String(text).replace(/[\u{1F300}-\u{1FAFF}☀-➿✓✗]/gu, " ").replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
+    const parts = clean.split(/([؀-ۿݐ-ݿ][؀-ۿݐ-ݿ\s·،]*)/).map(s => s.trim()).filter(Boolean);
+    if (!parts.length) { onend && onend(); return false; }
+    const vs = speechSynthesis.getVoices();
+    parts.forEach((p, i) => { const ar = AR.test(p), u = new SpeechSynthesisUtterance(p), lang = ar ? "ar-SA" : base; u.lang = lang; u.rate = ar ? .8 : .93;
+      const v = vs.find(x => x.lang.replace("_", "-").toLowerCase() === lang.toLowerCase()) || vs.find(x => x.lang.toLowerCase().startsWith(lang.slice(0, 2))); if (v) u.voice = v;
+      if (i === parts.length - 1) u.onend = u.onerror = () => onend && onend(); speechSynthesis.speak(u); });
+    voiceEl = { pause() { try { speechSynthesis.cancel(); } catch (e) {} } }; return true;
+  } catch (e) { onend && onend(); return false; }
+}
+const ttsOf = o => o ? (LANG === "en" ? (o.en || "") : (o.hi || o.ur || o.en || "")) : "";
 async function playVoice() {
   stopAll(); const my = QTOK; const { id, i, data } = LESSON, m = data && data.moments[i]; if (!m) return;
   const box = $("#vo"), after = () => { box && box.classList.remove("playing"); LESSON.tourOff && LESSON.tourOff(); };
@@ -876,10 +912,19 @@ function drawQuiz(k, ans) {
   stopAll(); LESSON.tour = LESSON.tourOff = null;
   const { data } = LESSON, Q = data.quiz[k], app = $("#app");
   if (!Q) return finish(ans);
-  app.innerHTML = lessonHead() + `<section class="stage"><span class="qn">${t("q")} ${num(k + 1)} ${t("of")} ${num(data.quiz.length)}</span>
-    <div class="say"><b>${esc(pick(Q.q))}</b></div><div id="opts">${qorder(LESSON.id, k, Q.o.length).map(j => { const o = Q.o[j]; return `<button class="qopt" data-j="${j}"><span class="${/[؀-ۿ]/.test(pick(o)) ? "ar" : ""}">${esc(pick(o))}</span></button>`; }).join("")}</div><div id="fb"></div></section>`;
+  const ub = typeof ustBar === "function" && typeof CL !== "undefined" && CL.on;
+  app.innerHTML = lessonHead() + (ub ? ustBar() : "") + `<section class="stage"><span class="qn">${t("q")} ${num(k + 1)} ${t("of")} ${num(data.quiz.length)}</span>
+    <div class="say"><b>${esc(pick(Q.q))}</b> <button class="btn sm" id="qrd" aria-label="read aloud">🔊</button></div><div id="opts">${qorder(LESSON.id, k, Q.o.length).map(j => { const o = Q.o[j]; return `<button class="qopt" data-j="${j}"><span class="${/[؀-ۿ]/.test(pick(o)) ? "ar" : ""}">${esc(pick(o))}</span></button>`; }).join("")}</div><div id="fb"></div></section>`;
+  /* the Ustad reads the question and every answer aloud, then says right / explains the mistake */
+  const qo = qorder(LESSON.id, k, Q.o.length);
+  const speakQ = () => { stopAll(); const my = QTOK, parts = [ttsOf(Q.q)].concat(qo.map(j => ttsOf(Q.o[j]))); let i = 0;
+    const next = () => { if (QTOK !== my || i >= parts.length) return; speakMixed(parts[i++], () => setTimeout(next, 400)); }; next(); };
+  $("#qrd").onclick = speakQ;
+  if (ub) { window.QSUstad && QSUstad.mount($("#uface")); if ($("#rv")) $("#rv").onclick = speakQ; }
+  if (S.voice) (async () => { if (k === 0 && !(await narr("p_quiz"))) return; speakQ(); })();
   $$(".qopt", app).forEach(b => b.onclick = () => {
     const j = +b.dataset.j, ok = j === Q.a;
+    stopAll(); if (S.voice) { if (ok) narr("p_right").then(v => v && speakMixed(ttsOf(Q.why))); else speakMixed(ttsOf(Q.why)); }
     $$(".qopt", app).forEach(x => { x.disabled = true; if (+x.dataset.j === Q.a) x.classList.add("ok"); });
     if (!ok) b.classList.add("no");
     $("#fb").innerHTML = `<p class="why"><b>${ok ? "✓ " + t("right") : "✗ " + t("wrong")}</b> ${esc(pick(Q.why))}</p><div class="nav"><span></span><button class="btn pri" id="qc">${t("cont")}</button></div>`;
@@ -900,6 +945,7 @@ async function finish(ans) {
     ${nx && L && L.why === "time" ? `<p class="mini">⏰ ${t("nextAt")}: ${fmtAt(L.at)}</p>` : ""}</section>
     ${S.user && has(c) ? hwBox() : ""}`;
   if (!S.user) $("#sv").onclick = () => loginBox(() => route());
+  if (clsMin != null && S.voice) narr("p_done");
   if (S.user && has(c)) wireHw(c, id);
   if (!S.user && !has(c) && ids.indexOf(id) === 0) setTimeout(() => buy(c), 1500);
   if (S.user && has(c) && !isFull(c) && !slot()) setTimeout(() => slotBox(), 900);
