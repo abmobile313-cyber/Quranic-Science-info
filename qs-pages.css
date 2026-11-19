@@ -1,7 +1,8 @@
+@font-face{font-family:"QS IndoPak";src:url(/fonts/indopak.woff2) format("woff2");font-weight:100 900;font-display:swap}
 /* Quranic Science article and course pages: same liquid-glass look, fonts and colours as the main website */
 :root{--bg:#fbf7ef;--bg2:#f3e7d3;--ink:#1c1915;--muted:rgba(28,25,21,.68);--a1:#8f1d2c;--a2:#c9963f;--hi:#7a1424;--link:#0e7fa8;
 --glass:rgba(255,255,255,.62);--rim:rgba(255,255,255,.85);--shadow:rgba(60,30,20,.12);--g1:143,29,44;--g2:201,150,63;
---f-display:"Outfit","Segoe UI",system-ui,sans-serif;--f-body:"Manrope","Segoe UI",system-ui,sans-serif;--f-quran:"Amiri Quran","Amiri",serif;--f-ar:"Amiri","Scheherazade New",serif;--f-ur:"Noto Nastaliq Urdu",serif;color-scheme:light}
+--f-display:"Outfit","Segoe UI",system-ui,sans-serif;--f-body:"Manrope","Segoe UI",system-ui,sans-serif;--f-quran:"QS IndoPak","Noto Naskh Arabic","Amiri Quran",serif;--f-ar:"Amiri","Scheherazade New",serif;--f-ur:"Noto Nastaliq Urdu",serif;color-scheme:light}
 [data-theme="quran"]{--a1:#0e7fa8;--a2:#c58a14;--hi:#0b5f86;--g1:31,182,232;--g2:224,164,37;--bg2:#e3f1f6}
 @media (prefers-color-scheme:dark){:root{--bg:#0e0306;--bg2:#2a0a10;--ink:#f6efe6;--muted:rgba(246,239,230,.68);--a1:#e06a78;--a2:#e7c27a;--hi:#f0cf7f;--link:#7fd8f7;--glass:rgba(255,255,255,.06);--rim:rgba(255,255,255,.14);--shadow:rgba(0,0,0,.55);color-scheme:dark}
 [data-theme="quran"]{--bg:#030b12;--bg2:#08202b;--a1:#1fb6e8;--a2:#e0a425;--hi:#f2c75c}}
@@ -58,3 +59,9 @@ h1{font-size:clamp(28px,5vw,46px);margin:.3em 0}h2{font-size:clamp(21px,3vw,27px
 @media (max-width:820px){.nav{display:none}.hero,.two,.fbox{grid-template-columns:1fr}.hero{padding:20px}.himg{max-width:340px;margin:0 auto}.brand small{display:none}}
 @media (max-width:380px){.top .btn.sm{padding:8px 12px;font-size:13px}}
 @media (prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
+
+/* Polish: enroll buttons stack at one width, instalment boxes sit directly under their button and use the page font */
+.acts{flex-direction:column;flex-wrap:nowrap;align-items:stretch;max-width:460px}
+.acts .btn{width:100%;margin:0}
+qsk-btn{font-family:var(--f-body,system-ui,sans-serif)!important;margin:-2px 0 10px!important}
+.acts .btn:not(.pri){border-color:rgba(122,20,36,.35);background:#fff}

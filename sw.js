@@ -1,5 +1,5 @@
 /* Quranic Science app: opens instantly from the saved copy, updates itself in the background, works offline. */
-const C = "qs-app-v18", CORE = ["/", "/index.html", "/site.webmanifest", "/icon-192.png", "/logo-sm.webp", "/logo-intro.webp", "/qs-pages.css"];
+const C = "qs-app-v19", CORE = ["/", "/index.html", "/site.webmanifest", "/icon-192.png", "/logo-sm.webp", "/logo-intro.webp", "/qs-pages.css", "/fonts/indopak.woff2"];
 self.addEventListener("install", e => { e.waitUntil(caches.open(C).then(c => c.addAll(CORE)).catch(() => {})); self.skipWaiting(); });
 self.addEventListener("activate", e => { e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => k !== C && k !== "qs-x" && !/^(qsai|qscr)/.test(k)).map(k => caches.delete(k)))).then(() => self.clients.claim())); });
 self.addEventListener("fetch", e => {
