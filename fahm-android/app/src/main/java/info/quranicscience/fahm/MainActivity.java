@@ -95,5 +95,10 @@ public class MainActivity extends Activity {
     @Override protected void onSaveInstanceState(Bundle o) { super.onSaveInstanceState(o); web.saveState(o); }
     @Override protected void onPause() { super.onPause(); web.onPause(); }
     @Override protected void onResume() { super.onResume(); web.onResume(); }
-    @Override public void onBackPressed() { if (web.canGoBack()) web.goBack(); else super.onBackPressed(); }
+    @Override public void onBackPressed() {
+        // let the app handle back first (close reader/sheets, previous ayah); exit only when it says so
+        web.evaluateJavascript("(function(){try{return window.__fahmBack?String(window.__fahmBack()):'false'}catch(e){return 'false'}})()", new android.webkit.ValueCallback<String>() {
+            @Override public void onReceiveValue(String v) { if (v == null || !v.contains("true")) finish(); }
+        });
+    }
 }

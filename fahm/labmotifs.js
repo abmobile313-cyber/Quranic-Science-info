@@ -338,7 +338,7 @@
     let ringB = null; if (kind === 'in') { ringB = loop(Array.from({ length: 70 }, (_, k) => V(Math.cos(k / 70 * PI2) * 1.2 + 1.2, Math.sin(k / 70 * PI2) * 1.2, 0)), cB, .9); ctx.add(ringB); ctx.add(glow(cB, 3, V(1.2, 0, 0), .2)); }
     const path = []; for (let i = 0; i <= 30; i++) { const u = i / 30; path.push(V(A.x + (B.x - A.x) * u, Math.sin(u * Math.PI) * (kind === 'on' ? 1.1 : .5), 0)); }
     if (kind !== 'in') ctx.add(line(path, 0xcfd8ee, .5));
-    const tp = particles(ctx, 18, 0xffe2a8, .09, (i, t, o) => { const u = (t * .3 + i / 18) % 1; if (kind === 'in') { o[0] = -1.9 + 3.1 * u; o[1] = Math.sin(u * 3) * .2; o[2] = 0; } else { const q = path[Math.min(30, Math.floor(u * 30))]; o[0] = q.x; o[1] = q.y; o[2] = 0; } });
+    const tp = particles(ctx, 18, 0xffe2a8, .09, (i, t, o) => { const u = (((t * .3 + i / 18) % 1) + 1) % 1; if (kind === 'in') { o[0] = -1.9 + 3.1 * u; o[1] = Math.sin(u * 3) * .2; o[2] = 0; } else { const q = path[Math.min(30, Math.floor(u * 30))]; o[0] = q.x; o[1] = q.y; o[2] = 0; } });
     if (kind === 'from') ctx.add(loop(Array.from({ length: 60 }, (_, k) => V(Math.cos(k / 60 * PI2) * .8 - 1.9, Math.sin(k / 60 * PI2) * .8, 0)), cA, .6));
     lab(ctx, p, V(0, -1.9, .5));
     return (t, k) => { a.step(t, sm(k * 2)); b.step(t + 1, sm(k * 2)); tp(t, k); if (kind === 'in') b.g.position.x = -.6 + Math.min(1, t * .35) * 1.8 * 0 + 1.2 + Math.sin(t) * .3 - 0; };

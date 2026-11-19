@@ -19,6 +19,7 @@
   <header class="top">
     <button id="btnMenu" class="ib" aria-label="Surahs"><svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h10"/></svg></button>
     <div id="title"><b class="ar" id="tAr"></b><small id="tSub"></small></div>
+    <button id="btnRead" class="ib" aria-label="Read"><svg viewBox="0 0 24 24"><path d="M12 6v14M12 6c-2-1.5-5-2-8-2v14c3 0 6 .5 8 2 2-1.5 5-2 8-2V4c-3 0-6 .5-8 2z"/></svg></button>
     <button id="btnSet" class="ib" aria-label="Settings"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3.2"/><path d="M12 3v2.5M12 18.5V21M3 12h2.5M18.5 12H21M5.6 5.6l1.8 1.8M16.6 16.6l1.8 1.8M5.6 18.4l1.8-1.8M16.6 7.4l1.8-1.8"/></svg></button>
   </header>
 
@@ -37,6 +38,11 @@
         <h4 id="storyH"></h4>
         <div class="story-box"><canvas id="cv"></canvas><div id="cx"></div>
           <button id="btnReplay" class="ib small" aria-label="Replay scene"><svg viewBox="0 0 24 24"><path d="M4 12a8 8 0 1 0 3-6.2M4 4v4h4"/></svg></button>
+          <button id="btnFullS" class="ib small" aria-label="Full screen"><svg viewBox="0 0 24 24"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></button>
+          <div id="sctl"><button id="sClose" class="ib" aria-label="Close"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button><span></span>
+            <button id="sPrev" class="ib"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button>
+            <button id="sPlay" class="ib gold"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z" style="fill:currentColor;stroke:none"/></svg></button>
+            <button id="sNext" class="ib"><svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg></button></div>
           <div id="ayahNo"></div></div>
       </section>
     </div>
@@ -48,17 +54,24 @@
   </main>
 
   <nav id="bar">
-    <button id="bPrev" class="nb" aria-label="Prev"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button>
+    <button id="bPrev" class="nb lab" aria-label="Prev"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg><span id="lPrev"></span></button>
+    <button id="bPick" class="nb pill" aria-label="Pick ayah"><span id="pickTxt"></span></button>
     <button id="bPlay" class="nb big" aria-label="Play"><svg id="icoPlay" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg><svg id="icoPause" viewBox="0 0 24 24" style="display:none"><path d="M7 5h4v14H7zM13 5h4v14h-4z"/></svg></button>
-    <button id="bNext" class="nb" aria-label="Next"><svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg></button>
-    <label id="autoWrap"><input type="checkbox" id="autoNext"><span id="autoLbl"></span></label>
+    <button id="bNext" class="nb lab" aria-label="Next"><svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg><span id="lNext"></span></button>
   </nav>
 
   <aside id="menu" class="sheet" hidden><div class="sheet-in glass"><h3 id="menuT"></h3><div id="menuList"></div></div></aside>
   <aside id="settings" class="sheet" hidden><div class="sheet-in glass"><h3 id="setT"></h3><div id="setBody"></div></div></aside>
+  <aside id="pick" class="sheet" hidden><div class="sheet-in glass"><h3 id="pickT"></h3><div id="pickGrid"></div></div></aside>
+  <div id="reader" hidden>
+    <div class="rtop"><button id="rClose" class="ib" aria-label="Close"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button><div id="rTitle"></div>
+      <button id="rMinus" class="ib sm"><b>A</b></button><button id="rPlus" class="ib sm"><b style="font-size:20px">A</b></button><button id="rPlay" class="ib"><svg id="rIcoP" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg><svg id="rIcoS" viewBox="0 0 24 24" style="display:none"><path d="M7 5h4v14H7zM13 5h4v14h-4z"/></svg></button></div>
+    <div id="rbody" dir="rtl"></div>
+  </div>
   <div id="toast" hidden></div>
   <div id="install" hidden></div>
 </div>
+<script src="sfx.js"></script>
 <script src="engine.js"></script>
 <script src="scenes.js"></script>
 <script src="three.min.js"></script>
@@ -67,6 +80,8 @@
 <script src="labv.js"></script>
 <script src="labspecs.js"></script>
 <script src="lemspecs.js"></script>
+<script src="story3d.js"></script>
+<script src="story3da.js"></script>
 <script src="i18n.js"></script>
 <script src="content_ur.js"></script>
 <script src="app.js"></script>
