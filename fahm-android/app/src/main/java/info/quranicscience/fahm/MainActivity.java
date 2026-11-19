@@ -1,6 +1,16 @@
 package info.quranicscience.fahm;
 
+import android.Manifest;
 import android.app.Activity;
+import android.content.pm.PackageManager;
+import android.os.Build;
+import android.os.Looper;
+import android.speech.RecognitionListener;
+import android.speech.RecognizerIntent;
+import android.speech.SpeechRecognizer;
+import android.webkit.JavascriptInterface;
+import org.json.JSONObject;
+import java.util.ArrayList;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -27,6 +37,66 @@ public class MainActivity extends Activity {
     private static final String HOST = "appassets.androidplatform.net";
     private static final String START = "https://" + HOST + "/assets/fahm/index.html";
     private WebView web;
+    private SpeechRecognizer sr;
+    private String pendingLang = "ar-SA";
+    private final android.os.Handler ui = new android.os.Handler(Looper.getMainLooper());
+
+    /** Hafiz mode: Android WebView has no Web Speech API, so we expose the system recogniser to the page. */
+    private void js(final String type, final String text) {
+        final String call = "window.__fahmSpeech&&window.__fahmSpeech('" + type + "'," + JSONObject.quote(text == null ? "" : text) + ")";
+        ui.post(new Runnable() { @Override public void run() { if (web != null) web.evaluateJavascript(call, null); } });
+    }
+    private String first(android.os.Bundle b) {
+        ArrayList<String> l = b == null ? null : b.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
+        return (l == null || l.isEmpty()) ? "" : l.get(0);
+    }
+    private void beginListen() {
+        if (sr != null) { try { sr.destroy(); } catch (Exception ignored) { } sr = null; }
+        sr = SpeechRecognizer.createSpeechRecognizer(this);
+        sr.setRecognitionListener(new RecognitionListener() {
+            @Override public void onReadyForSpeech(android.os.Bundle p) { }
+            @Override public void onBeginningOfSpeech() { }
+            @Override public void onRmsChanged(float v) { }
+            @Override public void onBufferReceived(byte[] b) { }
+            @Override public void onEndOfSpeech() { }
+            @Override public void onEvent(int t, android.os.Bundle p) { }
+            @Override public void onPartialResults(android.os.Bundle p) { String t = first(p); if (!t.isEmpty()) js("partial", t); }
+            @Override public void onResults(android.os.Bundle r) { String t = first(r); if (!t.isEmpty()) js("final", t); js("end", ""); }
+            @Override public void onError(int e) {
+                if (e == SpeechRecognizer.ERROR_INSUFFICIENT_PERMISSIONS) js("error", "permission");
+                else if (e == SpeechRecognizer.ERROR_NO_MATCH || e == SpeechRecognizer.ERROR_SPEECH_TIMEOUT || e == SpeechRecognizer.ERROR_CLIENT) js("end", "");
+                else js("error", "code" + e);
+            }
+        });
+        android.content.Intent i = new android.content.Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
+        i.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
+        i.putExtra(RecognizerIntent.EXTRA_LANGUAGE, pendingLang);
+        i.putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS, true);
+        i.putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 1);
+        i.putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_COMPLETE_SILENCE_LENGTH_MILLIS, 3000L);
+        i.putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_POSSIBLY_COMPLETE_SILENCE_LENGTH_MILLIS, 3000L);
+        sr.startListening(i);
+    }
+    private class Bridge {
+        @JavascriptInterface public boolean speechAvailable() { return SpeechRecognizer.isRecognitionAvailable(MainActivity.this); }
+        @JavascriptInterface public void startListen(final String lang) {
+            pendingLang = (lang == null || lang.isEmpty()) ? "ar-SA" : lang;
+            ui.post(new Runnable() { @Override public void run() {
+                if (Build.VERSION.SDK_INT >= 23 && checkSelfPermission(Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
+                    js("perm", ""); requestPermissions(new String[]{Manifest.permission.RECORD_AUDIO}, 77); return;
+                }
+                try { beginListen(); } catch (Exception e) { js("error", "start"); }
+            } });
+        }
+        @JavascriptInterface public void stopListen() {
+            ui.post(new Runnable() { @Override public void run() { if (sr != null) { try { sr.cancel(); sr.destroy(); } catch (Exception ignored) { } sr = null; } } });
+        }
+    }
+    @Override public void onRequestPermissionsResult(int code, String[] p, int[] g) {
+        super.onRequestPermissionsResult(code, p, g);
+        if (code == 77) js(g.length > 0 && g[0] == PackageManager.PERMISSION_GRANTED ? "permok" : "permno", "");
+    }
+    @Override protected void onDestroy() { if (sr != null) { try { sr.destroy(); } catch (Exception ignored) { } } super.onDestroy(); }
 
     /** Serves files from assets with correct MIME types (woff2, json, webmanifest ...). */
     private class Handler implements WebViewAssetLoader.PathHandler {
@@ -76,6 +146,7 @@ public class MainActivity extends Activity {
         s.setMediaPlaybackRequiresUserGesture(false);
         s.setAllowFileAccess(false);
         s.setMixedContentMode(WebSettings.MIXED_CONTENT_NEVER_ALLOW);
+        web.addJavascriptInterface(new Bridge(), "FahmAndroid");
         web.setWebChromeClient(new WebChromeClient());
         web.setWebViewClient(new WebViewClient() {
             @Nullable @Override

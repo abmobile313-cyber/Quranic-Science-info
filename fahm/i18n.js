@@ -4,7 +4,7 @@ window.I18N = {
   ui: [['ur', 'اردو'], ['ru', 'Roman Urdu'], ['en', 'English']],
   STR: {
     ur: {
-      prevL: 'پچھلی', nextL: 'اگلی', pick: 'آیت منتخب کریں', reader: 'مطالعہ', theme: 'تھیم', dark: 'ڈارک', light: 'لائٹ', autoOpt: 'خودکار اگلی آیت', size: 'حروف کا سائز', read: 'پڑھیں', exit: 'باہر نکلنے کے لیے دوبارہ بیک دبائیں', maslak: 'اپنے مسلک کے مطابق اردو ترجمہ', mk: {d:'دیوبندی',b:'بریلوی',a:'اہلِ حدیث',j:'جماعتِ اسلامی',s:'اہلِ تشیع'}, sfx: 'ہلکی آوازیں (ساؤنڈ ایفیکٹس)', sfxOff: 'بند', sfxLow: 'ہلکی', sfxMid: 'درمیانی', trVoice: 'ہر آیت کے بعد ترجمہ آواز میں سنائیں',
+      prevL: 'پچھلی', nextL: 'اگلی', pick: 'آیت منتخب کریں', reader: 'مطالعہ', theme: 'تھیم', dark: 'ڈارک', light: 'لائٹ', autoOpt: 'خودکار اگلی آیت', size: 'حروف کا سائز', read: 'پڑھیں', exit: 'باہر نکلنے کے لیے دوبارہ بیک دبائیں', maslak: 'اپنے مسلک کے مطابق اردو ترجمہ', mk: {d:'دیوبندی',b:'بریلوی',a:'اہلِ حدیث',j:'جماعتِ اسلامی',s:'اہلِ تشیع'}, sfx: 'ہلکی آوازیں (ساؤنڈ ایفیکٹس)', sfxOff: 'بند', sfxLow: 'ہلکی', sfxMid: 'درمیانی', recCus: 'اپنا قاری: EveryAyah فولڈر کا نام لکھیں', trVoice: 'ہر آیت کے بعد ترجمہ آواز میں سنائیں',
       surahs: 'سورتیں', settings: 'ترتیبات', ayah: 'آیت', auto: 'خودکار اگلی آیت', root: 'مادہ (جڑ)', same: 'اسی مادے کے مزید الفاظ', listen: 'لفظ کی آواز',
       nzh: 'پس منظر (شانِ نزول)', nzn: 'یہ نوٹ مشہور روایات کا مختصر خلاصہ ہے۔ شائع کرنے سے پہلے کسی عالم سے تصدیق ضرور کروائیں۔',
       ui: 'ایپ کی زبان', tr: 'ترجمے (جتنے چاہیں منتخب کریں)', rec: 'قاری', audioErr: 'آواز کے لیے انٹرنیٹ درکار ہے۔ فی الحال صرف اینیمیشن چل رہی ہے۔',
@@ -13,7 +13,7 @@ window.I18N = {
       replay: 'دوبارہ', word: 'لفظ', of: 'از', story: 'تفسیری کہانی', full: 'بڑی اسکرین', noVoice: 'اس ڈیوائس پر آواز دستیاب نہیں', drag: 'گھمانے کے لیے انگلی پھیریں', ayahWord: 'آیت'
     },
     ru: {
-      prevL: 'Pichli', nextL: 'Agli', pick: 'Ayat chunein', reader: 'Mutaala', theme: 'Theme', dark: 'Dark', light: 'Light', autoOpt: 'Auto agli ayat', size: 'Harf ka size', read: 'Padhein', exit: 'Bahar nikalne ke liye dobara back dabayein', maslak: 'Apne maslak ke mutabiq Urdu tarjuma', mk: {d:'Deobandi',b:'Barelvi',a:'Ahl-e-Hadith',j:'Jamaat-e-Islami',s:'Shia'}, sfx: 'Halki awaazein (sound effects)', sfxOff: 'Band', sfxLow: 'Halki', sfxMid: 'Darmiyani', trVoice: 'Har ayat ke baad tarjuma awaaz mein sunayein',
+      prevL: 'Pichli', nextL: 'Agli', pick: 'Ayat chunein', reader: 'Mutaala', theme: 'Theme', dark: 'Dark', light: 'Light', autoOpt: 'Auto agli ayat', size: 'Harf ka size', read: 'Padhein', exit: 'Bahar nikalne ke liye dobara back dabayein', maslak: 'Apne maslak ke mutabiq Urdu tarjuma', mk: {d:'Deobandi',b:'Barelvi',a:'Ahl-e-Hadith',j:'Jamaat-e-Islami',s:'Shia'}, sfx: 'Halki awaazein (sound effects)', sfxOff: 'Band', sfxLow: 'Halki', sfxMid: 'Darmiyani', recCus: 'Apna qari: EveryAyah folder ka naam likhein', trVoice: 'Har ayat ke baad tarjuma awaaz mein sunayein',
       surahs: 'Surahs', settings: 'Settings', ayah: 'Ayat', auto: 'Auto agli ayat', root: 'Root (jad)', same: 'Isi root ke aur lafz', listen: 'Lafz ki awaaz',
       nzh: 'Pas-e-manzar (Shaan-e-nuzool)', nzn: 'Yeh note mashhoor riwayat ka mukhtasar hai. Publish karne se pehle kisi aalim se tasdeeq zaroori hai.',
       ui: 'App ki zubaan', tr: 'Tarjume (jitne chahein chun lein)', rec: 'Qari', audioErr: 'Awaaz ke liye internet chahiye. Abhi sirf animation chal rahi hai.',
@@ -22,7 +22,7 @@ window.I18N = {
       replay: 'Dobara', word: 'Lafz', of: 'mein se', story: 'Tafsiri kahani', full: 'Bari screen', noVoice: 'Is device par awaaz maujood nahi', drag: 'Ghumane ke liye ungli phiren', ayahWord: 'Ayat'
     },
     en: {
-      prevL: 'Prev', nextL: 'Next', pick: 'Choose ayah', reader: 'Reading', theme: 'Theme', dark: 'Dark', light: 'Light', autoOpt: 'Auto next ayah', size: 'Text size', read: 'Read', exit: 'Press back again to exit', maslak: 'Urdu translation by school of thought', mk: {d:'Deobandi',b:'Barelvi',a:'Ahl-e-Hadith',j:'Jamaat-e-Islami',s:'Shia'}, sfx: 'Sound effects', sfxOff: 'Off', sfxLow: 'Soft', sfxMid: 'Medium', trVoice: 'Read the translation aloud after each ayah',
+      prevL: 'Prev', nextL: 'Next', pick: 'Choose ayah', reader: 'Reading', theme: 'Theme', dark: 'Dark', light: 'Light', autoOpt: 'Auto next ayah', size: 'Text size', read: 'Read', exit: 'Press back again to exit', maslak: 'Urdu translation by school of thought', mk: {d:'Deobandi',b:'Barelvi',a:'Ahl-e-Hadith',j:'Jamaat-e-Islami',s:'Shia'}, sfx: 'Sound effects', sfxOff: 'Off', sfxLow: 'Soft', sfxMid: 'Medium', recCus: 'Your own reciter: type an EveryAyah folder name', trVoice: 'Read the translation aloud after each ayah',
       surahs: 'Surahs', settings: 'Settings', ayah: 'Ayah', auto: 'Auto next ayah', root: 'Root', same: 'More words from this root', listen: 'Hear the word',
       nzh: 'Background (Context of revelation)', nzn: 'A brief note from well-known reports. Please have a scholar verify before publishing.',
       ui: 'App language', tr: 'Translations (choose as many as you like)', rec: 'Reciter', audioErr: 'Audio needs an internet connection. Only the animation is playing.',

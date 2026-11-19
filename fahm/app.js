@@ -7,7 +7,7 @@ const RTL = { ar: 1, ur: 1, fa: 1 };
 const REC = ['Alafasy_128kbps', 'Husary_128kbps', 'Abdurrahmaan_As-Sudais_192kbps', 'Minshawy_Murattal_128kbps', 'Abdul_Basit_Murattal_192kbps'];
 const I = window.I18N, STR = I.STR;
 const KEY = 'fahm.v1';
-let st = { s: 0, a: 0, w: 0, ui: 'ru', tl: null, rec: REC[0], auto: true, ios: 0, theme: 'dark', rfs: 30, sfx: 1, trv: false };
+let st = { s: 0, a: 0, w: 0, ui: 'ru', tl: null, rec: REC[0], auto: true, ios: 0, theme: 'dark', rfs: 30, sfx: 1, trw: true };
 try { Object.assign(st, JSON.parse(localStorage.getItem(KEY) || '{}')); } catch (e) { }
 const save = () => { try { localStorage.setItem(KEY, JSON.stringify(st)); } catch (e) { } };
 if (!STR[st.ui]) st.ui = 'ru';
@@ -18,9 +18,10 @@ const T = k => STR[st.ui][k];
 const sName = S => (I.surah[S.n] || {})[st.ui] || [S.en, S.mean];
 const lName = c => I.lang[st.ui][c] || c;
 const tName = c => I.translator[st.ui][c] || '';
-const rName = r => (I.reciter[r] || {})[st.ui] || r;
+const RECS = window.FAHM_RECS || [];
+const rName = r => { const e = RECS.find(x => x[0] === r); return e ? (st.ui === 'ur' ? e[2] : e[1]) : ((I.reciter[r] || {})[st.ui] || r); };
 const pick = o => o ? (st.ui === 'ur' ? o.ur : st.ui === 'ru' ? o.ru : o.en) : '';
-let VID = {}, D, scene, rootIdx = {}, playing = false, timer = null, bounds = [], hist = [], readerOn = false, rIdx = 0, rS = 0, rPlaying = false, exitAt = 0;
+let VID = {}, D, scene, rootIdx = {}, playing = false, timer = null, bounds = [], hist = [], exitAt = 0;
 const au = new Audio(); au.preload = 'auto';
 let wordAu = null;
 
@@ -110,7 +111,7 @@ function setFull(id, on) {
 }
 /* returns true when the app used the back press itself */
 window.__fahmBack = function () {
-  if (readerOn) { closeReader(); return true; }
+  if (FahmReader.isOpen()) { FahmReader.back(); return true; }
   for (const id of ['#pick', '#settings', '#menu']) if (!$(id).hidden) { $(id).hidden = true; return true; }
   if ($('#stage').classList.contains('big')) { setFull('#stage', false); return true; }
   if ($('#story').classList.contains('big')) { setFull('#story', false); return true; }
@@ -118,38 +119,10 @@ window.__fahmBack = function () {
   const now = Date.now(); if (now - exitAt < 2500) return false; exitAt = now; toast(T('exit'), 2300); return true;
 };
 
-/* ---------- reading mode (Indo-Pak style) ---------- */
-const rau = new Audio(); rau.preload = 'auto';
+/* ---------- reading mode: mushaf pages live in reader.js ---------- */
 const AD = '٠١٢٣٤٥٦٧٨٩', ad = n => String(n).replace(/\d/g, d => AD[d]);
-const BISM = 'بِسۡمِ اللّٰهِ الرَّحۡمٰنِ الرَّحِيۡمِ';
-function renderReader(si) {
-  rS = si; const S = D.surahs[si], sn = sName(S);
-  $('#rTitle').textContent = sn[0] + ' · ' + sn[1];
-  $('#rbody').innerHTML = `<div class="rh"><span class="rhn">${esc(sn[0])}</span></div>` + (S.n !== 1 && S.n !== 9 ? `<div class="rb">${BISM}</div>` : '') +
-    `<div class="rt">${S.ayat.map((A, i) => `<span class="rv" data-r="${i}">${esc(A.ip || A.ar)} <span class="rn">${ad(A.v)}</span></span>`).join(' ')}</div>`;
-  $('#rbody').style.setProperty('--rfs', st.rfs + 'px');
-}
-function rMark(i) {
-  rIdx = i; document.querySelectorAll('#rbody .rv').forEach((e, k) => e.classList.toggle('on', k === i));
-  const e = document.querySelector(`#rbody .rv[data-r="${i}"]`); if (e) e.scrollIntoView({ block: 'center', behavior: 'smooth' });
-}
-function rSetPlaying(p) { rPlaying = p; $('#rIcoP').style.display = p ? 'none' : ''; $('#rIcoS').style.display = p ? '' : 'none'; }
-function rPlay(i) {
-  const S = D.surahs[rS]; if (i >= S.ayat.length) { if (rS < D.surahs.length - 1) { renderReader(rS + 1); i = 0; } else { rSetPlaying(false); return; } }
-  rMark(i); rSetPlaying(true); const S2 = D.surahs[rS];
-  rau.onerror = () => { rSetPlaying(false); toast(T('audioErr')); };
-  rau.onended = () => { if (rPlaying) rPlay(rIdx + 1); };
-  rau.src = `https://everyayah.com/data/${st.rec}/${pad(S2.n)}${pad(S2.ayat[i].v)}.mp3`; const pr = rau.play(); if (pr && pr.catch) pr.catch(() => { rSetPlaying(false); toast(T('audioErr')); });
-}
-function openReader() {
-  stopAll(); readerOn = true; $('#reader').hidden = false; document.body.classList.add('noscroll'); renderReader(st.s); rMark(st.a); rSetPlaying(false); $('#rbody').scrollTop = 0;
-  setTimeout(() => rMark(st.a), 60);
-}
-function closeReader() {
-  try { rau.pause(); } catch (e) { } rSetPlaying(false); readerOn = false; $('#reader').hidden = true; document.body.classList.toggle('noscroll', anyFull());
-  if (rS !== st.s || rIdx !== st.a) goTo(rS, rIdx, 0, false, true);
-}
-function rSize(d) { st.rfs = Math.max(20, Math.min(64, st.rfs + d)); $('#rbody').style.setProperty('--rfs', st.rfs + 'px'); save(); }
+function openReader() { stopAll(); const S = D.surahs[st.s]; FahmReader.open(S.n, S.ayat[st.a].v); }
+function closeReader() { FahmReader.back(); }
 
 function goTo(s, a, w = 0, play = false, noHist = false) { if (!noHist && (s !== st.s || a !== st.a)) { hist.push([st.s, st.a]); if (hist.length > 60) hist.shift(); } st.s = s; st.a = a; st.w = w; renderAyah(false); $('#main').scrollTo({ top: 0, behavior: 'smooth' }); if (play) playAyah(); }
 function next(play) {
@@ -184,7 +157,7 @@ function playAyah() {
 }
 function onEnded() {
   scene.all(); const go = () => { if (!playing) return; if (st.auto) setTimeout(() => { if (playing) next(true); }, 500); else { setPlaying(false); FahmSfx.stop(); } };
-  if (st.trv && 'speechSynthesis' in window) { FahmSfx.stop(); speakTrList(go); } else go();
+  if (st.trw) { FahmSfx.stop(); speakTrList(go); } else go();
 }
 function playWord() {
   const { W } = cur(); stopAll(); if (wordAu) wordAu.pause();
@@ -192,10 +165,24 @@ function playWord() {
 }
 function ttsOf(c, A) { return c === 'rur' ? { text: A.tr.ur, lang: 'ur-PK' } : { text: A.tr[c], lang: (D.langs.find(l => l.c === c) || {}).tts || 'en-US' }; }
 function pickVoice(lang) { try { const vs = speechSynthesis.getVoices(), p = lang.slice(0, 2); return vs.find(v => v.lang === lang) || vs.find(v => v.lang.slice(0, 2) === p) || (p === 'ur' ? vs.find(v => v.lang.slice(0, 2) === 'hi') : null) || null; } catch (e) { return null; } }
-/* read the chosen translations aloud, one after another; done() runs when finished */
+/* translation voice: real recorded human audio where it exists (EveryAyah, ayah by ayah), phone TTS otherwise */
+const TRA = { ur: 'translations/urdu_shamshad_ali_khan_46kbps', rur: 'translations/urdu_shamshad_ali_khan_46kbps', en: 'English/Sahih_Intnl_Ibrahim_Walk_192kbps', fa: 'translations/Makarem_Kabiri_16Kbps', bs: 'translations/besim_korkut_ajet_po_ajet' };
+function trAudioUrl(c, S, A) { return TRA[c] ? `https://everyayah.com/data/${TRA[c]}/${pad(S.n)}${pad(A.v)}.mp3` : null; }
 function speakTrList(done, test) {
-  const { A } = cur(), list = st.tl.filter(c => A.tr[c]).slice(0, 2); let i = 0; try { speechSynthesis.cancel(); } catch (e) { }
-  const nxt = () => { if (i >= list.length || (test && i >= 1)) { if (done) done(); return; } const o = ttsOf(list[i++], A); try { const u = new SpeechSynthesisUtterance(o.text); u.lang = o.lang; const v = pickVoice(o.lang); if (v) u.voice = v; u.rate = .95; u.onend = nxt; u.onerror = nxt; speechSynthesis.speak(u); } catch (e) { toast(T('noVoice')); if (done) done(); } };
+  const { S, A } = cur(); let list = st.tl.filter(c => A.tr[c]);
+  const seen = {}; list = list.filter(c => { const k = TRA[c] || c; if (seen[k]) return false; seen[k] = 1; return true; }).slice(0, 2);
+  if (!list.length) { if (done) done(); return; }
+  let i = 0; try { speechSynthesis.cancel(); } catch (e) { }
+  const tts = (c) => {
+    if (!('speechSynthesis' in window)) { toast(T('noVoice')); return nxt(); }
+    const o = ttsOf(c, A); try { const u = new SpeechSynthesisUtterance(o.text); u.lang = o.lang; const v = pickVoice(o.lang); if (v) u.voice = v; else if (!speechSynthesis.getVoices().length) toast(T('noVoice')); u.rate = .95; u.onend = nxt; u.onerror = nxt; speechSynthesis.speak(u); } catch (e) { toast(T('noVoice')); nxt(); }
+  };
+  function nxt() {
+    if (!playing && !test) return; if (i >= list.length || (test && i >= 1)) { au.ontimeupdate = null; if (done) done(); return; }
+    const c = list[i++], url = trAudioUrl(c, S, A);
+    if (!url) return tts(c);
+    au.ontimeupdate = null; au.onended = nxt; au.onerror = () => tts(c); au.src = url; const pr = au.play(); if (pr && pr.catch) pr.catch(() => tts(c));
+  }
   nxt();
 }
 function speakTr(c) {
@@ -216,10 +203,10 @@ function openSettings() {
     `<div class="set-g"><h5>${T('ui')}</h5>${seg(I.ui, st.ui, 'ui')}</div>` +
     `<div class="set-g"><h5>${T('theme')}</h5>${seg([['dark', T('dark')], ['light', T('light')]], st.theme, 'theme')}</div>` +
     `<div class="set-g"><h5>${T('sfx')}</h5>${seg([['0', T('sfxOff')], ['1', T('sfxLow')], ['2', T('sfxMid')]], String(st.sfx), 'sfx')}</div>` +
-    `<div class="set-g"><label class="chk"><input type="checkbox" id="autoNext" ${st.auto ? 'checked' : ''}><span>${esc(T('autoOpt'))}</span></label><label class="chk"><input type="checkbox" id="trVoice" ${st.trv ? 'checked' : ''}><span>${esc(T('trVoice'))}</span></label></div>` +
+    `<div class="set-g"><label class="chk"><input type="checkbox" id="autoNext" ${st.auto ? 'checked' : ''}><span>${esc(T('autoOpt'))}</span></label><label class="chk"><input type="checkbox" id="trVoice" ${st.trw ? 'checked' : ''}><span>${esc(T('trVoice'))}</span></label></div>` +
     `<div class="set-g"><h5>${T('maslak')}</h5>${seg(MASLAK.map(([k, c]) => [c, T('mk')[k]]), (MASLAK.find(([k, c]) => st.tl.includes(c)) || [0, ''])[1], 'maslak')}</div>` +
     `<div class="set-g"><h5>${T('tr')}</h5>${D.langs.filter(l => l.c !== 'ar').map(l => `<label class="chk"><input type="checkbox" data-tl="${l.c}" ${st.tl.includes(l.c) ? 'checked' : ''}><span>${esc(lName(l.c))}<small>${esc(tName(l.c))}</small></span></label>`).join('')}</div>` +
-    `<div class="set-g"><h5>${T('rec')}</h5>${seg(REC.map(r => [r, rName(r)]), st.rec, 'rec')}</div>`;
+    `<div class="set-g"><h5>${T('rec')}</h5><select id="recSel" class="sel">${['h','w'].map(g => `<optgroup label="${g === 'h' ? 'Hafs ‘an ‘Asim' : 'Warsh ‘an Nafi‘'}">${RECS.filter(r => r[3] === g).map(r => `<option value="${esc(r[0])}" ${st.rec === r[0] ? 'selected' : ''}>${esc(rName(r[0]))}</option>`).join('')}</optgroup>`).join('')}${RECS.some(r => r[0] === st.rec) ? '' : `<option value="${esc(st.rec)}" selected>${esc(st.rec)}</option>`}</select><input id="recCus" class="sel" dir="ltr" placeholder="${esc(T('recCus'))}" value=""></div>`;
   $('#settings').hidden = false;
 }
 
@@ -229,15 +216,12 @@ function bind() {
   $('#bPrev').onclick = prev; $('#bNext').onclick = () => next(false);
   $('#bPlay').onclick = () => { if (playing) { stopAll(); } else playAyah(); };
   $('#btnReplay').onclick = () => playAyah();
-  $('#bPick').onclick = openPick; $('#btnRead').onclick = openReader; $('#rClose').onclick = closeReader; $('#rTitle').onclick = openMenu;
-  $('#rMinus').onclick = () => rSize(-3); $('#rPlus').onclick = () => rSize(3);
-  $('#rPlay').onclick = () => { if (rPlaying) { rau.pause(); rSetPlaying(false); } else rPlay(rIdx); };
-  $('#rbody').addEventListener('click', e => { const v = e.target.closest('.rv'); if (v) rPlay(+v.dataset.r); });
+  $('#bPick').onclick = openPick; $('#btnRead').onclick = openReader;
   $('#btnFullS').onclick = () => setFull('#story', true); $('#sClose').onclick = () => setFull('#story', false);
   $('#sPrev').onclick = prev; $('#sNext').onclick = () => next(false); $('#sPlay').onclick = () => { if (playing) stopAll(); else playAyah(); };
   document.addEventListener('click', e => {
     if (e.target.id === 'autoNext') { st.auto = e.target.checked; save(); return; }
-    if (e.target.id === 'trVoice') { st.trv = e.target.checked; save(); if (st.trv) speakTrList(null, true); return; }
+    if (e.target.id === 'trVoice') { st.trw = e.target.checked; save(); if (st.trw) speakTrList(null, true); return; }
     const pa = e.target.closest('[data-pa]'); if (pa) { $('#pick').hidden = true; goTo(st.s, +pa.dataset.pa); return; }
     const t = e.target.closest('button,label,input,aside'); if (!t) return;
     if (t.classList && t.classList.contains('sheet') && e.target === t) { t.hidden = true; return; }
@@ -245,11 +229,13 @@ function bind() {
     const g = e.target.closest('[data-go]'); if (g) { const [s, a, ww] = g.dataset.go.split(',').map(Number); goTo(s, a, ww); return; }
     const sp = e.target.closest('#spkW'); if (sp) { playWord(); return; }
     const tt = e.target.closest('[data-tts]'); if (tt) { speakTr(tt.dataset.tts); return; }
-    const sr = e.target.closest('[data-s]'); if (sr) { $('#menu').hidden = true; if (readerOn) { try { rau.pause(); } catch (x) { } rSetPlaying(false); renderReader(+sr.dataset.s); rIdx = 0; $('#rbody').scrollTop = 0; } else goTo(+sr.dataset.s, 0); return; }
+    const sr = e.target.closest('[data-s]'); if (sr) { $('#menu').hidden = true; if (FahmReader.isOpen()) FahmReader.gotoSurah(D.surahs[+sr.dataset.s].n); else goTo(+sr.dataset.s, 0); return; }
     const kv = e.target.closest('[data-k]'); if (kv && kv.dataset.k === 'maslak') { st.tl = st.tl.filter(x => !URD.includes(x)); st.tl.push(kv.dataset.v); st.tl.sort((x, y) => D.langs.findIndex(l => l.c === x) - D.langs.findIndex(l => l.c === y)); save(); renderTrans(); openSettings(); return; }
     if (kv) { st[kv.dataset.k] = kv.dataset.k === 'sfx' ? +kv.dataset.v : kv.dataset.v; if (kv.dataset.k === 'sfx') { FahmSfx.unlock(); FahmSfx.setLevel(st.sfx); if (st.sfx && playing) FahmSfx.start((scene.spec || {}).sky); } if (kv.dataset.k === 'ui') st.tl = DEF_TL[st.ui].slice(); save(); applyUi(); renderAyah(true); openSettings(); return; }
   });
   document.addEventListener('change', e => {
+    if (e.target.id === 'recSel') { st.rec = e.target.value; save(); return; }
+    if (e.target.id === 'recCus') { const v = e.target.value.trim().replace(/^https?:\/\/everyayah\.com\/data\//, '').replace(/\/+$/, ''); if (v) { st.rec = v; save(); toast(v); } return; }
     const c = e.target.closest('[data-tl]'); if (!c) return;
     const code = c.dataset.tl; st.tl = st.tl.filter(x => x !== code); if (c.checked) st.tl.push(code); st.tl.sort((a, b) => D.langs.findIndex(l => l.c === a) - D.langs.findIndex(l => l.c === b)); save(); renderTrans();
   });
@@ -266,7 +252,7 @@ function bind() {
   $('#btnFull').onclick = () => setFull('#stage', !$('#stage').classList.contains('big'));
   window.addEventListener('visibilitychange', () => { if (document.hidden) scene.stop(); else scene.start(); });
 }
-function applyUi() { document.documentElement.lang = st.ui === 'en' ? 'en' : 'ur'; document.body.className = 'l-' + st.ui + (st.theme === 'light' ? ' light' : ''); const tc = document.querySelector('meta[name=theme-color]'); if (tc) tc.content = st.theme === 'light' ? '#f6f1e4' : '#05070e'; if (D) navUi(); $('#btnFullS').title = T('full'); $('#btnRead').title = T('reader'); $('#rbody').dir = 'rtl'; if (window.FahmLab) FahmLab.lang = st.ui; $('#btnFull').title = T('full'); $('#btnReplay').title = T('replay'); $('#btnLabR').title = T('replay'); }
+function applyUi() { document.documentElement.lang = st.ui === 'en' ? 'en' : 'ur'; document.body.className = 'l-' + st.ui + (st.theme === 'light' ? ' light' : ''); const tc = document.querySelector('meta[name=theme-color]'); if (tc) tc.content = st.theme === 'light' ? '#f6f1e4' : '#05070e'; if (D) navUi(); $('#btnFullS').title = T('full'); $('#btnRead').title = T('reader'); if (window.FahmLab) FahmLab.lang = st.ui; $('#btnFull').title = T('full'); $('#btnReplay').title = T('replay'); $('#btnLabR').title = T('replay'); }
 
 /* ---------- install hint ---------- */
 let deferred = null;
@@ -284,6 +270,7 @@ async function init() {
   try { VID = await (await fetch('video/manifest.json')).json(); } catch (e) { VID = {}; }
   if (st.s >= D.surahs.length) st.s = 0;
   FahmSfx.setLevel(st.sfx); scene.onBorn = it => { if (playing && st.sfx) FahmSfx.cue(it.a); };
+  FahmReader.init({ st: () => st, save, toast, openMenu, onClose: () => document.body.classList.toggle('noscroll', anyFull()) });
   applyUi(); bind(); renderAyah(false); scene.start(); iosHint();
   try { history.replaceState({ b: 1 }, ''); history.pushState({ a: 1 }, ''); window.addEventListener('popstate', () => { if (window.__fahmBack()) history.pushState({ a: 1 }, ''); }); } catch (e) { }
   window.__fahm = { scene, st, goTo, D, lemKey };

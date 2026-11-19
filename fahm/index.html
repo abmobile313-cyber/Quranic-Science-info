@@ -65,8 +65,16 @@
   <aside id="pick" class="sheet" hidden><div class="sheet-in glass"><h3 id="pickT"></h3><div id="pickGrid"></div></div></aside>
   <div id="reader" hidden>
     <div class="rtop"><button id="rClose" class="ib" aria-label="Close"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button><div id="rTitle"></div>
-      <button id="rMinus" class="ib sm"><b>A</b></button><button id="rPlus" class="ib sm"><b style="font-size:20px">A</b></button><button id="rPlay" class="ib"><svg id="rIcoP" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg><svg id="rIcoS" viewBox="0 0 24 24" style="display:none"><path d="M7 5h4v14H7zM13 5h4v14h-4z"/></svg></button></div>
-    <div id="rbody" dir="rtl"></div>
+      <button id="rLay" class="ib sm" aria-label="Layout"><svg viewBox="0 0 24 24"><path d="M5 4h14v16H5zM8 8h8M8 12h8M8 16h8"/></svg></button>
+      <button id="rMinus" class="ib sm"><b>A</b></button><button id="rPlus" class="ib sm"><b style="font-size:20px">A</b></button></div>
+    <div id="rstage"><div id="rpage"><div id="rin"></div><div id="rpn"></div></div></div>
+    <div id="rhz" hidden><span id="rhSt"></span><button id="rhMode" class="po sm"></button><button id="rhSet" class="ib sm" aria-label="Settings"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M18.4 5.6l-2.1 2.1M7.7 16.3l-2.1 2.1"/></svg></button><button id="rhStop" class="ib sm" aria-label="Stop"><svg viewBox="0 0 24 24"><path d="M7 7h10v10H7z"/></svg></button></div>
+    <div id="rbar"><button id="rNext" class="ib" aria-label="Next page"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button>
+      <button id="rPlay" class="ib gold"><svg id="rIcoP" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg><svg id="rIcoS" viewBox="0 0 24 24" style="display:none"><path d="M7 6h4v12H7zM13 6h4v12h-4z"/></svg></button>
+      <span id="rPg"></span>
+      <button id="rMic" class="ib" aria-label="Hafiz"><svg viewBox="0 0 24 24"><path d="M12 3a3 3 0 013 3v6a3 3 0 01-6 3zM6 11a6 6 0 0012 0M12 17v4"/></svg></button>
+      <button id="rPrev" class="ib" aria-label="Previous page"><svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg></button></div>
+    <div id="rpop" hidden></div>
   </div>
   <div id="toast" hidden></div>
   <div id="install" hidden></div>
@@ -77,11 +85,19 @@
 <script src="three.min.js"></script>
 <script src="lab.js"></script>
 <script src="labmotifs.js"></script>
+<script src="labm2a.js"></script>
+<script src="labm2b.js"></script>
+<script src="labm2c.js"></script>
+<script src="labm2d.js"></script>
 <script src="labv.js"></script>
 <script src="labspecs.js"></script>
 <script src="lemspecs.js"></script>
+<script src="lemspecs2.js"></script>
 <script src="story3d.js"></script>
 <script src="story3da.js"></script>
+<script src="reciters.js"></script>
+<script src="hafiz.js"></script>
+<script src="reader.js"></script>
 <script src="i18n.js"></script>
 <script src="content_ur.js"></script>
 <script src="app.js"></script>
