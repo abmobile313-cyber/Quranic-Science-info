@@ -423,6 +423,9 @@ async function viewCourse(c) {
 
 /* ============ audio ============ */
 let voiceEl = null, qariEl = null, rec = null, recUrl = null, recChunks = [];
+/* teacher / guide voice at a calm, easy-to-follow pace (a little under natural speed; pitch stays the same) */
+const NARR_RATE = 0.9;
+function SLOW(a) { try { a.preservesPitch = true; a.mozPreservesPitch = true; a.webkitPreservesPitch = true; a.defaultPlaybackRate = NARR_RATE; a.playbackRate = NARR_RATE; } catch (e) {} return a; }
 /* only ONE voice at a time: any sound that starts silences every other lesson / qari / coach sound (no more voices on top of each other) */
 const LIVE = new Set();
 (function () { const P = HTMLMediaElement.prototype.play;
@@ -440,7 +443,7 @@ function narr(key, force) {
     let a = null, fb = 0, fin = false;
     const done = ok => { if (fin) return; fin = true; box && box.classList.remove("playing"); if (qariEl && qariEl.__n === tok) qariEl = null; res(ok && tok === QTOK); };
     const go = en => { if (tok !== QTOK) { done(false); return; }   /* a newer voice has started meanwhile (late fallback): stay quiet */
-      a = new Audio((en ? "ustad/say/en/" : "ustad/say/") + key + ".mp3"); a.onended = () => done(true);
+      a = new Audio((en ? "ustad/say/en/" : "ustad/say/") + key + ".mp3"); SLOW(a); a.onended = () => done(true);
       a.onerror = () => { if (en && !fb) { fb = 1; go(false); } else done(true); };
       box && box.classList.add("playing");
       /* play() first: the "one voice at a time" hook pauses the current qariEl whenever ANY audio starts, so the stop-handle is registered only after this clip has started */
@@ -456,7 +459,7 @@ async function playVoice() {
   let src = null; try { src = await voiceSrc(id, i + 1); } catch (e) {}
   if (my !== QTOK) return;            // another sound was started meanwhile: do not talk over it
   if (!src) return after();
-  voiceEl = new Audio(src); box && box.classList.add("playing"); window.QSUstad && QSUstad.hint(pick(m));
+  voiceEl = new Audio(src); SLOW(voiceEl); box && box.classList.add("playing"); window.QSUstad && QSUstad.hint(pick(m));
   voiceEl.onended = after; voiceEl.onerror = () => box && box.classList.remove("playing");
   voiceEl.play().catch(() => box && box.classList.remove("playing"));
 }
