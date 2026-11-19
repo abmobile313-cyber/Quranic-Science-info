@@ -431,16 +431,6 @@ const LIVE = new Set();
       if (!me.__lv) { me.__lv = 1; const off = () => LIVE.delete(me); me.addEventListener("ended", off); me.addEventListener("pause", off); me.addEventListener("error", off); } LIVE.add(me); }
     return P.apply(me, arguments); }; })();
 function stopAll() { QTOK++; [voiceEl, qariEl].forEach(a => { try { a && a.pause(); } catch (e) {} }); try { window.speechSynthesis && speechSynthesis.cancel(); } catch (e) {} if (rec && rec.state === "recording") try { rec.stop(); } catch (e) {} $$(".playing").forEach(e => e.classList.remove("playing")); }
-/* the lesson is narrated in one recorded (Urdu) voice. When the app language is English the same lesson text is spoken in English by the phone's own voice, so the voice always matches the words on screen */
-function speakText(text, onend) {
-  try {
-    if (!window.speechSynthesis) return false; speechSynthesis.cancel();
-    const clean = String(text).replace(/[\u0600-\u06FF\u0750-\u077F]+/g, ", ").replace(/[\u{1F300}-\u{1FAFF}\u2600-\u27BF]/gu, " ").replace(/\s+/g, " ").trim();
-    const u = new SpeechSynthesisUtterance(clean); u.lang = "en-IN"; u.rate = .93;
-    const v = speechSynthesis.getVoices().find(x => /^en[-_]IN/i.test(x.lang)) || speechSynthesis.getVoices().find(x => /^en/i.test(x.lang)); if (v) u.voice = v;
-    u.onend = u.onerror = () => onend && onend(); speechSynthesis.speak(u); voiceEl = { pause() { try { speechSynthesis.cancel(); } catch (e) {} } }; return true;
-  } catch (e) { return false; }
-}
 /* the Ustad's recorded guide voice for every part of the class (ustad/say/<key>.mp3, English folder first when the app is English).
    Resolves true when it finished, false when something else took over (so a guided flow simply stops there). Silent when the voice switch is off. */
 function narr(key, force) {
@@ -459,24 +449,6 @@ function narr(key, force) {
     go(LANG === "en");
   });
 }
-/* reads a question / explanation aloud with the phone's own voice: English text in English, Urdu/Hindi in the Hindustani voice (Devanagari text),
-   and the Arabic letters or words inside it in an Arabic voice when the phone has one */
-function speakMixed(text, onend) {
-  try {
-    if (!window.speechSynthesis || !text) { onend && onend(); return false; }
-    speechSynthesis.cancel();
-    const base = LANG === "en" ? "en-IN" : "hi-IN", AR = /[؀-ۿݐ-ݿ]/;
-    const clean = String(text).replace(/[\u{1F300}-\u{1FAFF}☀-➿✓✗]/gu, " ").replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
-    const parts = clean.split(/([؀-ۿݐ-ݿ][؀-ۿݐ-ݿ\s·،]*)/).map(s => s.trim()).filter(Boolean);
-    if (!parts.length) { onend && onend(); return false; }
-    const vs = speechSynthesis.getVoices();
-    parts.forEach((p, i) => { const ar = AR.test(p), u = new SpeechSynthesisUtterance(p), lang = ar ? "ar-SA" : base; u.lang = lang; u.rate = ar ? .8 : .93;
-      const v = vs.find(x => x.lang.replace("_", "-").toLowerCase() === lang.toLowerCase()) || vs.find(x => x.lang.toLowerCase().startsWith(lang.slice(0, 2))); if (v) u.voice = v;
-      if (i === parts.length - 1) u.onend = u.onerror = () => onend && onend(); speechSynthesis.speak(u); });
-    voiceEl = { pause() { try { speechSynthesis.cancel(); } catch (e) {} } }; return true;
-  } catch (e) { onend && onend(); return false; }
-}
-const ttsOf = o => o ? (LANG === "en" ? (o.en || "") : (o.hi || o.ur || o.en || "")) : "";
 async function playVoice() {
   stopAll(); const my = QTOK; const { id, i, data } = LESSON, m = data && data.moments[i]; if (!m) return;
   const box = $("#vo"), after = () => { box && box.classList.remove("playing"); LESSON.tourOff && LESSON.tourOff(); };
@@ -917,14 +889,15 @@ function drawQuiz(k, ans) {
     <div class="say"><b>${esc(pick(Q.q))}</b> <button class="btn sm" id="qrd" aria-label="read aloud">🔊</button></div><div id="opts">${qorder(LESSON.id, k, Q.o.length).map(j => { const o = Q.o[j]; return `<button class="qopt" data-j="${j}"><span class="${/[؀-ۿ]/.test(pick(o)) ? "ar" : ""}">${esc(pick(o))}</span></button>`; }).join("")}</div><div id="fb"></div></section>`;
   /* the Ustad reads the question and every answer aloud, then says right / explains the mistake */
   const qo = qorder(LESSON.id, k, Q.o.length);
-  const speakQ = () => { stopAll(); const my = QTOK, parts = [ttsOf(Q.q)].concat(qo.map(j => ttsOf(Q.o[j]))); let i = 0;
-    const next = () => { if (QTOK !== my || i >= parts.length) return; speakMixed(parts[i++], () => setTimeout(next, 400)); }; next(); };
+  /* only the Ustad's own recorded voice (ustad/say/quiz/<lesson>-<n>-q | o<j> | w.mp3); a missing clip stays silent - never the phone's voice */
+  const qk = s => "quiz/" + LESSON.id + "-" + k + "-" + s;
+  const speakQ = async () => { stopAll(); const my = QTOK; for (const s of ["q"].concat(qo.map(j => "o" + j))) { if (!(await narr(qk(s), true)) || !$("#qrd")) return; } };
   $("#qrd").onclick = speakQ;
   if (ub) { window.QSUstad && QSUstad.mount($("#uface")); if ($("#rv")) $("#rv").onclick = speakQ; }
   if (S.voice) (async () => { if (k === 0 && !(await narr("p_quiz"))) return; speakQ(); })();
   $$(".qopt", app).forEach(b => b.onclick = () => {
     const j = +b.dataset.j, ok = j === Q.a;
-    stopAll(); if (S.voice) { if (ok) narr("p_right").then(v => v && speakMixed(ttsOf(Q.why))); else speakMixed(ttsOf(Q.why)); }
+    stopAll(); if (S.voice) { if (ok) narr("p_right").then(v => v && narr(qk("w"))); else narr(qk("w")); }
     $$(".qopt", app).forEach(x => { x.disabled = true; if (+x.dataset.j === Q.a) x.classList.add("ok"); });
     if (!ok) b.classList.add("no");
     $("#fb").innerHTML = `<p class="why"><b>${ok ? "✓ " + t("right") : "✗ " + t("wrong")}</b> ${esc(pick(Q.why))}</p><div class="nav"><span></span><button class="btn pri" id="qc">${t("cont")}</button></div>`;
