@@ -172,9 +172,11 @@ let auth = null, db = null;
 try { firebase.initializeApp(FB); auth = firebase.auth(); db = firebase.firestore(); } catch (e) {}
 const token = async () => S.user ? S.user.getIdToken() : "";
 async function loadDoc() {
-  S.doc = {};
-  if (!S.user || !db) return;
-  try { const d = await db.collection("users").doc(S.user.uid).get(); S.doc = d.exists ? d.data() : {}; } catch (e) {}
+  S.loaded = false;
+  if (!S.user) { S.doc = {}; return; }
+  if (!db) return;
+  /* offline or slow network: keep the last saved copy of the student's access instead of wiping it */
+  try { const d = await db.collection("users").doc(S.user.uid).get(); S.doc = d.exists ? d.data() : {}; S.loaded = true; } catch (e) { return; }
   S.tch = null; S.live = {};
   if (S.user.email) try { const tdoc = await db.collection("teachers").doc(S.user.email.toLowerCase()).get(); if (tdoc.exists) S.tch = tdoc.data(); } catch (e) {}
   const local = LS.get("qsai-prog", {}), remote = S.doc.ai || {}, add = {};
@@ -188,13 +190,20 @@ async function saveProg(id, rec) {
 }
 /* open at once from the last saved copy of the student's access, then refresh quietly (no waiting on the network) */
 const KEEP = ["access", "ai", "aiPhoto", "aiSlot", "batch", "code", "name"], sig = x => JSON.stringify([x.doc && x.doc.access, x.doc && x.doc.aiSlot, x.tch]);
+const LASTU = "qsai-lastuser";
 if (auth) auth.onAuthStateChanged(async u => {
   S.user = u; const ck = u ? LS.get("qsai-doc-" + u.uid, null) : null;
-  if (ck) { S.doc = ck.doc || {}; S.tch = ck.tch || null; S.live = {}; renderWho(); drawMark(); route(); }
+  LS.set(LASTU, u ? { uid: u.uid, displayName: u.displayName || "", email: u.email || "", photoURL: u.photoURL || "" } : null);
+  if (ck) { S.doc = ck.doc || {}; S.tch = ck.tch || null; S.live = {}; renderWho(); drawMark(); route(); } else { S.doc = {}; S.tch = null; }
   await loadDoc();
-  if (u) { const d = {}; KEEP.forEach(k => { if (S.doc[k] !== undefined) d[k] = S.doc[k]; }); LS.set("qsai-doc-" + u.uid, { doc: d, tch: S.tch }); }
+  if (u && S.loaded) { const d = {}; KEEP.forEach(k => { if (S.doc[k] !== undefined) d[k] = S.doc[k]; }); LS.set("qsai-doc-" + u.uid, { doc: d, tch: S.tch }); }
   renderWho(); drawMark(); if (!ck || sig(ck) !== sig({ doc: S.doc, tch: S.tch })) route();
 });
+/* offline fallback: if the sign-in library could not load (no internet), open from the last saved student copy */
+if (!auth) { const lu = LS.get(LASTU, null); if (lu && lu.uid) setTimeout(() => {
+  S.user = Object.assign({ getIdToken: async () => "" }, lu); const ck = LS.get("qsai-doc-" + lu.uid, null);
+  if (ck) { S.doc = ck.doc || {}; S.tch = ck.tch || null; }
+  renderWho(); drawMark(); route(); }, 0); }
 
 /* ============ protected content: lessons and voices are stored encrypted; the key is given only to enrolled students ============ */
 const hex2buf = h => new Uint8Array(h.match(/../g).map(x => parseInt(x, 16)));
@@ -278,10 +287,19 @@ const IN_APP = /QSApp\//.test(navigator.userAgent), HOMEBTN = IN_APP ? `<a class
 function renderWho() {
   const w = $("#who");
   if (S.user) { const n = (S.user.displayName || S.user.email || "?").trim();
-    w.innerHTML = `${HOMEBTN}<a class="btn sm" href="#offline" title="${t("offline")}">⬇</a><span class="av">${S.user.photoURL ? `<img src="${esc(S.user.photoURL)}" alt="">` : esc(n[0].toUpperCase())}</span><button class="btn sm" id="lo">${t("logout")}</button>`;
-    $("#lo").onclick = () => auth.signOut(); }
+    w.innerHTML = `${HOMEBTN}<div class="umenu"><button class="av" id="uav" aria-haspopup="true" aria-expanded="false" title="${esc(n)}">${S.user.photoURL ? `<img src="${esc(S.user.photoURL)}" alt="">` : esc(n[0].toUpperCase())}</button><div class="pop" id="upop" hidden><div class="pn">${esc(n)}</div><a class="pi" href="#offline">⬇ ${t("offline")}</a><button class="pi" id="lo">${t("logout")}</button></div></div>`;
+    $("#uav").onclick = e => { e.stopPropagation(); const p = $("#upop"); closePops(p); p.hidden = !p.hidden; e.currentTarget.setAttribute("aria-expanded", String(!p.hidden)); };
+    $("#lo").onclick = () => { LS.set(LASTU, null); if (auth) auth.signOut(); else location.reload(); }; }
   else { w.innerHTML = `${HOMEBTN}<button class="btn sm pri" id="li">${t("login")}</button>`; $("#li").onclick = () => loginBox(); }
 }
+/* ---- language menu, account menu, calm floating button ---- */
+const LB = $("#langBtn"), LABEL = { en: "EN", ur: "اردو", hi: "हिं" };
+const syncLang = () => { const c = $("#langCur"); if (c) c.textContent = LABEL[LANG] || "EN"; };
+function closePops(except) { $$(".pop").forEach(p => { if (p !== except) p.hidden = true; }); }
+if (LB) { LB.onclick = e => { e.stopPropagation(); const p = $("#langPop"); closePops(p); p.hidden = !p.hidden; LB.setAttribute("aria-expanded", String(!p.hidden)); };
+  $$("[data-lang]").forEach(b => b.addEventListener("click", () => { closePops(); syncLang(); })); syncLang(); }
+document.addEventListener("click", e => { if (!e.target.closest(".lang,.umenu") || e.target.closest(".pop a")) closePops(); });
+(function () { const f = $("#fab"); if (!f) return; let tm = 0; addEventListener("scroll", () => { f.classList.add("away"); clearTimeout(tm); tm = setTimeout(() => f.classList.remove("away"), 650); }, { passive: true }); })();
 function drawMark() {
   const m = $("#mark"); if (!m) return;
   const who = S.user ? `${S.doc.code || ""} ${S.user.email || ""}`.trim() : "";
@@ -859,7 +877,7 @@ async function saveOffline(c, btn) {
   for (const d of ready) { urls.add(`data/${d.id.slice(0, 5)}.bin?v=${o.v || 0}`); }
   const bar = btn.parentNode.querySelector(".bar"); bar.hidden = false; btn.disabled = true; btn.textContent = t("saving");
   const weeks = [...new Set(ready.map(d => d.id.slice(0, 5)))]; let done = 0, total = 0;
-  for (const wk of weeks) { const L = await lessonDataWeek(wk); for (const l of L) { l.moments.forEach((m, i) => { const V = `?v=${o.v || 0}`; LANG === "en" && !FREE.includes(l.id) && urls.add(`vo/${l.id}-${i + 1}e.bin${V}`); [String(i + 1)].concat(m.av ? [(i + 1) + "a"] : []).forEach(n => urls.add(FREE.includes(l.id) ? `vo/${l.id}-${n}.mp3${V}` : `vo/${l.id}-${n}.bin${V}`)); (m.q || []).forEach(q => urls.add(q.w ? QARI_WORD(q.s, q.a, q.w) : QARI_AYAH(q.s, q.a))); }); } }
+  for (const wk of weeks) { const L = await lessonDataWeek(wk); for (const l of L) { l.moments.forEach((m, i) => { const V = `?v=${o.v || 0}`; !FREE.includes(l.id) && urls.add(`vo/${l.id}-${i + 1}e.bin${V}`); [String(i + 1)].concat(m.av ? [(i + 1) + "a"] : []).forEach(n => urls.add(FREE.includes(l.id) ? `vo/${l.id}-${n}.mp3${V}` : `vo/${l.id}-${n}.bin${V}`)); (m.q || []).forEach(q => urls.add(q.w ? QARI_WORD(q.s, q.a, q.w) : QARI_AYAH(q.s, q.a))); }); } }
   total = urls.size;
   for (const u of urls) { try { const req = new Request(u, /^https?:/.test(u) ? { mode: "no-cors" } : {}); const res = await fetch(req); await cache.put(req, res); } catch (e) {} done++; bar.firstChild.style.width = Math.round(done * 100 / total) + "%"; }
   const sv = LS.get("qsai-off", {}); sv[c] = { at: Date.now(), n: ready.length }; LS.set("qsai-off", sv);

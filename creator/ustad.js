@@ -129,20 +129,55 @@
     if (!settled) S.raf = requestAnimationFrame(frame);
     else instances.forEach(draw);
   }
-  function kick() { instances.forEach(draw); } /* photo only: no lip, head or idle movement */
+  function kick() { instances.forEach(draw); }
 
+  /* ---------- the mouth: one calm photo, the jaw and lips are drawn on it ----------
+     The closed-mouth photo stays as it is. When the voice opens the mouth, the lower lip + chin slide down column by column (the corners hold),
+     the gap is filled with a dark mouth, teeth and tongue. a = wide, e = smile, o = round, s = small gap, c = closed. */
+  var F = { cx: 225, cy: 270, rise: 15, hc: 45, hw: 34, jw: 62, yb: 346, maxd: 15 };
+  function crease(x) { var t = (x - F.cx) / F.hc; return F.cy - F.rise * t * t; }
+  function mouth(g, d, wa, ws, we, wo) {
+    var ex = .85 - .35 * wo, hw = Math.max(14, Math.min(F.hc - 3, F.hw + 10 * we - 15 * wo + 4 * wa)), x, dx, t, gp, jw, off, s, sy0, h, tv = Math.min(1, wa + we + ws * .8);
+    d *= 1 + .18 * wo - .2 * we;
+    /* 1. the inside of the mouth (between the upper lip's edge and the dropping lower lip) */
+    var x0 = Math.round(F.cx - hw), x1 = Math.round(F.cx + hw), gaps = [];
+    g.save(); g.beginPath();
+    for (x = x0; x <= x1; x++) { t = (x - F.cx) / hw; gaps[x - x0] = d * Math.pow(Math.max(0, 1 - t * t), ex); g[x === x0 ? "moveTo" : "lineTo"](x + .5, crease(x) + .6); }
+    for (x = x1; x >= x0; x--) g.lineTo(x + .5, crease(x) + .6 + gaps[x - x0] + 1.2);
+    g.closePath(); g.clip();
+    var top = F.cy - F.rise - 2, gr = g.createLinearGradient(0, top, 0, F.cy + d + 4); gr.addColorStop(0, "#3a1013"); gr.addColorStop(.55, "#4d171b"); gr.addColorStop(1, "#6a2a2e");
+    g.fillStyle = gr; g.fillRect(x0 - 2, top, x1 - x0 + 4, d + F.rise + 12);
+    if (tv > .05 && d > 2) { /* upper teeth, just under the upper lip */
+      g.fillStyle = "rgba(246,240,229," + (.92 * tv).toFixed(2) + ")"; g.beginPath();
+      for (x = x0; x <= x1; x++) g[x === x0 ? "moveTo" : "lineTo"](x + .5, crease(x));
+      for (x = x1; x >= x0; x--) g.lineTo(x + .5, crease(x) + Math.min(gaps[x - x0] * .62, 6.5 * Math.min(1, d / 9)) * Math.min(1, (hw - Math.abs(x - F.cx)) / (hw * .35)) + .5);
+      g.closePath(); g.fill();
+    }
+    if (d > 6) { /* tongue */
+      g.fillStyle = "rgba(176,82,90,.9)"; g.beginPath(); g.ellipse(F.cx, crease(F.cx) + d * .92, hw * .5, Math.max(1, d * .3), 0, 0, 6.2832); g.fill();
+    }
+    g.restore();
+    /* 2. the lower lip, chin and jaw drop (1 px columns; corners hold, the chin follows) */
+    var jx = Math.round(F.jw);
+    for (x = Math.round(F.cx - jx); x < Math.round(F.cx + jx); x++) {
+      dx = x + .5 - F.cx; t = dx / hw;
+      gp = Math.abs(t) < 1 ? d * Math.pow(1 - t * t, ex) : 0;
+      jw = d * .34 * Math.pow(Math.max(0, 1 - (dx / F.jw) * (dx / F.jw)), 1.3) * (1 - Math.min(1, gp / Math.max(d, .01) * 1.6));
+      off = gp + jw; if (off < .25) continue;
+      s = crease(x + .5) + 1; sy0 = s - jw; h = F.yb - sy0;
+      g.drawImage(IMG.c, x, sy0, 1, h, x, sy0 + off, 1, h);
+    }
+  }
   function draw(inst) {
     if (!ready || ready === "loading" || !inst.cv.isConnected) return;
-    var g = inst.g, sum = 0, acc = 0, k, i, w;
-    g.globalAlpha = 1; g.drawImage(IMG.c, 0, 0, W, H);
-    sum = W5.c;
-    for (i = 1; i < ORDER.length; i++) { k = ORDER[i]; w = W5[k]; if (w <= 0) continue; sum += w; g.globalAlpha = w / sum; g.drawImage(IMG[k], 0, 0, W, H); }
-    g.globalAlpha = 1;
+    var g = inst.g; g.globalAlpha = 1; g.drawImage(IMG.c, 0, 0, W, H);
+    var d = OPEN * F.maxd; if (d > .7) { try { mouth(g, d, W5.a, W5.s, W5.e, W5.o); } catch (e) {} }
   }
 
   /* ---------- starting / stopping ---------- */
-  function setMode(m) { S.mode = m; kick(); }
-  function stop() { S.mode = "idle"; S.el = null; S.env = null; S.vis = null; S.pl = null; S.boundary = -1; kick(); }
+  function wake() { if (!S.raf && instances.length) { S.lastT = performance.now(); S.raf = requestAnimationFrame(frame); } }
+  function setMode(m) { S.mode = m; kick(); wake(); }
+  function stop() { S.mode = "idle"; S.el = null; S.env = null; S.vis = null; S.pl = null; S.boundary = -1; kick(); wake(); }
   function say(text, ms) { /* text-only animation (no sound), e.g. when the Ustad "speaks" a bubble */
     if (!text) return; S.pl = plan(text); S.t0 = performance.now(); S.dur = ms || Math.min(14000, 900 + String(text).length * 62); S.el = null; S.env = null; setMode("say");
     var id = ++S.sayId || (S.sayId = 1); setTimeout(function () { if (S.sayId === id && S.mode === "say") stop(); }, S.dur + 150);
@@ -256,6 +291,6 @@
     var inst = { root: root, wrap: wrap, cv: cv, g: cv.getContext("2d") }; instances.push(inst); draw(inst); kick(); return inst;
   }
 
-  window.QSUstad = { mount: mount, say: say, hint: hint, stop: stop, emote: emote, _tokens: tokens, _plan: plan, _state: S };
+  window.QSUstad = { _pose: function (o, a, s, e, oo) { OPEN = o; W5.a = a || 0; W5.s = s || 0; W5.e = e || 0; W5.o = oo || 0; W5.c = 1 - Math.min(1, (a || 0) + (s || 0) + (e || 0) + (oo || 0)); kick(); }, mount: mount, say: say, hint: hint, stop: stop, emote: emote, _tokens: tokens, _plan: plan, _state: S };
   load();
 })();

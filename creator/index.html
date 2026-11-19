@@ -218,14 +218,14 @@ select.btn{appearance:auto}
 @media (prefers-color-scheme:light){:root:not([data-theme=dark]) body{background:var(--bg)}:root:not([data-theme=dark]) .top{background:rgba(251,246,239,.88)}:root:not([data-theme=dark]) .bigar{background:rgba(122,20,36,.05)}}
 .thm{width:38px;height:38px;border-radius:50%;border:1px solid var(--line);background:var(--card2);display:grid;place-items:center;font-size:17px;padding:0;flex:none}
 </style>
-<link rel="stylesheet" href="theme.css?v=1">
+<link rel="stylesheet" href="theme.css?v=2">
 </head>
 <body>
 <header class="top"><div class="wrap">
   <a class="brand" href="#home"><img src="icon-192.png" alt=""><span><b>Quranic Science · Creator AI</b><small data-t="tag"></small></span></a>
   <span class="sp"></span>
   <button class="thm" id="thm" aria-label="Dark / light theme" title="Dark / light">🌓</button>
-  <div class="seg" role="group" aria-label="Language"><button data-lang="en">EN</button><button data-lang="ur">اردو</button><button data-lang="hi">हिंदी</button></div>
+  <div class="lang" id="langw"><button class="thm lbtn" id="langBtn" aria-haspopup="true" aria-expanded="false" aria-label="Language"><span id="langCur">EN</span> ▾</button><div class="pop" id="langPop" hidden><button data-lang="en">English</button><button data-lang="ur">اردو</button><button data-lang="hi">हिंदी</button></div></div>
   <div class="who" id="who"></div>
 </div></header>
 <main id="app" class="wrap"></main>
@@ -243,10 +243,10 @@ select.btn{appearance:auto}
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
-<script src="ustad.js?v=7"></script>
+<script src="ustad.js?v=8"></script>
 <script src="class.js?v=4"></script>
 <script src="icons.js?v=1"></script>
-<script src="app.js?v=14"></script>
+<script src="app.js?v=17"></script>
 <script src="creator.js?v=2"></script>
 <script src="board.js?v=1"></script>
 <script src="apps.js?v=7"></script>
