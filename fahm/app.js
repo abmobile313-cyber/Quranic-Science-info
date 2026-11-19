@@ -90,21 +90,35 @@ function showLab() {
 
 /* ---------- Quranic Science branding footer ---------- */
 const BRAND = { fb: 'https://www.facebook.com/share/16J4k6RuE7n/', ig: 'https://www.instagram.com/quranicscienceofficial/', yt: 'https://www.youtube.com/@quranicscienceofficial01', web: 'https://quranicscience.info', wa: 'https://wa.me/919272527913', mail: 'quranicscience01@gmail.com', ph: '+91 92725 27913' };
+const SUPT = {
+  ur: { t: 'ہمیں سپورٹ کریں', b: 'یہ ایپ مکمل مفت ہے: نہ اشتہار، نہ کوئی فیس۔ قرآن کو لفظ بہ لفظ سمجھانے والی اینیمیشن، آڈیو اور حفظ کے اوزار بنانے اور انہیں مفت رکھنے میں وقت، محنت اور خرچ لگتا ہے۔ آپ کا تعاون نئی سورتوں کی اینیمیشن، مزید زبانوں اور علماء سے تصدیق کا کام جاری رکھنے میں ہماری مدد کرتا ہے۔', z: 'نوٹ: یہاں زکوٰۃ، صدقات اور خیرات نہ دیں۔ صرف اللہ کی رضا کے لیے اپنے پاک مال سے ہدیہ کریں۔ زکوٰۃ یا صدقات دینا چاہیں تو واٹس ایپ پر ہم سے رابطہ کریں یا کسی مستحق تک اپنے ہاتھ سے پہنچائیں۔', s: 'کسی بھی یو پی آئی ایپ سے اسکین کریں' },
+  ru: { t: 'Hamein support karein', b: 'Yeh app bilkul muft hai: na ishtihaar, na koi fees. Quran ko lafz ba lafz samjhane wali animation, audio aur hifz ke auzaar banane aur unhein muft rakhne mein waqt, mehnat aur kharch lagta hai. Aap ka taawun nayi suraton ki animation, mazeed zubanon aur ulama se tasdeeq ka kaam jaari rakhne mein hamari madad karta hai.', z: 'Note: yahan zakat, sadqaat aur khairaat na dein. Sirf Allah ki raza ke liye apne paak maal se hadiya karein. Zakat ya sadqaat dena chahein to WhatsApp par hum se rabta karein ya kisi mustahiq tak apne haathon se pahunchayein.', s: 'Kisi bhi UPI app se scan karein' },
+  en: { t: 'Support Quranic Science', b: 'This app is completely free: no ads, no fees. Building the word-by-word animations, audio and memorisation tools, and keeping them free, takes time, effort and running costs. Your support helps us keep adding animations for more surahs, more languages and scholar verification.', z: 'Note: please do not give Zakat, Sadaqah or Khairat here. Give only as a gift from your pure (halal) wealth, for the sake of Allah. If you wish to give Zakat or Sadaqah, contact us on WhatsApp or hand it directly to someone in need.', s: 'Scan with any UPI app (Google Pay, PhonePe, Paytm, BHIM)' }
+};
+function openSupport() {
+  let o = document.getElementById('sup'); if (!o) { o = document.createElement('div'); o.id = 'sup'; document.body.appendChild(o); o.addEventListener('click', e => { if (e.target === o || e.target.closest('[data-sclose]')) o.hidden = true; }); }
+  const u = st.ui, A1 = SUPT[u] || SUPT.en, A2 = u === 'en' ? SUPT.ur : SUPT.en, blk = (x, dir, cls) => `<div class="sb2 ${cls}" dir="${dir}"><h3>${x.t}</h3><p>${x.b}</p><p class="zk">${x.z}</p></div>`;
+  o.innerHTML = `<div class="sbox"><button class="sx" data-sclose="1" aria-label="close">✕</button><div class="sqr"><img src="icons/qr-support.webp" alt="QR"><small>${A1.s}</small></div>` +
+    blk(A1, u === 'ur' ? 'rtl' : 'ltr', u === 'ur' ? 'urd' : '') + '<hr>' + blk(A2, u === 'en' ? 'rtl' : 'ltr', u === 'en' ? 'urd' : '') + '</div>';
+  o.hidden = false;
+}
 function brandHtml() {
-  const u = st.ui, L = { ur: { tag: 'علم جو سوچ بدل دے', f: 'ہمیں فالو کریں', c: 'ہم سے رابطہ', e: 'ای میل', w: 'واٹس ایپ', cr: 'ماخذ اور شکریہ', by: 'فہم — Quranic Science کی طرف سے مفت' }, ru: { tag: 'Ilm Jo Soch Badal De', f: 'Hamein follow karein', c: 'Contact us', e: 'Email', w: 'WhatsApp', cr: 'Mukhaiz aur shukriya', by: 'Fahm — Quranic Science ki taraf se muft' }, en: { tag: 'Ilm Jo Soch Badal De', f: 'Follow us', c: 'Contact us', e: 'Email', w: 'WhatsApp', cr: 'Sources & credits', by: 'Fahm — free from Quranic Science' } }[u] || {};
+  const u = st.ui, L = { ur: { tag: 'علم جو سوچ بدل دے', c: 'ہم سے رابطہ', e: 'ای میل', w: 'واٹس ایپ', cr: 'رابطہ اور ماخذ', by: 'فہم — قرآنک سائنس کی طرف سے مفت', nm: 'قرآنک سائنس', fb: 'فیس بک', ig: 'انسٹاگرام', yt: 'یوٹیوب', web: 'ویب سائٹ', sup: 'سپورٹ کریں' }, ru: { tag: 'Ilm Jo Soch Badal De', c: 'Rabta', e: 'Email', w: 'WhatsApp', cr: 'Rabta aur mukhaiz', by: 'Fahm — Quranic Science ki taraf se muft', nm: 'Quranic Science', fb: 'Facebook', ig: 'Instagram', yt: 'YouTube', web: 'Website', sup: 'Support karein' }, en: { tag: 'Ilm Jo Soch Badal De', c: 'Contact', e: 'Email', w: 'WhatsApp', cr: 'Contact & credits', by: 'Fahm — free from Quranic Science', nm: 'Quranic Science', fb: 'Facebook', ig: 'Instagram', yt: 'YouTube', web: 'Website', sup: 'Support us' } }[u] || {};
   const ic = {
     fb: '<svg viewBox="0 0 24 24"><path d="M14 8h3V4h-3a4 4 0 0 0-4 4v3H7v4h3v6h4v-6h3l1-4h-4V8z"/></svg>',
     ig: '<svg viewBox="0 0 24 24"><rect x="3.5" y="3.5" width="17" height="17" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.2" cy="6.8" r=".8" style="fill:currentColor"/></svg>',
     yt: '<svg viewBox="0 0 24 24"><rect x="2.5" y="5.5" width="19" height="13" rx="4"/><path d="M10 9.2v5.6l5-2.8z" style="fill:currentColor"/></svg>',
     web: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3.2 3 14.8 0 18M12 3c-3 3.2-3 14.8 0 18"/></svg>',
-    wa: '<svg viewBox="0 0 24 24"><path d="M4 20l1.2-4A8 8 0 1 1 8 18.8L4 20z"/><path d="M9 8.5c0 3 3.5 6.5 6.5 6.5l1-1.6-2-1-1 .8c-1-.4-2-1.4-2.4-2.4l.8-1-1-2L9 8.5z" style="fill:currentColor"/></svg>'
+    wa: '<svg viewBox="0 0 24 24"><path d="M4 20l1.2-4A8 8 0 1 1 8 18.8L4 20z"/><path d="M9 8.5c0 3 3.5 6.5 6.5 6.5l1-1.6-2-1-1 .8c-1-.4-2-1.4-2.4-2.4l.8-1-1-2L9 8.5z" style="fill:currentColor"/></svg>',
+    bmail: '<svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="M4 7l8 6 8-6"/></svg>'
   };
-  const a = (k, t, h) => `<a class="bl ${k}" href="${h}" target="_blank" rel="noopener" aria-label="${t}">${ic[k]}<span>${t}</span></a>`;
-  return `<div class="brand"><div class="bn"><b>Quranic Science</b><em>${L.tag}</em></div>` +
-    `<p class="bf">${L.f}</p><div class="brow">${a('fb', 'Facebook', BRAND.fb)}${a('ig', 'Instagram', BRAND.ig)}${a('yt', 'YouTube', BRAND.yt)}${a('web', 'Website', BRAND.web)}</div>` +
-    `<p class="bf">${L.c}</p><div class="bct"><a href="mailto:${BRAND.mail}">✉ ${L.e}: ${BRAND.mail}</a>${a('wa', L.w + ' ' + BRAND.ph, BRAND.wa)}<a href="${BRAND.web}" target="_blank" rel="noopener">🌐 quranicscience.info</a></div>` +
-    `<details class="bcr"><summary>${L.cr}</summary><p>${esc(T('credits'))}</p></details><p class="bby">${L.by}</p></div>`;
+  const a = (k, t, h) => `<a class="bl ${k}" href="${h}" target="_blank" rel="noopener" aria-label="${t}" title="${t}">${ic[k]}</a>`;
+  return `<div class="brand"><div class="bn"><b>${L.nm}</b><em>${L.tag}</em></div>` +
+    `<div class="brow">${a('fb', L.fb, BRAND.fb)}${a('ig', L.ig, BRAND.ig)}${a('yt', L.yt, BRAND.yt)}${a('web', L.web, BRAND.web)}${a('wa', L.w, BRAND.wa)}<a class="bl bmail" href="mailto:${BRAND.mail}" aria-label="${L.e}" title="${L.e}">${ic.bmail}</a></div>` +
+    `<button class="bsup" data-bsup="1">❤ ${L.sup}</button>` +
+    `<details class="bcr"><summary>${L.cr}</summary><div class="bct"><a href="mailto:${BRAND.mail}">✉ ${BRAND.mail}</a><a href="${BRAND.wa}" target="_blank" rel="noopener">${L.w} ${BRAND.ph}</a><a href="${BRAND.web}" target="_blank" rel="noopener">🌐 ${BRAND.web.replace('https://', '')}</a></div><p>${esc(T('credits'))}</p><p class="bby">${L.by}</p></details></div>`;
 }
+document.addEventListener('click', e => { if (e.target.closest('[data-bsup]')) openSupport(); });
 
 /* ---------- optional real-footage clip per ayah (video/manifest.json) ---------- */
 function videoFor(key) {
@@ -236,6 +250,7 @@ function bind() {
   $('#bPlay').onclick = () => { if (playing) { stopAll(); } else playAyah(); };
   $('#btnReplay').onclick = () => playAyah();
   $('#bPick').onclick = openPick; $('#btnRead').onclick = openReader;
+  $('#bMushaf').onclick = () => { stopAll(); const l = st.rlast || { s: 1, a: 1 }; FahmReader.open(l.s, l.a); };
   $('#btnFullS').onclick = () => setFull('#story', true); $('#sClose').onclick = () => setFull('#story', false);
   $('#sPrev').onclick = prev; $('#sNext').onclick = () => next(false); $('#sPlay').onclick = () => { if (playing) stopAll(); else playAyah(); };
   document.addEventListener('click', e => {
@@ -271,7 +286,7 @@ function bind() {
   $('#btnFull').onclick = () => setFull('#stage', !$('#stage').classList.contains('big'));
   window.addEventListener('visibilitychange', () => { if (document.hidden) scene.stop(); else scene.start(); });
 }
-function applyUi() { document.documentElement.lang = st.ui === 'en' ? 'en' : 'ur'; document.body.className = 'l-' + st.ui + (st.theme === 'light' ? ' light' : ''); const tc = document.querySelector('meta[name=theme-color]'); if (tc) tc.content = st.theme === 'light' ? '#f6f1e4' : '#05070e'; if (D) navUi(); $('#btnFullS').title = T('full'); $('#btnRead').title = T('reader'); if (window.FahmLab) FahmLab.lang = st.ui; $('#btnFull').title = T('full'); $('#btnReplay').title = T('replay'); $('#btnLabR').title = T('replay'); }
+function applyUi() { document.documentElement.lang = st.ui === 'en' ? 'en' : 'ur'; document.body.className = 'l-' + st.ui + (st.theme === 'light' ? ' light' : ''); const tc = document.querySelector('meta[name=theme-color]'); if (tc) tc.content = st.theme === 'light' ? '#f6f1e4' : '#05070e'; if (D) navUi(); $('#btnFullS').title = T('full'); $('#btnRead').title = T('reader'); if (window.FahmLab) FahmLab.lang = st.ui; $('#btnFull').title = T('full'); $('#btnReplay').title = T('replay'); $('#btnLabR').title = T('replay'); $('#bMushaf').innerHTML = '<b>' + ({ ur: 'پورا قرآن پڑھیں', ru: 'Poora Quran padhein', en: 'Read the whole Quran' }[st.ui] || '') + '</b><small>' + ({ ur: '۳ مصحف لے آؤٹ · حافظ موڈ · ہر آیت کے ساتھ آڈیو', ru: '3 mushaf layout · Hafiz mode · har ayat ki audio', en: '3 mushaf layouts · Hafiz mode · audio for every ayah' }[st.ui] || '') + '</small>'; }
 
 /* ---------- install hint ---------- */
 let deferred = null;

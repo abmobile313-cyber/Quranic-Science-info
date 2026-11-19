@@ -49,7 +49,7 @@
   Tracker.prototype.done = function () { return this.p >= this.lim; };
 Tracker.prototype.jumpTo = function (b) {
   const w = this.w; if (b.length < 2 || b[0].length + b[1].length < 7) return -1;
-  for (let j = 0; j < w.length - 1; j++) { if (j >= this.p - 2 && j <= this.p + 7) continue; if (eq(b[0], w[j].n, this.sens) && eq(b[1], w[j + 1].n, this.sens)) return j; }
+  const l0 = b[0].length; for (let j = 0; j < w.length - 1; j++) { if (j >= this.p - 2 && j <= this.p + 7) continue; const n0 = w[j].n; if (n0.length - l0 > 4 || l0 - n0.length > 4) continue; if (eq(b[0], n0, this.sens) && eq(b[1], w[j + 1].n, this.sens)) return j; }
   return -1;
 };
   /* tokens: normalised heard words (non-empty). fin: false when the last token may still change.

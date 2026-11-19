@@ -316,3 +316,51 @@ body.light #rhSt{color:#1b1710}body.light #rpn{color:#8a5a1c}
 #rpop .sel{flex:1;min-width:0}
 body.light #rrep{background:#fbf6e6;color:#1b1710}body.light .rc b,body.light .rq{color:#1b1710}
 body.light .rs{background:rgba(0,0,0,.04)}
+
+.mush{display:flex;flex-direction:column;gap:3px;width:100%;margin:0 0 12px;padding:14px 16px;border-radius:16px;border:1px solid rgba(232,184,74,.55);background:linear-gradient(135deg,rgba(120,30,40,.55),rgba(232,184,74,.14));color:#f4e7c4;text-align:center;font:inherit;cursor:pointer}
+.mush b{font-size:17px;color:#e8b84a}.mush small{font-size:12px;opacity:.85}
+body.light .mush{background:linear-gradient(135deg,rgba(150,40,50,.18),rgba(184,137,47,.18));color:#3a2410}body.light .mush b{color:#8a1d2b}
+
+/* ===== Urdu UI: nastaliq everywhere (Quran text keeps its own Quran fonts) ===== */
+body.l-ur,body.l-ur button,body.l-ur input,body.l-ur select,body.l-ur option,body.l-ur textarea,body.l-ur summary{font-family:'NastaliqU',serif}
+body.l-ur{line-height:1.9}
+body.l-ur button,body.l-ur select,body.l-ur .po,body.l-ur .pk{line-height:1.7}
+body.l-ur .ar,body.l-ur .w .a,body.l-ur .root .lt,body.l-ur .same button b,body.l-ur #rpage,body.l-ur #rpage *,body.l-ur .ri .ar{font-family:'DKIP','AmiriQ',serif}
+body.l-ur .brand .bn b{font-family:'NastaliqU',serif;font-size:18px}
+body.l-ur #rpop h4,body.l-ur #rpop .pr span,body.l-ur #rpop .pn,body.l-ur .rs h5,body.l-ur .rs{font-family:'NastaliqU',serif}
+/* hafiz popup design */
+#rpop .chips{display:flex;flex-wrap:wrap;gap:8px;margin:2px 0 6px}
+#rpop .chips .po{flex:0 0 auto}
+#rpop .po.sm.on{background:linear-gradient(145deg,#e8b84a,#b9862b);color:#1b1304;border-color:transparent;font-weight:700}
+#rpop .sec{margin:10px 0 4px;color:var(--gold);font-size:12px;letter-spacing:.06em;text-transform:uppercase}
+body.l-ur #rpop .sec{font-size:15px;letter-spacing:0;text-transform:none}
+#rpop .card{border:1px solid rgba(232,184,74,.28);border-radius:16px;padding:10px 12px;margin:6px 0;background:rgba(255,255,255,.035)}
+#rpop .card b{color:var(--gold)}
+#rpop .rowx{display:flex;gap:8px;align-items:center;justify-content:space-between;flex-wrap:wrap;margin:6px 0}
+#rpop .sum{font-size:13px;color:var(--mut);margin:4px 2px 8px}
+
+/* ===== compact branding + support popup ===== */
+.brand{padding:9px 12px 8px;border-radius:16px}
+.brand .bn b{font-size:15px;display:inline}.brand .bn em{display:inline;margin-inline-start:8px;font-size:11.5px}
+.brand .brow{gap:6px;margin-top:7px}
+.brand .bl{padding:0;width:36px;height:36px;justify-content:center;border-radius:50%}
+.brand .bl svg{width:17px;height:17px}.bl.bmail{color:#c9d3e6}
+.bsup{display:block;margin:8px auto 2px;padding:7px 18px;border-radius:999px;background:linear-gradient(145deg,#e8b84a,#b9862b);color:#1b1304;font-weight:700;font-size:13px}
+.brand .bcr{margin-top:6px;font-size:10.5px}.brand .bcr summary{font-size:11px;opacity:.8}.brand .bct{margin-top:6px}
+.brand .bby{margin:4px 0 0}
+#sup{position:fixed;inset:0;z-index:200;background:rgba(2,4,10,.82);display:flex;align-items:flex-start;justify-content:center;overflow-y:auto;padding:calc(var(--st) + 14px) 14px 24px}
+#sup[hidden]{display:none}
+#sup .sbox{position:relative;width:100%;max-width:420px;background:#0d1426;border:1px solid rgba(232,184,74,.45);border-radius:20px;padding:16px 16px 14px;box-shadow:0 20px 60px rgba(0,0,0,.7)}
+#sup .sx{position:absolute;top:8px;inset-inline-end:10px;width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.08);font-size:16px}
+#sup .sqr{text-align:center}#sup .sqr img{width:min(190px,58vw);border-radius:16px;display:block;margin:6px auto 4px}#sup .sqr small{display:block;color:var(--mut);font-size:12px;margin-bottom:6px}
+#sup h3{margin:8px 0 4px;color:var(--gold);font-size:16px}#sup p{margin:4px 0;font-size:13.5px;line-height:1.7;color:#e6dfcf}
+#sup .zk{font-size:12.5px;color:#f0c987;background:rgba(232,184,74,.08);border-radius:10px;padding:7px 9px}
+#sup hr{border:0;border-top:1px solid var(--bd);margin:12px 0}
+#sup .urd,body.l-ur #sup .sb2:first-of-type{font-family:'NastaliqU',serif}
+#sup .urd p{font-size:15px;line-height:2.2}#sup .urd h3{font-size:19px}
+body.l-ur #sup,body.l-ur #sup button{font-family:'NastaliqU',serif}
+body.l-ur #sup .sb2[dir=ltr]{font-family:-apple-system,'Segoe UI',Roboto,sans-serif}
+body.light #sup .sbox{background:#fbf7ec;color:#1b1710}body.light #sup p{color:#2a2418}
+
+#rpop{max-height:72vh;overflow-y:auto}
+#rhHold[hidden]{display:none}
