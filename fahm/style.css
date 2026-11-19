@@ -112,3 +112,31 @@ svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2;stroke-l
 .wc-ar{grid-column:1;grid-row:1;text-align:center}
 .spk{grid-column:2;grid-row:1}
 .wc-m.u{text-align:left;direction:rtl;unicode-bidi:plaintext}
+
+/* ---- 3D lab stage ---- */
+#stage.lab{aspect-ratio:4/5;max-height:62vh;width:100%;background:#03050b;touch-action:none;user-select:none}
+#lab3d{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none}
+#stage .lbs{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+#stage .lb{position:absolute;left:0;top:0;font:600 9.5px/1.2 ui-monospace,Menlo,Consolas,monospace;letter-spacing:.14em;color:#e8c46a;white-space:nowrap;text-shadow:0 0 8px rgba(0,0,0,.9);opacity:0;will-change:transform}
+#stage .lb.dim{color:#8ea3c4}
+body.l-ur #stage .lb{font:600 13px/1.4 'NastaliqU',serif;letter-spacing:0}
+#stage .fade{position:absolute;inset:0;background:#03050b;pointer-events:none;opacity:0}
+#labTop{position:absolute;top:12px;left:14px;font:600 10px ui-monospace,Menlo,monospace;letter-spacing:.16em;color:#9fb2d4;pointer-events:none}
+body.l-ur #labTop{font:600 13px 'NastaliqU',serif;letter-spacing:0}
+#labCap{position:absolute;left:0;right:0;bottom:0;padding:40px 16px 14px;background:linear-gradient(0deg,rgba(3,5,11,.95),rgba(3,5,11,0));pointer-events:none;display:grid;gap:4px}
+#labM{font:600 26px/1.2 Georgia,'Times New Roman',serif;color:#f3ecdc}
+#labM.u{font:400 30px/1.9 'NastaliqU',serif}
+#labN{font-size:12.5px;line-height:1.5;color:#b7c4dd;max-width:34ch}
+body.l-ur #labN{font:400 15px/2 'NastaliqU',serif;max-width:none;text-align:right}
+body.l-ur #labM{text-align:right}
+#btnLabR,#btnFull{position:absolute;top:8px;background:rgba(5,7,14,.55)}
+#btnLabR{right:50px}#btnFull{right:8px}
+#stage.big{position:fixed;inset:0;z-index:60;max-height:none;aspect-ratio:auto;border-radius:0;border:0}
+#story{display:grid;gap:8px}
+#story h4{margin:6px 4px 0;color:var(--gold);font-weight:600;font-size:13px;letter-spacing:.04em}
+body.l-ur #story h4{font:400 16px 'NastaliqU',serif}
+.story-box{position:relative;border-radius:20px;overflow:hidden;border:1px solid var(--bd);background:#000}
+body.l-ur #cx,body.l-ur .tr p,body.l-ur #nz p{font-family:'NastaliqU',serif;line-height:2.1}
+body.l-ur .wc-m,body.l-ur .srow .t,body.l-ur .seg button,body.l-ur .chk span,body.l-ur h3,body.l-ur h4,body.l-ur h5,body.l-ur .lbl,body.l-ur #autoLbl,body.l-ur #title small,body.l-ur #tAr{font-family:'NastaliqU',serif}
+body.l-ur #tAr{font-size:20px}
+@media(min-width:900px){#stage.lab{max-height:70vh}}

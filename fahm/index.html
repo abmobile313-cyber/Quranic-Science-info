@@ -25,13 +25,20 @@
   <main id="main">
     <div class="col-a">
       <section id="words" class="glass" dir="rtl" aria-label="Lafz ba lafz"></section>
-      <section id="stage">
-        <canvas id="cv"></canvas>
-        <div id="cx"></div>
-        <button id="btnReplay" class="ib small" aria-label="Replay scene"><svg viewBox="0 0 24 24"><path d="M4 12a8 8 0 1 0 3-6.2M4 4v4h4"/></svg></button>
-        <div id="ayahNo"></div>
+      <section id="stage" class="lab">
+        <canvas id="lab3d"></canvas><div class="lbs"></div><div class="fade"></div>
+        <div id="labTop"></div>
+        <div id="labCap"><b id="labM"></b><small id="labN"></small></div>
+        <button id="btnLabR" class="ib small" aria-label="Replay"><svg viewBox="0 0 24 24"><path d="M4 12a8 8 0 1 0 3-6.2M4 4v4h4"/></svg></button>
+        <button id="btnFull" class="ib small" aria-label="Full screen"><svg viewBox="0 0 24 24"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></button>
       </section>
       <section id="wordcard" class="glass"></section>
+      <section id="story">
+        <h4 id="storyH"></h4>
+        <div class="story-box"><canvas id="cv"></canvas><div id="cx"></div>
+          <button id="btnReplay" class="ib small" aria-label="Replay scene"><svg viewBox="0 0 24 24"><path d="M4 12a8 8 0 1 0 3-6.2M4 4v4h4"/></svg></button>
+          <div id="ayahNo"></div></div>
+      </section>
     </div>
     <div class="col-b">
       <section id="trans" class="glass"></section>
@@ -54,6 +61,14 @@
 </div>
 <script src="engine.js"></script>
 <script src="scenes.js"></script>
+<script src="three.min.js"></script>
+<script src="lab.js"></script>
+<script src="labmotifs.js"></script>
+<script src="labv.js"></script>
+<script src="labspecs.js"></script>
+<script src="lemspecs.js"></script>
+<script src="i18n.js"></script>
+<script src="content_ur.js"></script>
 <script src="app.js"></script>
 </body>
 </html>

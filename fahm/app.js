@@ -4,16 +4,21 @@ const $ = s => document.querySelector(s);
 const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 const pad = n => String(n).padStart(3, '0');
 const RTL = { ar: 1, ur: 1, fa: 1 };
-const REC = [['Alafasy_128kbps', 'Mishary Alafasy'], ['Husary_128kbps', 'Mahmoud Khalil Al-Husary'], ['Abdurrahmaan_As-Sudais_192kbps', 'Abdur-Rahman As-Sudais'], ['Minshawy_Murattal_128kbps', 'Muhammad Siddiq Al-Minshawi'], ['Abdul_Basit_Murattal_192kbps', 'Abdul Basit (Murattal)']];
-const STR = {
-  ru: { surahs: 'Surahs', settings: 'Settings', ayah: 'Ayat', auto: 'Auto agli ayat', root: 'Root (jad)', same: 'Isi root ke aur lafz', listen: 'Lafz ki awaaz', nzh: 'Pas-e-manzar (Shaan-e-nuzool)', nzn: 'Yeh note mashhoor riwayat ka mukhtasar hai. Publish karne se pehle kisi aalim se tasdeeq zaroori hai.', ui: 'App ki zubaan', wm: 'Lafz ka matlab', tr: 'Tarjume (jitne chahein chun lein)', rec: 'Qari', tapw: 'Kisi bhi lafz par tap karein', audioErr: 'Awaaz ke liye internet chahiye. Abhi sirf animation chal rahi hai.', iosTip: 'iPhone par install: Share → “Add to Home Screen”', install: 'Install', close: 'Theek hai', credits: 'Quran ka matan: Tanzil (Uthmani, Hafs). Lafz-ba-lafz: Quran.com. Tarjume: fawazahmed0/quran-api (naam har tarjume ke saath). Awaaz: EveryAyah aur Quran.com. Animation: is app mein code se bani hai (kisi chehre ki tasveer nahi). Lafzi matlab aur pas-e-manzar ki tasdeeq kisi aalim se karwayein.', replay: 'Dobara', wordOnly: 'Sirf Arabi, Urdu, English lafz ka matlab abhi maujood hai.' },
-  en: { surahs: 'Surahs', settings: 'Settings', ayah: 'Ayah', auto: 'Auto next ayah', root: 'Root', same: 'More words from this root', listen: 'Hear the word', nzh: 'Background (Context of revelation)', nzn: 'A brief note from well-known reports. Please have a scholar verify before publishing.', ui: 'App language', wm: 'Word meaning', tr: 'Translations (choose as many as you like)', rec: 'Reciter', tapw: 'Tap any word', audioErr: 'Audio needs an internet connection. Only the animation is playing.', iosTip: 'On iPhone: Share → “Add to Home Screen”', install: 'Install', close: 'OK', credits: 'Quran text: Tanzil (Uthmani, Hafs). Word-by-word: Quran.com. Translations: fawazahmed0/quran-api (translator named on each). Audio: EveryAyah and Quran.com. Animations are drawn by code in this app (no faces are depicted). Word meanings and context notes should be verified by a scholar.', replay: 'Replay', wordOnly: 'Word meanings are currently available in Arabic, Urdu and English.' }
-};
+const REC = ['Alafasy_128kbps', 'Husary_128kbps', 'Abdurrahmaan_As-Sudais_192kbps', 'Minshawy_Murattal_128kbps', 'Abdul_Basit_Murattal_192kbps'];
+const I = window.I18N, STR = I.STR;
 const KEY = 'fahm.v1';
-let st = { s: 0, a: 0, w: 0, ui: 'ru', wl: 'ur', tl: ['ur', 'en'], rec: REC[0][0], auto: true, ios: 0 };
+let st = { s: 0, a: 0, w: 0, ui: 'ru', tl: null, rec: REC[0], auto: true, ios: 0 };
 try { Object.assign(st, JSON.parse(localStorage.getItem(KEY) || '{}')); } catch (e) { }
 const save = () => { try { localStorage.setItem(KEY, JSON.stringify(st)); } catch (e) { } };
-const T = k => (STR[st.ui] || STR.ru)[k];
+if (!STR[st.ui]) st.ui = 'ru';
+const DEF_TL = { ur: ['ur'], ru: ['rur'], en: ['en'] };
+if (!st.tl || !st.tl.length) st.tl = DEF_TL[st.ui].slice();
+const T = k => STR[st.ui][k];
+const sName = S => (I.surah[S.n] || {})[st.ui] || [S.en, S.mean];
+const lName = c => I.lang[st.ui][c] || c;
+const tName = c => I.translator[st.ui][c] || '';
+const rName = r => (I.reciter[r] || {})[st.ui] || r;
+const pick = o => o ? (st.ui === 'ur' ? o.ur : st.ui === 'ru' ? o.ru : o.en) : '';
 let D, scene, rootIdx = {}, playing = false, timer = null, bounds = [];
 const au = new Audio(); au.preload = 'auto';
 let wordAu = null;
@@ -22,15 +27,17 @@ function stripD(s) { return s.replace(/[ً-ٰٟۖ-ۭ࣓-ࣿ‏]/g, ''); }
 function cur() { const S = D.surahs[st.s]; return { S, A: S.ayat[st.a], W: S.ayat[st.a].words[st.w] }; }
 function toast(m, ms = 2800) { const e = $('#toast'); e.textContent = m; e.hidden = false; clearTimeout(toast._t); toast._t = setTimeout(() => e.hidden = true, ms); }
 
-function wordMeaning(w) { return st.wl === 'hi' ? [w.hi, 'h'] : st.wl === 'en' ? [w.en, ''] : [w.ur, 'u']; }
+function lemKey(s) { return stripD(s).replace(/ٱ/g, 'ا').replace(/ـ/g, ''); }
+function wordMeaning(w) { return st.ui === 'ur' ? [w.ur, 'u'] : st.ui === 'ru' ? [w.ru, ''] : [w.en, '']; }
+function capOf(spec, key) { return st.ui === 'ur' ? (window.FAHM_CX_UR[key] || '') : st.ui === 'ru' ? spec.cx.ur : spec.cx.en; }
 
 function renderAyah(keepPlay) {
   const { S, A } = cur(); if (st.w >= A.words.length) st.w = 0;
-  $('#tAr').textContent = 'سورة ' + S.ar; $('#tSub').textContent = `${S.en} · ${S.mean}`;
-  $('#ayahNo').textContent = `${T('ayah')} ${A.v} / ${S.ayat.length}`;
+  const sn = sName(S); $('#tAr').textContent = sn[0]; $('#tSub').textContent = sn[1];
+  $('#ayahNo').textContent = `${T('ayah')} ${A.v} / ${S.ayat.length}`; $('#storyH').textContent = T('story');
   $('#words').innerHTML = A.words.map((w, i) => { const [m, c] = wordMeaning(w); return `<button class="w" data-i="${i}"><span class="a ar">${esc(w.ar)}</span><span class="m ${c}">${esc(m)}</span></button>`; }).join('');
   const spec = window.FAHM_SCENES[`${S.n}:${A.v}`] || { sky: 'night', items: [], cx: { ur: '', en: '' } };
-  scene.set(spec); scene.all(); $('#cx').textContent = (st.ui === 'en' ? spec.cx.en : spec.cx.ur) || '';
+  scene.set(spec); scene.all(); $('#cx').textContent = capOf(spec, `${S.n}:${A.v}`) || '';
   renderTrans(); renderNZ(); setWord(st.w, false, true); computeBounds(); save();
   if (!keepPlay) stopAll();
 }
@@ -38,7 +45,7 @@ function renderAyah(keepPlay) {
 function setWord(i, fromAudio, silent) {
   st.w = i; scene.show(i);
   document.querySelectorAll('#words .w').forEach((b, k) => { b.classList.toggle('on', k === i); b.classList.toggle('seen', k < i); });
-  renderWordCard();
+  renderWordCard(); showLab();
   if (!fromAudio && !silent) save();
 }
 
@@ -52,23 +59,31 @@ function renderWordCard() {
     for (const r of rootIdx[W.root]) { const w = D.surahs[r.s].ayat[r.a].words[r.w], k = stripD(w.ar); if (seen.has(k)) continue; seen.add(k); items.push(r); if (items.length >= 8) break; }
     if (items.length) same = `<div class="hint">${T('same')}</div><div class="same">${items.map(r => { const w = D.surahs[r.s].ayat[r.a].words[r.w], [mm] = wordMeaning(w); return `<button data-go="${r.s},${r.a},${r.w}"><b class="ar">${esc(w.ar)}</b>${esc(mm)}</button>`; }).join('')}</div>`;
   }
-  $('#wordcard').innerHTML = `<div class="wc-top"><div class="wc-ar ar">${esc(W.ar)}</div><div class="wc-info"><div class="wc-tl">${esc(W.tl)}</div><div class="wc-m ${c}">${esc(m)}</div>${st.wl !== 'en' ? `<div class="wc-en">${esc(W.en)}</div>` : ''}</div><button class="spk" id="spkW" aria-label="${T('listen')}"><svg viewBox="0 0 24 24"><path d="M3 10v4h4l5 4V6L7 10zM15.5 8.5a5 5 0 0 1 0 7M18 6a8.5 8.5 0 0 1 0 12" style="stroke:currentColor;stroke-width:2;fill:none"/></svg></button></div>${rootHtml}${same}`;
+  $('#wordcard').innerHTML = `<div class="wc-top"><div class="wc-ar ar">${esc(W.ar)}</div><div class="wc-info">${st.ui === 'ur' ? '' : `<div class="wc-tl">${esc(W.tl)}</div>`}<div class="wc-m ${c}">${esc(m)}</div></div><button class="spk" id="spkW" aria-label="${T('listen')}"><svg viewBox="0 0 24 24"><path d="M3 10v4h4l5 4V6L7 10zM15.5 8.5a5 5 0 0 1 0 7M18 6a8.5 8.5 0 0 1 0 12" style="stroke:currentColor;stroke-width:2;fill:none"/></svg></button></div>${rootHtml}${same}`;
 }
 
 function renderTrans() {
   const { S, A } = cur();
   $('#trans').innerHTML = st.tl.filter(c => A.tr[c]).map(c => {
     const L = D.langs.find(l => l.c === c), cls = (c === 'ur' ? 'u' : c === 'hi' ? 'h' : '') + (RTL[c] ? ' rtl' : '');
-    return `<div class="tr"><div class="lh"><span>${esc(L.n)} · ${esc(L.label.split('—')[1] || L.label)}</span><button class="sp" data-tts="${c}" aria-label="Listen"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></button></div><p class="${cls}" ${RTL[c] ? 'dir="rtl"' : ''}>${esc(A.tr[c])}</p></div>`;
+    return `<div class="tr"><div class="lh"><span>${esc(lName(c))} · ${esc(tName(c))}</span><button class="sp" data-tts="${c}" aria-label="Listen"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></button></div><p class="${cls}" ${RTL[c] ? 'dir="rtl"' : ''}>${esc(A.tr[c])}</p></div>`;
   }).join('');
 }
 
 function renderNZ() {
   const { S } = cur(), n = window.FAHM_NZ[S.n]; if (!n) { $('#nz').innerHTML = ''; return; }
-  $('#nz').innerHTML = `<h4>${T('nzh')}</h4><p>${esc(st.ui === 'en' ? n.en : n.ur)}</p><small>${T('nzn')}</small>`;
+  $('#nz').innerHTML = `<h4>${T('nzh')}</h4><p>${esc(st.ui === 'en' ? n.en : st.ui === 'ur' ? (window.FAHM_NZ_UR[S.n] || '') : n.ur)}</p><small>${T('nzn')}</small>`;
   $('#credits').textContent = T('credits');
 }
 
+/* ---------- 3D word scene ---------- */
+function showLab() {
+  const { S, A, W } = cur(), key = `${S.n}:${A.v}:${st.w}`, spec = (window.FAHM_LAB || {})[key] || (window.FAHM_LEM || {})[lemKey(W.ar)] || null, [m] = wordMeaning(W);
+  $('#labTop').textContent = `${T('word')} ${st.w + 1} ${T('of')} ${A.words.length}`;
+  $('#labM').textContent = m; $('#labM').className = st.ui === 'ur' ? 'u' : '';
+  $('#labN').textContent = spec && spec.n ? pick(spec.n) : '';
+  if (window.FahmLab && FahmLab.ok) FahmLab.show(spec, { key, ar: W.ar, root: W.root });
+}
 /* ---------- navigation ---------- */
 function goTo(s, a, w = 0, play = false) { st.s = s; st.a = a; st.w = w; renderAyah(false); $('#main').scrollTo({ top: 0, behavior: 'smooth' }); if (play) playAyah(); }
 function next(play) {
@@ -106,23 +121,22 @@ function playWord() {
 }
 function speakTr(c) {
   const { A } = cur(), L = D.langs.find(l => l.c === c); stopAll();
-  try { const u = new SpeechSynthesisUtterance(A.tr[c]); u.lang = L.tts; u.rate = 0.95; speechSynthesis.speak(u); } catch (e) { toast('Voice not supported on this device'); }
+  try { const u = new SpeechSynthesisUtterance(A.tr[c]); u.lang = L.tts; u.rate = 0.95; speechSynthesis.speak(u); } catch (e) { toast(T('noVoice')); }
 }
 
 /* ---------- sheets ---------- */
 function openMenu() {
   $('#menuT').textContent = T('surahs');
-  $('#menuList').innerHTML = D.surahs.map((s, i) => `<button class="srow ${i === st.s ? 'on' : ''}" data-s="${i}"><span class="n">${s.n}</span><span class="t">${esc(s.en)}<small>${esc(s.mean)} · ${s.ayat.length} ${T('ayah')}</small></span><span class="ar">${s.ar}</span></button>`).join('');
+  $('#menuList').innerHTML = D.surahs.map((s, i) => `<button class="srow ${i === st.s ? 'on' : ''}" data-s="${i}"><span class="n">${s.n}</span><span class="t">${esc(sName(s)[0])}<small>${esc(sName(s)[1])} · ${s.ayat.length} ${T('ayah')}</small></span></button>`).join('');
   $('#menu').hidden = false;
 }
 function openSettings() {
   $('#setT').textContent = T('settings');
   const seg = (items, cur, key) => `<div class="seg">${items.map(([v, l]) => `<button data-k="${key}" data-v="${v}" class="${cur === v ? 'on' : ''}">${esc(l)}</button>`).join('')}</div>`;
   $('#setBody').innerHTML =
-    `<div class="set-g"><h5>${T('ui')}</h5>${seg([['ru', 'Roman Urdu'], ['en', 'English']], st.ui, 'ui')}</div>` +
-    `<div class="set-g"><h5>${T('wm')}</h5>${seg([['ur', 'اردو'], ['hi', 'हिन्दी'], ['en', 'English']], st.wl, 'wl')}</div>` +
-    `<div class="set-g"><h5>${T('tr')}</h5>${D.langs.filter(l => l.c !== 'ar').map(l => `<label class="chk"><input type="checkbox" data-tl="${l.c}" ${st.tl.includes(l.c) ? 'checked' : ''}><span>${esc(l.n)}<small>${esc(l.label)}</small></span></label>`).join('')}</div>` +
-    `<div class="set-g"><h5>${T('rec')}</h5>${seg(REC.map(r => [r[0], r[1]]), st.rec, 'rec')}</div>`;
+    `<div class="set-g"><h5>${T('ui')}</h5>${seg(I.ui, st.ui, 'ui')}</div>` +
+    `<div class="set-g"><h5>${T('tr')}</h5>${D.langs.filter(l => l.c !== 'ar').map(l => `<label class="chk"><input type="checkbox" data-tl="${l.c}" ${st.tl.includes(l.c) ? 'checked' : ''}><span>${esc(lName(l.c))}<small>${esc(tName(l.c))}</small></span></label>`).join('')}</div>` +
+    `<div class="set-g"><h5>${T('rec')}</h5>${seg(REC.map(r => [r, rName(r)]), st.rec, 'rec')}</div>`;
   $('#settings').hidden = false;
 }
 
@@ -141,36 +155,38 @@ function bind() {
     const sp = e.target.closest('#spkW'); if (sp) { playWord(); return; }
     const tt = e.target.closest('[data-tts]'); if (tt) { speakTr(tt.dataset.tts); return; }
     const sr = e.target.closest('[data-s]'); if (sr) { $('#menu').hidden = true; goTo(+sr.dataset.s, 0); return; }
-    const kv = e.target.closest('[data-k]'); if (kv) { st[kv.dataset.k] = kv.dataset.v; save(); applyUi(); renderAyah(true); openSettings(); return; }
+    const kv = e.target.closest('[data-k]'); if (kv) { st[kv.dataset.k] = kv.dataset.v; if (kv.dataset.k === 'ui') st.tl = DEF_TL[st.ui].slice(); save(); applyUi(); renderAyah(true); openSettings(); return; }
   });
   document.addEventListener('change', e => {
     const c = e.target.closest('[data-tl]'); if (!c) return;
     const code = c.dataset.tl; st.tl = st.tl.filter(x => x !== code); if (c.checked) st.tl.push(code); st.tl.sort((a, b) => D.langs.findIndex(l => l.c === a) - D.langs.findIndex(l => l.c === b)); save(); renderTrans();
   });
   document.addEventListener('keydown', e => { if (e.key === 'ArrowRight') next(false); else if (e.key === 'ArrowLeft') prev(); else if (e.key === ' ' && e.target === document.body) { e.preventDefault(); $('#bPlay').click(); } });
-  let x0 = null; const stg = $('#stage');
+  let x0 = null; const stg = $('#story');
   stg.addEventListener('touchstart', e => { x0 = e.touches[0].clientX; }, { passive: true });
   stg.addEventListener('touchend', e => { if (x0 == null) return; const dx = e.changedTouches[0].clientX - x0; x0 = null; if (Math.abs(dx) > 60) { dx < 0 ? next(false) : prev(); } }, { passive: true });
   window.addEventListener('resize', () => scene.resize());
+  $('#btnLabR').onclick = () => FahmLab.replay();
+  $('#btnFull').onclick = () => { $('#stage').classList.toggle('big'); document.body.classList.toggle('nofl', $('#stage').classList.contains('big')); setTimeout(() => FahmLab.resize(), 30); };
   window.addEventListener('visibilitychange', () => { if (document.hidden) scene.stop(); else scene.start(); });
 }
-function applyUi() { $('#autoLbl').textContent = T('auto'); document.documentElement.lang = st.ui === 'en' ? 'en' : 'ur'; }
+function applyUi() { $('#autoLbl').textContent = T('auto'); document.documentElement.lang = st.ui === 'en' ? 'en' : 'ur'; document.body.className = 'l-' + st.ui; if (window.FahmLab) FahmLab.lang = st.ui; $('#btnFull').title = T('full'); $('#btnReplay').title = T('replay'); $('#btnLabR').title = T('replay'); }
 
 /* ---------- install hint ---------- */
 let deferred = null;
-window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); deferred = e; const b = $('#install'); b.innerHTML = `<span style="flex:1">Fahm ko phone par install karein</span><button id="doInstall">${T('install')}</button>`; b.hidden = false; $('#doInstall').onclick = async () => { b.hidden = true; deferred.prompt(); }; });
+window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); deferred = e; const b = $('#install'); b.innerHTML = `<span style="flex:1">${T('installBar')}</span><button id="doInstall">${T('install')}</button>`; b.hidden = false; $('#doInstall').onclick = async () => { b.hidden = true; deferred.prompt(); }; });
 function iosHint() {
   const ios = /iphone|ipad|ipod/i.test(navigator.userAgent) && !navigator.standalone;
   if (ios && !st.ios) { const b = $('#install'); b.innerHTML = `<span style="flex:1">${T('iosTip')}</span><button id="okI">${T('close')}</button>`; b.hidden = false; $('#okI').onclick = () => { b.hidden = true; st.ios = 1; save(); }; }
 }
 
 async function init() {
-  scene = new FahmScene($('#cv'));
+  scene = new FahmScene($('#cv')); if (window.FahmLab) FahmLab.lang = st.ui, FahmLab.init($('#stage'));
   D = await (await fetch('data.json')).json();
   D.surahs.forEach((S, si) => S.ayat.forEach((A, ai) => A.words.forEach((w, wi) => { if (w.root) (rootIdx[w.root] = rootIdx[w.root] || []).push({ s: si, a: ai, w: wi }); })));
   if (st.s >= D.surahs.length) st.s = 0;
   applyUi(); bind(); renderAyah(false); scene.start(); iosHint();
-  window.__fahm = { scene, st, goTo, D };
+  window.__fahm = { scene, st, goTo, D, lemKey };
   if ('serviceWorker' in navigator && /^https?:/.test(location.protocol)) navigator.serviceWorker.register('sw.js').catch(() => { });
 }
 init();
