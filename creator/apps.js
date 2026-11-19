@@ -464,13 +464,76 @@
     frames: { cam: { hs: { grid: CAMZ.grid, top: CAMZ.top, shutter: CAMZ.shutter } }, rec: { hs: { timer: CAMZ.timer, shutter: CAMZ.shutter } }, list5: { hs: {} }, list6: { hs: {} } },
     kw: [[/\brec\b/, "rec", []], [/\blist5\b/, "list5", []], [/\blist6\b/, "list6", []]]
   };
-  var APPS = { canva: CAPP, insta: IAPP, gpt: GAPP, zoom: ZAPP, store: SAPP, camera: KAPP };
+  /* ============================== GOOGLE FORMS / GOOGLE DRIVE / YOUTUBE STUDIO (laptop 1600x900) ============================== */
+  var GW = 1600, GH = 900, GOOG = ["#4285f4", "#ea4335", "#fbbc05", "#34a853"];
+  var RAD = function (x, y, on) { return C(x, y, 9, "#fff", "#5f6368") + (on ? C(x, y, 5, "#673ab7") : ""); };
+  function fmTop() { return R(0, 0, GW, 64, "#fff", 0, "#e0e0e0") + R(24, 16, 26, 32, "#673ab7", 4) + Tx(66, 40, 19, "Client Brief", "#202124", 500) + Tx(1250, 40, 15, "Questions  ·  Responses", "#5f6368", 500) + R(1470, 12, 110, 40, "#673ab7", 20) + Tx(1525, 38, 16, "Send", "#fff", 600, "middle"); }
+  function fmForm() {
+    var s = R(0, 0, GW, GH, "#f0ebf8") + fmTop() + R(400, 100, 800, 170, "#fff", 10) + R(400, 100, 800, 10, "#673ab7", 0) + Tx(430, 170, 36, "Client Brief", "#202124", 400) + Tx(430, 215, 16, "Please fill this before we start. It takes 2 minutes.", "#5f6368", 400);
+    s += R(400, 290, 800, 110, "#fff", 10, "#dadce0") + Tx(430, 330, 18, "Brand name", "#202124", 500) + Ln(430, 376, 760, 376, "#bdc1c6", 1.5) + Tx(430, 368, 14, "Short answer text", "#80868b", 400);
+    s += R(400, 420, 800, 130, "#fff", 10, "#dadce0") + Tx(430, 460, 18, "What do you sell, and to whom?", "#202124", 500) + Ln(430, 520, 1000, 520, "#bdc1c6", 1.5) + Tx(430, 512, 14, "Long answer text", "#80868b", 400);
+    s += R(400, 570, 800, 180, "#fff", 10, "#673ab7") + Tx(430, 610, 18, "Which platform?", "#202124", 500) + ["Instagram", "YouTube", "Facebook"].map(function (p, i) { return RAD(442, 648 + i * 36, i === 0) + Tx(466, 654 + i * 36, 16, p, "#202124", 400); }).join("");
+    s += R(400, 770, 800, 110, "#fff", 10, "#dadce0") + Tx(430, 810, 18, "How many videos a month?", "#202124", 500) + Ln(430, 856, 640, 856, "#bdc1c6", 1.5);
+    s += R(1230, 580, 56, 150, "#fff", 8, "#dadce0") + Tx(1258, 616, 24, "+", "#5f6368", 400, "middle") + Tx(1258, 662, 20, "T", "#5f6368", 500, "middle") + Tx(1258, 708, 18, "▭", "#5f6368", 500, "middle");
+    return s;
+  }
+  function fmSend() { return fmForm() + R(0, 64, GW, GH - 64, "rgba(0,0,0,.45)") + R(520, 200, 560, 330, "#fff", 12) + Tx(552, 250, 22, "Send form", "#202124", 500) + Tx(552, 300, 15, "Send via   ✉ Email    🔗 Link    </>", "#5f6368", 500) + Tx(552, 350, 15, "Link", "#5f6368", 500) + R(552, 364, 496, 44, "#f1f3f4", 6) + Tx(566, 392, 14, "https://forms.gle/brief-client", "#202124", 400) + R(552, 450, 140, 44, "#673ab7", 22) + Tx(622, 478, 15, "Copy", "#fff", 600, "middle") + Tx(990, 478, 15, "Cancel", "#673ab7", 600, "middle"); }
+  var FMAPP = {
+    key: "forms", W: GW, H: GH, plat: "pc", cap: "Google Forms · laptop", defs: "",
+    zones: { form: [400, 100, 800, 650], send: [1470, 12, 110, 40], q1: [400, 290, 800, 110], q2: [400, 420, 800, 130], q3: [400, 570, 800, 180] },
+    zn: { form: L("Your form", "آپ کا فارم", "आपका फ़ॉर्म"), send: L("Send", "بھیجیں", "भेजें"), q1: L("Question 1", "سوال 1", "सवाल 1"), q2: L("Question 2", "سوال 2", "सवाल 2"), q3: L("Question 3", "سوال 3", "सवाल 3") },
+    frames: { form: { hs: { send: [1470, 12, 110, 40], q1: [400, 290, 800, 110], q3: [400, 570, 800, 180] } }, send: { hs: { copy: [552, 450, 140, 44], link: [552, 364, 496, 44] } } },
+    kw: [[/send|share|link|agree|write it/, "form", [["form", "send", "Send"], ["send", "copy", "Copy link"]]], [/./, "form", [["form", "q1", "Add a question"]]]]
+  };
+  function drTop() { return R(0, 0, GW, GH, "#f8fafd") + R(0, 0, GW, 64, "#f8fafd") + R(24, 14, 36, 36, "#fff", 8) + GOOG.map(function (c, i) { return R(30 + (i % 2) * 14, 20 + Math.floor(i / 2) * 14, 12, 12, c, 3); }).join("") + Tx(76, 40, 22, "Drive", "#5f6368", 500) + R(300, 10, 700, 44, "#e9eef6", 22) + Tx(340, 38, 16, "Search in Drive", "#5f6368", 400); }
+  function drFiles() {
+    var s = drTop() + R(24, 90, 150, 56, "#c2e7ff", 16) + Tx(99, 125, 17, "+ New", "#001d35", 600, "middle");
+    ["My Drive", "Computers", "Shared with me", "Recent", "Starred"].forEach(function (t, i) { s += Tx(48, 190 + i * 44, 16, t, i === 0 ? "#001d35" : "#444746", i === 0 ? 700 : 400); });
+    s += R(230, 90, 1340, 780, "#fff", 18) + Tx(260, 140, 22, "My Drive", "#1f1f1f", 400) + Ln(250, 170, 1550, 170, "#e0e0e0", 1) + Tx(260, 200, 14, "Name", "#5f6368", 600) + Tx(1100, 200, 14, "Owner", "#5f6368", 600) + Tx(1300, 200, 14, "Last modified", "#5f6368", 600);
+    [["brand-reel1-v1.mp4", 1], ["brand-reel1-final.mp4", 0], ["Client Brief (Responses)", 0], ["Raw clips", 0]].forEach(function (f, i) { var y = 220 + i * 56; s += R(240, y, 1320, 52, f[1] ? "#c2e7ff" : "#fff", 8) + R(262, y + 14, 24, 24, i === 3 ? "#5f6368" : "#d93025", 4) + Tx(304, y + 33, 17, f[0], "#1f1f1f", 400) + Tx(1100, y + 33, 15, "me", "#5f6368", 400) + Tx(1300, y + 33, 15, "Today", "#5f6368", 400); });
+    s += R(1360, 120, 44, 44, "#e8eaed", 22) + Tx(1382, 150, 20, "👤+", "#444746", 500, "middle");
+    return s;
+  }
+  function drShare() {
+    return drFiles() + R(0, 0, GW, GH, "rgba(0,0,0,.4)") + R(480, 170, 640, 500, "#fff", 24) + Tx(520, 230, 24, "Share “brand-reel1-v1.mp4”", "#1f1f1f", 400) + R(520, 260, 560, 48, "#fff", 6, "#747775") + Tx(536, 290, 16, "Add people, groups, and calendar events", "#5f6368", 400) +
+      Tx(520, 360, 17, "General access", "#1f1f1f", 600) + R(520, 380, 560, 76, "#f0f4f9", 10) + C(560, 418, 20, "#c4eed0") + Tx(560, 424, 16, "🌐", "#0b6a0b", 500, "middle") + Tx(600, 412, 16, "Anyone with the link", "#1f1f1f", 600) + Tx(600, 436, 13, "Anyone on the internet with the link can view", "#5f6368", 400) + Tx(1010, 424, 15, "Viewer ▾", "#1f1f1f", 500) +
+      R(520, 600, 160, 44, "#fff", 22, "#747775") + Tx(600, 628, 15, "🔗 Copy link", "#0b57d0", 600, "middle") + R(980, 600, 100, 44, "#0b57d0", 22) + Tx(1030, 628, 15, "Done", "#fff", 600, "middle");
+  }
+  var DRAPP = {
+    key: "drive", W: GW, H: GH, plat: "pc", cap: "Google Drive · laptop", defs: "",
+    zones: { list: [240, 220, 1320, 220], share: [1360, 120, 44, 44], file: [240, 220, 1320, 52] },
+    zn: { list: L("Your files", "آپ کی فائلیں", "आपकी फ़ाइलें"), share: L("Share", "شیئر", "शेयर"), file: L("The video file", "ویڈیو فائل", "वीडियो फ़ाइल") },
+    frames: { files: { hs: { file: [240, 220, 1320, 52], share: [1360, 120, 44, 44] } }, share: { hs: { access: [520, 380, 560, 76], copy: [520, 600, 160, 44], done: [980, 600, 100, 44] } } },
+    kw: [[/./, "files", [["files", "file", "Right-click the file"], ["files", "share", "Share"], ["share", "access", "Anyone with the link"], ["share", "copy", "Copy link"]]]]
+  };
+  function ytTop() { return R(0, 0, GW, GH, "#f9f9f9") + R(0, 0, GW, 56, "#fff", 0, "#e0e0e0") + R(24, 16, 36, 26, "#ff0000", 7) + Pa("M38 22l10 7-10 7z", "#fff") + Tx(72, 38, 20, "Studio", "#0f0f0f", 600) + R(1440, 10, 120, 38, "#fff", 19, "#cfcfcf") + Tx(1500, 35, 15, "＋ Create", "#0f0f0f", 600, "middle"); }
+  function ytDialog(body, step) {
+    return ytTop() + R(0, 56, GW, GH - 56, "rgba(0,0,0,.45)") + R(220, 90, 1160, 740, "#fff", 12) + Tx(250, 140, 22, "brand-reel1-final.mp4", "#0f0f0f", 600) + Ln(220, 170, 1380, 170, "#e0e0e0", 1) +
+      ["Details", "Video elements", "Checks", "Visibility"].map(function (t, i) { return C(420 + i * 250, 206, 11, i <= step ? "#065fd4" : "#cfcfcf") + Tx(420 + i * 250, 211, 12, i + 1, "#fff", 700, "middle") + Tx(440 + i * 250, 211, 15, t, i === step ? "#0f0f0f" : "#606060", i === step ? 700 : 400); }).join("") + Ln(220, 240, 1380, 240, "#e0e0e0", 1) + body +
+      R(1250, 770, 100, 40, "#065fd4", 20) + Tx(1300, 796, 15, step === 3 ? "Publish" : "Next", "#fff", 600, "middle");
+  }
+  function ytDetails() {
+    return ytDialog(Tx(250, 290, 24, "Details", "#0f0f0f", 700) + R(250, 310, 700, 90, "#fff", 8, "#909090") + Tx(266, 336, 12, "Title (required)", "#606060", 400) + Tx(266, 374, 17, "How I made this reel in CapCut | Easy tutorial", "#0f0f0f", 400) + R(250, 420, 700, 160, "#fff", 8, "#909090") + Tx(266, 446, 12, "Description", "#606060", 400) + Tx(266, 482, 15, "In this video you will learn…", "#0f0f0f", 400) +
+      Tx(250, 625, 17, "Thumbnail", "#0f0f0f", 700) + R(250, 640, 190, 106, "#fff", 8, "#909090").replace("<rect", '<rect stroke-dasharray="5 4"') + Tx(345, 700, 13, "Upload thumbnail", "#606060", 500, "middle") + R(980, 290, 340, 190, "#222", 8) + Pa("M1130 360l50 25-50 25z", "#fff") + Tx(980, 505, 13, "Video link", "#606060", 400) + Tx(980, 527, 14, "https://youtu.be/AbC123", "#065fd4", 400), 0);
+  }
+  function ytVis() {
+    return ytDialog(Tx(250, 290, 24, "Visibility", "#0f0f0f", 700) + Tx(250, 322, 15, "Choose when to publish and who can see your video", "#606060", 400) + R(250, 350, 700, 250, "#fff", 8, "#cfcfcf") + ["Private", "Unlisted", "Public"].map(function (p, i) { return RAD(290, 400 + i * 70, i === 2) + Tx(320, 406 + i * 70, 17, p, "#0f0f0f", 600) + Tx(420, 406 + i * 70, 14, ["Only you and people you choose", "Anyone with the link", "Everyone can watch"][i], "#606060", 400); }).join(""), 3);
+  }
+  var YTAPP = {
+    key: "yt", W: GW, H: GH, plat: "pc", cap: "YouTube Studio · laptop", defs: "",
+    zones: { title: [250, 310, 700, 90], thumb: [250, 640, 190, 106], vis: [250, 350, 700, 250], next: [1250, 770, 100, 40] },
+    zn: { title: L("Title", "ٹائٹل", "टाइटल"), thumb: L("Thumbnail", "تھمب نیل", "थंबनेल"), vis: L("Visibility", "ویزیبلٹی", "विज़िबिलिटी"), next: L("Next", "اگلا", "अगला") },
+    frames: { details: { hs: { title: [250, 310, 700, 90], thumb: [250, 640, 190, 106], next: [1250, 770, 100, 40] } }, vis: { hs: { public: [250, 510, 700, 60], publish: [1250, 770, 100, 40] } } },
+    kw: [[/publish|public|visib|schedule/, "details", [["details", "next", "Next"], ["vis", "public", "Public"], ["vis", "publish", "Publish"]]], [/thumb/, "details", [["details", "thumb", "Upload thumbnail"]]], [/./, "details", [["details", "title", "Write a clear title"]]]]
+  };
+  var APPS = { canva: CAPP, insta: IAPP, gpt: GAPP, zoom: ZAPP, store: SAPP, camera: KAPP, forms: FMAPP, drive: DRAPP, yt: YTAPP };
   var DRAW = {
     canva: CF, insta: { profile: inProfile, settings: inSettings, type: inType, reel: inReel, caption: inCaption, insights: inInsights, active: inActive, viewreel: inViewReel },
-    gpt: { chat: gptChat, result: gptResult }, store: { search: stSearch, page: function () { return stPage(); }, installing: function () { return stPage('installing'); }, done: function () { return stPage('done'); }, login: stLogin }, camera: { cam: function () { return camBase(false); }, rec: function () { return camBase(true); }, list5: function () { return camList(false); }, list6: function () { return camList(true); } }, zoom: { meeting: function () { return zmMeeting(false); }, share: function () { return zmMeeting(true); } }
+    gpt: { chat: gptChat, result: gptResult }, store: { search: stSearch, page: function () { return stPage(); }, installing: function () { return stPage('installing'); }, done: function () { return stPage('done'); }, login: stLogin }, camera: { cam: function () { return camBase(false); }, rec: function () { return camBase(true); }, list5: function () { return camList(false); }, list6: function () { return camList(true); } }, zoom: { meeting: function () { return zmMeeting(false); }, share: function () { return zmMeeting(true); } },
+    forms: { form: fmForm, send: fmSend }, drive: { files: drFiles, share: drShare }, yt: { details: ytDetails, vis: ytVis }
   };
-  var DEFAULT_FRAME = { canva: "editor", insta: "profile", gpt: "chat", zoom: "meeting", store: "search", camera: "cam" };
-  var HLZ = { canva: { top: "file" }, insta: {}, gpt: {}, zoom: {}, store: {}, camera: {} };
+  var DEFAULT_FRAME = { canva: "editor", insta: "profile", gpt: "chat", zoom: "meeting", store: "search", camera: "cam", forms: "form", drive: "files", yt: "details" };
+  var HLZ = { canva: { top: "file" }, insta: {}, gpt: {}, zoom: {}, store: {}, camera: {}, forms: {}, drive: {}, yt: {} };
 
   /* ============================== build a pane ============================== */
   var esc2 = function (s) { return (typeof esc === "function" ? esc(s) : String(s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; })); };
@@ -535,10 +598,13 @@
     var talk = /^(today|homework|project|week|end of|look back|what next|welcome|assalamu|quick revision|then answer|bring|final project)\b/.test(t.trim());
     if (talk) return { ui: "board", txt: { en: m.en, ur: m.ur, hi: m.hi } };
     var igUi = lid[0] === "v" ? /insight|trial reel|collab|paid partnership|professional account/.test(t) : /insight|profile|bio|hashtag|caption|trial|collab|paid partnership|highlight|professional account|algorithm|watch time|sends|swipe|followers|most active|reach/.test(t);
-    var tool = first([[/chatgpt|chat gpt/, "gpt"], [/\bzoom (meeting|class|pro|call|link|room)|\bon zoom\b/, "zoom"], [/canva/, "canva"], [/instagram|insta\b|trial reel|\breels?\b/, "insta"], [/capcut/, "desk"]]);
+    var tool = first([[/chatgpt|chat gpt/, "gpt"], [/\bzoom (meeting|class|pro|call|link|room)|\bon zoom\b/, "zoom"], [/canva/, "canva"], [/google forms?/, "forms"], [/google drive/, "drive"], [/youtube (studio|upload|title|description)|upload (it |the video )?to youtube|publish (it )?(on|to) youtube/, "yt"], [/instagram|insta\b|trial reel|\breels?\b/, "insta"], [/capcut/, "desk"]]);
     var edit = /\b(cut|trim|split|clip|zoom in|zoom out|transition|speed|slow motion|caption|subtitle|filter|colou?r grade|keyframe|effect|b-roll|overlay|volume|beat|timeline|export|jump cut|ducking|stabili[sz]e|crop|ratio)\b/.test(t);
     if (tool === "gpt") return { ui: "gpt", hl: /upload|photo|background|prompt|image|picture/.test(t) ? ["composer"] : ["chat"], btn: /upload|photo|background/.test(t) ? "Upload your photo" : "Type your prompt" };
     if (tool === "zoom") return { ui: "zoom", hl: /record/.test(t) ? ["rec"] : /share/.test(t) ? ["share"] : ["bar"], btn: /record/.test(t) ? "Record" : /share/.test(t) ? "Share Screen" : "" };
+    if (tool === "forms") return { ui: "forms", hl: ["form"], btn: /send|share|link/.test(t) ? "Send" : "Add a question" };
+    if (tool === "drive") return { ui: "drive", hl: ["list"], btn: "Share" };
+    if (tool === "yt") return { ui: "yt", hl: /thumb/.test(t) ? ["thumb"] : ["title"], btn: /thumb/.test(t) ? "Upload thumbnail" : "Write a clear title" };
     if (tool === "canva") return { ui: "canva", hl: ["canvas"], btn: /upload/.test(t) ? "Uploads" : /download|export/.test(t) ? "Share → Download" : "" };
     if (tool === "insta" && !edit && igUi) return { ui: "insta", hl: /signals|swipe|watch time|sends|likes|reach/.test(t) ? ["side"] : ["top"], btn: /signals|swipe|watch time|sends|likes|reach/.test(t) ? "Watch time · Sends" : /insight|views|analytics/.test(t) ? "Insights" : /profile|bio|name|photo/.test(t) ? "Edit profile" : /caption|hashtag/.test(t) ? "Caption" : /trial|collab|paid/.test(t) ? "Invite collaborator" : "" };
     if ((lid[0] === "v" && (edit || tool === "desk"))) return { ui: "desk", hl: ["timeline"], btn: "" };
@@ -546,6 +612,6 @@
     return null;
   };
 
-  var css = document.createElement("style"); css.textContent = ".uimg.app{background:#111}.uimg.app svg{display:block;width:100%;height:100%}.uscr.app{background:#111}.uscr.mob.app{max-width:340px;margin:0 auto}";
+  var css = document.createElement("style"); css.textContent = ".uscr.app,.uimg.app,.uimg.app svg{direction:ltr}.uimg.app{background:#111}.uimg.app svg{display:block;width:100%;height:100%}.uscr.app{background:#111}.uscr.mob.app{max-width:340px;margin:0 auto}";
   document.head.appendChild(css);
 })();
