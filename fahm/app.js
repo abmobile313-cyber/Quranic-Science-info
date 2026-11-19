@@ -11,6 +11,7 @@ let st = { s: 0, a: 0, w: 0, ui: 'ru', tl: null, rec: REC[0], auto: true, ios: 0
 try { Object.assign(st, JSON.parse(localStorage.getItem(KEY) || '{}')); } catch (e) { }
 const save = () => { try { localStorage.setItem(KEY, JSON.stringify(st)); } catch (e) { } };
 if (!STR[st.ui]) st.ui = 'ru';
+const MASLAK = [['d', 'ur'], ['b', 'urk'], ['a', 'urg'], ['j', 'urm'], ['s', 'urn']], URD = ['ur', 'urj', 'urm', 'urh', 'urk', 'urq', 'urg', 'urn', 'urz', 'rur'];
 const DEF_TL = { ur: ['ur'], ru: ['rur'], en: ['en'] };
 if (!st.tl || !st.tl.length) st.tl = DEF_TL[st.ui].slice();
 const T = k => STR[st.ui][k];
@@ -66,8 +67,8 @@ function renderWordCard() {
 function renderTrans() {
   const { S, A } = cur();
   $('#trans').innerHTML = st.tl.filter(c => A.tr[c]).map(c => {
-    const L = D.langs.find(l => l.c === c), cls = (c === 'ur' ? 'u' : c === 'hi' ? 'h' : '') + (RTL[c] ? ' rtl' : '');
-    return `<div class="tr"><div class="lh"><span>${esc(lName(c))} · ${esc(tName(c))}</span><button class="sp" data-tts="${c}" aria-label="Listen"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></button></div><p class="${cls}" ${RTL[c] ? 'dir="rtl"' : ''}>${esc(A.tr[c])}</p></div>`;
+    const L = D.langs.find(l => l.c === c), cls = (URD.includes(c) && c !== 'rur' ? 'u' : c === 'hi' ? 'h' : '') + ((RTL[c] || (URD.includes(c) && c !== 'rur')) ? ' rtl' : '');
+    return `<div class="tr"><div class="lh"><span>${esc(lName(c))} · ${esc(tName(c))}</span><button class="sp" data-tts="${c}" aria-label="Listen"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></button></div><p class="${cls}" ${(RTL[c] || (URD.includes(c) && c !== 'rur')) ? 'dir="rtl"' : ''}>${esc(A.tr[c])}</p></div>`;
   }).join('');
 }
 
@@ -216,6 +217,7 @@ function openSettings() {
     `<div class="set-g"><h5>${T('theme')}</h5>${seg([['dark', T('dark')], ['light', T('light')]], st.theme, 'theme')}</div>` +
     `<div class="set-g"><h5>${T('sfx')}</h5>${seg([['0', T('sfxOff')], ['1', T('sfxLow')], ['2', T('sfxMid')]], String(st.sfx), 'sfx')}</div>` +
     `<div class="set-g"><label class="chk"><input type="checkbox" id="autoNext" ${st.auto ? 'checked' : ''}><span>${esc(T('autoOpt'))}</span></label><label class="chk"><input type="checkbox" id="trVoice" ${st.trv ? 'checked' : ''}><span>${esc(T('trVoice'))}</span></label></div>` +
+    `<div class="set-g"><h5>${T('maslak')}</h5>${seg(MASLAK.map(([k, c]) => [c, T('mk')[k]]), (MASLAK.find(([k, c]) => st.tl.includes(c)) || [0, ''])[1], 'maslak')}</div>` +
     `<div class="set-g"><h5>${T('tr')}</h5>${D.langs.filter(l => l.c !== 'ar').map(l => `<label class="chk"><input type="checkbox" data-tl="${l.c}" ${st.tl.includes(l.c) ? 'checked' : ''}><span>${esc(lName(l.c))}<small>${esc(tName(l.c))}</small></span></label>`).join('')}</div>` +
     `<div class="set-g"><h5>${T('rec')}</h5>${seg(REC.map(r => [r, rName(r)]), st.rec, 'rec')}</div>`;
   $('#settings').hidden = false;
@@ -244,7 +246,8 @@ function bind() {
     const sp = e.target.closest('#spkW'); if (sp) { playWord(); return; }
     const tt = e.target.closest('[data-tts]'); if (tt) { speakTr(tt.dataset.tts); return; }
     const sr = e.target.closest('[data-s]'); if (sr) { $('#menu').hidden = true; if (readerOn) { try { rau.pause(); } catch (x) { } rSetPlaying(false); renderReader(+sr.dataset.s); rIdx = 0; $('#rbody').scrollTop = 0; } else goTo(+sr.dataset.s, 0); return; }
-    const kv = e.target.closest('[data-k]'); if (kv) { st[kv.dataset.k] = kv.dataset.k === 'sfx' ? +kv.dataset.v : kv.dataset.v; if (kv.dataset.k === 'sfx') { FahmSfx.unlock(); FahmSfx.setLevel(st.sfx); if (st.sfx && playing) FahmSfx.start((scene.spec || {}).sky); } if (kv.dataset.k === 'ui') st.tl = DEF_TL[st.ui].slice(); save(); applyUi(); renderAyah(true); openSettings(); return; }
+    const kv = e.target.closest('[data-k]'); if (kv && kv.dataset.k === 'maslak') { st.tl = st.tl.filter(x => !URD.includes(x)); st.tl.push(kv.dataset.v); st.tl.sort((x, y) => D.langs.findIndex(l => l.c === x) - D.langs.findIndex(l => l.c === y)); save(); renderTrans(); openSettings(); return; }
+    if (kv) { st[kv.dataset.k] = kv.dataset.k === 'sfx' ? +kv.dataset.v : kv.dataset.v; if (kv.dataset.k === 'sfx') { FahmSfx.unlock(); FahmSfx.setLevel(st.sfx); if (st.sfx && playing) FahmSfx.start((scene.spec || {}).sky); } if (kv.dataset.k === 'ui') st.tl = DEF_TL[st.ui].slice(); save(); applyUi(); renderAyah(true); openSettings(); return; }
   });
   document.addEventListener('change', e => {
     const c = e.target.closest('[data-tl]'); if (!c) return;
