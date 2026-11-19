@@ -631,8 +631,8 @@ service cloud.firestore {
     function myTeacher() { return get(/databases/$(database)/documents/teachers/$(request.auth.token.email.lower())).data; }
     match /users/{uid} {
       allow read: if request.auth != null && request.auth.uid == uid;
-      allow create: if request.auth != null && request.auth.uid == uid && !('access' in request.resource.data) && !('paid' in request.resource.data);
-      allow update: if request.auth != null && request.auth.uid == uid && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['access', 'paid']);
+      allow create: if request.auth != null && request.auth.uid == uid && !('access' in request.resource.data) && !('paid' in request.resource.data) && !('instOpen' in request.resource.data);
+      allow update: if request.auth != null && request.auth.uid == uid && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['access', 'paid', 'instOpen']);
       allow read, write: if isOwner();
       allow read: if isTeacher() && resource.data.access[myTeacher().course] == true;
       allow update: if isTeacher() && resource.data.access[myTeacher().course] == true && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['prog', 'att']);
@@ -653,7 +653,8 @@ service cloud.firestore {
     }
     match /certificates/{id} {
       allow read: if true;
-      allow create, update: if request.auth != null && (request.resource.data.uid == request.auth.uid || isOwner());
+      /* a student with an unpaid instalment (users.instOpen, written only by the payment worker) cannot create a certificate */
+      allow create, update: if request.auth != null && (isOwner() || (request.resource.data.uid == request.auth.uid && !(exists(/databases/$(database)/documents/users/$(request.auth.uid)) && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.get('instOpen', false) == true)));
     }
     match /attendance/{id} {
       allow create, update: if request.auth != null && request.resource.data.uid == request.auth.uid;
@@ -2450,6 +2451,7 @@ window.qsAiCell=function(u,course){var p=P[course];if(!p)return"";var ai=u&&u.ai
 <script data-goatcounter="https://deensaathi.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
 <script src="/qs-simple.js?v=4" defer></script>
 <script src="/qs-combo.js?v=1" defer></script>
+<script src="/qs-instalment.js?v=1" defer></script>
 <style id="qs-pro">
 /* Nov 2026 · cleaner, bigger navigation (owner request): full-width section bar with big buttons on phone and desktop */
 .tabsrow{max-width:1100px!important;padding:0 14px;box-sizing:border-box;width:100%}

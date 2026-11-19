@@ -311,6 +311,7 @@ export async function handlePayment(env, evt, fs, fetchImpl = fetch) {
   const info = paymentInfo(evt);
   if (!info.id) return { ignored: "no payment id" };
   if (info.notes.shop_order) return shopPaid(env, fs, info, fetchImpl);
+  if (info.notes.inst) return instPaid(env, fs, info, fetchImpl); /* instalment (kist): its own strict checks */
   const done = await fs.get(`payments/${info.id}`); if (done && done.status === "applied") return { duplicate: true };
   /* which course: owner dashboard keeps config/payLinks = { "<rzp short url or id>": "<course key>" } */
   const cfg = (await fs.get("config/payLinks")) || {}, map = cfg.links || {};
@@ -342,6 +343,7 @@ export async function handlePayment(env, evt, fs, fetchImpl = fetch) {
   const inc = COMBOS[course] || [], acc = { [course]: true }, pd = { [course]: Date.now() }; inc.forEach(k => { acc[k] = true; pd[k] = Date.now(); });
   await fs.merge(`users/${user.id}`, { access: acc, paid: pd, paidNotified: { [course]: Date.now() } });
   await fs.merge(`payments/${info.id}`, Object.assign(rec, { status: "applied" }));
+  try { const ip = await fs.get(`installments/${user.id}__${course}`); if (ip && ip.status !== "complete") { await fs.merge(`installments/${ip.id}`, { status: "complete", paidInFull: info.id }); const oth = (await fs.query("installments", [["uid", "EQUAL", user.id]], 20)).some(r => r.id !== ip.id && r.status !== "complete" && r.status !== "new"); await fs.merge(`users/${user.id}`, { instOpen: oth }); } } catch (e) {}
   /* close the student's own "I have paid" requests for this course */
   for (const a of await fs.query("activities", [["uid", "EQUAL", user.id]], 50))
     if (a.kind === "payment" && String(a.title || "").includes(`[${course}]`) && !["Paid", "Cancelled"].includes(a.status)) await fs.merge(`activities/${a.id}`, { status: "Paid" });
@@ -561,6 +563,8 @@ export async function runCron(env, fs, now = Date.now(), fetchImpl = fetch) {
     await fs.merge(`classes/${k.id}`, { reminder: { sent: true, at: now, count: n } });
     out.reminded += n;
   }
+  /* 1b) instalments: reminders and the lock after the grace days */
+  try { const ic = await instCron(env, fs, now, fetchImpl); if (ic.reminded || ic.locked) out.inst = ic; } catch (e) { out.errors.push("inst: " + String(e.message || e).slice(0, 120)); }
   /* 2) certificate ready: certificates not yet announced */
   /* only certificates made in the last 2 days (older ones were before the automation) */
   const certs = await fs.query("certificates", [["ts", "GREATER_THAN", now - 2 * 864e5]], 200);
@@ -1403,6 +1407,132 @@ const AI_ADDON = { tajweed: ["ai-tajweed-live", "ai-combo-live"], arabic: ["ai-a
 const AI_LIVE = { tajweed: "tajweed-class", arabic: "arabic-speaking-class", editing: "video-editing-course", content: "content-creation-zero-to-pro", design: "all-in-one-creator-course" };
 const AI_LIVE_COMBO = { tajweed: "tajweed-arabic-combo", arabic: "tajweed-arabic-combo", editing: "all-in-one-creator-course", content: "all-in-one-creator-course", design: "all-in-one-creator-course" };
 const AI_FULL = { tajweed: ["ai-tajweed-full", "ai-combo-full"], arabic: ["ai-arabic-full", "ai-combo-full"], editing: ["ai-video-editing-full", "ai-creator-full"], content: ["ai-content-creation-full", "ai-creator-full"], design: ["ai-creator-full"] };
+/* ---------- INSTALMENTS (kist) · added 19 Nov 2026 ----------
+   Rules (all decided by the server, never by the browser):
+   - only courses that last 2+ months (or 35 days) and whose fee is big enough; number of parts <= months of the course (max 3), every part >= ₹1,000 / $12
+   - total of all parts = the normal fee, exactly (no extra charge, no discount change)
+   - part 1 opens the classes; the last part is due before the course is 55% over; 3 days of grace, then new classes lock again
+   - Razorpay Checkout runs with the education key id only; the signed webhook accepts a part ONLY if uid/course/part number/amount/currency
+     match the plan stored here and it is the NEXT unpaid part. Anything else goes to the owner and opens nothing.
+   - certificate stays blocked while any part is unpaid (users.instOpen, written only by this worker). */
+export const INST_PRICE = { "all-in-one-creator-course": [13999, 175], "aio-ai-film-combo": [19598, 242], "video-editing-course": [5989, 74], "tajweed-arabic-combo": [5999, 75], "arabic-speaking-class": [6000, 73], "tajweed-class": [2100, 26] };
+export const INST_DAYS = { "all-in-one-creator-course": 60, "aio-ai-film-combo": 60, "video-editing-course": 35, "tajweed-arabic-combo": 90, "arabic-speaking-class": 90, "tajweed-class": 90 };
+export const INST_UNTIL = { "aio-ai-film-combo": Date.parse("2026-11-30T23:59:59+05:30") };
+const INST_GRACE_DAYS = 3, INST_KEY_EDU = "rzp_live_T0gLWMysmFYxrJ";
+export function instPlan(course, cur, cfg = {}, now = Date.now()) {
+  const c = String(cur || "INR").toUpperCase(), pr = ((cfg.price || {})[course]) || INST_PRICE[course], days = INST_DAYS[course];
+  if (!pr || !days || !["INR", "USD"].includes(c) || (cfg.off || []).includes(course) || (INST_UNTIL[course] && now > INST_UNTIL[course])) return null;
+  const total = c === "INR" ? pr[0] : pr[1], min = c === "INR" ? 1000 : 12;
+  const n = Math.min(3, Math.ceil(days / 30), Math.floor(total / min));
+  if (n < 2) return null;
+  const base = Math.floor(total / n), step = Math.round(0.5 * days / (n - 1));
+  const parts = []; for (let i = 0; i < n; i++) parts.push({ idx: i, amt: i === 0 ? total - base * (n - 1) : base, offset: i * step });
+  return { course, cur: c, total, n, days, parts, graceDays: INST_GRACE_DAYS };
+}
+const instId = (uid, course) => `${uid}__${course}`;
+const endOfDayIST = ts => { const d = new Date(ts + 330 * 60000); return Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate(), 23, 59, 59) - 330 * 60000; };
+const nextPart = rec => (rec.parts || []).find(p => !p.paid);
+const instView = rec => ({ course: rec.course, cur: rec.cur, total: rec.total, status: rec.status, parts: (rec.parts || []).map(p => ({ idx: p.idx, amt: p.amt, paid: !!p.paid, dueAt: p.dueAt || 0 })), next: nextPart(rec) ? nextPart(rec).idx : -1, graceDays: INST_GRACE_DAYS });
+function instCheckout(env, rec, user) {
+  const p = nextPart(rec); if (!p) return null;
+  return { key: env.RAZORPAY_KEY_EDU || INST_KEY_EDU, amount: p.amt * 100, currency: rec.cur, idx: p.idx, of: rec.parts.length, name: "Quranic Science",
+    description: `${rec.courseName || rec.course} · part ${p.idx + 1} of ${rec.parts.length}`,
+    notes: { inst: "1", uid: rec.uid, course: rec.course, idx: String(p.idx) }, prefill: { name: user.name || "", email: user.email || "", contact: user.phone || "" } };
+}
+export async function instRoute(req, env, url, fetchImpl = fetch) {
+  const cors = { "access-control-allow-origin": "*", "access-control-allow-headers": "authorization,content-type", "access-control-allow-methods": "GET,POST,OPTIONS", "content-type": "application/json", "cache-control": "no-store" };
+  const out = (o, s = 200) => new Response(JSON.stringify(o), { status: s, headers: cors });
+  if (req.method === "OPTIONS") return new Response(null, { headers: cors });
+  const fs = makeFS(env, fetchImpl), p = url.pathname, q = url.searchParams;
+  try {
+    const cfg = (await fs.get("config/instalments")) || {};
+    if (p === "/inst/quote") { const pl = instPlan(slug(q.get("course")), q.get("cur"), cfg); return out(pl ? { ok: true, plan: pl } : { ok: false }); }
+    const me = await whoAmI(req, env); if (!me) return out({ error: "Please log in." }, 401);
+    const body = req.method === "POST" ? await req.json().catch(() => ({})) : {};
+    const user = Object.assign({ id: me.uid }, (await fs.get(`users/${me.uid}`)) || {});
+    if (p === "/inst/mine") { const rows = await fs.query("installments", [["uid", "EQUAL", me.uid]], 20); return out({ plans: rows.map(r => instView(r)) }); }
+    if (p === "/inst/start" && req.method === "POST") {
+      const course = slug(body.course), cur = String(body.cur || "INR").toUpperCase(), pl = instPlan(course, cur, cfg);
+      if (!pl) return out({ error: "Instalments are not available for this course." }, 400);
+      const id = instId(me.uid, course); let rec = await fs.get(`installments/${id}`);
+      if (rec && rec.status === "complete") return out({ error: "This course is already fully paid." }, 400);
+      if (!rec) {
+        if ((user.access || {})[course] === true) return out({ error: "You already have this course." }, 400);
+        const names = cfg.names || {};
+        rec = { id, uid: me.uid, email: me.email || user.email || "", name: user.name || "", phone: user.phone || "", course, courseName: names[course] || course, cur, total: pl.total, status: "new", parts: pl.parts.map(x => ({ idx: x.idx, amt: x.amt, offset: x.offset, paid: false })), createdAt: Date.now() };
+        await fs.merge(`installments/${id}`, rec);
+      }
+      return out({ ok: true, plan: instView(rec), checkout: instCheckout(env, rec, user) });
+    }
+    if (p === "/inst/next") { const rec = await fs.get(`installments/${instId(me.uid, slug(q.get("course")))}`); if (!rec) return out({ error: "No plan." }, 404); return out({ plan: instView(rec), checkout: rec.status === "complete" ? null : instCheckout(env, rec, user) }); }
+    return out({ error: "not found" }, 404);
+  } catch (e) { return out({ error: String(e.message || e).slice(0, 200) }, 500); }
+}
+/* a captured payment that carries notes.inst: accept it only if it is exactly the next part of a plan we created */
+export async function instPaid(env, fs, info, fetchImpl = fetch) {
+  const n = info.notes, uid = String(n.uid || "").slice(0, 80), course = slug(n.course), idx = +n.idx, now = Date.now();
+  const seen = await fs.get(`payments/${info.id}`); if (seen && seen.status === "applied") return { duplicate: true };
+  const rec = uid && course ? await fs.get(`installments/${instId(uid, course)}`) : null, user = uid ? await fs.get(`users/${uid}`) : null;
+  const base = { id: info.id, amount: info.amount, currency: info.currency, email: info.email, phone: info.phone, course, uid, inst: idx, event: "inst", ts: now };
+  const why = !rec ? "no instalment plan found" : !user ? "student not found" : rec.status === "complete" ? "plan already complete" : !Number.isInteger(idx) ? "bad part number" : (nextPart(rec) || {}).idx !== idx ? "not the next unpaid part" : Math.round(info.amount * 100) !== rec.parts[idx].amt * 100 ? "amount does not match the part" : info.currency !== rec.cur ? "currency does not match" : "";
+  if (why) {
+    await fs.merge(`payments/${info.id}`, Object.assign(base, { status: "needs-owner", reason: "instalment: " + why }));
+    await ownerAlert(env, fs, { kind: "needs", title: "⚠️ Instalment payment needs you", body: `${info.currency} ${info.amount} – ${why} (${info.email || info.phone || info.id}). Nothing was opened. Check in Razorpay and refund or approve.` }, now, fetchImpl).catch(() => {});
+    return { pending: base };
+  }
+  const parts = rec.parts.map(x => Object.assign({}, x)), last = idx === parts.length - 1;
+  parts[idx].paid = true; parts[idx].payId = info.id; parts[idx].paidAt = now;
+  if (idx === 0) { const t0 = now; parts.forEach(x => { x.dueAt = x.idx === 0 ? now : endOfDayIST(t0 + x.offset * 864e5); }); }
+  /* paid late after a lock: the later parts get at least 7 days from today, so the student is not locked again at once */
+  else if (rec.status === "locked") parts.forEach(x => { if (!x.paid && x.dueAt < now + 7 * 864e5) x.dueAt = endOfDayIST(now + 7 * 864e5); });
+  const upd = { parts, status: last ? "complete" : "active", lastPaidAt: now };
+  /* open the classes: part 1, or the same part after a lock. Remember which keys WE opened, so a lock never takes away something the student already owned. */
+  const reopen = idx === 0 || rec.status === "locked";
+  if (reopen) {
+    const keys = [course].concat(COMBOS[course] || []), acc = {}, pd = {}, own = (user.access || {}), granted = new Set(rec.granted || []);
+    keys.forEach(k => { if (own[k] !== true) granted.add(k); acc[k] = true; if (idx === 0) pd[k] = now; });
+    upd.granted = [...granted]; upd.lockedAt = 0;
+    await fs.merge(`users/${uid}`, Object.assign({ access: acc }, idx === 0 ? { paid: pd, paidNotified: Object.fromEntries(keys.map(k => [k, now])) } : {}));
+  }
+  await fs.merge(`installments/${rec.id}`, upd);
+  const others = (await fs.query("installments", [["uid", "EQUAL", uid]], 20)).some(r => r.id !== rec.id && r.status !== "complete" && r.status !== "new");
+  await fs.merge(`users/${uid}`, { instOpen: !last || others });
+  await fs.merge(`payments/${info.id}`, Object.assign(base, { status: "applied" }));
+  const cn = rec.courseName || course, k = `${idx + 1} of ${parts.length}`;
+  await fs.merge(`receipts/${info.id}`, { uid, name: user.name || rec.name || "", code: user.code ? courseCode(user.code, course) : "", course, courseName: `${cn} · instalment ${k}`, amount: info.amount, currency: info.currency, paymentId: info.id, batch: "", ts: now });
+  await fs.add("activities", { uid, name: user.name || "", phone: user.phone || info.phone, email: user.email || info.email, kind: "payment", title: `Paid instalment ${k}: ${course} [${course}]`, status: "Paid", section: "learn", sectionName: "Learn with Us", ts: now }).catch(() => {});
+  const site = env.SITE || "https://quranicscience.info", np = last ? null : parts[idx + 1];
+  const due = np ? new Date(np.dueAt + 330 * 60000).toISOString().slice(0, 10) : "";
+  const sym = rec.cur === "INR" ? "₹" : "$";
+  const sent = await notify(env, fs, Object.assign({ phone: info.phone }, user, { id: uid }), { course, title: last ? "Fee complete ✓" : `Instalment ${k} received ✓`, body: last ? `Assalamu Alaikum ${user.name || ""}, your last instalment for ${cn} is received. Your fee is fully paid — thank you! Receipt: ${site}/#receipt=${info.id}` : `Assalamu Alaikum ${user.name || ""}, instalment ${k} for ${cn} is received. Your classes are open. Next instalment: ${sym}${np.amt} by ${due}. Receipt: ${site}/#receipt=${info.id}`, url: site + "/#learn", tag: "inst-" + info.id, course, paid: false, email: true }, now, fetchImpl).catch(() => ({}));
+  await ownerAlert(env, fs, { kind: "pay", title: `💰 Instalment ${k} – ${info.currency} ${info.amount}`, body: `${user.name || "A student"} paid instalment ${k} for ${cn}.${last ? " Fee complete." : ` Next due ${due}.`}` }, now, fetchImpl).catch(() => {});
+  return { applied: { uid, course, idx }, sent };
+}
+/* cron: reminders (2 days before, on the day, 1 day late) and the lock after the grace days; one message per stage */
+export async function instCron(env, fs, now = Date.now(), fetchImpl = fetch) {
+  const out = { reminded: 0, locked: 0 }, site = env.SITE || "https://quranicscience.info";
+  const rows = await fs.query("installments", [["status", "EQUAL", "active"]], 500);
+  for (const rec of rows) {
+    const p = nextPart(rec); if (!p || !p.dueAt) continue;
+    const user = await fs.get(`users/${rec.uid}`); if (!user) continue; const u = Object.assign({ id: rec.uid }, user), sym = rec.cur === "INR" ? "₹" : "$", cn = rec.courseName || rec.course;
+    const dleft = Math.ceil((p.dueAt - now) / 864e5), rem = Object.assign({}, rec.rem || {}), key = "p" + p.idx;
+    const stage = now > p.dueAt + INST_GRACE_DAYS * 864e5 ? "lock" : now > p.dueAt + 864e5 ? "late" : dleft <= 0 ? "d0" : dleft <= 2 ? "d2" : "";
+    if (!stage || rem[key + stage]) continue;
+    if (stage === "lock") {
+      const acc = {}; (rec.granted || [rec.course]).forEach(k => { acc[k] = false; });
+      await fs.merge(`users/${rec.uid}`, { access: acc });
+      await fs.merge(`installments/${rec.id}`, { status: "locked", lockedAt: now, rem: Object.assign(rem, { [key + stage]: now }) });
+      await notify(env, fs, u, { course: rec.course, title: "Classes paused – instalment pending", body: `Assalamu Alaikum ${u.name || ""}, your instalment ${p.idx + 1} for ${cn} (${sym}${p.amt}) is not paid, so new classes are paused. Pay it and everything opens again at once: ${site}/#learn`, url: site + "/#learn", tag: "instlock-" + rec.id, course: rec.course, paid: false, email: true }, now, fetchImpl).catch(() => {});
+      await ownerAlert(env, fs, { kind: "needs", title: "🔒 Instalment overdue – classes paused", body: `${u.name || rec.email} · ${cn} · part ${p.idx + 1} (${sym}${p.amt}) unpaid. Access paused automatically.` }, now, fetchImpl).catch(() => {});
+      out.locked++; continue;
+    }
+    const when = new Date(p.dueAt + 330 * 60000).toISOString().slice(0, 10), msg = stage === "d2" ? `is due on ${when}` : stage === "d0" ? "is due today" : `was due on ${when}; classes pause in ${Math.max(1, Math.ceil((p.dueAt + INST_GRACE_DAYS * 864e5 - now) / 864e5))} day(s)`;
+    await notify(env, fs, u, { course: rec.course, title: "Instalment reminder", body: `Assalamu Alaikum ${u.name || ""}, instalment ${p.idx + 1} of ${rec.parts.length} for ${cn} (${sym}${p.amt}) ${msg}. Pay in My classes: ${site}/#learn`, url: site + "/#learn", tag: `inst-${rec.id}-${key}${stage}`, course: rec.course, paid: false, email: true }, now, fetchImpl).catch(() => {});
+    await fs.merge(`installments/${rec.id}`, { rem: Object.assign(rem, { [key + stage]: now }) }); out.reminded++;
+  }
+  return out;
+}
+
 export async function aiRoute(req, env, url) {
   const cors = { "access-control-allow-origin": "*", "access-control-allow-headers": "authorization,content-type", "access-control-allow-methods": "GET,POST,OPTIONS", "content-type": "application/json", "cache-control": "no-store" };
   const out = (o, s = 200) => new Response(JSON.stringify(o), { status: s, headers: cors });
@@ -1479,6 +1609,7 @@ export default {
     if (url.pathname.startsWith("/shop/")) return shopRoute(req, env, url);
     if (url.pathname.startsWith("/fs/")) return fsRoute(req, env, url);
     if (url.pathname.startsWith("/ai/") || url.pathname.startsWith("/hw/")) return aiRoute(req, env, url);
+    if (url.pathname.startsWith("/inst/")) return instRoute(req, env, url);
     if (url.pathname === "/wa-subscribe") return json(await waSubscribe(env, url.searchParams.get("waba") || ""));
     /* owner test: sends the 3 approved templates ONLY to the owner's own number (no other number is ever accepted) */
     if (url.pathname === "/wa-report") { const fs = makeFS(env); const L = { sent: "✓ Bheja gaya", delivered: "✓✓ Phone par pahunch gaya", read: "🔵 Padh liya", failed: "❌ Nahi gaya" };
