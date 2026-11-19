@@ -417,6 +417,9 @@ async function viewCourse(c) {
 
 /* ============ audio ============ */
 let voiceEl = null, qariEl = null, rec = null, recUrl = null, recChunks = [], QTOK = 0;
+/* AI Teacher voice at a calm, easy-to-follow pace (a little under natural speed; pitch stays the same) */
+const NARR_RATE = 0.9;
+function SLOW(a) { try { a.preservesPitch = true; a.mozPreservesPitch = true; a.webkitPreservesPitch = true; a.defaultPlaybackRate = NARR_RATE; a.playbackRate = NARR_RATE; } catch (e) {} return a; }
 /* only ONE voice at a time: any sound that starts silences every other lesson / qari sound */
 const LIVE = new Set();
 (function () { const P = HTMLMediaElement.prototype.play;
@@ -431,7 +434,7 @@ async function playVoice() {
   const box = $("#vo"), after = () => { box && box.classList.remove("playing"); };
   if (my !== QTOK) return;
   if (!src) return after();
-  voiceEl = new Audio(src); box && box.classList.add("playing"); window.QSUstad && QSUstad.hint(pick(m));
+  voiceEl = new Audio(src); SLOW(voiceEl); box && box.classList.add("playing"); window.QSUstad && QSUstad.hint(pick(m));
   voiceEl.onended = after; voiceEl.onerror = () => box && box.classList.remove("playing");
   voiceEl.play().catch(() => box && box.classList.remove("playing"));
 }

@@ -1,5 +1,5 @@
 /* Creator Courses · Quranic Science AI — offline shell. */
-const V = "qscr-v32", SHELL = ["./", "index.html", "class.js?v=4", "app.js?v=18", "icons.js?v=1", "theme.css?v=2", "ustad.js?v=8", "ustad/v_closed.webp?v=3", "ustad/thumb.webp?v=3", "apple-touch-icon.png", "creator.js?v=2", "board.js?v=1", "apps.js?v=7", "screens.js?v=5", "scene.js?v=10", "livesync.js?v=5", "icon-192.png", "icon-512.png", "manifest.webmanifest", "data/editing.json", "data/content.json", "data/design.json"];
+const V = "qscr-v33", SHELL = ["./", "index.html", "class.js?v=4", "app.js?v=19", "icons.js?v=1", "theme.css?v=2", "ustad.js?v=8", "ustad/v_closed.webp?v=3", "ustad/thumb.webp?v=3", "apple-touch-icon.png", "creator.js?v=2", "board.js?v=1", "apps.js?v=7", "screens.js?v=5", "scene.js?v=10", "livesync.js?v=5", "icon-192.png", "icon-512.png", "manifest.webmanifest", "data/editing.json", "data/content.json", "data/design.json"];
 const XC = "qscr-x", FBJS = ["app", "auth", "firestore"].map(n => "https://www.gstatic.com/firebasejs/10.12.2/firebase-" + n + "-compat.js");
 const isXO = u => u.hostname === "fonts.googleapis.com" || u.hostname === "fonts.gstatic.com" || (u.hostname === "www.gstatic.com" && u.pathname.startsWith("/firebasejs/"));
 self.addEventListener("install", e => { e.waitUntil((async () => {
