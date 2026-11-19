@@ -1,0 +1,28 @@
+plugins { id 'com.android.application' }
+android {
+    namespace 'info.quranicscience.fahm'
+    compileSdk 34
+    defaultConfig {
+        applicationId 'info.quranicscience.fahm'
+        minSdk 24
+        targetSdk 34
+        versionCode Integer.parseInt(System.getenv('FAHM_VERSION_CODE') ?: '1')
+        versionName System.getenv('FAHM_VERSION_NAME') ?: '1.0'
+    }
+    signingConfigs {
+        shared {
+            // Fixed sideload key so every new build installs over the old one.
+            storeFile file('fahm.keystore')
+            storePassword 'fahmapp'
+            keyAlias 'fahm'
+            keyPassword 'fahmapp'
+        }
+    }
+    buildTypes {
+        release { minifyEnabled false; signingConfig signingConfigs.shared }
+    }
+    compileOptions { sourceCompatibility JavaVersion.VERSION_17; targetCompatibility JavaVersion.VERSION_17 }
+}
+dependencies {
+    implementation 'androidx.webkit:webkit:1.11.0'
+}
