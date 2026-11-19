@@ -444,11 +444,12 @@ function narr(key, force) {
     const done = ok => { if (fin) return; fin = true; box && box.classList.remove("playing"); if (qariEl && qariEl.__n === tok) qariEl = null; res(ok && tok === QTOK); };
     const go = en => { if (tok !== QTOK) { done(false); return; }   /* a newer voice has started meanwhile (late fallback): stay quiet */
       a = new Audio((en ? "ustad/say/en/" : "ustad/say/") + key + ".mp3"); SLOW(a); a.onended = () => done(true);
-      a.onerror = () => { if (en && !fb) { fb = 1; go(false); } else done(true); };
+      const qz = /^quiz\//.test(key);   /* quiz clips exist only in the Urdu voice: an English screen stays silent rather than speaking Urdu over English text */
+      a.onerror = () => { if (en && !fb && !qz) { fb = 1; go(false); } else done(true); };
       box && box.classList.add("playing");
       /* play() first: the "one voice at a time" hook pauses the current qariEl whenever ANY audio starts, so the stop-handle is registered only after this clip has started */
       const pr = a.play(); qariEl = { __n: tok, pause() { try { a.pause(); } catch (e) {} done(false); } };
-      pr && pr.catch && pr.catch(() => { if (en && !fb) { fb = 1; go(false); } else done(true); }); };
+      pr && pr.catch && pr.catch(() => { if (en && !fb && !qz) { fb = 1; go(false); } else done(true); }); };
     go(LANG === "en");
   });
 }
