@@ -625,7 +625,7 @@ const LABX = {
   ghunna: { en: " With ghunnah: the soft palate drops and air also flows through the nose.", ur: " غنہ کے ساتھ: نرم تالو نیچے آتا ہے اور ہوا ناک سے بھی نکلتی ہے۔", hi: " ग़ुन्ना के साथ: नर्म तालू नीचे आता है और हवा नाक से भी निकलती है।" },
   raa: { en: " For raa the tip curls slightly back.", ur: " را میں نوک تھوڑی پیچھے مڑتی ہے۔", hi: " रा में नोक थोड़ी पीछे मुड़ती है।" },
   tap: { en: "Tap a letter: watch the tongue, lips and throat move, and hear the qari.", ur: "کسی حرف کو دبائیں: زبان، ہونٹ اور حلق کو ہلتے دیکھیں اور قاری صاحب سے سنیں۔", hi: "किसी हर्फ़ को दबाएँ: ज़बान, होंठ और हल्क़ को हिलते देखें और क़ारी साहब से सुनें।" },
-  slow: { en: "Slow", ur: "آہستہ", hi: "आहिस्ता" }, lbl: { en: "Labels", ur: "نام", hi: "नाम" },
+  slow: { en: "Slow", ur: "آہستہ", hi: "आहिस्ता" }, lbl: { en: "Labels", ur: "نام", hi: "नाम" }, vReal: { en: "Real mouth", ur: "اصل منہ", hi: "असली मुँह" }, v3d: { en: "3D head", ur: "تھری ڈی سر", hi: "3D सिर" },
   pic: { en: "Picture view", ur: "تصویر دیکھیں", hi: "तस्वीर देखें" },
   title: { en: "Makharij Lab", ur: "مخارج لیب", hi: "मख़ारिज लैब" },
   desc: { en: "A live animation: see where every Arabic letter comes from, how the tongue, lips and throat move, where they touch, and how the air flows. Free for everyone.", ur: "زندہ اینیمیشن: ہر عربی حرف کہاں سے نکلتا ہے، زبان، ہونٹ اور حلق کیسے ہلتے ہیں، کہاں لگتے ہیں اور ہوا کیسے بہتی ہے۔ سب کے لیے مفت۔", hi: "चलती हुई एनिमेशन: हर अरबी हर्फ़ कहाँ से निकलता है, ज़बान, होंठ और हल्क़ कैसे हिलते हैं, कहाँ लगते हैं और हवा कैसे बहती है। सबके लिए मुफ़्त।" } };
@@ -671,7 +671,7 @@ const keysHTML = zones => LAB_ORDER.filter(([, z]) => !zones || zones.has(z)).ma
 function labHTML(zones) {
   return `<figure class="viz mlab"><div class="mlwrap"><svg class="mlsvg" role="img" aria-label="makharij animation"></svg></div>
     <div class="mlside"><div class="mlcap"><b class="ar mlch"></b><span class="mlzt"></span><div class="mlhow"></div></div>
-    <div class="mlctl"><button class="zchip mlall">▶ ${t("playAll")}</button><button class="zchip mlslow">🐢 ${pick(LABX.slow)}</button><button class="zchip mllbl on">🏷️ ${pick(LABX.lbl)}</button><button class="zchip mlrep">🔁 ×${S.rep || 1}</button></div>
+    <div class="mlctl"><button class="zchip mlall">▶ ${t("playAll")}</button><button class="zchip mlslow">🐢 ${pick(LABX.slow)}</button><button class="zchip mllbl on">🏷️ ${pick(LABX.lbl)}</button><button class="zchip mlrep">🔁 ×${S.rep || 1}</button><button class="zchip mlview"></button></div>
     <div class="mlwords"${zones ? " hidden" : ""}><b>📖 ${pick(LABX.wordT)}</b><small>${pick(LABX.wordD)}</small><div class="mlwrow">${LAB_WORDS.map((w, i) => `<button class="mlw" data-i="${i}"><span class="ar">${w[0]}</span></button>`).join("")}</div></div>
     <b class="mlkh">🔤 ${pick(LABX.oneT)}</b>
     <div class="mlkeys">${keysHTML(zones)}</div></div></figure>`;
@@ -680,7 +680,12 @@ function labHTML(zones) {
 const PART_Z = { lips: ["s1", "s2"], teeth: ["l6", "l7", "l8", "s1"], tongue: ["l1", "l2", "l3", "l4", "l5", "l6", "l7", "l8"], palate: ["l3"], soft: ["l1", "l2"], nose: ["kh"], throat: ["h1", "h2", "h3"], jaw: ["jawf"], folds: ["h1"] };
 function wireLab(root, opt) {
   opt = opt || {}; const fig = $(".mlab", root); if (!fig || !window.MLab) return null;
-  const lab = (window.MLab3 && MLab3.ok() ? MLab3 : MLab).Lab($(".mlsvg", fig), LANG); let slow = false, lbl = true, busy = 0, all = false;
+  /* the picture: REAL clips (photoreal video of the mouth) by default, the 3D head as a second view; the choice is remembered */
+  const engines = () => { const e = []; if (window.MLabClip && MLabClip.ok()) e.push("clip"); e.push("3d"); return e; };
+  const pickEng = () => { const ok = engines(), s = LS.get("qsai-labview"); return ok.includes(s) ? s : ok[0]; };
+  const mkLab = (kind, svg) => (kind === "clip" ? MLabClip : window.MLab3 && MLab3.ok() ? MLab3 : MLab).Lab(svg, LANG);
+  let eng = pickEng(), lab = mkLab(eng, $(".mlsvg", fig)), slow = false, lbl = true, busy = 0, all = false;
+  const labProxy = new Proxy({}, { get: (_, k) => typeof lab[k] === "function" ? (...a) => lab[k](...a) : lab[k] });
   const cap = (c, z) => { $(".mlch", fig).textContent = c || "";
     $(".mlzt", fig).textContent = z ? pick(ZONES[z][3]) : pick(LABX.tap);
     $(".mlhow", fig).innerHTML = z ? `<ol class="mlsteps">${[["📍", pick(LABX.s1), pick(ZONES[z][3])], ["👅", pick(LABX.s2), pick(HOW[z])]]
@@ -695,8 +700,17 @@ function wireLab(root, opt) {
     await new Promise(r => setTimeout(r, slow ? 800 : 350)); if (my !== busy) return;
     await lab.rest(slow ? 1100 : 500); b && b.classList.remove("on");
   }
-  const box = $(".ml3", fig);
-  if (box && lab.at) box.insertAdjacentHTML("beforeend", `<div class="mlwd ar" hidden></div><div class="mltag ar" hidden></div>`);
+  let box = $(".ml3", fig);
+  const addTags = () => { if (box && lab.at) box.insertAdjacentHTML("beforeend", `<div class="mlwd ar" hidden></div><div class="mltag ar" hidden></div>`); };
+  addTags();
+  /* 🎞️ real clips  <->  🧊 3D head */
+  const viewBtn = $(".mlview", fig), viewTxt = () => eng === "clip" ? "🎞️ " + pick(LABX.vReal) : "🧊 " + pick(LABX.v3d);
+  const swapEng = (nx, keep) => { busy++; all = false; endWord(); $(".mlall", fig).classList.remove("on");
+    try { lab.destroy && lab.destroy(); } catch (e) {} const old = $(".ml3", fig), svg = document.createElementNS("http://www.w3.org/2000/svg", "svg"); svg.setAttribute("class", "mlsvg"); old.replaceWith(svg);
+    eng = nx; if (!keep) LS.set("qsai-labview", eng); lab = mkLab(eng, svg); box = $(".ml3", fig); addTags(); lab.labels(lbl, LANG); if (viewBtn) viewBtn.textContent = viewTxt(); cap(); };
+  if (viewBtn) { if (engines().length < 2) viewBtn.hidden = true; else viewBtn.textContent = viewTxt();
+    viewBtn.onclick = () => { const ok = engines(); swapEng(ok[(ok.indexOf(eng) + 1) % ok.length]); }; }
+  fig.addEventListener("mlclipfail", () => { if (eng === "clip") swapEng("3d", true); }); /* clips could not be loaded (offline, blocked): the 3D head takes over */
   const cam = (on, pt) => { if (!box || !lab.at) return; const s = on ? 1.75 : 1;
     const tx = on ? Math.min(0, Math.max(1 - s, .5 - pt[0] * s)) : 0, ty = on ? Math.min(0, Math.max(1 - s, .55 - pt[1] * s)) : 0;
     $$(".ml3c,.ml3o", box).forEach(e => e.style.transform = `translate(${tx * 100}%,${ty * 100}%) scale(${s})`);
@@ -761,7 +775,7 @@ function wireLab(root, opt) {
   }
   function setZones(zones) { $(".mlkeys", fig).innerHTML = keysHTML(zones); const w = $(".mlwords", fig); w && (w.hidden = !!zones); $(".mlkh", fig).hidden = false; cap(); }
   if (opt.parts) fig.addEventListener("mlpart", e => part(e.detail));
-  return { say: (c, b, z, aud) => (z || LAB_Z[c]) ? say(c, z || LAB_Z[c], b, aud) : null, live: (text, ref, btn) => { busy++; return sayLive(text, ref, btn); }, lab, el: fig, tour, part, setZones, stop: () => { busy++; all = false; endWord(); },
+  return { say: (c, b, z, aud) => (z || LAB_Z[c]) ? say(c, z || LAB_Z[c], b, aud) : null, live: (text, ref, btn) => { busy++; return sayLive(text, ref, btn); }, lab: labProxy, el: fig, tour, part, setZones, stop: () => { busy++; all = false; endWord(); },
     destroy: () => { busy++; all = false; try { lab.destroy && lab.destroy(); } catch (e) {} } };
 }
 async function viewLab() {
