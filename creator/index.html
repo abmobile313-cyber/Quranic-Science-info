@@ -11,7 +11,7 @@
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Amiri+Quran&family=Noto+Naskh+Arabic:wght@400;600&family=Noto+Nastaliq+Urdu:wght@400;600&family=Noto+Sans+Devanagari:wght@400;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Amiri+Quran&family=Noto+Naskh+Arabic:wght@400;600&family=Noto+Nastaliq+Urdu:wght@400;600&family=Noto+Sans+Devanagari:wght@400;600&display=swap" media="print" onload="this.media='all'"><noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Amiri+Quran&family=Noto+Naskh+Arabic:wght@400;600&family=Noto+Nastaliq+Urdu:wght@400;600&family=Noto+Sans+Devanagari:wght@400;600&display=swap"></noscript>
 <style>
 :root{--bg:#0f0a0c;--bg2:#170e12;--card:#1d1217;--card2:#251820;--line:rgba(227,170,60,.18);--fg:#f6ece0;--mut:#b9a99b;--gold:#e3aa3c;--gold2:#f6d68a;--mar:#7a1424;--mar2:#a01d34;--cy:#2cc4f2;--ok:#3fcf8e;--bad:#ff6b6b;color-scheme:dark}
 *{box-sizing:border-box}html,body{margin:0}
@@ -246,12 +246,14 @@ select.btn{appearance:auto}
 <script src="ustad.js?v=7"></script>
 <script src="class.js?v=4"></script>
 <script src="icons.js?v=1"></script>
-<script src="app.js?v=12"></script>
+<script src="app.js?v=14"></script>
 <script src="creator.js?v=2"></script>
 <script src="board.js?v=1"></script>
 <script src="apps.js?v=7"></script>
 <script src="screens.js?v=5"></script>
 <script src="scene.js?v=10"></script>
 <script src="livesync.js?v=5"></script>
+<script>/* Android phone in a normal browser: point students to the app (everything runs faster there) */
+(function(){try{var ua=navigator.userAgent;if(!/Android/i.test(ua)||/QSApp\//.test(ua))return;var d=document.createElement("div");d.style.cssText="position:fixed;left:0;right:0;bottom:0;z-index:99999;background:#0f5132;color:#fff;font:600 14px system-ui,sans-serif;padding:10px 14px;display:flex;gap:10px;align-items:center;justify-content:space-between";d.innerHTML='<span>Classes run best in the Quranic Science app</span><a href="/download/QuranicScience.apk" style="background:#fff;color:#0f5132;border-radius:20px;padding:7px 14px;text-decoration:none;font-weight:700">Get app</a>';document.addEventListener("DOMContentLoaded",function(){document.body.appendChild(d)})}catch(e){}})();</script>
 </body>
 </html>

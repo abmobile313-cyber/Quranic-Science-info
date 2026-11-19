@@ -1,5 +1,5 @@
 /* Learn with Quranic Science AI — offline shell. Saved courses live in "qsai-off-<course>" caches (encrypted lessons). */
-const V = "qsai-v49", SHELL = ["./", "index.html", "class.js?v=6", "ustad.js?v=6", "ustad/v_closed.webp?v=2", "ustad/thumb.webp", "app.js?v=38", "livesync.js?v=1", "icons.js?v=1", "theme.css?v=1", "coach.js?v=8", "coach-core.js?v=1", "data/qaida.json?v=1", "mouth.js?v=2", "mouth3d.js?v=6", "mk/mkb.webp", "mk/mkp.webp", "mk/mkm.png", "makharij.webp", "icon-192.png", "icon-512.png", "manifest.webmanifest", "data/tajweed.json", "data/arabic.json", "data/free.json"];
+const V = "qsai-v50", SHELL = ["./", "index.html", "class.js?v=6", "ustad.js?v=6", "ustad/v_closed.webp?v=2", "ustad/thumb.webp", "app.js?v=40", "livesync.js?v=1", "icons.js?v=1", "theme.css?v=1", "coach.js?v=8", "coach-core.js?v=1", "data/qaida.json?v=1", "mouth.js?v=2", "mouth3d.js?v=6", "mk/mkb.webp", "mk/mkp.webp", "mk/mkm.png", "makharij.webp", "icon-192.png", "icon-512.png", "manifest.webmanifest", "data/tajweed.json", "data/arabic.json", "data/free.json"];
 self.addEventListener("install", e => { e.waitUntil(caches.open(V).then(c => c.addAll(SHELL)).catch(() => {})); self.skipWaiting(); });
 self.addEventListener("activate", e => { e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => k.startsWith("qsai-v") && k !== V).map(k => caches.delete(k))))); self.clients.claim(); });
 self.addEventListener("fetch", e => {
@@ -9,6 +9,10 @@ self.addEventListener("fetch", e => {
   const isData = u.origin === location.origin && /\/ai\/(data\/.*\.bin|vo\/)/.test(u.pathname);
   e.respondWith((async () => {
     if (isData || /everyayah|qurancdn/.test(u.hostname)) { const hit = await caches.match(r, { ignoreSearch: false }); if (hit) return hit; }
+    if (u.origin === location.origin && !isData) { /* app files: open the saved copy at once, refresh it quietly for next time */
+      const hit = await caches.match(r);
+      if (hit) { e.waitUntil(fetch(r).then(async res => { if (res.ok) { const c = await caches.open(V); await c.put(r, res); } }).catch(() => {})); return hit; }
+    }
     try { const res = await fetch(r); if (res.ok && u.origin === location.origin && !isData) { const c = await caches.open(V); c.put(r, res.clone()); } return res; }
     catch (err) { const hit = await caches.match(r) || (r.mode === "navigate" ? await caches.match("index.html") : null); if (hit) return hit; throw err; }
   })());

@@ -154,7 +154,15 @@ async function saveProg(id, rec) {
   S.prog[id] = rec; LS.set("qsai-prog", S.prog);
   if (S.user && db) { S.doc.ai = Object.assign({}, S.doc.ai || {}, { [id]: rec }); try { await db.collection("users").doc(S.user.uid).set({ ai: { [id]: rec } }, { merge: true }); } catch (e) {} }
 }
-if (auth) auth.onAuthStateChanged(async u => { S.user = u; await loadDoc(); renderWho(); drawMark(); route(); });
+/* open at once from the last saved copy of the student's access, then refresh quietly (no waiting on the network) */
+const KEEP = ["access", "ai", "aiPhoto", "aiSlot", "batch", "code", "name"], sig = x => JSON.stringify([x.doc && x.doc.access, x.doc && x.doc.aiSlot, x.tch]);
+if (auth) auth.onAuthStateChanged(async u => {
+  S.user = u; const ck = u ? LS.get("qsai-doc-" + u.uid, null) : null;
+  if (ck) { S.doc = ck.doc || {}; S.tch = ck.tch || null; S.live = {}; renderWho(); drawMark(); route(); }
+  await loadDoc();
+  if (u) { const d = {}; KEEP.forEach(k => { if (S.doc[k] !== undefined) d[k] = S.doc[k]; }); LS.set("qsai-doc-" + u.uid, { doc: d, tch: S.tch }); }
+  renderWho(); drawMark(); if (!ck || sig(ck) !== sig({ doc: S.doc, tch: S.tch })) route();
+});
 
 /* ============ protected content: lessons and voices are stored encrypted; the key is given only to enrolled students ============ */
 const hex2buf = h => new Uint8Array(h.match(/../g).map(x => parseInt(x, 16)));
@@ -172,7 +180,7 @@ async function decryptBuf(buf, c) { const k = await courseKey(c), b = new Uint8A
 const courseOf = id => id[0] === "t" ? "tajweed" : "arabic";
 
 /* ============ data ============ */
-async function outline(c) { if (!S.outline[c]) S.outline[c] = await fetch(`data/${c}.json`, { cache: "no-cache" }).then(r => r.json()); return S.outline[c]; }
+async function outline(c) { if (!S.outline[c]) S.outline[c] = await fetch(`data/${c}.json`).then(r => r.json()); return S.outline[c]; }
 async function lessonData(id) {
   if (FREE.includes(id)) { if (!S.free) S.free = await fetch(`data/free.json?v=${dv(id)}`).then(r => r.json()); return S.free.find(l => l.id === id); }
   const wk = id.slice(0, 5);
@@ -249,12 +257,13 @@ function applyLang() {
   $$("[data-t]").forEach(e => e.textContent = t(e.dataset.t)); $$("[data-ph]").forEach(e => e.placeholder = t(e.dataset.ph));
 }
 $$("[data-lang]").forEach(b => b.onclick = () => { LANG = b.dataset.lang; LS.set("qsai-lang", LANG); applyLang(); renderWho(); route(); });
+const IN_APP = /QSApp\//.test(navigator.userAgent), HOMEBTN = IN_APP ? `<a class="btn sm" href="/?app=1" title="App home">🏠</a>` : "";
 function renderWho() {
   const w = $("#who");
   if (S.user) { const n = (S.user.displayName || S.user.email || "?").trim();
-    w.innerHTML = `<a class="btn sm" href="#offline" title="${t("offline")}">⬇</a><span class="av">${S.user.photoURL ? `<img src="${esc(S.user.photoURL)}" alt="">` : esc(n[0].toUpperCase())}</span><button class="btn sm" id="lo">${t("logout")}</button>`;
+    w.innerHTML = `${HOMEBTN}<a class="btn sm" href="#offline" title="${t("offline")}">⬇</a><span class="av">${S.user.photoURL ? `<img src="${esc(S.user.photoURL)}" alt="">` : esc(n[0].toUpperCase())}</span><button class="btn sm" id="lo">${t("logout")}</button>`;
     $("#lo").onclick = () => auth.signOut(); }
-  else { w.innerHTML = `<button class="btn sm pri" id="li">${t("login")}</button>`; $("#li").onclick = () => loginBox(); }
+  else { w.innerHTML = `${HOMEBTN}<button class="btn sm pri" id="li">${t("login")}</button>`; $("#li").onclick = () => loginBox(); }
 }
 function drawMark() {
   const m = $("#mark"); if (!m) return;

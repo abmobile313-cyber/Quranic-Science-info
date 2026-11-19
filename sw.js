@@ -1,5 +1,5 @@
 /* Quranic Science app: opens instantly from the saved copy, updates itself in the background, works offline. */
-const C = "qs-app-v15", CORE = ["/", "/index.html", "/site.webmanifest", "/icon-192.png", "/logo.png", "/qs-pages.css"];
+const C = "qs-app-v16", CORE = ["/", "/index.html", "/site.webmanifest", "/icon-192.png", "/logo.png", "/qs-pages.css"];
 self.addEventListener("install", e => { e.waitUntil(caches.open(C).then(c => c.addAll(CORE)).catch(() => {})); self.skipWaiting(); });
 self.addEventListener("activate", e => { e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => k !== C).map(k => caches.delete(k)))).then(() => self.clients.claim())); });
 self.addEventListener("fetch", e => {
@@ -11,9 +11,9 @@ self.addEventListener("fetch", e => {
     /* fetch the newest copy and save it for offline use */
     const net = fetch(r).then(res => { if (res.ok) { const cp = res.clone(); caches.open(C).then(c => c.put(key, cp)); } return res; });
     e.waitUntil(net.then(() => {}, () => {}));
-    /* newest version first (so updates show at once); if the network is slow (over 2.5 s) or offline, the saved copy opens instead */
+    /* newest version first (so updates show at once); if the network is slow (over 0.7 s) or offline, the saved copy opens instead */
     const saved = () => caches.match(key).then(m => m || caches.match("/")).then(m => m || caches.match("/index.html"));
-    e.respondWith(Promise.race([net, new Promise(r => setTimeout(r, 2500))]).then(res => res || saved().then(m => m || net)).catch(() => saved()));
+    e.respondWith(Promise.race([net, new Promise(r => setTimeout(r, 700))]).then(res => res || saved().then(m => m || net)).catch(() => saved()));
     return;
   }
   e.respondWith(caches.match(r).then(m => m || fetch(r).then(res => { if (res.ok) { const cp = res.clone(); caches.open(C).then(c => c.put(r, cp)); } return res; })));

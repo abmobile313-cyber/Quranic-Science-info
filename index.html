@@ -1189,6 +1189,8 @@ setInterval(() => {
 })();
 </script>
 <style id="qs-hub-css">/* ===== Quranic Science learning app: premium 3D glass, maroon · gold · cyan ===== */
+#qhApp .qh-aig{display:grid;gap:10px}#qhApp .qh-ai{display:flex;align-items:center;gap:14px;width:100%;text-align:start;padding:16px;cursor:pointer;border:1px solid rgba(44,196,242,.35);background:linear-gradient(135deg,rgba(44,196,242,.12),rgba(227,170,60,.10))}
+#qhApp .qh-aiic{font-size:30px;line-height:1;flex:none}#qhApp .qh-aitx{display:grid;gap:2px;min-width:0;flex:1}#qhApp .qh-aitx b{font-size:16px}#qhApp .qh-aigo{flex:none;font-weight:700;color:var(--hi,#f2c75c);white-space:nowrap}
 #qhApp{--qm:#8e1b33;--qm2:#b4304a;--qg:#e3aa3c;--qg2:#f6d58a;--qc:#2cc4f2;--qc2:#8fe1fb;--qe:#34d399;--qr:#ff6b6b;--qbg:#04070c;--qs1:#0a1018;--qink:#f4efe6;--qmut:#a9b3bf;--qline:rgba(220,235,255,.12);--qsp:cubic-bezier(.2,.9,.25,1.15);
   position:fixed;inset:0;z-index:65;display:none;flex-direction:column;color:var(--qink);background:var(--qbg);font-family:Outfit,Manrope,system-ui,sans-serif;overflow:hidden;-webkit-tap-highlight-color:transparent}
 #qhApp.on{display:flex;animation:qhIn .45s var(--qsp) both}
@@ -1502,6 +1504,14 @@ const ymd = d => { d = new Date(d); return `${d.getFullYear()}-${String(d.getMon
 const DAY = 864e5;
 const COURSES = () => ((DATA.learn || {}).courses || []);
 const myCourses = () => COURSES().map((c, i) => ({ c, i })).filter(x => { try { return unlocked(x.c); } catch (e) { return false; } });
+/* AI courses (Nov 2026): a student who bought only an AI course has no live class, so the app must still open and list those lessons */
+const AIK = { tajweed: { n: "Tajweed with AI Ustad", ic: "📖", url: "/ai/#tajweed", keys: ["ai-tajweed", "ai-tajweed-arabic-combo", "ai-tajweed-full", "ai-combo-full", "ai-tajweed-live", "ai-combo-live"] },
+  arabic: { n: "Arabic with AI Ustad", ic: "🕋", url: "/ai/#arabic", keys: ["ai-arabic", "ai-tajweed-arabic-combo", "ai-arabic-full", "ai-combo-full", "ai-arabic-live", "ai-combo-live"] },
+  editing: { n: "Video Editing with AI Teacher", ic: "🎬", url: "/creator/#editing", keys: ["ai-video-editing", "ai-video-editing-full", "ai-creator", "ai-creator-full", "ai-video-editing-live", "ai-creator-live"] },
+  content: { n: "Content Creation with AI Teacher", ic: "📱", url: "/creator/#content", keys: ["ai-content-creation", "ai-content-creation-full", "ai-creator", "ai-creator-full", "ai-content-creation-live", "ai-creator-live"] },
+  design: { n: "Graphic Design with AI Teacher", ic: "🎨", url: "/creator/#design", keys: ["ai-creator", "ai-creator-full", "ai-creator-live"] } };
+const aiMine = () => { const u = U(); if (!u) return []; const own = OWN(), a = u.access || {}; return Object.keys(AIK).filter(k => own || AIK[k].keys.some(x => a[x] === true)).map(k => Object.assign({ k }, AIK[k])); };
+const aiHTML = i0 => { const a = aiMine(); if (!a.length) return ""; return `<section class="rv" style="--i:${i0}"><h3 class="qh-h">${L("My AI classes")}</h3><div class="qh-aig">${a.map(c => `<button class="qh-card qh-ai" data-ai="${E(c.url)}"><span class="qh-aiic">${c.ic}</span><span class="qh-aitx"><b>${L(c.n)}</b><small class="qh-mut">${L("Daily lessons · voice · practice · questions")}</small></span><span class="qh-aigo">${L("Continue")} ›</span></button>`).join("")}</div></section>`; };
 const HOLIDAY = () => { const h = +((DATA.learn || {}).weeklyHoliday ?? ((DATA.edu || {}).weeklyHoliday) ?? 0); return h >= 0 && h <= 6 ? h : 0; };
 const kid = k => k.id || classKey(k);
 const tm = k => { try { return classTime(k); } catch (e) { return null; } };
@@ -1544,8 +1554,10 @@ async function classes(x) {
   const u = U() || {}, key = "qh-cls-" + ckey(x.c) + "-" + (u.batch || "");
   if (CACHE[key]) return CACHE[key];
   let cls = null;
-  if (navigator.onLine !== false) { try { cls = await fetchClasses(ckey(x.c), OWN() ? null : u.batch); } catch (e) {} }
-  if (cls && cls.length) LSs(key, cls); else cls = LSg(key, null);
+  /* the saved list opens at once; the fresh one is fetched in the background (Nov 2026: the app was slow because every screen waited for the network) */
+  const saved = LSg(key, null), fresh = () => fetchClasses(ckey(x.c), OWN() ? null : u.batch).then(c => { if (c && c.length) { LSs(key, c); CACHE[key] = c; } return c; });
+  if (saved && saved.length && navigator.onLine !== false) { fresh().catch(() => {}); cls = saved; }
+  else { if (navigator.onLine !== false) { try { cls = await fresh(); } catch (e) {} } if (!(cls && cls.length)) cls = saved; }
   if (!cls || !cls.length) cls = (x.c.classes || []).map((k, j) => Object.assign({ id: classKey(k), n: j + 1 }, k));
   return (CACHE[key] = cls);
 }
@@ -1642,7 +1654,7 @@ const hasT = () => { try { return OWN() || !!TEACH.me; } catch (e) { return fals
 let mode = "s";
 const norm = c => String(c || "").toUpperCase().replace(/[^A-Z0-9]/g, "");
 /* simpler (Nov 2026): a student logged in with the Google account that paid goes straight in, no code to type */
-const stuOK = () => { const u = U(); return !!(u && myCourses().length); };
+const stuOK = () => { const u = U(); return !!(u && (myCourses().length || aiMine().length)); };
 const gateOK = () => OWN() || isT() || stuOK();   /* s = student app, t = teacher app */
 const tabsNow = () => mode === "t" ? TTABS : TABS;
 let cur = "home", root = null, sel = 0, timer = null;
@@ -1670,7 +1682,7 @@ function open(tab) {
   if (!U()) { root.classList.add("guest", "on"); document.documentElement.classList.add("qh-open"); root.querySelector("#qhNav").innerHTML = ""; root.querySelector(".qh-brand small").textContent = L("App"); go("welcome"); greet(); return; }
   root.classList.remove("guest");
   if (!gateOK()) { root.classList.add("guest", "on"); document.documentElement.classList.add("qh-open"); root.querySelector("#qhNav").innerHTML = ""; root.querySelector(".qh-brand small").textContent = L("App"); go("gate"); return; }
-  const want = hasT() && !myCourses().length ? "t" : (mode === "t" && hasT() ? "t" : "s");
+  const want = hasT() && !myCourses().length && (OWN() || !aiMine().length) ? "t" : (mode === "t" && hasT() ? "t" : "s");
   if (want !== mode || !root.querySelector("#qhNav button")) setMode(want, true);
   root.classList.add("on"); document.documentElement.classList.add("qh-open");
   if (location.hash !== "#app") try { history.pushState(null, "", "#app"); } catch (e) {}
@@ -1725,7 +1737,7 @@ function close(fromPop) {
   if (!fromPop && location.hash === "#app") try { history.back(); } catch (e) {}
 }
 /* Android students must use the Quranic Science app (voice alerts, saved videos, secure recordings). iPhone and computer keep the website. */
-const needApp = tab => { try { return /Android/i.test(navigator.userAgent) && !IS_APP && !window.QS_DEMO && !(typeof OWN === "function" && OWN()) && mode !== "t" && ["home", "classes", "tests", "offline", "me"].includes(tab) && myCourses().length > 0; } catch (e) { return false; } };
+const needApp = tab => { try { return /Android/i.test(navigator.userAgent) && !IS_APP && !window.QS_DEMO && !(typeof OWN === "function" && OWN()) && mode !== "t" && ["home", "classes", "tests", "offline", "me"].includes(tab) && (myCourses().length > 0 || aiMine().length > 0); } catch (e) { return false; } };
 const appGate = () => `<section class="qh-hero rv" style="--i:0;text-align:center"><div class="qh-logo" style="margin:0 auto 10px"><img src="/logo.png" alt=""></div>
   <span class="qh-chip gold">${L("Required")}</span><h2>${L("Please install the Quranic Science app")}</h2>
   <p class="qh-mut">${L("Your classes, recordings and tests now open in our Android app. It is free and uses the same account.")}</p>
@@ -1752,17 +1764,18 @@ const empty = (icon, h, p, btn) => `<div class="qh-card qh-empty"><div class="qh
 
 /* ---------- namaz times (Aladhan, free) ---------- */
 const PR = [["Fajr", "فجر"], ["Sunrise", "طلوع"], ["Dhuhr", "ظہر"], ["Asr", "عصر"], ["Maghrib", "مغرب"], ["Isha", "عشاء"]];
+const tfetch = (u, ms) => { const c = new AbortController(), t = setTimeout(() => c.abort(), ms); return fetch(u, { signal: c.signal }).finally(() => clearTimeout(t)); };
 async function loc() {
   const l = LSg("qs-loc", null); if (l && (l.lat || l.addr)) return l;
   const u = U() || {}; if (u.city) return { city: u.city, addr: u.city };
-  try { const a = await (await fetch("https://ipapi.co/json/")).json(); if (a && a.latitude) { const o = { t: Date.now(), city: a.city || "", lat: a.latitude, lon: a.longitude }; LSs("qs-loc", o); return o; } } catch (e) {}
+  try { const a = await (await tfetch("https://ipapi.co/json/", 3000)).json(); if (a && a.latitude) { const o = { t: Date.now(), city: a.city || "", lat: a.latitude, lon: a.longitude }; LSs("qs-loc", o); return o; } } catch (e) {}
   return { city: "Mumbai", lat: 19.076, lon: 72.8777 };
 }
 async function prayers() {
   const day = ymd(Date.now()), c = LSg("qh-pr", null); if (c && c.day === day) return c;
   const l = await loc(), sc = LSg("qs-school", 1), d = new Date(), ds = `${String(d.getDate()).padStart(2, "0")}-${String(d.getMonth() + 1).padStart(2, "0")}-${d.getFullYear()}`;
   try { const u = l.addr && !l.lat ? `https://api.aladhan.com/v1/timingsByAddress/${ds}?address=${encodeURIComponent(l.addr)}&method=1&school=${sc}` : `https://api.aladhan.com/v1/timings/${ds}?latitude=${l.lat}&longitude=${l.lon}&method=1&school=${sc}`;
-    const j = (await (await fetch(u)).json()).data; const o = { day, city: l.city || "", t: {}, hijri: j.date && j.date.hijri ? `${j.date.hijri.day} ${j.date.hijri.month.en} ${j.date.hijri.year}` : "" };
+    const j = (await (await tfetch(u, 5000)).json()).data; const o = { day, city: l.city || "", t: {}, hijri: j.date && j.date.hijri ? `${j.date.hijri.day} ${j.date.hijri.month.en} ${j.date.hijri.year}` : "" };
     PR.forEach(([k]) => o.t[k] = String(j.timings[k]).slice(0, 5)); LSs("qh-pr", o); return o; } catch (e) { return c; }
 }
 const at = hm => { const [h, m] = hm.split(":").map(Number), d = new Date(); d.setHours(h, m, 0, 0); return +d; };
@@ -1787,7 +1800,7 @@ const VIEWS = {
       <section class="qh-langbig rv" style="--i:1" data-noi18n>${LANGS.map(([c, n]) => `<button data-lang="${c}" lang="${c}"><b>${n}</b><small>${{ en: "English", ur: "Urdu", hi: "Hindi", ar: "Arabic" }[c]}</small></button>`).join("")}</section>`;
   },
   async gate() {
-    const u = U() || {}, role = LSg("qh-role", "s"), enrolled = myCourses().length > 0, teacher = hasT();
+    const u = U() || {}, role = LSg("qh-role", "s"), enrolled = myCourses().length > 0 || aiMine().length > 0, teacher = hasT();
     const hi = langChips() + `<section class="qh-welcome rv" style="--i:0"><div class="qh-av">${u.photo ? `<img src="${E(u.photo)}" alt="">` : E((u.name || "S")[0])}</div><h2>${L("Assalamu Alaikum")}, ${E((u.name || "").split(" ")[0])}</h2><small class="qh-mut">${E(u.email || "")}</small></section>`;
     if (teacher && (role === "t" || !enrolled)) return hi + `<section class="qh-card rv" style="--i:1"><h3>👨‍🏫 Teacher code</h3><p class="qh-mut">Enter the teacher code the owner sent you on WhatsApp, with your mobile number. Only once on this phone.</p><button class="qh-btn pri" data-tlogin="1">Enter teacher code</button>${enrolled ? `<button class="qh-btn ghost sm" data-role="s">I am a student</button>` : ""}</section>`;
     if (!enrolled) return hi + `<section class="qh-card rv" style="--i:1"><h3>This app is for enrolled students</h3><p class="qh-mut">We could not find a paid course on this Google account. Join a course on our website. After your fee is confirmed, log in here with the same Google account. Your classes open by themselves.</p>
@@ -1813,8 +1826,9 @@ const VIEWS = {
     const hi = hr < 12 ? "Good morning" : hr < 17 ? "Good afternoon" : "Good evening";
     let h = `<section class="qh-hello rv" style="--i:0"><div><small>${L("Assalamu Alaikum")} · ${L(hi)}</small><h1>${E((u.name || "Student").split(" ")[0])} 👋</h1></div>
       <button class="qh-flame ${st.today ? "lit" : ""}" data-qt="me" aria-label="Streak ${st.n} days"><span>🔥</span><b data-count="${st.n}">0</b><small>day streak</small></button></section>`;
+    h += aiHTML(1);
     if (!mc.length) {
-      h += empty("🎓", "Start learning with us", "Join a course to unlock live classes, tests, offline lessons, badges and your progress dashboard.", `<button class="qh-btn pri" data-web="#learn">See courses</button>`);
+      if (!aiMine().length) h += empty("🎓", "Start learning with us", "Join a course to unlock live classes, tests, offline lessons, badges and your progress dashboard.", `<button class="qh-btn pri" data-web="#learn">See courses</button>`);
       return h + promo();
     }
     if (nx) {
@@ -1827,9 +1841,9 @@ const VIEWS = {
         ${nlk ? lockHTML() : ""}<div class="qh-row">${nlk ? "" : `<button class="qh-btn pri" data-room="${nx.x.i}|${E(kid(nx.k))}">${live ? "Join live class" : "Open live room"}</button>`}<button class="qh-btn" data-cls="${nx.x.i}">All classes</button></div></section>`;
     } else if (Date.now() < START) h += `<section class="qh-hero tilt rv" style="--i:1"><div class="qh-shine"></div><div class="qh-row"><span class="qh-chip">${L("First batch")}</span></div><h2>${L("Classes start on 1 December")}</h2><p class="qh-when">${new Date(START).toLocaleDateString(LOC(), { weekday: "long", day: "numeric", month: "long", year: "numeric" })}</p><div class="qh-cd" data-cd="${START}">--</div><p class="qh-mut">${L("Your teacher, class time and Zoom link appear here before the first class. You get a reminder 30 minutes before.")}</p></section>`;
     else h += `<section class="qh-card rv" style="--i:1"><h3>No class scheduled right now</h3><p class="qh-mut">Your teacher adds the next class here. You get a WhatsApp and app reminder 30 minutes before.</p></section>`;
-    h += await prayerCard(2);
+    h += `<div id="qhPrayBox"></div>`; prayerCard(2).then(html => { const el = root && root.querySelector("#qhPrayBox"); if (el && html) el.outerHTML = html; }).catch(() => {});
     /* today's goals */
-    const x0 = mc[0], cls0 = await classes(x0), a0 = await attendance(x0), p0 = prog(x0);
+    const x0 = mc[0], LDp = leaders(x0).catch(() => null), [cls0, a0] = await Promise.all([classes(x0), attendance(x0)]), p0 = prog(x0);
     const todayCls = cls0.find(k => tm(k) && ymd(tm(k)) === ymd(Date.now()));
     const g = [[!!(todayCls && (a0[kid(todayCls)] || a0[classKey(todayCls)])), todayCls ? "Attend today’s class" : "No class today, revise one recording"],
       [!!(todayCls && p0.qz && p0.qz[kid(todayCls)] && p0.qz[kid(todayCls)].ok), "Answer the 3 class questions"],
@@ -1840,10 +1854,11 @@ const VIEWS = {
       ${g[2][0] ? "" : `<button class="qh-btn sm" data-test="${x0.i}">Start practice test</button>`}</section>`;
     /* progress rings */
     h += `<section class="rv" style="--i:3"><h3 class="qh-h">My courses</h3><div class="qh-scroll">`;
-    for (const x of mc) { const a = await attendance(x); let pr = { pct: 0 }; try { pr = courseProgress(x.c, a); } catch (e) {} h += `<button class="qh-course tilt" data-cls="${x.i}">${ring(pr.pct, 70)}<b>${E(x.c.name)}</b><small>${Object.keys(a).length} ${L("classes attended")}</small></button>`; }
+    const ATT = await Promise.all(mc.map(attendance));
+    for (const x of mc) { const a = ATT[mc.indexOf(x)]; let pr = { pct: 0 }; try { pr = courseProgress(x.c, a); } catch (e) {} h += `<button class="qh-course tilt" data-cls="${x.i}">${ring(pr.pct, 70)}<b>${E(x.c.name)}</b><small>${Object.keys(a).length} ${L("classes attended")}</small></button>`; }
     h += `</div></section>`;
     /* star students */
-    const LD = await leaders(mc[0]);
+    const LD = await Promise.race([LDp, new Promise(r => setTimeout(() => r(null), 1500))]);
     if (LD && (LD.list || []).length) h += `<section class="qh-card rv" style="--i:4"><div class="qh-row sp"><h3>⭐ This week’s Star Students</h3><small class="qh-mut">${E(mc[0].c.name)}</small></div>
       <div class="qh-podium">${LD.list.slice(0, 3).map((r, j) => `<div class="p${j + 1} ${r.uid === u.uid ? "me" : ""}"><span>${["🥇", "🥈", "🥉"][j]}</span><b>${E((r.name || "").split(" ")[0])}</b><small>${r.score}/100</small></div>`).join("")}</div>
       ${LD.list.some(r => r.uid === u.uid) ? `<p class="qh-ok">MashaAllah, you are on the list this week! 🎉</p>` : `<p class="qh-mut">Attend, answer and practise every day to see your name here next week.</p>`}</section>`;
@@ -1860,7 +1875,8 @@ const VIEWS = {
     const u = U(), T0 = TEACH.me || {}, own = OWN();
     if (!isT()) return `<section class="qh-hello rv" style="--i:0"><div><small>Assalamu Alaikum</small><h1>${E((u.name || "Teacher").split(" ")[0])} 👋</h1></div></section>` + empty("🔐", "Verify your teacher code", "Enter the teacher code the owner sent you on WhatsApp, once. Then your class tools open here.", `<button class="qh-btn pri" data-tlogin="1">Enter teacher code</button>`);
     const cs = own ? COURSES().map((c, i) => ({ c, i })) : COURSES().map((c, i) => ({ c, i })).filter(x => ckey(x.c) === T0.course);
-    let h = `<section class="qh-hello rv" style="--i:0"><div><small>${L("Assalamu Alaikum")} · ${L(own ? "Owner" : "Teacher")}</small><h1>${E((u.name || "Teacher").split(" ")[0])} 👋</h1></div>${myCourses().length && !own ? `<button class="qh-btn sm" data-mode="s">Student view</button>` : ""}</section>`;
+    let h = `<section class="qh-hello rv" style="--i:0"><div><small>${L("Assalamu Alaikum")} · ${L(own ? "Owner" : "Teacher")}</small><h1>${E((u.name || "Teacher").split(" ")[0])} 👋</h1></div>${(myCourses().length && !own) || (own && aiMine().length) ? `<button class="qh-btn sm" data-mode="s">Student view</button>` : ""}</section>`;
+    if (own) h += aiHTML(1);
     let next = null, nCls = 0, openD = 0, nStu = 0;
     for (const x of cs) { let cls = []; try { cls = await fetchClasses(ckey(x.c), own ? null : (T0.batch === "ALL" ? null : T0.batch)) || []; } catch (e) {} nCls += cls.length;
       cls.forEach(k => { const t = tm(k); if (t && t + 75 * 6e4 > Date.now() && (!next || t < next.t)) next = { x, k, t }; }); }
@@ -1902,7 +1918,8 @@ const VIEWS = {
       <textarea class="qh-ta" data-dans="${E(d.id)}" dir="auto" placeholder="Write your answer…">${E(d.answer || "")}</textarea><div class="qh-row sp"><small class="qh-mut">${d.answer ? "✓ Answered" : ""}</small><button class="qh-btn sm pri" data-dsend="${E(d.id)}">${d.answer ? "Update answer" : "Send answer"}</button></div></article>`).join("");
   },
   async classes() {
-    const mc = myCourses(); if (!mc.length) return empty("🎥", "No classes yet", "Join a course to see your live classes and recordings here.", `<button class="qh-btn pri" data-web="#learn">See courses</button>`);
+    const mc = myCourses(); if (!mc.length && aiMine().length) return aiHTML(0) + `<p class="qh-mut rv" style="--i:1">${L("Your AI lessons open inside the app. Open a course and continue where you stopped.")}</p>`;
+    if (!mc.length) return empty("🎥", "No classes yet", "Join a course to see your live classes and recordings here.", `<button class="qh-btn pri" data-web="#learn">See courses</button>`);
     const x = mc[Math.min(sel, mc.length - 1)], cls = await classes(x), a = await attendance(x), p = prog(x), HWROWS = cls.some(k => k.hw) ? await hwRows() : [];
     let h = seg(mc); const tn = (cls.slice().reverse().find(k => k.tname) || {}).tname;
     if (tn) h += `<p class="qh-teach rv" style="--i:0"><span>👨‍🏫 Your teacher</span>: <b>${E(tn)}</b></p>`;
@@ -1926,7 +1943,8 @@ const VIEWS = {
     return h + `<section class="qh-card qh-promo rv" style="--i:20"><div><b>💬 Ask your teacher</b><p class="qh-mut">Stuck on something? Your teacher answers here, AI replies at once.</p></div><button class="qh-btn sm pri" data-qsdoubt="${x.i}">Ask a doubt</button></section>`;
   },
   async tests() {
-    const mc = myCourses(); if (!mc.length) return empty("📝", "Practice tests", "Join a course to practise with tests made from your own classes.", `<button class="qh-btn pri" data-web="#learn">See courses</button>`);
+    const mc = myCourses(); if (!mc.length && aiMine().length) return aiHTML(0) + `<p class="qh-mut rv" style="--i:1">${L("Every AI lesson has its own questions and practice. Open your course to start.")}</p>`;
+    if (!mc.length) return empty("📝", "Practice tests", "Join a course to practise with tests made from your own classes.", `<button class="qh-btn pri" data-web="#learn">See courses</button>`);
     const x = mc[Math.min(sel, mc.length - 1)], bank = await qbank(x), hist = tests(x);
     let h = seg(mc);
     h += `<section class="qh-hero tilt rv" style="--i:0"><div class="qh-shine"></div><span class="qh-chip gold">Practice test</span><h2>${bank.length ? `${Math.min(10, bank.length)} ${L("questions")} · ${L("about")} ${Math.max(1, Math.round(Math.min(10, bank.length) * .4))} ${L("min")}` : L("Unlocks after your first class")}</h2>
@@ -2153,6 +2171,7 @@ function readOffline(id) {
 /* ---------- clicks ---------- */
 async function onClick(e) {
   const b = e.target.closest("button,a"); if (!b || !root.contains(b)) return; const d = b.dataset;
+  if (d.ai) { snd("tap"); location.href = d.ai; return; }
   if (d.qt) { snd("tab"); go(d.qt); return; }
   if (d.alang) { snd("tap"); LSs("qh-alang", d.alang); pushAlertLang(); go(cur); return; }
   if (d.bgfix) { try { QSNative.bgFix && QSNative.bgFix(); } catch (e) {} setTimeout(() => { if (cur === "me") go("me"); }, 4000); return; }
@@ -2203,7 +2222,7 @@ async function onClick(e) {
 function addButton() {
   const ctl = document.querySelector(".topctl"), ac = document.getElementById("acctBtn");
   let b = document.getElementById("qhBtn");
-  if (!U() || !(myCourses().length || hasT())) { if (b) b.remove(); return; }
+  if (!U() || !(myCourses().length || aiMine().length || hasT())) { if (b) b.remove(); return; }
   if (!b && ctl && ac) { b = document.createElement("button"); b.id = "qhBtn"; b.className = "qh-open-btn"; b.setAttribute("aria-label", "Open my learning app"); b.innerHTML = `${svg('<path d="M4 6l8-3 8 3-8 3z"/><path d="M8 8v5c0 1.5 2 3 4 3s4-1.5 4-3V8"/>')}<span>My App</span>`; b.onclick = () => open("home"); ctl.insertBefore(b, ac); }
 }
 function banner() {
