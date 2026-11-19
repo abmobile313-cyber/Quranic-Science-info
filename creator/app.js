@@ -749,16 +749,33 @@ function drawMoment() {
 /* options appear in a fixed but mixed order, so the right answer is not always first */
 function qorder(id, k, n) { let h = 2166136261; for (const ch of id + ":" + k) h = Math.imul(h ^ ch.charCodeAt(0), 16777619) >>> 0;
   const o = [...Array(n).keys()]; for (let i = n - 1; i > 0; i--) { h = (Math.imul(h, 1103515245) + 12345) >>> 0; const j = h % (i + 1); [o[i], o[j]] = [o[j], o[i]]; } return o; }
+/* quiz voice: the question and its options are read aloud, and the reason after an answer (clips exist only for voiced lessons; otherwise silent) */
+async function quizSrc(id, key) {
+  if (FREE.includes(id)) return null;
+  const ek = id + "-" + key + (LANG === "en" ? "e" : ""); if (voiceUrls[ek]) return voiceUrls[ek]; if (voiceUrls["x" + ek]) return null;
+  try { const r = await getBin(`vo/${ek}.bin?v=${dv(id)}`); if (!r || !r.ok) { voiceUrls["x" + ek] = 1; return null; }
+    return voiceUrls[ek] = URL.createObjectURL(new Blob([await decryptBuf(await r.arrayBuffer(), courseOf(id))], { type: "audio/mpeg" })); } catch (e) { return null; }
+}
+async function narrQ(id, keys) {
+  const my = QTOK;
+  for (const key of keys) {
+    if (my !== QTOK) return;
+    const src = await quizSrc(id, key); if (!src || my !== QTOK) continue;
+    await new Promise(res => { voiceEl = SLOW(new Audio(src)); voiceEl.onended = voiceEl.onerror = res; voiceEl.play().catch(res); });
+  }
+}
 function drawQuiz(k, ans) {
   stopAll();
   const { data } = LESSON, Q = data.quiz[k], app = $("#app");
   if (!Q) return finish(ans);
+  if (S.voice !== false) narrQ(LESSON.id, ["q" + k + "q"].concat(qorder(LESSON.id, k, Q.o.length).map(j => "q" + k + "o" + j)));
   app.innerHTML = lessonHead() + `<section class="stage"><span class="qn">${t("q")} ${num(k + 1)} ${t("of")} ${num(data.quiz.length)}</span>
     <div class="say"><b>${esc(pick(Q.q))}</b></div><div id="opts">${qorder(LESSON.id, k, Q.o.length).map(j => { const o = Q.o[j]; return `<button class="qopt" data-j="${j}"><span class="${/[؀-ۿ]/.test(pick(o)) ? "ar" : ""}">${esc(pick(o))}</span></button>`; }).join("")}</div><div id="fb"></div></section>`;
   $$(".qopt", app).forEach(b => b.onclick = () => {
     const j = +b.dataset.j, ok = j === Q.a;
     $$(".qopt", app).forEach(x => { x.disabled = true; if (+x.dataset.j === Q.a) x.classList.add("ok"); });
     if (!ok) b.classList.add("no");
+    stopAll(); if (S.voice !== false) narrQ(LESSON.id, ["q" + k + "w"]);
     $("#fb").innerHTML = `<p class="why"><b>${ok ? "✓ " + t("right") : "✗ " + t("wrong")}</b> ${esc(pick(Q.why))}</p><div class="nav"><span></span><button class="btn pri" id="qc">${t("cont")}</button></div>`;
     $("#qc").onclick = () => drawQuiz(k + 1, ans.concat(ok));
   });
