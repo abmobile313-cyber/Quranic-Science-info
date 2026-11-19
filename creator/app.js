@@ -137,7 +137,7 @@ Object.assign(TX.hi, { tag: "वीडियो एडिटिंग · कं�
   hwP: "अपना होमवर्क भेजें: अपनी वीडियो, स्क्रीनशॉट या फ़ोटो (ज़्यादा से ज़्यादा 10 MB)। ए आई टीचर चेक करके राय देगा।" });
 
 const LS = { get(k, d) { try { const v = localStorage.getItem(k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } }, set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} } };
-let LANG = LS.get("qsai-lang", "ur");
+let LANG = LS.get("qsai-lang", null) || { en: "en", ur: "ur", hi: "hi", ar: "en" }[LS.get("qh-lang", "")] || "ur"; /* first time: follow the language chosen on the home screen */
 const t = k => (TX[LANG] && TX[LANG][k]) || TX.en[k] || k;
 const pick = o => o ? (o[LANG] || o.en || o.ur || "") : "";
 const $ = (s, r = document) => r.querySelector(s), $$ = (s, r = document) => [...r.querySelectorAll(s)];

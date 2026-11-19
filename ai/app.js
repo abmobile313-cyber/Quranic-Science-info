@@ -105,7 +105,7 @@ const TX = {
   photoL: "आपकी फ़ोटो (सर्टिफ़िकेट के लिए)", photoBtn: "फ़ोटो चुनें", fullBadge: "फ़ुल ऐक्सेस", certReady: "आपका सर्टिफ़िकेट तैयार है", protect: "सबक़ महफ़ूज़ हैं और सिर्फ़ क़ुरआनिक साइंस के अंदर चलते हैं।", arVoice: "अरबी तलफ़्फ़ुज़ सुनें", repeat: "दोहराएँ", playAll: "सब तरतीब से सुनें", tapLetter: "हर्फ़ पर टैप करें, क़ारी की आवाज़ सुनें" }
 };
 const LS = { get(k, d) { try { const v = localStorage.getItem(k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } }, set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} } };
-let LANG = LS.get("qsai-lang", "ur");
+let LANG = LS.get("qsai-lang", null) || { en: "en", ur: "ur", hi: "hi", ar: "en" }[LS.get("qh-lang", "")] || "ur"; /* first time: follow the language chosen on the home screen */
 const t = k => (TX[LANG] && TX[LANG][k]) || TX.en[k] || k;
 const pick = o => o ? (o[LANG] || o.en || o.ur || "") : "";
 const $ = (s, r = document) => r.querySelector(s), $$ = (s, r = document) => [...r.querySelectorAll(s)];
