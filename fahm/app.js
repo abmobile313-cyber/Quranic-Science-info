@@ -110,18 +110,20 @@ async function renderNZ() {
   const nz = window.FAHM_NZ[S.n], dir = fam === 'ur' ? ' dir="rtl" class="u"' : '';
   let intro = null; try { intro = await FahmData.intro(S.n); } catch (e) { }
   if (tok !== nzTok) return;
-  const hdr = { ur: 'پس منظر اور شانِ نزول', ru: 'Pas-e-manzar aur Shaan-e-nuzool', hi: 'पृष्ठभूमि और शाने-नुज़ूल', en: 'Background & context of revelation' }[famUi(fam)];
-  const nzTxt = nz ? (fam === 'en' || fam === 'oth' ? nz.en : fam === 'ur' ? (window.FAHM_NZ_UR[S.n] || '') : fam === 'ru' ? nz.ur : txtFam(window.FAHM_NZ_UR[S.n] || '', '', 'hi')) : '';
-  let html = `<h4>${esc(hdr)}</h4>`;
-  if (nzTxt) html += `<p${dir}>${esc(nzTxt)}</p>`;
-  if (intro) {
-    const raw = fam === 'en' || fam === 'oth' ? intro.en : (fam === 'ur' ? intro.ur : (txtFam(intro.ur, '', fam) || ''));
-    html += `<div class="intro ${nzTxt ? 'fold' : ''}" id="introBox"${dir}>${raw}</div><button class="more" data-more="1">${esc(XT('more'))}</button><small>${esc(XT('ctxSrc'))}: ${esc(intro.src || 'Tafheem-ul-Quran')} (S. Abul A'la Maududi)${fam === 'oth' ? ' · ' + esc(XT('ctxEn')) : ''}</small>`;
-  } else if (nz) html += `<small>${T('nzn')}</small>`;
-  html += `<div class="taf"><h4>${esc({ ur: 'تفسیر', ru: 'Tafseer', hi: 'तफ़सीर', en: 'Tafseer' }[famUi(fam)])}</h4><button class="tafb" data-taf="1">${esc({ ur: 'اس آیت کی تفسیر پڑھیں', ru: 'Is ayat ki tafseer padhein', hi: 'इस आयत की तफ़सीर पढ़ें', en: 'Read tafseer of this ayah' }[famUi(fam)])}</button><div id="tafBody"></div></div>`;
+  const fu = famUi(fam), nzTxt = nz ? (fam === 'en' || fam === 'oth' ? nz.en : fam === 'ur' ? (window.FAHM_NZ_UR[S.n] || '') : fam === 'ru' ? nz.ur : txtFam(window.FAHM_NZ_UR[S.n] || '', '', 'hi')) : '';
+  const TB = { nz: { ur: 'شانِ نزول', ru: 'Shaan-e-nuzool', hi: 'शाने-नुज़ूल', en: 'Reason of revelation' }, bg: { ur: 'پس منظر', ru: 'Pas-e-manzar', hi: 'पृष्ठभूमि', en: 'Background' }, taf: { ur: 'تفسیر', ru: 'Tafseer', hi: 'तफ़सीर', en: 'Tafseer' } };
+  let tab = st.nzt; if (!['nz', 'bg', 'taf'].includes(tab)) tab = nzTxt ? 'nz' : 'bg';
+  let html = `<div class="nzt">${['nz', 'bg', 'taf'].map(k => `<button class="${k === tab ? 'on' : ''}" data-nzt="${k}">${esc(TB[k][fu])}</button>`).join('')}</div>`;
+  if (tab === 'nz') {
+    html += nzTxt ? `<p${dir}>${esc(nzTxt)}</p><small>${esc(XT('ctxSrc'))}: ${esc(TB.nz[fu])} · ${esc(S.ur || '')}</small>` : `<p class="dim">${esc({ ur: 'اس سورت کی شانِ نزول الگ سے محفوظ نہیں؛ پس منظر کا ٹیب دیکھیں۔', ru: 'Is surah ki shaan-e-nuzool alag se mehfooz nahin; Pas-e-manzar tab dekhein.', hi: 'इस सूरत की शाने-नुज़ूल अलग से नहीं है; पृष्ठभूमि टैब देखें।', en: 'No separate revelation note for this surah; see the Background tab.' }[fu])}</p>`;
+  } else if (tab === 'bg') {
+    if (intro) {
+      const raw = fam === 'en' || fam === 'oth' ? intro.en : (fam === 'ur' ? intro.ur : (txtFam(intro.ur, '', fam) || ''));
+      html += `<div class="intro fold" id="introBox"${dir}>${raw}</div><button class="more" data-more="1">${esc(XT('more'))}</button><small>${esc(XT('ctxSrc'))}: ${esc(intro.src || 'Tafheem-ul-Quran')} (S. Abul A'la Maududi)${fam === 'oth' ? ' · ' + esc(XT('ctxEn')) : ''}</small>`;
+    } else html += `<p class="dim">${esc(T('nzn'))}</p>`;
+  } else html += `<div class="taf"><div id="tafBody"></div></div>`;
   box.innerHTML = html;
-  const ib = $('#introBox'); if (ib && !nzTxt) ib.classList.add('open');
-  const mb = box.querySelector('[data-more]'); if (mb && !nzTxt) mb.hidden = true;
+  if (tab === 'taf') loadTafsir();
 }
 const TAF = {}; /* ayah tafseer from Quran.com (needs internet): Urdu = Tafsir Ibn Kathir (Urdu), everything else = Tafsir Ibn Kathir (English) */
 async function loadTafsir() {
@@ -137,6 +139,7 @@ async function loadTafsir() {
     bx.innerHTML = whoT + chips + `<div class="tafx"${fam === 'ur' ? ' dir="rtl"' : ''}>${t}</div><small>${esc(TAF[key].n)} · Quran.com</small>`;
   } catch (e) { bx.innerHTML = whoT + chips + `<p class="dim">${msg[1]}</p>`; }
 }
+document.addEventListener('click', e => { const b = e.target.closest('[data-nzt]'); if (!b) return; st.nzt = b.dataset.nzt; save(); renderNZ(); });
 const TAFO = { ur: [[160, 'Ibn Kathir'], [159, 'Bayan-ul-Quran (Dr Israr Ahmad)'], [818, 'Tazkir-ul-Quran (W. Khan)'], [157, 'Fi Zilal-al-Quran (S. Qutb)']], en: [[169, 'Ibn Kathir'], [168, "Ma'arif al-Qur'an (Mufti M. Shafi)"], [817, 'Tazkirul Quran (W. Khan)']] };
 document.addEventListener('click', e => { const b = e.target.closest('[data-tafid]'); if (!b) return; const c0 = st.tl[0] || ''; st.tafo = st.tafo || {}; st.tafo[c0] = +b.dataset.tafid; save(); loadTafsir(); });
 
@@ -274,7 +277,8 @@ function prev() { if (st.a > 0) goTo(st.s, st.a - 1); else if (st.s > 0) goTo(st
 function setPlaying(p) { playing = p; if (window.FahmWS) FahmWS.updPlay(); $('#icoPlay').style.display = p ? 'none' : ''; $('#icoPause').style.display = p ? '' : 'none'; $('#sPlay').innerHTML = p ? '<svg viewBox="0 0 24 24"><path d="M7 5h4v14H7zM13 5h4v14h-4z" style="fill:currentColor;stroke:none"/></svg>' : '<svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z" style="fill:currentColor;stroke:none"/></svg>'; }
 function stopAll() { FahmSfx.stop(); try { $('#sv').pause(); } catch (e) { } clearInterval(timer); timer = null; try { au.pause(); } catch (e) { } if (wordAu) { try { wordAu.pause(); } catch (e) { } } try { speechSynthesis.cancel(); } catch (e) { } setPlaying(false); }
 function computeBounds() {
-  const { A } = cur(), wts = A.words.map(w => stripD(w.ar).length + 1.2), tot = wts.reduce((x, y) => x + y, 0); bounds = []; let acc = 0;
+  const { A } = cur(); if (window.FahmTiming) { bounds = FahmTiming.bounds(A.words); return; }
+  const wts = A.words.map(w => stripD(w.ar).length + 1.2), tot = wts.reduce((x, y) => x + y, 0); bounds = []; let acc = 0;
   wts.forEach(x => { acc += x / tot; bounds.push(acc); });
 }
 function idxAt(frac) { for (let i = 0; i < bounds.length; i++) if (frac <= bounds[i]) return i; return bounds.length - 1; }
@@ -283,11 +287,12 @@ function playAyah() {
   stopAll(); FahmSfx.unlock(); FahmSfx.setLevel(st.sfx); setPlaying(true); { const v = $('#sv'); if (v.getAttribute('src')) { v.currentTime = 0; const p = v.play(); if (p && p.catch) p.catch(() => { }); } } scene.set(scene.spec); setWord(0, true, true); if (st.sfx) FahmSfx.start(scene.spec.sky);
   const { A } = cur(); let failed = false;
   const fallback = () => {
-    if (failed) return; failed = true; toast(T('audioErr')); const per = 1100; let i = 0; setWord(0, true, true);
+    if (failed) return; failed = true; clearInterval(timer); toast(T('audioErr')); const per = 1100; let i = 0; setWord(0, true, true);
     timer = setInterval(() => { i++; if (i >= A.words.length) { clearInterval(timer); timer = null; onEnded(); } else setWord(i, true, true); }, per);
   };
   au.onerror = fallback; au.onended = onEnded;
-  au.ontimeupdate = () => { if (!au.duration || failed) return; const lead = Math.min(0.45, au.duration * 0.06), tail = Math.min(0.35, au.duration * 0.05), f = Math.max(0, Math.min(1, (au.currentTime - lead) / Math.max(0.1, au.duration - lead - tail))); const i = idxAt(f); if (i !== st.w) setWord(i, true, true); };
+  const sync = () => { if (!au.duration || failed || au.paused) return; const lead = Math.min(0.18, au.duration * 0.04), tail = Math.min(0.3, au.duration * 0.05), f = Math.max(0, Math.min(1, (au.currentTime - lead) / Math.max(0.1, au.duration - lead - tail))); const i = idxAt(f); if (i !== st.w) setWord(i, true, true); };
+  au.ontimeupdate = sync; clearInterval(timer); timer = setInterval(sync, 50);
   au.src = ayahUrl(); const pr = au.play(); if (pr && pr.catch) pr.catch(() => fallback());
 }
 function onEnded() {

@@ -100,3 +100,86 @@ body.l-ur #cx .cxs{font-family:NastaliqU,serif;font-style:normal;font-size:13px;
 #mkh .mk-dg{display:block}#mkh .mk-svg{width:100%;height:auto;aspect-ratio:300/230;max-height:38vh}
 #sw{top:58px}
 @media (orientation:landscape) and (max-height:520px){#story.big #cx .cxt{font-size:13px;-webkit-line-clamp:2}#story.big #cx .cxs{-webkit-line-clamp:1;font-size:11.5px}#story.big #cx{padding-bottom:calc(30px + var(--sa))}#sw{top:56px}}
+
+/* ================= 3D buttons (shared) ================= */
+.b3d{position:relative;border:0;color:#2a0a14;background:linear-gradient(180deg,#fff0c0 0%,#f0c75a 38%,#c8932a 100%);border-radius:18px;font:700 16px system-ui,sans-serif;
+ box-shadow:0 7px 0 #7a5410,0 12px 22px rgba(0,0,0,.5),inset 0 2px 0 rgba(255,255,255,.75),inset 0 -3px 0 rgba(120,70,0,.28);transition:transform .08s,box-shadow .08s;margin-bottom:8px}
+.b3d:active{transform:translateY(5px);box-shadow:0 2px 0 #7a5410,0 4px 8px rgba(0,0,0,.45),inset 0 2px 0 rgba(255,255,255,.6)}
+#onb .b3d,#onb .b3d *{color:#2a0a14}
+#onb .ob-alt.b3d{background:linear-gradient(180deg,#5a1a2a,#3a0f1c 55%,#2a0812);border:1px solid rgba(243,217,139,.5);box-shadow:0 6px 0 #14040a,0 10px 18px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,255,255,.18)}
+#onb .ob-alt.b3d,#onb .ob-alt.b3d *{color:#f3d98b}
+#onb .ob-alt.b3d.sm{display:inline-block;width:auto;padding:9px 18px;font-size:14px;margin-top:6px}
+#onb .ob-go.b3d{margin-top:16px}
+body.light #onb .ob-alt.b3d{background:linear-gradient(180deg,#fff,#efe3c4);box-shadow:0 6px 0 #b9a36a,0 10px 18px rgba(80,60,20,.25),inset 0 1px 0 #fff}
+body.light #onb .ob-alt.b3d,body.light #onb .ob-alt.b3d *{color:#5a1a2a}
+
+/* ================= language screen with the 3D Earth ================= */
+#onb .ob-lang{max-width:520px}
+#onb .ob-earth{position:relative;width:min(78vw,52vh,360px);aspect-ratio:1;margin:6px auto 4px;touch-action:none}
+#onb .ob-earth canvas{width:100%;height:100%;display:block;filter:drop-shadow(0 0 22px rgba(51,203,224,.3));-webkit-mask-image:radial-gradient(circle closest-side,#000 82%,transparent 100%);mask-image:radial-gradient(circle closest-side,#000 82%,transparent 100%)}
+#onb .ob-earth.nogl{border-radius:50%;background:radial-gradient(circle at 35% 30%,#7fd0ff,#1a5fa0 45%,#06203f 80%);box-shadow:0 0 50px rgba(51,203,224,.4)}
+#onb .ob-hint{font-size:12.5px;margin:2px 0 10px;opacity:.85}
+#onb .ob-lbtns{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+#onb .ob-lbtns .b3d{padding:12px 4px 10px;display:flex;flex-direction:column;gap:2px;align-items:center}
+#onb .ob-lbtns .b3d b{font-size:17px}#onb .ob-lbtns .b3d small{font:600 10px system-ui,sans-serif;letter-spacing:.1em;text-transform:uppercase;opacity:.7}
+@media (orientation:landscape) and (max-height:520px){
+ #onb .ob-lang{max-width:none;display:grid;grid-template-columns:44% 1fr;column-gap:18px;align-items:center;text-align:center}
+ #onb .ob-lang .ob-logo{grid-column:2;font-size:28px}#onb .ob-lang h2{grid-column:2;font-size:15px}
+ #onb .ob-lang .ob-earth{grid-column:1;grid-row:1/6;width:min(40vw,78vh);margin:0 auto}
+ #onb .ob-lang .ob-hint{grid-column:2}#onb .ob-lang .ob-lbtns{grid-column:2}}
+
+/* ================= wuzu: orb, rings, bubbles, steps ================= */
+#onb .ob-in{position:relative}
+#onb .ob-bub{position:absolute;inset:-18px;pointer-events:none;overflow:hidden;z-index:0}
+#onb .ob-bub i{position:absolute;bottom:-20px;border-radius:50%;background:radial-gradient(circle at 30% 30%,rgba(255,255,255,.85),rgba(51,203,224,.25) 60%,rgba(51,203,224,.05));border:1px solid rgba(51,203,224,.4);animation:obub 7s linear infinite}
+@keyframes obub{0%{transform:translateY(0) scale(.6);opacity:0}15%{opacity:.9}100%{transform:translateY(-105vh) scale(1.1);opacity:0}}
+#onb .ob-in>*:not(.ob-bub){position:relative;z-index:1}
+#onb .ob-orb{position:relative;width:150px;height:150px;margin:0 auto 12px;display:grid;place-items:center}
+#onb .ob-orb .rg{position:absolute;inset:0;border-radius:50%;border:2px solid rgba(51,203,224,.55);animation:org 3.2s ease-out infinite}
+#onb .ob-orb .r2{animation-delay:1.05s}#onb .ob-orb .r3{animation-delay:2.1s}
+@keyframes org{0%{transform:scale(.45);opacity:.9}100%{transform:scale(1.25);opacity:0}}
+#onb .ob-orb .ob-drop{width:92px;height:92px;margin:0;position:relative;z-index:2}
+#onb .ob-vol{position:absolute!important;top:0;right:0;z-index:3;width:42px;height:42px;border-radius:50%;border:1px solid rgba(243,217,139,.5);background:rgba(0,0,0,.3);font-size:18px}
+#onb .ob-prog{display:flex;gap:5px;justify-content:center;margin:2px 0 12px}
+#onb .ob-prog i{width:26px;height:6px;border-radius:4px;background:rgba(255,255,255,.18)}
+#onb .ob-prog i.d{background:#33cbe0}#onb .ob-prog i.n{background:#f3d98b;box-shadow:0 0 10px rgba(243,217,139,.8)}
+#onb .ob-ic{position:relative;width:130px;height:130px;margin:0 auto 6px;border-radius:50%;display:grid;place-items:center;background:radial-gradient(circle at 35% 30%,rgba(127,230,242,.35),rgba(20,60,80,.5));border:2px solid rgba(51,203,224,.6);box-shadow:0 0 30px rgba(51,203,224,.35),inset 0 0 20px rgba(255,255,255,.1)}
+#onb .ob-ic span{font-size:64px;line-height:1;animation:obf 2.4s ease-in-out infinite;filter:drop-shadow(0 4px 8px rgba(0,0,0,.4))}
+#onb .ob-ic em{position:absolute;width:10px;height:14px;border-radius:50% 50% 50% 50%/60% 60% 40% 40%;background:linear-gradient(180deg,#bff4fb,#33cbe0);top:-4px;animation:odrop 1.6s ease-in infinite}
+#onb .ob-ic .w1{left:30%}#onb .ob-ic .w2{left:50%;animation-delay:.5s}#onb .ob-ic .w3{left:68%;animation-delay:1s}
+@keyframes odrop{0%{transform:translateY(-6px);opacity:0}25%{opacity:1}100%{transform:translateY(130px);opacity:0}}
+#onb .ob-sn{font:700 12px system-ui,sans-serif;letter-spacing:.2em;color:#33cbe0;text-transform:uppercase}
+#onb .ob-step h2{font-size:21px;line-height:1.6;margin:6px 0 4px}
+body.l-ur #onb h2,body.l-ur #onb p,body.l-ur #onb .ob-hint{font-family:NastaliqU,serif;line-height:2.1}
+body.light #onb .ob-ic{background:radial-gradient(circle at 35% 30%,#e8fbff,#bfe9f2)}
+body.light #onb .ob-vol{background:rgba(255,255,255,.6)}
+@media (orientation:landscape) and (max-height:520px){#onb .ob-orb{width:84px;height:84px;margin-bottom:4px}#onb .ob-orb .ob-drop{width:54px;height:54px}#onb .ob-ic{width:78px;height:78px}#onb .ob-ic span{font-size:38px}#onb .ob-step h2{font-size:16px}#onb .ob-prog{margin-bottom:6px}}
+#onb .ob-drop svg{width:100%;height:100%;display:block}
+#onb .ob-lbtns .b3d b{font-size:15px;white-space:nowrap}
+#onb .ob-lang h2{font-size:14px;line-height:1.7}
+
+/* ================= brand tiles: real 3D raised buttons ================= */
+.tiles{gap:14px 12px;padding:4px 4px 10px}
+.tile{position:relative;padding:14px 4px 10px;border-radius:22px;border:0;background:linear-gradient(180deg,rgba(255,255,255,.2) 0%,rgba(255,255,255,.07) 45%,rgba(0,0,0,.18) 100%),linear-gradient(160deg,#4a1426,#1c0710);
+ box-shadow:0 8px 0 #0b0307,0 14px 20px rgba(0,0,0,.55),inset 0 1.5px 0 rgba(255,255,255,.45),inset 0 -2px 0 rgba(0,0,0,.35);transition:transform .08s,box-shadow .08s}
+.tile::before{content:'';position:absolute;left:12%;right:12%;top:3px;height:34%;border-radius:20px 20px 60% 60%/20px 20px 30% 30%;background:linear-gradient(180deg,rgba(255,255,255,.28),rgba(255,255,255,0));pointer-events:none}
+.tile:active{transform:translateY(6px);box-shadow:0 2px 0 #0b0307,0 4px 8px rgba(0,0,0,.5),inset 0 1.5px 0 rgba(255,255,255,.35)}
+.tile .ti{filter:drop-shadow(0 6px 5px rgba(0,0,0,.55));transform:translateZ(0)}
+.tile .ti svg,.tile .ti img{width:50px;height:50px}
+.tile .tn{font-weight:700;letter-spacing:.02em;text-shadow:0 1px 2px rgba(0,0,0,.6)}
+.bsup{border-radius:18px;background:linear-gradient(180deg,#fff0c0 0%,#f0c75a 40%,#c8932a 100%);box-shadow:0 7px 0 #7a5410,0 12px 20px rgba(0,0,0,.5),inset 0 2px 0 rgba(255,255,255,.75);margin-top:16px;transition:transform .08s,box-shadow .08s}
+.bsup:active{transform:translateY(5px);box-shadow:0 2px 0 #7a5410,0 4px 8px rgba(0,0,0,.45)}
+.dsaa{box-shadow:0 7px 0 #0b0307,0 12px 18px rgba(0,0,0,.45)!important}
+.dsaa .dsb{background:linear-gradient(180deg,#fff0c0,#e8b84a 50%,#c8932a);color:#2a0a14;border-radius:14px;box-shadow:0 4px 0 #7a5410,inset 0 1.5px 0 rgba(255,255,255,.7)}
+.mush,.mkb{border-radius:20px!important;box-shadow:0 7px 0 #0b0307,0 13px 20px rgba(0,0,0,.5),inset 0 1.5px 0 rgba(255,255,255,.35)!important;transition:transform .08s,box-shadow .08s}
+.mush:active{transform:translateY(5px);box-shadow:0 2px 0 #0b0307,0 4px 8px rgba(0,0,0,.5)!important}
+body.light .tile{background:linear-gradient(180deg,#fff 0%,#f6ecd2 60%,#e8d9ac 100%);box-shadow:0 8px 0 #b9a36a,0 14px 20px rgba(80,60,20,.25),inset 0 1.5px 0 #fff}
+body.light .tile .tn{text-shadow:none}
+
+/* ---- background / revelation / tafseer tabs ---- */
+.nzt{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:0 0 12px}
+.nzt button{padding:10px 4px;border-radius:14px;border:0;font:700 12.5px system-ui,sans-serif;color:var(--ink);background:linear-gradient(180deg,rgba(255,255,255,.14),rgba(255,255,255,.04));box-shadow:0 4px 0 rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.3);transition:transform .08s,box-shadow .08s}
+.nzt button.on{background:linear-gradient(180deg,#fff0c0,#e8b84a 55%,#c8932a);color:#2a0a14;box-shadow:0 4px 0 #7a5410,inset 0 1.5px 0 rgba(255,255,255,.7)}
+.nzt button:active{transform:translateY(3px);box-shadow:0 1px 0 rgba(0,0,0,.45)}
+body.l-ur .nzt button{font-family:NastaliqU,serif;font-size:15px;line-height:1.9}
+#toast{z-index:400!important}
