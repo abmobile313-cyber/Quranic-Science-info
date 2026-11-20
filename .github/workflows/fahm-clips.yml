@@ -1,0 +1,46 @@
+name: Fahm clips from Drive
+on:
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency: { group: fahm-clips, cancel-in-progress: false }
+jobs:
+  clips:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download and compress clips
+        run: |
+          pip install gdown
+          mkdir -p raw fahm/video
+          python3 - <<'PY'
+          import json, subprocess, os, sys
+          ids = json.load(open('fahm-clips/ids.json'))
+          man = {}
+          bad = []
+          for k, fid in ids.items():
+              s, a = k.split('_')
+              raw = f'raw/{k}.mp4'
+              out = f'fahm/video/{k}.mp4'
+              r = subprocess.run(['gdown', '--id', fid, '-O', raw, '-q'])
+              if r.returncode != 0 or not os.path.exists(raw) or os.path.getsize(raw) < 50000:
+                  bad.append(k); print('FAILED', k); continue
+              c = subprocess.run(['ffmpeg', '-y', '-loglevel', 'error', '-i', raw,
+                  '-vf', 'scale=-2:960', '-c:v', 'libx264', '-crf', '28', '-preset', 'veryfast',
+                  '-pix_fmt', 'yuv420p', '-c:a', 'aac', '-b:a', '64k', '-movflags', '+faststart', out])
+              if c.returncode != 0:
+                  bad.append(k); print('FFMPEG FAILED', k); continue
+              man[f'{s}:{a}'] = f'{k}.mp4'
+          json.dump(man, open('fahm/video/manifest.json', 'w'), indent=0)
+          print('ok', len(man), 'bad', bad)
+          if bad: sys.exit(1)
+          PY
+          du -sh fahm/video
+      - name: Commit clips
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add fahm/video
+          git commit -m "Fahm: add per-ayah clips [skip ci]" || exit 0
+          git pull --rebase origin main
+          git push

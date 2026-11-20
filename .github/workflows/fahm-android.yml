@@ -23,6 +23,7 @@ jobs:
           rm -rf fahm-android/app/src/main/assets
           mkdir -p fahm-android/app/src/main/assets
           cp -r fahm fahm-android/app/src/main/assets/fahm
+          find fahm-android/app/src/main/assets/fahm/video -name '*.mp4' -delete 2>/dev/null || true
       - name: Build APK
         working-directory: fahm-android
         env:
