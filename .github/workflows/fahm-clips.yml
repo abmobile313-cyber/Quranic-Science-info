@@ -11,6 +11,7 @@ jobs:
       - uses: actions/checkout@v4
       - name: Download and compress clips
         run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg
           pip install gdown
           mkdir -p raw fahm/video
           python3 - <<'PY'
