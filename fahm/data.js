@@ -25,7 +25,7 @@ const F = window.FahmData = {
         S.ayat = j.a.map(a => ({
           v: a.v, ip: a.ip, j: a.j, p: a.p, sj: a.sj, tr: {},
           ar: a.w.map(x => x[0]).join(' '),
-          words: a.w.map(x => ({ ar: x[0], tl: x[1], en: x[2], ur: x[3], ru: x[4], hi: x[5], root: x[6], au: x[7], pos: x[8], form: x[9] }))
+          words: a.w.map((x, k) => ({ ar: x[0], tl: x[1], en: x[2], ur: x[3], ru: x[4], hi: x[5], root: x[6], au: p3(n) + '_' + p3(a.v) + '_' + p3(k + 1) + '.mp3', pos: x[8], form: x[9] }))
         }));
         S.loaded = true; this._roots(si);
       }

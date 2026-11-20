@@ -20,6 +20,18 @@ const RS = {
 Object.assign(RS.ur, { goto: 'کہاں جانا ہے', surahL: 'سورت', juzL: 'پارہ', go: 'جائیں', pickJuz: 'پارہ چنیں', target: 'روزانہ ہدف', resume: 'جہاں چھوڑا تھا وہیں سے', from: 'کہاں سے', to: 'کہاں تک', reps: 'کتنے دَور', quick: 'جلدی چنیں', qFat: 'فاتحہ', qJuz: 'پارہ', qAll: 'پورا قرآن', history: 'پچھلی رپورٹیں', daur: 'دَور', kWrong: 'لفظ بدلا', kSkip: 'لفظ چھوٹا', kJump: 'آیت بدلی', clean: 'درست آیات', hard: 'سخت غلطی', stall: 'اٹکا', doubt: 'شک', time: 'وقت', wpm: 'لفظ/منٹ', atka: 'یہاں اٹکے', secHard: 'سخت غلطیاں اور ان کا اثر', secStall: 'کہاں کہاں اٹکے (لقمہ)', secDoubt: 'شک والی جگہیں', doubtNote: 'یہاں ریکارڈر نے صاف نہیں سنا یا چھوٹا لفظ ہلکا چھوٹا؛ بہاؤ نہیں توڑا گیا، دوبارہ دیکھ لیں۔', secOk: 'کیا درست رہا', daurRep: 'دَور کی رپورٹ', ask: 'کیا آپ نے یہ ساری غلطیاں نوٹ کر لیں؟ کیا الگ دَور شروع کریں؟', noteNext: 'نوٹ کر لیں — اگلا دَور', noteFinal: 'نوٹ کر لیں — آخری رپورٹ', again: 'اسی دَور کو دوبارہ', stopFinal: 'رکیں — آخری رپورٹ دکھائیں', finalRep: 'آخری رپورٹ', copy: 'رپورٹ کاپی کریں', newPlan: 'نیا ہدف / دَور', close: 'بند کریں', daurs: 'دَور', avgClean: 'اوسط درست', trend: 'پہلے سے آخری دَور', secRange: 'ہدف', secPer: 'ہر دَور', secRep: 'بار بار کی غلطیاں', secImpact: 'غلطیوں سے ترجمے/معنی کا نقصان', secOkAll: 'ہر دَور میں درست رہی آیات', limits: 'نوٹ: غلطی صرف الفاظ کی سطح پر پکڑی جاتی ہے؛ زبر/زیر/تجوید کی پہچان ریکارڈر نہیں کر سکتا۔', times: 'بار', info: 'نوٹ: آواز کی پہچان انٹرنیٹ سے ہوتی ہے، صرف الفاظ جانچتی ہے (حرکات/تجوید نہیں)۔ حافظ موڈ صرف سخت غلطی (آیت بدلنا، لمبا چھوٹنا) پر روکتا ہے۔', sS: 'سخت', sN: 'درمیانی', sH: 'حافظ (تیز رفتار)' });
 Object.assign(RS.ru, { goto: 'Kahan jana hai', surahL: 'Surah', juzL: 'Para', go: 'Jayein', pickJuz: 'Para chunein', target: 'Rozana target', resume: 'Jahan chhoda tha wahin se', from: 'Kahan se', to: 'Kahan tak', reps: 'Kitne daur', quick: 'Jaldi chunein', qFat: 'Fatiha', qJuz: 'Para', qAll: 'Poora Quran', history: 'Pichhli reports', daur: 'Daur', kWrong: 'Lafz badla', kSkip: 'Lafz chhoota', kJump: 'Ayat badli', clean: 'Durust ayat', hard: 'Sakht galti', stall: 'Atke', doubt: 'Shak', time: 'Waqt', wpm: 'lafz/min', atka: 'Yahan atke', secHard: 'Sakht galtiyan aur unka asar', secStall: 'Kahan kahan atke (lukma)', secDoubt: 'Shak wali jagahein', doubtNote: 'Yahan recogniser ne saaf nahin suna ya chhota lafz halka chhoota; rawani nahin todi gayi, dobara dekh lein.', secOk: 'Kya durust raha', daurRep: 'Daur ki report', ask: 'Kya aapne yeh saari galtiyan note kar li? Kya alag daur shuru karein?', noteNext: 'Note kar li — agla daur', noteFinal: 'Note kar li — final report', again: 'Isi daur ko dobara', stopFinal: 'Rukein — final report dikhayein', finalRep: 'Final report', copy: 'Report copy karein', newPlan: 'Naya target / daur', close: 'Band karein', daurs: 'Daur', avgClean: 'Ausat durust', trend: 'Pehle se aakhri daur', secRange: 'Target', secPer: 'Har daur', secRep: 'Baar baar ki galtiyan', secImpact: 'Galtiyon se tarjme/matlab ka nuksan', secOkAll: 'Har daur mein durust rahi ayat', limits: 'Note: galti sirf alfaaz ki satah par pakdi jaati hai; zabar/zer/tajweed ki pehchan recogniser nahin kar sakta.', times: 'baar', info: 'Note: awaaz ki pehchan internet se hoti hai aur sirf alfaaz jaanchti hai (harakat/tajweed nahin). Hafiz mode sirf sakht galti (ayat badalna, lamba chhootna) par rokta hai.', sS: 'Sakht', sN: 'Darmiyani', sH: 'Hafiz (tez raftar)' });
 Object.assign(RS.en, { goto: 'Go to', surahL: 'Surah', juzL: 'Juz (Para)', go: 'Go', pickJuz: 'Pick a Juz', target: 'Daily target', resume: 'Continue where you left off', from: 'From', to: 'To', reps: 'Number of rounds', quick: 'Quick pick', qFat: 'Fatiha', qJuz: 'Para (Juz)', qAll: 'Whole Quran', history: 'Past reports', daur: 'Round', kWrong: 'Word changed', kSkip: 'Word skipped', kJump: 'Ayah changed', clean: 'Clean ayat', hard: 'Hard mistakes', stall: 'Stalls', doubt: 'Doubts', time: 'Time', wpm: 'words/min', atka: 'Stalled here', secHard: 'Hard mistakes and their effect', secStall: 'Where you stalled (prompt)', secDoubt: 'Doubtful spots', doubtNote: 'The recogniser did not hear these clearly or a small word slipped; the flow was not interrupted — please recheck.', secOk: 'What went right', daurRep: 'Round report', ask: 'Did you note all these mistakes? Start another round?', noteNext: 'Noted — next round', noteFinal: 'Noted — final report', again: 'Repeat this round', stopFinal: 'Stop — show final report', finalRep: 'Final report', copy: 'Copy report', newPlan: 'New target / rounds', close: 'Close', daurs: 'Rounds', avgClean: 'Avg clean', trend: 'First to last round', secRange: 'Target', secPer: 'Each round', secRep: 'Repeated mistakes', secImpact: 'Loss to translation / meaning', secOkAll: 'Ayat clean in every round', limits: 'Note: mistakes are caught at word level only; zabar/zer/tajweed cannot be detected by the recogniser.', times: 'times', info: 'Note: recognition needs internet and checks words only (not harakat/tajweed). Hafiz mode interrupts only for hard mistakes (changed ayah, long skip).', sS: 'Strict', sN: 'Normal', sH: 'Hafiz (fast pace)' });
+Object.assign(RS.ru, { rgT: 'Ayat ka daur (range) chalayein', rgH: 'Shuruaati aur aakhri ayat chunein.', rgS: 'Shuru ki ayat', rgE: 'Aakhri ayat', rgSu: 'Surah', rgAy: 'Ayat', rgGo: 'Shuru karein', rgNo: 'Wapas', rgRep: 'Kitni baar dohrayein' });
+Object.assign(RS.en, { rgT: 'Play Ayah Range', rgH: 'Configure the start and end ayah for your playback.', rgS: 'Start Ayah', rgE: 'End Ayah', rgSu: 'Surah', rgAy: 'Ayah', rgGo: 'Start', rgNo: 'Cancel', rgRep: 'Repeat' });
+Object.assign(RS.ur, { rgT: 'آیات کی رینج چلائیں', rgH: 'شروع اور آخری آیت منتخب کریں۔', rgS: 'ابتدائی آیت', rgE: 'آخری آیت', rgSu: 'سورت', rgAy: 'آیت', rgGo: 'شروع کریں', rgNo: 'منسوخ', rgRep: 'کتنی بار دہرائیں' });
+Object.assign(RS.ru, { wrL: 'Sakht galti par awaaz', wrAll: 'Teeno (Eng+Urdu+Arabi)', wrUr: 'Urdu', wrEn: 'English', wrAr: 'Arabi', wrOff: 'Band' });
+Object.assign(RS.en, { wrL: 'Voice on a serious mistake', wrAll: 'All three (Eng+Urdu+Arabic)', wrUr: 'Urdu', wrEn: 'English', wrAr: 'Arabic', wrOff: 'Off' });
+Object.assign(RS.ur, { wrL: 'سخت غلطی پر آواز', wrAll: 'تینوں (انگریزی+اردو+عربی)', wrUr: 'اردو', wrEn: 'انگریزی', wrAr: 'عربی', wrOff: 'بند' });
+Object.assign(RS.ru, { bmT: 'Bookmark', bmAdd: 'Is page par bookmark lagao', bmDel: 'Is page ka bookmark hatao', bmNone: 'Abhi koi bookmark nahin', bmP: 'Safha' });
+Object.assign(RS.en, { bmT: 'Bookmarks', bmAdd: 'Bookmark this page', bmDel: 'Remove bookmark from this page', bmNone: 'No bookmarks yet', bmP: 'Page' });
+Object.assign(RS.ur, { bmT: 'بک مارک', bmAdd: 'اس صفحے پر بک مارک لگائیں', bmDel: 'اس صفحے کا بک مارک ہٹائیں', bmNone: 'ابھی کوئی بک مارک نہیں', bmP: 'صفحہ' });
+Object.assign(RS.ru, { rkS: 'Ruku ke hisaab se', rkW: 'Ruku', rkF: 'Kis ruku se', rkT: 'Kis ruku tak', rkN: 'ruku', rkP: 'Para' });
+Object.assign(RS.en, { rkS: 'By ruku', rkW: 'Ruku', rkF: 'From ruku', rkT: 'To ruku', rkN: 'ruku', rkP: 'Para' });
+Object.assign(RS.ur, { rkS: 'رکوع کے حساب سے', rkW: 'رکوع', rkF: 'کس رکوع سے', rkT: 'کس رکوع تک', rkN: 'رکوع', rkP: 'پارہ' });
 Object.assign(RS.ru, { corL: 'Galti par sahi ayat kaun sunaye', corQ: 'Qari', corM: 'Meri apni awaaz', corN: 'Apni awaaz tabhi bajegi jab us ayat ki apni recording save ho; warna Qari sunaayega.' });
 Object.assign(RS.en, { corL: 'Who recites the fix after a mistake', corQ: 'Qari', corM: 'My own voice', corN: 'Your own voice plays only if that ayah was saved in your recordings; otherwise the Qari recites it.' });
 Object.assign(RS.ur, { corL: 'غلطی پر صحیح آیت کون سنائے', corQ: 'قاری', corM: 'میری اپنی آواز', corN: 'اپنی آواز تبھی چلے گی جب اس آیت کی ریکارڈنگ محفوظ ہو؛ ورنہ قاری سنائے گا۔' });
@@ -122,13 +134,14 @@ function popGoto() {
 
 /* ---------- rendering ---------- */
 function ratio() { const st = $('#rstage'); const r = (st.clientWidth - 16) / Math.max(1, st.clientHeight - 16); return r > 1.1 ? 0.66 : Math.max(0.56, Math.min(0.7, r)); }
-function rowsOf() { return lay === '15' ? 15 : 13; }
+let archRows = 0;
+function rowsOf() { return archRows || (lay === '15' ? 15 : 13); }
 function sizePage() {
   const st = $('#rstage'), z = A.st().rz || 1, sw = st.clientWidth - 16, sh = st.clientHeight - 16, r = ratio();
-  const w = sw > sh * 1.1 ? Math.max(200, Math.min(sw, 640)) * z : Math.max(200, Math.min(sw, sh * r)) * z;   /* landscape: full-width page, scroll down */ const p = $('#rpage'); p.style.width = w + 'px'; p.style.height = (w / r) + 'px';
+  const w = sw > sh * 1.1 ? Math.max(200, Math.min(sw, 640)) * z : Math.max(200, Math.min(sw, sh * r)) * z;   /* landscape: full-width page, scroll down */ const p = $('#rpage'); p.style.width = w + 'px'; p.style.height = (w / r) + 'px'; p.style.setProperty('--pw', w + 'px'); drawFrame(w, w / r);
 }
 function fit() {
-  const inner = $('#rin'); if (!inner) return; const rows = rowsOf();
+  const inner = $('#rin'); if (!inner || pi < 0) return; const rows = rowsOf();
   const W = inner.clientWidth, Hh = inner.clientHeight, rowH = Hh / rows;
   let fs = rowH * 0.78; $('#rpage').style.setProperty('--fs', fs + 'px');
   for (let it = 0; it < 3; it++) {
@@ -170,23 +183,72 @@ function headerHtml(lines) {
 function wordHtml(x) {
   const loc = locOf(x.s, x.a, x.w), c = ['wd']; if (isMk(x.t)) c.push('mk');
   if (okSet.has(loc)) c.push('ok');
-  if (isMk(x.t)) { ornSets(); const ak = x.s + ':' + x.a; if (RUKE.has(ak)) c.push('ruk'); if (SAJ.has(ak)) c.push('saj'); }
+  if (isMk(x.t)) { ornSets(); const ak = x.s + ':' + x.a; if (SAJ.has(ak)) c.push('saj'); }
   return `<span class="${c.join(' ')}" data-loc="${loc}">${esc(x.t)}</span>`;
 }
+
+/* ---------- ornamental mushaf frame (olive arabesque band, mihrab arch on the first pages) + book cover ---------- */
+function frameSvg(w, h, arch) {
+  const a = Math.max(4, w * .013), bt = Math.max(14, w * .05), s = bt, m = s / 2, c = w / 2;
+  const x0 = a + bt, y0 = a + bt, x1 = w - a - bt, y1 = h - a - bt;
+  const outer = `M${a} ${a}H${w - a}V${h - a}H${a}Z`;
+  let inner;
+  if (arch) {
+    const ys = h * .30, yt = y0 + h * .012, dy = ys - yt;
+    inner = `M${x0} ${y1}V${ys}C${x0} ${ys - dy * .5} ${c - w * .13} ${yt + dy * .36} ${c} ${yt}C${c + w * .13} ${yt + dy * .36} ${x1} ${ys - dy * .5} ${x1} ${ys}V${y1}Z`;
+  } else inner = `M${x0} ${y0}H${x1}V${y1}H${x0}Z`;
+  const pat = `<pattern id="rfp" width="${s}" height="${s}" patternUnits="userSpaceOnUse"><rect width="${s}" height="${s}" fill="currentColor" opacity=".10"/><g fill="none" stroke="currentColor" stroke-width="1.1"><path d="M0 ${m}C${s * .25} ${s * .04} ${s * .75} ${s * .04} ${s} ${m}C${s * .75} ${s * .96} ${s * .25} ${s * .96} 0 ${m}Z"/><circle cx="${m}" cy="${m}" r="${s * .12}"/><path id="rfl" d="M${m} ${s * .18}C${s * .37} ${s * .3} ${s * .37} ${s * .42} ${m} ${s * .5}C${s * .63} ${s * .42} ${s * .63} ${s * .3} ${m} ${s * .18}Z"/><path d="M${m} ${s * .18}C${s * .37} ${s * .3} ${s * .37} ${s * .42} ${m} ${s * .5}C${s * .63} ${s * .42} ${s * .63} ${s * .3} ${m} ${s * .18}Z" transform="rotate(90 ${m} ${m})"/><circle cx="0" cy="0" r="${s * .06}"/><circle cx="${s}" cy="0" r="${s * .06}"/><circle cx="0" cy="${s}" r="${s * .06}"/><circle cx="${s}" cy="${s}" r="${s * .06}"/></g></pattern>`;
+  let orn = '';
+  if (arch === 2) {
+    const cy = h * .185, R = w * .082, pts = []; for (let i = 0; i < 16; i++) { const r = i % 2 ? R * .46 : R * .92, t = i * Math.PI / 8 - Math.PI / 2; pts.push((c + r * Math.cos(t)).toFixed(1) + ',' + (cy + r * Math.sin(t)).toFixed(1)); }
+    const dts = Array.from({ length: 24 }, (_, i) => { const t = i * Math.PI / 12; return `<circle cx="${(c + R * 1.2 * Math.cos(t)).toFixed(1)}" cy="${(cy + R * 1.2 * Math.sin(t)).toFixed(1)}" r="${(w * .0035).toFixed(1)}" fill="currentColor"/>`; }).join('');
+    const ln = d => `<path d="M${c + d * R * 1.55} ${cy}H${c + d * R * 2.6}" stroke="currentColor" stroke-width="1.2"/><path d="M${c + d * R * 2.6} ${cy - 5}l${d * 6} 5-${d * 6} 5-${d * 6}-5z" fill="currentColor"/><circle cx="${c + d * R * 1.55}" cy="${cy}" r="${w * .006}" fill="currentColor"/>`;
+    orn = `<g color="inherit"><circle cx="${c}" cy="${cy}" r="${R * 1.08}" fill="var(--pgbg)" stroke="currentColor" stroke-width="2"/><polygon points="${pts.join(' ')}" fill="currentColor" opacity=".9"/><circle cx="${c}" cy="${cy}" r="${R * .3}" fill="var(--pgbg)" stroke="currentColor" stroke-width="1.4"/><circle cx="${c}" cy="${cy}" r="${R * .12}" fill="currentColor"/>${dts}${ln(1)}${ln(-1)}</g>`;
+  }
+  return `<svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" aria-hidden="true"><defs>${pat}</defs>` +
+    `<path d="${outer} ${inner}" fill="url(#rfp)" fill-rule="evenodd"/>` +
+    `<path d="${outer}" fill="none" stroke="currentColor" stroke-width="${Math.max(3, w * .008)}"/><path d="${outer}" fill="none" stroke="var(--pgbg)" stroke-width="${Math.max(1, w * .003)}"/>` +
+    `<path d="M${a + 3.5} ${a + 3.5}H${w - a - 3.5}V${h - a - 3.5}H${a + 3.5}Z" fill="none" stroke="currentColor" stroke-width="1"/>` +
+    `<path d="${inner}" fill="none" stroke="currentColor" stroke-width="${Math.max(3, w * .008)}"/><path d="${inner}" fill="none" stroke="var(--pgbg)" stroke-width="${Math.max(1, w * .003)}"/>` +
+    (arch ? `<path d="${inner}" transform="translate(${c} ${h / 2}) scale(.975) translate(${-c} ${-h / 2})" fill="none" stroke="currentColor" stroke-width="1" opacity=".7"/>` : '') + orn + `</svg>`;
+}
+function drawFrame(w, h) {
+  const p = $('#rpage'); if (!p) return; let f = $('#rfr'); if (!f) { f = document.createElement('div'); f.id = 'rfr'; p.insertBefore(f, p.firstChild); }
+  const ar0 = p.classList.contains('arch'), cv = p.classList.contains('cover'), arch = ar0 ? 2 : 0, k = Math.round(w) + 'x' + Math.round(h) + (arch ? 'a' + arch : 'r'); if (f.dataset.k === k) return; f.dataset.k = k; f.innerHTML = frameSvg(w, h, arch);
+}
+function coverHtml() {
+  const n = lay === '15' ? 15 : 13, nm = { '15': ['حافظی مصحف', 'Hafizi · IndoPak'], '13q': ['قدرت اللہ مصحف', 'Qudratullah'], '13t': ['تاج کمپنی مصحف', 'Taj Company'] }[lay] || ['', ''];
+  const lobes = [0, 1, 2, 3, 4, 5, 6, 7].map(i => { const t = i * Math.PI / 4 + Math.PI / 8; return `<circle cx="${(100 + 60 * Math.cos(t)).toFixed(1)}" cy="${(100 + 60 * Math.sin(t)).toFixed(1)}" r="27" fill="none" stroke="currentColor" stroke-width="1.6"/>`; }).join('') + [0, 1, 2, 3, 4, 5, 6, 7].map(i => { const t = i * Math.PI / 4; return `<circle cx="${(100 + 60 * Math.cos(t)).toFixed(1)}" cy="${(100 + 60 * Math.sin(t)).toFixed(1)}" r="27" fill="var(--pgbg)" stroke="currentColor" stroke-width="2.2"/>`; }).join('');
+  const dots = Array.from({ length: 48 }, (_, i) => { const t = i * Math.PI / 24; return `<circle cx="${(100 + 96 * Math.cos(t)).toFixed(1)}" cy="${(100 + 96 * Math.sin(t)).toFixed(1)}" r="1.5" fill="currentColor"/>`; }).join('');
+  const med = `<svg viewBox="0 0 200 200" class="cv-svg" aria-hidden="true">${dots}${lobes}<circle cx="100" cy="100" r="62" fill="var(--pgbg)" stroke="currentColor" stroke-width="3"/><circle cx="100" cy="100" r="56" fill="none" stroke="currentColor" stroke-width="1"/></svg><img class="cv-logo" src="icons/qs-logo.webp" alt="Quranic Science" draggable="false">`;
+  const orn = `<svg viewBox="0 0 120 12" class="cv-or" aria-hidden="true"><path d="M0 6H46M74 6H120" stroke="currentColor" stroke-width="1"/><path d="M60 0l6 6-6 6-6-6z" fill="currentColor"/><circle cx="48" cy="6" r="2" fill="currentColor"/><circle cx="72" cy="6" r="2" fill="currentColor"/></svg>`;
+  return `<div class="cv"><div class="cv-md"><img class="cv-app" src="icons/icon-512.png" alt="Fahmul Quraan by Quranic Science" draggable="false"></div>` +
+    `<div class="cv-ln"><span class="cv-n">${n}</span><span class="cv-l"><b>LINES</b><i>سطری</i></span></div><div class="cv-sub">${nm[0]} · ${nm[1]}</div>` +
+    `<div class="cv-by">${orn}<b>by Quranic Science</b><span>قرآنک سائنس</span></div></div>`;
+}
+function renderCover() {
+  const pg = $('#rpage'); pg.classList.add('arch', 'cover'); pg.classList.remove('mem'); archRows = 0;
+  $('#rin').innerHTML = coverHtml(); $('#rhd').innerHTML = ''; $('#rpn').textContent = '';
+  sizePage(); const ur = A.st().ui === 'ur';
+  bmUpd(); $('#rTitle').textContent = 'Fahmul Quraan'; $('#rPg').textContent = (ur ? ad(0) + ' / ' + ad(PG.length) : '0 / ' + PG.length);
+}
 function renderPage(anim) {
-  const L = M.L[lay], lines = L.pages[PG[pi]], rows = rowsOf();
+  if (pi < 0) { renderCover(); return; }
+  const L = M.L[lay], lines = L.pages[PG[pi]];
+  const arch = +PG[pi] <= 2; let nE = lines.filter(ln => lineParts(ln).k !== 'e').length; archRows = arch ? Math.max(10, nE + 1) : 0; const rows = rowsOf();
+  { const p0 = $('#rpage'); p0.classList.remove('cover'); p0.classList.toggle('arch', arch); }
   let h = '';
   lines.forEach(ln => {
     const { k, a, b } = lineParts(ln);
-    if (k === 'e') h += '<div class="ml e"></div>';
+    if (k === 'e') { if (!arch) h += '<div class="ml e"></div>'; }
     else if (k === 'b') h += `<div class="ml b">${M.w['1:1'].slice(0, 4).map(esc).join(' ')}</div>`;
     else if (k[0] === 'h') h += bannerHtml(+k.slice(1));
-    else { const ws = rangeLocs(a, b); let rm = '', rb = ''; ws.forEach(x => { if (x.w === 1 && window.FAHM_RUB) { rubSet(); const ri = RUBI[x.s + ':' + x.a]; if (ri !== undefined) rb = rubMark(ri); } if (isMk(x.t)) { ornSets(); if (RUKE.has(x.s + ':' + x.a)) rm = `<span class="rm"><b>ع</b><i>${adx(x.a)}</i><u>${adx(rukuInfo(x.s, x.a))}</u></span>`; } }); h += `<div class="ml ${k}">${ws.map(wordHtml).join('')}${rm}${rb}</div>`; }
+    else { const ws = rangeLocs(a, b); let rm = '', rb = ''; ws.forEach(x => { if (x.w === 1 && window.FAHM_RUB) { rubSet(); const ri = RUBI[x.s + ':' + x.a]; if (ri !== undefined) rb = rubMark(ri); } if (isMk(x.t)) { ornSets(); if (RUKE.has(x.s + ':' + x.a)) rm = `<span class="rm" title="${adx(rukuInfo(x.s, x.a))}"><b>ع</b></span>`; } }); h += `<div class="ml ${k}">${ws.map(wordHtml).join('')}${rm}${rb}</div>`; }
   });
   const pg = $('#rpage'); pg.classList.toggle('mem', hz.on && A.st().hmode === 'mem');
   $('#rin').innerHTML = h; $('#rin').style.setProperty('--rows', rows);
   { ornSets(); const f0 = lines.map(lineParts).find(x => x.a); const mz = f0 ? manzilOfAi(AYI[f0.a.split(':').slice(0, 2).join(':')]) : 0; $('#rpn').textContent = mz ? 'منزل ' + adx(mz) : ''; $('#rhd').innerHTML = headerHtml(lines); }
-  sizePage(); fit();
+  sizePage(); fit(); bmUpd();
   warm(pageSurah(pi));
   $('#rTitle').textContent = surahName(pageSurah(pi)) + ' · ' + R('pg') + ' ' + (A.st().ui === 'ur' ? ad(PG[pi]) : PG[pi]);
   $('#rPg').textContent = (A.st().ui === 'ur' ? ad(pi + 1) + ' / ' + ad(PG.length) : (pi + 1) + ' / ' + PG.length);
@@ -257,7 +319,7 @@ function flipFx(dir, run) {
   }
   draw(fwd ? 0 : 1); requestAnimationFrame(step);
 }
-function goPage(i, anim) { i = Math.max(0, Math.min(PG.length - 1, i)); if (i === pi && $('#rin').children.length) return; const dir = i > pi ? 'next' : 'prev'; pi = i; if (anim !== false && open) flipFx(dir, () => renderPage(false)); else renderPage(anim !== false); }
+function goPage(i, anim) { i = Math.max(-1, Math.min(PG.length - 1, i)); if (i === pi && $('#rin').children.length) return; const dir = i > pi ? 'next' : 'prev'; pi = i; if (anim !== false && open) flipFx(dir, () => renderPage(false)); else renderPage(anim !== false); }
 function ensureLoc(loc) { const i = LP[loc]; if (i !== undefined && i !== pi) goPage(i); }
 
 /* ---------- ayah audio + live word highlight ---------- */
@@ -280,12 +342,16 @@ function startTick() {
   }, 50);
 }
 function setPlaying(p) { playing = p; $('#rIcoP').style.display = p ? 'none' : ''; $('#rIcoS').style.display = p ? '' : 'none'; }
-function stopAudio() { stopMine(); stopCorr(); seqOn = false; rau.onended = null; rau.onerror = null; try { rau.pause(); } catch (e) { } clearInterval(tickT); setPlaying(false); clearHl(); document.querySelectorAll('#rpage .rev').forEach(e => e.classList.remove('rev')); hot = null; }
-function playSeq(ai) {
+function stopAudio() { stopMine(); stopCorr(); try { speechSynthesis.cancel(); } catch (e) { } seqOn = false; rau.onended = null; rau.onerror = null; try { rau.pause(); } catch (e) { } clearInterval(tickT); setPlaying(false); clearHl(); document.querySelectorAll('#rpage .rev').forEach(e => e.classList.remove('rev')); hot = null; }
+let seqEnd = -1, seqFrom = 0, seqLeft = 1;
+function playRange(fi, ti, reps) { stopAudio(); seqEnd = ti; seqFrom = fi; seqLeft = Math.max(1, reps || 1); playSeq(fi, true); }
+function playSeq(ai, keep) {
+  if (!keep) seqEnd = -1;
+  if (seqEnd >= 0 && ai > seqEnd) { if (seqLeft > 1) { seqLeft--; ai = seqFrom; } else { seqEnd = -1; stopAudio(); return; } }
   if (ai >= AY.length) { stopAudio(); return; }
   seqOn = true; const y = AY[ai]; setCur(y.s, y.a); setPlaying(true);
   rau.onerror = () => { stopAudio(); A.toast(R('audioErr')); };
-  rau.onended = () => { if (seqOn) playSeq(ai + 1); };
+  rau.onended = () => { if (seqOn) playSeq(ai + 1, true); };
   rau.src = auUrl(y.s, y.a); setRate(rau, 1); const pr = rau.play(); if (pr && pr.catch) pr.catch(() => { stopAudio(); A.toast(R('audioErr')); });
   startTick();
 }
@@ -463,12 +529,27 @@ async function playCorrection(ai, cb) {
   src.buffer = sl.buf; src.connect(ac.destination); src.onended = done; const t0 = ac.currentTime; src.start(0, off, dur);
   clearInterval(tickT); tickT = setInterval(() => { if (!c.dead) hotAt(y, (ac.currentTime - t0) / dur); }, 70);
 }
+/* serious mistake (wrong ayah / jump / skip): the app speaks "Hafiz sahab, stop — you read it wrong" in English, Urdu and Arabic (phone voices), then the correction plays */
+const WARN = { en: ['Hafiz sahab, please stop. You have read it wrong.', 'en-US'], ur: ['حافظ صاحب، رکیے! آپ نے غلط پڑھا۔', 'ur-PK'], ar: ['يا حافظ، قف! لقد أخطأت في القراءة.', 'ar-SA'] };
+function speakWarn(done) {
+  const m = A.st().hwarn || 'all'; let fin = false; const end = () => { if (fin) return; fin = true; clearTimeout(tm); done && done(); };
+  if (m === 'off' || !('speechSynthesis' in window)) { end(); return; }
+  const order = m === 'all' ? ['en', 'ur', 'ar'] : [m]; let tm = setTimeout(end, 14000), i = 0;
+  const nx = () => {
+    if (fin || !hz.on) { end(); return; } if (i >= order.length) { end(); return; }
+    const [txt, lang] = WARN[order[i++]]; let vs = []; try { vs = speechSynthesis.getVoices(); } catch (e) { }
+    const v = vs.find(x => x.lang === lang) || vs.find(x => x.lang.slice(0, 2) === lang.slice(0, 2));
+    if (vs.length && !v) { nx(); return; }
+    try { const u = new SpeechSynthesisUtterance(txt); u.lang = lang; if (v) u.voice = v; u.rate = .92; u.onend = nx; u.onerror = nx; speechSynthesis.speak(u); } catch (e) { nx(); }
+  };
+  try { speechSynthesis.cancel(); } catch (e) { } nx();
+}
 function hzMistake(ev) {
   busyOn(); recStop(); const w = SC[ev.idx], ai = w.ai, y = AY[ai];
   hz.cur.mist.push({ ai, idx: ev.idx, kind: ev.kind, n: ev.n || 0, to: ev.to, heard: ev.heard, t: Date.now() - hz.cur.t0, abs: Date.now() });
   const e = q(w.loc); if (e) { e.classList.add('bad'); e.classList.remove('ok'); } okSet.delete(w.loc);
   hzStatus('wrong', 'bad'); beep();
-  setTimeout(() => { if (!hz.on) return; playCorrection(ai, () => { if (hz.on) hzResume(ai); }); }, 650);
+  setTimeout(() => { if (!hz.on) return; speakWarn(() => { if (hz.on) playCorrection(ai, () => { if (hz.on) hzResume(ai); }); }); }, 650);
 }
 function hzLukma() {
   if (hz.busy || !hz.tr || hz.tr.done()) return; busyOn(); recStop();
@@ -497,6 +578,30 @@ function endForAmt(fi, amt) {
   return endByWords(fi, amt * avgJuz());
 }
 function planSummary(fi, ti) { const w = AY[ti].last - AY[fi].first + 1, p = Math.round(w / avgJuz() * 100) / 100, ur = A.st().ui === 'ur'; return (ur ? ad(ti - fi + 1) : ti - fi + 1) + ' ' + R('ayW') + ' · ≈ ' + (ur ? String(p).replace(/\d/g, d => '۰۱۲۳۴۵۶۷۸۹'[d]) : p) + ' ' + R('paraW'); }
+
+/* ruku based target: the rukus of a para (a ruku belongs to the para where it ends, like the printed mushaf) */
+function rukuList(j) {
+  const R0 = M.meta.R, [a, b] = juzRange(j), out = [];
+  for (let i = 0; i < R0.length; i++) {
+    const st0 = AYI[R0[i][0] + ':' + R0[i][1]]; if (st0 == null) continue;
+    const e = i + 1 < R0.length ? AYI[R0[i + 1][0] + ':' + R0[i + 1][1]] - 1 : AY.length - 1;
+    if (e >= a && e <= b) out.push({ fi: Math.max(st0, a), ti: e });
+  }
+  return out;
+}
+function rukuState() {
+  const st = A.st(), pl = planDefault(), fi = AYI[pl.fs + ':' + pl.fa], ti = AYI[pl.ts + ':' + pl.ta], k = st.hrk;
+  const j = k && k.j && fi != null && juzOfAi(fi) !== k.j && k.f != null && !(fi >= juzRange(k.j)[0] && fi <= juzRange(k.j)[1]) ? juzOfAi(fi) : (k && k.j && fi != null && fi >= juzRange(k.j)[0] && fi <= juzRange(k.j)[1] ? k.j : juzOfAi(fi == null ? 0 : fi));
+  const L = rukuList(j), n = L.length || 1; let f = 1, t = n;
+  if (fi != null && ti != null) { const f1 = L.findIndex(r => r.ti >= fi); f = f1 < 0 ? 1 : f1 + 1; let t1 = -1; L.forEach((r, i) => { if (r.fi <= ti) t1 = i; }); t = t1 < 0 ? n : Math.max(f, t1 + 1); }
+  return { j, L, f, t };
+}
+function applyRuku(j, f, t) {
+  const L = rukuList(j); if (!L.length) return; f = Math.max(1, Math.min(L.length, f)); t = Math.max(f, Math.min(L.length, t));
+  const y = AY[L[f - 1].fi], z = AY[L[t - 1].ti], pl = Object.assign({}, planDefault());
+  pl.fs = y.s; pl.fa = y.a; pl.ts = z.s; pl.ta = z.a; pl.amt = 0; A.st().hplan = pl; A.st().hrk = { j, f, t }; A.save();
+}
+function planSummaryR() { const k = rukuState(), ur = A.st().ui === 'ur', n = k.t - k.f + 1; return (ur ? ad(n) : n) + ' ' + R('rkN'); }
 function popSetup() {
   const st = A.st(), pl = planDefault(), ur = st.ui === 'ur', last = st.hlast && AYI[st.hlast.s + ':' + st.hlast.a] != null ? st.hlast : null;
   const fi = AYI[pl.fs + ':' + pl.fa], ti = AYI[pl.ts + ':' + pl.ta];
@@ -509,6 +614,8 @@ function popSetup() {
     (last ? `<button class="po" data-hres="1">${esc(R('resume'))}: ${esc(surahName(last.s))} ${ur ? ad(last.a) : last.a}</button>` : '') +
     `<div class="sec">${esc(R('from'))}</div><div class="card"><div class="pr"><select id="tfS" class="sel">${sOpt(pl.fs)}</select><select id="tfA" class="sel">${aOpt(pl.fs, pl.fa)}</select></div>` +
     `<div class="pr"><select id="tJ" class="sel"><option value="">${esc(R('fromPara'))}…</option>${Array.from({ length: 30 }, (_, i) => `<option value="${i + 1}">${esc(R('paraW'))} ${ur ? ad(i + 1) : i + 1}</option>`).join('')}</select></div></div>` +
+    (() => { const k = rukuState(), nr = k.L.length, ur2 = ur, nn = v => ur2 ? ad(v) : v, ro = (sel) => Array.from({ length: nr }, (_, i) => `<option value="${i + 1}" ${i + 1 === sel ? 'selected' : ''}>${esc(R('rkW'))} ${nn(i + 1)}</option>`).join('');
+      return `<div class="sec">${esc(R('rkS'))}</div><div class="card"><div class="pr"><select id="rkJ" class="sel">${Array.from({ length: 30 }, (_, i) => `<option value="${i + 1}" ${i + 1 === k.j ? 'selected' : ''}>${esc(R('rkP'))} ${nn(i + 1)}</option>`).join('')}</select></div><div class="pr"><span>${esc(R('rkF'))}</span><select id="rkF" class="sel">${ro(k.f)}</select></div><div class="pr"><span>${esc(R('rkT'))}</span><select id="rkT" class="sel">${ro(k.t)}</select></div><div class="sum">${esc(planSummaryR())} / ${nn(nr)}</div></div>`; })() +
     `<div class="sec">${esc(R('amt'))}</div><div class="chips">${am}<button class="po sm" data-q="fat">${esc(R('qFat'))}</button><button class="po sm" data-q="all">${esc(R('qAll'))}</button></div>` +
     `<div class="sec">${esc(R('to'))}</div><div class="card"><div class="pr"><select id="ttS" class="sel">${sOpt(pl.ts)}</select><select id="ttA" class="sel">${aOpt(pl.ts, pl.ta)}</select></div></div>` +
     `<div class="sum">${esc(planSummary(Math.min(fi, ti), Math.max(fi, ti)))}</div>` +
@@ -731,9 +838,37 @@ function popHist() {
 
 /* ---------- UI ---------- */
 function popClose() { $('#rpop').hidden = true; $('#rpop').dataset.pk = ''; }
+/* ---------- bookmarks (page ribbon + list) ---------- */
+function bmLoad() { try { const a = JSON.parse(localStorage.getItem('fahm.bm') || '[]'); return Array.isArray(a) ? a : []; } catch (e) { return []; } }
+function bmSave(a) { try { localStorage.setItem('fahm.bm', JSON.stringify(a)); } catch (e) { } }
+function bmPage(b) { const ai = AYI[b.s + ':' + b.a]; return ai == null ? -2 : pageOfAi(ai); }
+function bmHere() { return pi >= 0 ? bmLoad().filter(b => bmPage(b) === pi) : []; }
+function bmFirstAy() { const x = SC.find(y => LP[y.loc] === pi); return x ? AY[x.ai] : null; }
+function bmUpd() { const p = $('#rpage'); if (!p) return; let r = $('#rbmk'); const on = pi >= 0 && bmHere().length > 0; if (!r) { r = document.createElement('div'); r.id = 'rbmk'; r.innerHTML = '<svg viewBox="0 0 24 36" aria-hidden="true"><path d="M2 0h20v34l-10-8-10 8z" fill="#c8323e" stroke="#f1dca0" stroke-width="1.4"/></svg>'; p.appendChild(r); } r.hidden = !on; const b = $('#rBm'); if (b) b.classList.toggle('on', on); }
+function popBm() {
+  const st = A.st(), ur = st.ui === 'ur', nn = v => ur ? ad(v) : v, L = bmLoad(), here = pi >= 0 && bmHere().length > 0;
+  const rows = L.map((b, i) => `<div class="bmr"><button class="po" data-bmgo="${i}">${esc(surahName(b.s))} · ${esc(R('bmP'))} ${nn(bmPage(b) >= 0 ? PG[bmPage(b)] : '')} · ${nn(b.a)}</button><button class="po sm" data-bmx="${i}" aria-label="Delete">✕</button></div>`).join('');
+  $('#rpop').dataset.pk = 'b';
+  $('#rpop').innerHTML = `<h4>🔖 ${esc(R('bmT'))}</h4>` + (pi >= 0 ? `<button class="po ${here ? 'on' : ''}" data-bmadd="1">${esc(here ? R('bmDel') : R('bmAdd'))}</button>` : '') + (rows || `<div class="pr"><span>${esc(R('bmNone'))}</span></div>`);
+  $('#rpop').hidden = false;
+}
 function popLayout() {
   const st = A.st(); const row = (k, t, on) => `<button class="po ${on ? 'on' : ''}" data-lay="${k}">${esc(t)}</button>`;
-  $('#rpop').innerHTML = `<h4>${esc(R('layout'))}</h4>` + ['15', '13q', '13t'].map(k => row(k, R('lay' + k), lay === k)).join('') + ``;
+  $('#rpop').innerHTML = `<h4>${esc(R('layout'))}</h4>` + ['15', '13q', '13t'].map(k => row(k, R('lay' + k), lay === k)).join('') + `<button class="po" data-rgopen="1">▶ ${esc(R('rgT'))}</button>`;
+  $('#rpop').hidden = false;
+}
+function popRange() {
+  const st = A.st(), ur = st.ui === 'ur', cur0 = curAy && AYI[curAy.s + ':' + curAy.a] != null ? AY[AYI[curAy.s + ':' + curAy.a]] : AY[0];
+  let e0 = cur0; for (let i = AYI[cur0.s + ':' + cur0.a]; i < AY.length && AY[i].s === cur0.s; i++) e0 = AY[i];
+  const sO = sel => surahsInScope().map(x => `<option value="${x}" ${x === sel ? 'selected' : ''}>${ur ? ad(x) : x}. ${esc(surahName(x))}</option>`).join('');
+  const aO = (x, sel) => AY.filter(y => y.s === x).map(y => `<option value="${y.a}" ${y.a === sel ? 'selected' : ''}>${ur ? ad(y.a) : y.a}</option>`).join('');
+  const reps = st.rgrep || 1, sw = (v) => `<button class="po sm ${reps === v ? 'on' : ''}" data-rgrep="${v}">${ur ? ad(v) : v}</button>`;
+  $('#rpop').dataset.pk = 'rg';
+  $('#rpop').innerHTML = `<h4>${esc(R('rgT'))}</h4><p class="pn">${esc(R('rgH'))}</p>` +
+    `<div class="sec">${esc(R('rgS'))}</div><div class="pr"><select id="rgS1" class="sel">${sO(cur0.s)}</select><select id="rgA1" class="sel">${aO(cur0.s, cur0.a)}</select></div>` +
+    `<div class="sec">${esc(R('rgE'))}</div><div class="pr"><select id="rgS2" class="sel">${sO(e0.s)}</select><select id="rgA2" class="sel">${aO(e0.s, e0.a)}</select></div>` +
+    `<div class="pr"><span>${esc(R('rgRep'))}</span>${[1, 2, 3, 5, 10].map(sw).join('')}</div>` +
+    `<div class="rowx"><button class="po" data-rgno="1">${esc(R('rgNo'))}</button><button class="po on" data-rggo="1">▶ ${esc(R('rgGo'))}</button></div>`;
   $('#rpop').hidden = false;
 }
 function popHafiz() {
@@ -743,7 +878,7 @@ function popHafiz() {
     `<div class="pr"><span></span>${sw('hmode', 'look', R('look'), (st.hmode || 'look') === 'look')}${sw('hmode', 'mem', R('mem'), st.hmode === 'mem')}</div>` +
     `<div class="pr"><span>${esc(R('flowL'))}</span>${sw('hflow', 'flow', R('flowOn'), (st.hflow || 'flow') === 'flow')}${sw('hflow', 'ustad', R('flowOff'), st.hflow === 'ustad')}</div>` +
     `<div class="pr"><span>${esc(R('tickL'))}</span>${sw('htick', 'on', R('on'), st.htick === 'on')}${sw('htick', 'off', R('off'), (st.htick || 'off') === 'off')}</div>` +
-    `<div class="pr"><span>${esc(R('recL'))}</span>${sw('hrec', 'on', R('on'), st.hrec === 'on')}${sw('hrec', 'off', R('off'), (st.hrec || 'off') === 'off')}</div><div class="pr"><span>${esc(R('corL'))}</span>${sw('hcor', 'qari', R('corQ'), (st.hcor || 'qari') === 'qari')}${sw('hcor', 'mine', R('corM'), st.hcor === 'mine')}</div><p class="pn">${esc(R('corN'))}</p><div class="sec">${esc(R('fastL'))}</div><div class="chips">${sw('hfast', 'on', R('on'), fastOn())}${sw('hfast', 'off', R('off'), !fastOn())}</div>` +
+    `<div class="pr"><span>${esc(R('recL'))}</span>${sw('hrec', 'on', R('on'), st.hrec === 'on')}${sw('hrec', 'off', R('off'), (st.hrec || 'off') === 'off')}</div><div class="pr"><span>${esc(R('corL'))}</span>${sw('hcor', 'qari', R('corQ'), (st.hcor || 'qari') === 'qari')}${sw('hcor', 'mine', R('corM'), st.hcor === 'mine')}</div><p class="pn">${esc(R('corN'))}</p><div class="pr"><span>${esc(R('wrL'))}</span>${[['all', 'wrAll'], ['ur', 'wrUr'], ['en', 'wrEn'], ['ar', 'wrAr'], ['off', 'wrOff']].map(([v, k]) => sw('hwarn', v, R(k), (st.hwarn || 'all') === v)).join('')}</div><div class="sec">${esc(R('fastL'))}</div><div class="chips">${sw('hfast', 'on', R('on'), fastOn())}${sw('hfast', 'off', R('off'), !fastOn())}</div>` +
     (fastOn() ? `<div class="chips">${FASTQ.map(f => sw('hfq', f, recName(f), (st.hfq || FASTQ[0]) === f)).join('')}</div><div class="pr"><span>${esc(R('rateL'))}</span>${[1, 1.25, 1.5].map(v => sw('hrate', v, v + '×', fastRate() === v)).join('')}</div><p class="pn">${esc(R('fastNote'))}</p>` : '') +
     `<p class="pn">${esc(R('info'))}</p>`;
   $('#rpop').hidden = false;
@@ -753,6 +888,7 @@ function openAt(s, a) {
   return load().then(() => {
     lay = A.st().lay || '15'; if (!M.L[lay]) lay = '15'; buildIndex();
     let i = 0; const f = LP[locOf(s, a, 1)]; if (f !== undefined) i = f; else { const w = SC.find(x => x.s === s); if (w) i = LP[w.loc]; }
+    if (s === 1 && a === 1 && i === 0) i = -1;   /* the very first page of the book is its cover */
     pi = i; open = true; $('#reader').hidden = false; document.body.classList.add('noscroll'); $('#rhz').hidden = true; hz.on = false; applyRot();
     renderPage(false); if (AYI[s + ':' + a] != null) curAy = { s, a };
     requestAnimationFrame(() => { sizePage(); fit(); });
@@ -872,6 +1008,7 @@ function init(api) {
   A = api;
   if ($('#rList')) $('#rList').onclick = () => A.openMenu();
   $('#rClose').onclick = close; $('#rTitle').onclick = () => { if ($('#rpop').dataset.pk === 'g' && !$('#rpop').hidden) popClose(); else popGoto(); }; $('#rPg').onclick = $('#rTitle').onclick;
+  $('#rBm').onclick = () => { if (!$('#rpop').hidden && $('#rpop').dataset.pk === 'b') popClose(); else popBm(); };
   $('#rLay').onclick = () => { if ($('#rpop').hidden || !$('#rpop').dataset.pk || $('#rpop').dataset.pk !== 'l') { $('#rpop').dataset.pk = 'l'; popLayout(); } else popClose(); };
   $('#rMinus').onclick = () => applyZoom(-0.15); $('#rPlus').onclick = () => applyZoom(0.15);
   $('#rPrev').onclick = () => goPage(pi - 1); $('#rNext').onclick = () => goPage(pi + 1);
@@ -922,10 +1059,22 @@ function init(api) {
     const hi = e.target.closest('[data-hi]'); if (hi) { let h = []; try { h = JSON.parse(localStorage.getItem('fahm.hist') || '[]'); } catch (x) { } const x = h[+hi.dataset.hi]; if (x) { popClose(); if (x.lay && x.lay !== lay) relayout(x.lay); showFinal(x.all, x.meta, true); } return; }
     if (e.target.closest('[data-hres]')) { const st = A.st(), la = st.hlast, pl = Object.assign({}, planDefault()); const fi = AYI[la.s + ':' + la.a]; let ti = AYI[pl.ts + ':' + pl.ta]; if (ti < fi) { let j = fi; while (j + 1 < AY.length && AY[j + 1].s === la.s) j++; ti = j; } const y = AY[fi], z = AY[ti]; hzStart(fi, { fs: y.s, fa: y.a, ts: z.s, ta: z.a, reps: pl.reps || 1 }); return; }
     if (e.target.closest('[data-hgo]')) { hzStart(null, readPlan2()); return; }
+    if (e.target.closest('[data-rgopen]')) { popRange(); return; }
+    if (e.target.closest('[data-bmadd]')) { let L = bmLoad(); if (bmHere().length) L = L.filter(b => bmPage(b) !== pi); else { const y = bmFirstAy(); if (y) L.push({ s: y.s, a: y.a, t: Date.now() }); } bmSave(L); bmUpd(); popBm(); return; }
+    const bg = e.target.closest('[data-bmgo]'); if (bg) { const b = bmLoad()[+bg.dataset.bmgo]; if (b) { popClose(); goPage(bmPage(b)); } return; }
+    const bx = e.target.closest('[data-bmx]'); if (bx) { const L = bmLoad(); L.splice(+bx.dataset.bmx, 1); bmSave(L); bmUpd(); popBm(); return; }
+    if (e.target.closest('[data-rgno]')) { popClose(); return; }
+    const rr = e.target.closest('[data-rgrep]'); if (rr) { A.st().rgrep = +rr.dataset.rgrep; A.save(); [...document.querySelectorAll('#rpop [data-rgrep]')].forEach(b => b.classList.toggle('on', b === rr)); return; }
+    if (e.target.closest('[data-rggo]')) {
+      let f = AYI[$('#rgS1').value + ':' + $('#rgA1').value], t = AYI[$('#rgS2').value + ':' + $('#rgA2').value]; if (f == null || t == null) return; if (t < f) { const x = f; f = t; t = x; }
+      popClose(); if (hz.on) hzStop(); const pa = pageOfAi(f); if (pa !== pi) goPage(pa, false); playRange(f, t, A.st().rgrep || 1); return;
+    }
   });
   $('#rpop').addEventListener('change', e => {
     const id0 = e.target.id;
+    if (id0 === 'rkJ' || id0 === 'rkF' || id0 === 'rkT') { const j = +$('#rkJ').value, n = rukuList(j).length; let f = id0 === 'rkJ' ? 1 : +$('#rkF').value, t = id0 === 'rkJ' ? n : +$('#rkT').value; if (id0 === 'rkF' && t < f) t = f; if (id0 === 'rkT' && t < f) f = t; applyRuku(j, f, t); popSetup(); return; }
     if (id0 === 'tJ') { if (e.target.value) { const j = +e.target.value, pl = Object.assign({}, planDefault()), a = juzStartAi(j); pl.fs = AY[a].s; pl.fa = AY[a].a; const z = AY[pl.amt ? endForAmt(a, pl.amt) : juzRange(j)[1]]; pl.ts = z.s; pl.ta = z.a; A.st().hplan = pl; A.save(); popSetup(); } return; }
+    if (id0 === 'rgS1' || id0 === 'rgS2') { const s0 = +e.target.value, sel = $(id0 === 'rgS1' ? '#rgA1' : '#rgA2'); sel.innerHTML = AY.filter(y => y.s === s0).map(y => `<option value="${y.a}">${A.st().ui === 'ur' ? ad(y.a) : y.a}</option>`).join(''); if (id0 === 'rgS2') sel.selectedIndex = sel.options.length - 1; return; }
     if (id0 === 'mfS') { const s0 = +e.target.value, sel = $('#mfA'); sel.innerHTML = AY.filter(y => y.s === s0).map(y => `<option value="${y.a}">${A.st().ui === 'ur' ? ad(y.a) : y.a}</option>`).join(''); return; }
     if (id0 === 'gS') { const ai = AYI[e.target.value + ':1']; if (ai != null) { goPage(pageOfAi(ai)); popClose(); } return; }
     if (id0 === 'gJ') { goPage(pageOfAi(juzStartAi(+e.target.value))); popClose(); return; }
