@@ -681,8 +681,8 @@ const PART_Z = { lips: ["s1", "s2"], teeth: ["l6", "l7", "l8", "s1"], tongue: ["
 function wireLab(root, opt) {
   opt = opt || {}; const fig = $(".mlab", root); if (!fig || !window.MLab) return null;
   /* the picture: REAL clips (photoreal video of the mouth) by default, the 3D head as a second view; the choice is remembered */
-  const engines = () => { const e = []; if (window.MLabClip && MLabClip.ok()) e.push("clip"); e.push("3d"); return e; };
-  const pickEng = () => { const ok = engines(), s = LS.get("qsai-labview"); return ok.includes(s) ? s : ok[0]; };
+  const engines = () => { const e = ["3d"]; if (window.MLabClip && MLabClip.ok()) e.push("clip"); return e; };
+  const pickEng = () => { const ok = engines(), s = LS.get("qsai-labview2"); return ok.includes(s) ? s : ok[0]; };
   const mkLab = (kind, svg) => (kind === "clip" ? MLabClip : window.MLab3 && MLab3.ok() ? MLab3 : MLab).Lab(svg, LANG);
   let eng = pickEng(), lab = mkLab(eng, $(".mlsvg", fig)), slow = false, lbl = true, busy = 0, all = false;
   const labProxy = new Proxy({}, { get: (_, k) => typeof lab[k] === "function" ? (...a) => lab[k](...a) : lab[k] });
@@ -707,7 +707,7 @@ function wireLab(root, opt) {
   const viewBtn = $(".mlview", fig), viewTxt = () => eng === "clip" ? "🎞️ " + pick(LABX.vReal) : "🧊 " + pick(LABX.v3d);
   const swapEng = (nx, keep) => { busy++; all = false; endWord(); $(".mlall", fig).classList.remove("on");
     try { lab.destroy && lab.destroy(); } catch (e) {} const old = $(".ml3", fig), svg = document.createElementNS("http://www.w3.org/2000/svg", "svg"); svg.setAttribute("class", "mlsvg"); old.replaceWith(svg);
-    eng = nx; if (!keep) LS.set("qsai-labview", eng); lab = mkLab(eng, svg); box = $(".ml3", fig); addTags(); lab.labels(lbl, LANG); if (viewBtn) viewBtn.textContent = viewTxt(); cap(); };
+    eng = nx; if (!keep) LS.set("qsai-labview2", eng); lab = mkLab(eng, svg); box = $(".ml3", fig); addTags(); lab.labels(lbl, LANG); if (viewBtn) viewBtn.textContent = viewTxt(); cap(); };
   if (viewBtn) { if (engines().length < 2) viewBtn.hidden = true; else viewBtn.textContent = viewTxt();
     viewBtn.onclick = () => { const ok = engines(); swapEng(ok[(ok.indexOf(eng) + 1) % ok.length]); }; }
   fig.addEventListener("mlclipfail", () => { if (eng === "clip") swapEng("3d", true); }); /* clips could not be loaded (offline, blocked): the 3D head takes over */
