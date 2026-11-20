@@ -705,3 +705,9 @@ body.light .cv-top .cv-en{color:#0a7389!important}
 .cv-md .cv-svg,.cv-md .cv-logo{display:none}
 .cv-app{width:100%;height:100%;display:block;object-fit:contain;filter:drop-shadow(0 8px 20px rgba(0,0,0,.55)) drop-shadow(0 0 18px rgba(47,208,230,.18))}
 .cv-ln{margin-top:calc(var(--pw)*.05)!important}
+
+/* Build 18e: the user's own icon is the logo everywhere (splash) */
+#splash .sp-ic{width:100%;height:100%;display:block;object-fit:contain}
+#splash .sp-ar,#splash .sp-en,#splash .sp-by{display:none!important}
+#splash .sp-tag{margin-top:0!important;color:#f1dca0!important;font-weight:500}
+.ob-ic{width:84px;height:84px;display:block;margin:0 auto 6px;filter:drop-shadow(0 6px 16px rgba(0,0,0,.5))}

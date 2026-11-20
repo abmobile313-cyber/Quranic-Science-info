@@ -49,7 +49,7 @@ function killGlobe() { if (globe) { globe.stop(); globe = null; } }
 function lang() {
   step = 'lang'; const s = ST();
   shell().innerHTML = `<div class="ob-in ob-lang">${bubbles}
-    <div class="ob-logo">فہم القرآن</div><h2>${L.ur.pick} · ${L.ru.pick} · ${L.en.pick}</h2>
+    <img class="ob-ic" src="icons/icon-192.png" alt="Fahmul Quraan"><h2>${L.ur.pick} · ${L.ru.pick} · ${L.en.pick}</h2>
     <div class="ob-earth"><canvas id="obEarth"></canvas><div class="ob-fb"></div></div>
     <p class="ob-hint">${L.ur.pick2}<br>${L.en.pick2}</p>
     <div class="ob-lbtns">${[['ur', 'اردو', 'Urdu'], ['ru', 'Roman Urdu', 'Roman'], ['en', 'English', 'English']].map(([v, l, s2]) => `<button class="b3d" data-lang="${v}"><b>${l}</b><small>${s2}</small></button>`).join('')}</div></div>`;
@@ -61,7 +61,7 @@ function lang() {
 function setup() {
   step = 'setup'; killGlobe(); const s = ST(), t = lg(), mk = A().MASLAK;
   const cur = (mk.find(([k, c]) => s.tl.includes(c)) || [0, ''])[1];
-  shell().innerHTML = `<div class="ob-in">${bubbles}<div class="ob-logo">فہم القرآن</div><h2>${t.hi}</h2><p>${t.sub}</p>
+  shell().innerHTML = `<div class="ob-in">${bubbles}<img class="ob-ic" src="icons/icon-192.png" alt="Fahmul Quraan"><h2>${t.hi}</h2><p>${t.sub}</p>
   <h5>${t.theme}</h5><div class="ob-seg">${[['dark', t.dark], ['light', t.light]].map(([v, l]) => `<button data-p="theme" data-v="${v}" class="${s.theme === v ? 'on' : ''}">${l}</button>`).join('')}</div>
   <h5>${t.mk}</h5><div class="ob-seg wrap">${mk.map(([k, c]) => `<button data-p="mk" data-v="${c}" class="${cur === c ? 'on' : ''}">${t.mkl[k]}</button>`).join('')}</div>
   <button class="ob-go b3d gold" data-a="next">${t.go}</button></div>`;
