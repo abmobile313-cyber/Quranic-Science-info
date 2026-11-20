@@ -13,13 +13,16 @@
 <link rel="icon" href="icons/icon-192.png">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="ui2.css">
 </head>
 <body>
 <script src="splash.js"></script>
 <div id="app">
   <header class="top">
     <button id="btnMenu" class="ib" aria-label="Surahs"><svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h10"/></svg></button>
-    <div id="title"><b class="ar" id="tAr"></b><small id="tSub"></small></div>
+    <div id="title"><i id="tApp">FAHMUL QURAAN</i><b class="ar" id="tAr"></b><small id="tSub"></small></div>
+    <button id="btnLang" class="ib t2" aria-label="Language"></button>
+    <button id="btnTheme" class="ib t2" aria-label="Theme"><svg viewBox="0 0 24 24"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/></svg></button>
     <button id="btnRead" class="ib" aria-label="Read"><svg viewBox="0 0 24 24"><path d="M12 6v14M12 6c-2-1.5-5-2-8-2v14c3 0 6 .5 8 2 2-1.5 5-2 8-2V4c-3 0-6 .5-8 2z"/></svg></button>
     <button id="btnSet" class="ib" aria-label="Settings"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3.2"/><path d="M12 3v2.5M12 18.5V21M3 12h2.5M18.5 12H21M5.6 5.6l1.8 1.8M16.6 16.6l1.8 1.8M5.6 18.4l1.8-1.8M16.6 7.4l1.8-1.8"/></svg></button>
   </header>
@@ -37,7 +40,7 @@
       <section id="wordcard" class="glass"></section>
       <section id="story">
         <h4 id="storyH"></h4>
-        <div class="story-box"><canvas id="cv"></canvas><video id="sv" muted loop playsinline preload="metadata"></video><div id="cx"></div>
+        <div class="story-box"><canvas id="cv"></canvas><video id="sv" muted loop playsinline preload="metadata"></video><div id="cx"></div><div id="sw"></div>
           <button id="btnReplay" class="ib small" aria-label="Replay scene"><svg viewBox="0 0 24 24"><path d="M4 12a8 8 0 1 0 3-6.2M4 4v4h4"/></svg></button>
           <button id="btnFullS" class="ib small" aria-label="Full screen"><svg viewBox="0 0 24 24"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></button>
           <div id="sctl"><button id="sClose" class="ib" aria-label="Close"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button><span></span>
@@ -80,6 +83,7 @@
     <div id="rpop" hidden></div>
     <div id="rrep" hidden></div>
   </div>
+  <div id="web" hidden><div class="web-top"><button id="webBack" class="ib" aria-label="Back"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button><img src="icons/qs-logo.webp" alt="Quranic Science"><b>Quranic Science</b><button id="webOut" class="ib" aria-label="Open in browser"><svg viewBox="0 0 24 24"><path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></svg></button></div><iframe id="webf" title="Quranic Science"></iframe></div>
   <div id="toast" hidden></div>
   <div id="install" hidden></div>
 </div>
@@ -103,6 +107,8 @@
 <script src="reader.js"></script>
 <script src="i18n.js"></script>
 <script src="content_ur.js"></script>
+<script src="makharij.js"></script>
+<script src="onboard.js"></script>
 <script src="app.js"></script>
 </body>
 </html>

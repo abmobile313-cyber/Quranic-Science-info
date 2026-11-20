@@ -272,6 +272,21 @@ function dataFor(i) {
   return { W, m, mm, mc, rtl, tl, note, gram, labs, seed: hash(W.ar + (W.root || '')) };
 }
 
+/* ---------- per-word signature: colour + orbiting root letters + own constellation (so no two words look alike) ---------- */
+function SIG(x, w, h, t, p, d, small) {
+  if (!d || !d.W) return; const cx = w / 2, cy = h / 2, R = Math.min(w, h) * (small ? .47 : .46), sd = d.seed || 1, hue = sd % 360, dir = (sd >> 3) & 1 ? 1 : -1;
+  const raw = d.W.root ? [...d.W.root] : [...API.strip(d.W.ar)].slice(0, 4), L = raw.slice(0, 4), n = Math.max(1, L.length), k = 3 + (sd >> 5) % 5, a0 = (sd % 628) / 100;
+  x.save(); x.globalAlpha = Math.min(1, p);
+  const g = x.createRadialGradient(cx, cy, 0, cx, cy, R * 1.05); g.addColorStop(0, `hsla(${hue},80%,60%,.13)`); g.addColorStop(1, 'hsla(0,0%,0%,0)'); x.fillStyle = g; x.fillRect(0, 0, w, h);
+  x.lineWidth = 1; x.strokeStyle = `hsla(${hue},85%,68%,.28)`; x.setLineDash([2 + (sd >> 7) % 5, 5 + (sd >> 9) % 7]); x.beginPath(); x.arc(cx, cy, R, 0, 6.2832); x.stroke(); x.setLineDash([]);
+  x.strokeStyle = `hsla(${(hue + 120) % 360},80%,70%,.2)`; x.beginPath();
+  for (let i = 0; i <= k; i++) { const a = a0 - dir * t * .12 + (i % k) * 6.2832 / k, r2 = R * (.78 + .06 * Math.sin(t + i)); const X = cx + Math.cos(a) * r2, Y = cy + Math.sin(a) * r2; i ? x.lineTo(X, Y) : x.moveTo(X, Y); } x.stroke();
+  for (let i = 0; i < k; i++) { const a = a0 - dir * t * .12 + i * 6.2832 / k, r2 = R * (.78 + .06 * Math.sin(t + i)); x.fillStyle = `hsla(${(hue + 120) % 360},90%,75%,.7)`; x.beginPath(); x.arc(cx + Math.cos(a) * r2, cy + Math.sin(a) * r2, small ? 1.4 : 2.2, 0, 6.2832); x.fill(); }
+  x.font = `${small ? 13 : 24}px AmiriQ, serif`; x.textAlign = 'center'; x.textBaseline = 'middle';
+  L.forEach((ch, i) => { const a = a0 + dir * t * .32 + i * 6.2832 / n, X = cx + Math.cos(a) * R, Y = cy + Math.sin(a) * R, c = `hsl(${(hue + i * 63) % 360},88%,72%)`;
+    x.fillStyle = `hsla(${(hue + i * 63) % 360},90%,60%,.28)`; x.beginPath(); x.arc(X, Y, small ? 9 : 17, 0, 6.2832); x.fill(); x.fillStyle = c; x.fillText(ch, X, Y + 1); });
+  x.restore();
+}
 function buildDom() {
   if (el) return;
   el = document.createElement('div'); el.id = 'ws'; el.hidden = true;
@@ -334,7 +349,7 @@ function frame() {
     const P = { l: ['', '', ''], seed: 99, rtl: false }; AR.rosette(ctx, w, h, t + 1, ease(t * .7), P); return;
   }
   const P = { l: drawMeta.labs, seed: drawMeta.seed, rtl: drawMeta.rtl };
-  (AR[drawMeta.m] || AR.rosette)(ctx, w, h, t, ease(t / 1.4), P);
+  (AR[drawMeta.m] || AR.rosette)(ctx, w, h, t, ease(t / 1.4), P); SIG(ctx, w, h, t, ease(t / 1.4), drawMeta, false);
 }
 function open(i) {
   buildDom(); isOpen = true; el.hidden = false; document.documentElement.classList.add('ws-on'); buildAyah(); sizeCv(); set(i == null ? -1 : i);
@@ -347,7 +362,7 @@ function updPlay() { if (!el) return; const p = API.isPlaying(); Q('#wsIcoP').st
 function miniInit(canvas) { mini = { cv: canvas, ctx: canvas.getContext('2d'), t0: performance.now(), d: null, raf: 0 }; }
 function miniSet(i) {
   if (!mini || !API) return; const { A } = API.cur(); if (i < 0 || i >= A.words.length) return; mini.d = dataFor(i); mini.t0 = performance.now();
-  if (!mini.raf) { const f = () => { mini.raf = requestAnimationFrame(f); const c = mini.cv; if (!c.offsetParent) return; const r = c.getBoundingClientRect(), dd = Math.min(2, devicePixelRatio || 1), w = Math.round(r.width * dd), h = Math.round(r.height * dd); if (c.width !== w || c.height !== h) { c.width = w; c.height = h; } const x = mini.ctx; x.setTransform(dd, 0, 0, dd, 0, 0); x.clearRect(0, 0, r.width, r.height); const t = (performance.now() - mini.t0) / 1000, d = mini.d; if (!d) return; (AR[d.m] || AR.rosette)(x, r.width, r.height, t, ease(t / 1.4), { l: d.labs, seed: d.seed, rtl: d.rtl }); }; mini.raf = requestAnimationFrame(f); }
+  if (!mini.raf) { const f = () => { mini.raf = requestAnimationFrame(f); const c = mini.cv; if (!c.offsetParent) return; const r = c.getBoundingClientRect(), dd = Math.min(2, devicePixelRatio || 1), w = Math.round(r.width * dd), h = Math.round(r.height * dd); if (c.width !== w || c.height !== h) { c.width = w; c.height = h; } const x = mini.ctx; x.setTransform(dd, 0, 0, dd, 0, 0); x.clearRect(0, 0, r.width, r.height); const t = (performance.now() - mini.t0) / 1000, d = mini.d; if (!d) return; (AR[d.m] || AR.rosette)(x, r.width, r.height, t, ease(t / 1.4), { l: ['', '', ''], seed: d.seed, rtl: d.rtl }); SIG(x, r.width, r.height, t, ease(t / 1.4), d, true); }; mini.raf = requestAnimationFrame(f); }
 }
 function miniInfo(i) { const d = dataFor(i); return { m: d.m, note: d.note || d.gram, meaning: d.mm, rtl: d.rtl }; }
 

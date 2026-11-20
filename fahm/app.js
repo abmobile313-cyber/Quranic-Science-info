@@ -47,6 +47,13 @@ function lemKey(s) { return stripD(s).replace(/ٱ/g, 'ا').replace(/ـ/g, ''); }
 function wordMeaning(w) { return st.ui === 'ur' ? [w.ur, 'u'] : st.ui === 'ru' ? [w.ru, ''] : [w.en, '']; }
 function capOf(spec, key) { return st.ui === 'ur' ? (window.FAHM_CX_UR[key] || spec.cx.uru || '') : st.ui === 'ru' ? spec.cx.ur : spec.cx.en; }
 
+/* story caption = the translation the user selected (real translator) + a small scene explanation underneath */
+function setCx(spec, S, A) {
+  setCx.last = [spec, S, A];
+  const c = st.tl.find(x => A.tr && A.tr[x]) || (st.ui === 'ur' ? 'ur' : st.ui === 'ru' ? 'rur' : 'en'), t = (A.tr && A.tr[c]) || '', rtl = RTL[c] || (URD.includes(c) && c !== 'rur'), cap = capOf(spec, `${S.n}:${A.v}`) || '';
+  $('#cx').innerHTML = (t ? `<div class="cxt${rtl ? ' rtl' : ''}${URD.includes(c) && c !== 'rur' ? ' u' : ''}"${rtl ? ' dir="rtl"' : ''}>${esc(t)}<small>${esc(lName(c))} · ${esc(tName(c))}</small></div>` : '') + (cap ? `<div class="cxs">${esc(cap)}</div>` : '');
+}
+function setSw() { const e = $('#sw'); if (!e) return; const w = cur().W, [m, c] = wordMeaning(w); e.innerHTML = `<b class="ar">${esc(w.ar)}</b><span class="${c}">${esc(m)}</span>`; }
 function renderAyah(keepPlay) {
   const { S, A } = cur(); if (st.w >= A.words.length) st.w = 0;
   const sn = sName(S); $('#tAr').textContent = sn[0]; $('#tSub').textContent = sn[1];
@@ -54,7 +61,7 @@ function renderAyah(keepPlay) {
   $('#words').innerHTML = A.words.map((w, i) => { const [m, c] = wordMeaning(w); return `<button class="w" data-i="${i}"><span class="a ar">${esc(w.ar)}</span><span class="m ${c}">${esc(m)}</span></button>`; }).join('');
   const spec = window.FAHM_SCENES[`${S.n}:${A.v}`] || (window.FahmCompose ? FahmCompose.spec(S, A) : { sky: 'night', items: [], cx: { ur: '', en: '' } });
   videoFor(`${S.n}:${A.v}`);
-  scene.set(spec); scene.all(); $('#cx').textContent = capOf(spec, `${S.n}:${A.v}`) || '';
+  scene.set(spec); scene.all(); setCx(spec, S, A);
   renderTrans(); renderNZ(); setWord(st.w, false, true); computeBounds(); save(); navUi();
   if (!keepPlay) stopAll();
   if (window.FahmWS && FahmWS.isOpen()) FahmWS.refresh(playing ? 0 : -1);
@@ -63,7 +70,7 @@ function renderAyah(keepPlay) {
 function setWord(i, fromAudio, silent) {
   st.w = i; scene.show(i);
   document.querySelectorAll('#words .w').forEach((b, k) => { b.classList.toggle('on', k === i); b.classList.toggle('seen', k < i); });
-  renderWordCard(); showLab();
+  renderWordCard(); showLab(); setSw();
   if (window.FahmWS) FahmWS.set(i, !!fromAudio);
   if (!fromAudio && !silent) save();
 }
@@ -82,7 +89,7 @@ function renderWordCard() {
 }
 
 function renderTrans() {
-  const { S, A } = cur();
+  const { S, A } = cur(); if (setCx.last && setCx.last[2] === A) setCx(setCx.last[0], S, A);
   $('#trans').innerHTML = st.tl.filter(c => A.tr[c]).map(c => {
     const L = D.langs.find(l => l.c === c), cls = (URD.includes(c) && c !== 'rur' ? 'u' : c === 'hi' ? 'h' : '') + ((RTL[c] || (URD.includes(c) && c !== 'rur')) ? ' rtl' : '');
     return `<div class="tr"><div class="lh"><span>${esc(lName(c))} · ${esc(tName(c))}</span><button class="sp" data-tts="${c}" aria-label="Listen"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></button></div><p class="${cls}" ${(RTL[c] || (URD.includes(c) && c !== 'rur')) ? 'dir="rtl"' : ''}>${esc(A.tr[c])}</p></div>`;
@@ -118,16 +125,20 @@ async function renderNZ() {
 }
 const TAF = {}; /* ayah tafseer from Quran.com (needs internet): Urdu = Tafsir Ibn Kathir (Urdu), everything else = Tafsir Ibn Kathir (English) */
 async function loadTafsir() {
-  const { S, A } = cur(), fam = ctxFam(), id = fam === 'ur' || fam === 'ru' || fam === 'hi' ? 160 : 169, key = `${id}:${S.n}:${A.v}`, bx = $('#tafBody'); if (!bx) return;
+  const { S, A } = cur(), fam = ctxFam(), isUr = fam === 'ur' || fam === 'ru' || fam === 'hi', c0 = st.tl[0] || '', list = isUr ? TAFO.ur : TAFO.en, ov = (st.tafo || {})[c0], id = list.some(x => x[0] === ov) ? ov : (isUr ? (c0 === 'urm' ? 157 : 160) : 169), key = `${id}:${S.n}:${A.v}`, bx = $('#tafBody'); if (!bx) return;
+  const chips = `<div class="tafc">${list.map(x => `<button class="${x[0] === id ? 'on' : ''}" data-tafid="${x[0]}">${esc(x[1])}</button>`).join('')}</div>`;
+  const who = D.langs.find(l => l.c === c0), whoT = who ? `<small class="tafw">${esc({ ur: 'آپ کا ترجمہ', ru: 'Aap ka tarjuma', hi: 'आपका तर्जुमा', en: 'Your translation' }[famUi(fam)])}: ${esc(who.label)}</small>` : '';
   const msg = { ur: ['تفسیر لوڈ ہو رہی ہے…', 'تفسیر کے لیے انٹرنیٹ درکار ہے'], ru: ['Tafseer load ho rahi hai…', 'Tafseer ke liye internet zaroori hai'], hi: ['तफ़सीर लोड हो रही है…', 'तफ़सीर के लिए इंटरनेट ज़रूरी है'], en: ['Loading tafseer…', 'Tafseer needs an internet connection'] }[famUi(fam)];
-  bx.innerHTML = `<p class="dim">${msg[0]}</p>`;
+  bx.innerHTML = whoT + chips + `<p class="dim">${msg[0]}</p>`;
   try {
     if (!TAF[key]) { const r = await fetch(`https://api.quran.com/api/v4/tafsirs/${id}/by_ayah/${S.n}:${A.v}`); if (!r.ok) throw 0; const j = await r.json(); TAF[key] = { t: (j.tafsir.text || '').replace(/<(?!\/?(p|br|b|i|h[1-6])\b)[^>]*>/gi, '').replace(/<(p|br|b|i|h[1-6])\b[^>]*>/gi, '<$1>'), n: j.tafsir.resource_name || '' }; }
-    let t = TAF[key].t; if (id === 160 && fam !== 'ur') { await FahmConv.load(); t = fam === 'ru' ? FahmConv.roman(t) : FahmConv.dev(t); }
+    let t = TAF[key].t; if (isUr && fam !== 'ur') { await FahmConv.load(); t = fam === 'ru' ? FahmConv.roman(t) : FahmConv.dev(t); }
     if (key !== `${id}:${cur().S.n}:${cur().A.v}`) return;
-    bx.innerHTML = `<div class="tafx"${fam === 'ur' ? ' dir="rtl"' : ''}>${t}</div><small>${esc(TAF[key].n)} · Quran.com</small>`;
-  } catch (e) { bx.innerHTML = `<p class="dim">${msg[1]}</p>`; }
+    bx.innerHTML = whoT + chips + `<div class="tafx"${fam === 'ur' ? ' dir="rtl"' : ''}>${t}</div><small>${esc(TAF[key].n)} · Quran.com</small>`;
+  } catch (e) { bx.innerHTML = whoT + chips + `<p class="dim">${msg[1]}</p>`; }
 }
+const TAFO = { ur: [[160, 'Ibn Kathir'], [159, 'Bayan-ul-Quran (Dr Israr Ahmad)'], [818, 'Tazkir-ul-Quran (W. Khan)'], [157, 'Fi Zilal-al-Quran (S. Qutb)']], en: [[169, 'Ibn Kathir'], [168, "Ma'arif al-Qur'an (Mufti M. Shafi)"], [817, 'Tazkirul Quran (W. Khan)']] };
+document.addEventListener('click', e => { const b = e.target.closest('[data-tafid]'); if (!b) return; const c0 = st.tl[0] || ''; st.tafo = st.tafo || {}; st.tafo[c0] = +b.dataset.tafid; save(); loadTafsir(); });
 
 /* ---------- 3D word scene ---------- */
 function showLab() {
@@ -154,6 +165,28 @@ function openSupport() {
   o.hidden = false;
 }
 function brandHtml() {
+  const u = st.ui, L = ({ ur: { tag: 'علم جو سوچ بدل دے', cr: 'رابطہ اور ماخذ', by: 'فہم القرآن — قرآنک سائنس کی طرف سے مفت', nm: 'قرآنک سائنس', fb: 'فیس بک', ig: 'انسٹاگرام', yt: 'یوٹیوب', web: 'ویب سائٹ', w: 'واٹس ایپ', e: 'ای میل', sup: 'سپورٹ کریں', ds: 'نماز کے اوقات کے لیے', dn: 'دین ساتھی ایپ', dd: 'ڈاؤن لوڈ' }, ru: { tag: 'Ilm Jo Soch Badal De', cr: 'Rabta aur mukhaiz', by: 'Fahmul Quraan — Quranic Science ki taraf se muft', nm: 'Quranic Science', fb: 'Facebook', ig: 'Instagram', yt: 'YouTube', web: 'Website', w: 'WhatsApp', e: 'Email', sup: 'Support karein', ds: 'Namaz ke auqaat ke liye', dn: 'Deen Saathi app', dd: 'Download' }, en: { tag: 'Ilm Jo Soch Badal De', cr: 'Contact & credits', by: 'Fahmul Quraan — free from Quranic Science', nm: 'Quranic Science', fb: 'Facebook', ig: 'Instagram', yt: 'YouTube', web: 'Website', w: 'WhatsApp', e: 'Email', sup: 'Support us', ds: 'For prayer times', dn: 'Deen Saathi app', dd: 'Download' } })[u] || {};
+  const ic = {
+    fb: '<svg viewBox="0 0 48 48"><circle cx="24" cy="24" r="22" fill="#1877F2"/><path d="M26.5 39V26h4.3l.7-5.2h-5V17.6c0-1.5.5-2.5 2.6-2.5H32v-4.6A35 35 0 0 0 28.3 10c-3.9 0-6.6 2.4-6.6 6.7v4.1H17.3V26h4.4v13z" fill="#fff"/></svg>',
+    ig: '<svg viewBox="0 0 48 48"><defs><radialGradient id="igg" cx="30%" cy="107%" r="140%"><stop offset="0" stop-color="#fdf497"/><stop offset=".1" stop-color="#fdf497"/><stop offset=".45" stop-color="#fd5949"/><stop offset=".6" stop-color="#d6249f"/><stop offset="1" stop-color="#285AEB"/></radialGradient></defs><rect x="2" y="2" width="44" height="44" rx="12" fill="url(#igg)"/><rect x="11.5" y="11.5" width="25" height="25" rx="7.5" fill="none" stroke="#fff" stroke-width="3"/><circle cx="24" cy="24" r="6" fill="none" stroke="#fff" stroke-width="3"/><circle cx="31.4" cy="16.6" r="1.9" fill="#fff"/></svg>',
+    yt: '<svg viewBox="0 0 48 48"><rect x="2" y="9" width="44" height="30" rx="9" fill="#FF0000"/><path d="M20 17v14l12-7z" fill="#fff"/></svg>',
+    web: '<img src="icons/qs-logo.webp" alt="" width="46" height="46" style="border-radius:12px">',
+    wa: '<svg viewBox="0 0 48 48"><circle cx="24" cy="24" r="22" fill="#25D366"/><path d="M13 36l1.9-6.9A11.5 11.5 0 1 1 19.2 34z" fill="none" stroke="#fff" stroke-width="2.6" stroke-linejoin="round"/><path d="M19.5 17c-.6 0-1.5.9-1.5 2.6 0 3.8 5.8 9.4 9.8 9.4 1.7 0 2.6-1.3 2.6-2l-3-1.6-1.3 1.1c-1.9-.6-3.6-2.3-4.3-4.1l1.1-1.2z" fill="#fff"/></svg>',
+    bmail: '<svg viewBox="0 0 48 48"><rect x="2" y="2" width="44" height="44" rx="12" fill="#EA4335"/><rect x="11" y="14" width="26" height="20" rx="3" fill="#fff"/><path d="M12 16l12 9 12-9" fill="none" stroke="#EA4335" stroke-width="2.6" stroke-linejoin="round"/></svg>'
+  };
+  const tile = (k, t, h, web) => `<a class="tile ${k}" href="${h}" ${web ? `data-web="${h}"` : 'target="_blank" rel="noopener"'} aria-label="${t}"><span class="ti">${ic[k]}</span><span class="tn">${t}</span></a>`;
+  const dsU = 'https://quranicscience.info/deen-saathi/';
+  const dsCard = `<a class="dsaa" href="${dsU}" data-web="${dsU}"><span class="dsi">🕌</span><span class="dst"><small>${L.ds}</small><b>${L.dn}</b></span><span class="dsb">⬇ ${L.dd}</span></a>`;
+  return dsCard + `<div class="brand"><div class="bhead"><img src="icons/qs-logo.webp" alt="Quranic Science" width="48" height="48"><div class="bn"><b>${L.nm}</b><em>${L.tag}</em></div></div>` +
+    `<div class="tiles">${tile('web', L.web, BRAND.web, true)}${tile('yt', L.yt, BRAND.yt)}${tile('ig', L.ig, BRAND.ig)}${tile('fb', L.fb, BRAND.fb)}${tile('wa', L.w, BRAND.wa)}${tile('bmail', L.e, 'mailto:' + BRAND.mail)}</div>` +
+    `<button class="bsup" data-bsup="1">❤ ${L.sup}</button>` +
+    `<details class="bcr"><summary>${L.cr}</summary><div class="bct"><a href="mailto:${BRAND.mail}">✉ ${BRAND.mail}</a><a href="${BRAND.wa}" target="_blank" rel="noopener">${L.w} ${BRAND.ph}</a><a href="${BRAND.web}" data-web="${BRAND.web}">🌐 ${BRAND.web.replace('https://', '')}</a></div><p>${esc(T('credits'))}</p><p class="bby">${L.by}</p></details></div>`;
+}
+/* in-app website viewer: logo + working back button (never throws the user out of the app) */
+function openWeb(u) { const w = $('#web'); $('#webf').src = u; w._u = u; w.hidden = false; document.body.classList.add('noscroll'); }
+function closeWeb() { const w = $('#web'); w.hidden = true; $('#webf').src = 'about:blank'; document.body.classList.toggle('noscroll', anyFull()); }
+document.addEventListener('click', e => { const a = e.target.closest('[data-web]'); if (a) { e.preventDefault(); openWeb(a.dataset.web); return; } if (e.target.closest('#webBack')) closeWeb(); else if (e.target.closest('#webOut')) { const u = $('#web')._u; try { window.open(u, '_blank', 'noopener'); } catch (x) { location.href = u; } } });
+function brandHtmlOld() {
   const u = st.ui, L = { ur: { tag: 'علم جو سوچ بدل دے', c: 'ہم سے رابطہ', e: 'ای میل', w: 'واٹس ایپ', cr: 'رابطہ اور ماخذ', by: 'فہم — قرآنک سائنس کی طرف سے مفت', nm: 'قرآنک سائنس', fb: 'فیس بک', ig: 'انسٹاگرام', yt: 'یوٹیوب', web: 'ویب سائٹ', sup: 'سپورٹ کریں', ds: 'نماز کے اوقات کے لیے', dn: 'دین ساتھی ایپ', dd: 'ڈاؤن لوڈ کریں' }, ru: { tag: 'Ilm Jo Soch Badal De', c: 'Rabta', e: 'Email', w: 'WhatsApp', cr: 'Rabta aur mukhaiz', by: 'Fahm — Quranic Science ki taraf se muft', nm: 'Quranic Science', fb: 'Facebook', ig: 'Instagram', yt: 'YouTube', web: 'Website', sup: 'Support karein', ds: 'Namaz ke auqaat ke liye', dn: 'Deen Saathi app', dd: 'Download karein' }, en: { tag: 'Ilm Jo Soch Badal De', c: 'Contact', e: 'Email', w: 'WhatsApp', cr: 'Contact & credits', by: 'Fahm — free from Quranic Science', nm: 'Quranic Science', fb: 'Facebook', ig: 'Instagram', yt: 'YouTube', web: 'Website', sup: 'Support us', ds: 'For prayer times', dn: 'Deen Saathi app', dd: 'Download' } }[u] || {};
   const ic = {
     fb: '<svg viewBox="0 0 24 24"><path d="M14 8h3V4h-3a4 4 0 0 0-4 4v3H7v4h3v6h4v-6h3l1-4h-4V8z"/></svg>',
@@ -197,6 +230,10 @@ function setFull(id, on) {
 }
 /* returns true when the app used the back press itself */
 window.__fahmBack = function () {
+  if (window.__fahmOnbOpen && window.__fahmOnbOpen()) return false;
+  if (!$('#web').hidden) { closeWeb(); return true; }
+  const sup = document.getElementById('sup'); if (sup && !sup.hidden) { sup.hidden = true; return true; }
+  const mk = document.getElementById('mkh'); if (mk && !mk.hidden) { mk.hidden = true; return true; }
   if (window.FahmWS && FahmWS.isOpen()) { FahmWS.close(); return true; }
   if (FahmReader.isOpen()) { FahmReader.back(); return true; }
   for (const id of ['#pick', '#settings', '#menu']) if (!$(id).hidden) { $(id).hidden = true; return true; }
@@ -323,6 +360,8 @@ function openSettings() {
 /* ---------- events ---------- */
 function bind() {
   $('#btnMenu').onclick = openMenu; $('#btnSet').onclick = openSettings;
+  $('#btnLang').onclick = () => { const o = ['ur', 'ru', 'en'], n = o[(o.indexOf(st.ui) + 1) % 3]; setPref('ui', n); };
+  $('#btnTheme').onclick = () => setPref('theme', st.theme === 'light' ? 'dark' : 'light');
   $('#bPrev').onclick = prev; $('#bNext').onclick = () => next(false);
   $('#bPlay').onclick = () => { if (playing) { stopAll(); } else playAyah(); };
   $('#btnReplay').onclick = () => playAyah();
@@ -348,7 +387,7 @@ function bind() {
     if (e.target.closest('[data-taf]')) { loadTafsir(); return; }
     if (e.target.closest('[data-anim]')) { openStage(-1); return; }
     const kv = e.target.closest('[data-k]'); if (kv && kv.dataset.k === 'maslak') { st.tl = st.tl.filter(x => !URD.includes(x)); st.tl.push(kv.dataset.v); st.tl.sort((x, y) => D.langs.findIndex(l => l.c === x) - D.langs.findIndex(l => l.c === y)); save(); reloadTr(); openSettings(); return; }
-    if (kv) { st[kv.dataset.k] = kv.dataset.k === 'sfx' ? +kv.dataset.v : kv.dataset.v; if (kv.dataset.k === 'sfx') { FahmSfx.unlock(); FahmSfx.setLevel(st.sfx); if (st.sfx && playing) FahmSfx.start((scene.spec || {}).sky); } if (kv.dataset.k === 'ui') { st.tl = DEF_TL[st.ui].slice(); if (st.ui === 'ru') FahmConv.load(); } save(); applyUi(); FahmData.tr(st.s, codesNeeded()).then(() => renderAyah(true)); openSettings(); return; }
+    if (kv) { setPref(kv.dataset.k, kv.dataset.v); openSettings(); return; }
   });
   document.addEventListener('change', e => {
     if (e.target.id === 'recSel') { st.rec = e.target.value; save(); return; }
@@ -370,7 +409,14 @@ function bind() {
   $('#stage').addEventListener('click', e => { if (!e.target.closest('button')) openStage(st.w); });
   window.addEventListener('visibilitychange', () => { if (document.hidden) scene.stop(); else scene.start(); });
 }
-function applyUi() { document.documentElement.lang = st.ui === 'en' ? 'en' : 'ur'; document.body.className = 'l-' + st.ui + (st.theme === 'light' ? ' light' : ''); const tc = document.querySelector('meta[name=theme-color]'); if (tc) tc.content = st.theme === 'light' ? '#f6f1e4' : '#05070e'; if (D) navUi(); $('#btnFullS').title = T('full'); $('#btnRead').title = T('reader'); if (window.FahmLab) FahmLab.lang = st.ui; $('#btnFull').title = T('full'); $('#btnReplay').title = T('replay'); $('#btnLabR').title = T('replay'); $('#bMushaf').innerHTML = '<b>' + ({ ur: 'پورا قرآن پڑھیں', ru: 'Poora Quran padhein', en: 'Read the whole Quran' }[st.ui] || '') + '</b><small>' + ({ ur: '۳ مصحف لے آؤٹ · حافظ موڈ · ہر آیت کے ساتھ آڈیو', ru: '3 mushaf layout · Hafiz mode · har ayat ki audio', en: '3 mushaf layouts · Hafiz mode · audio for every ayah' }[st.ui] || '') + '</small>'; }
+function setPref(k, v) {
+  st[k] = k === 'sfx' ? +v : v;
+  if (k === 'sfx') { FahmSfx.unlock(); FahmSfx.setLevel(st.sfx); if (st.sfx && playing) FahmSfx.start((scene.spec || {}).sky); }
+  if (k === 'ui') { st.tl = DEF_TL[st.ui].slice(); if (st.ui === 'ru') FahmConv.load(); }
+  save(); applyUi(); FahmData.tr(st.s, codesNeeded()).then(() => renderAyah(true));
+}
+function setMaslak(c) { st.tl = st.tl.filter(x => !URD.includes(x)); st.tl.push(c); st.tl.sort((x, y) => D.langs.findIndex(l => l.c === x) - D.langs.findIndex(l => l.c === y)); save(); reloadTr(); }
+function applyUi() { { const bl = $('#btnLang'); if (bl) { bl.innerHTML = '<span>' + { ur: 'اردو', ru: 'Ru', en: 'En' }[st.ui] + '</span>'; bl.title = 'Language'; } const bt = $('#btnTheme'); if (bt) bt.innerHTML = st.theme === 'light' ? '<svg viewBox="0 0 24 24"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/></svg>' : '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2.5M12 19v2.5M2.5 12H5M19 12h2.5M5.3 5.3l1.8 1.8M16.9 16.9l1.8 1.8M5.3 18.7l1.8-1.8M16.9 7.1l1.8-1.8"/></svg>'; } document.documentElement.lang = st.ui === 'en' ? 'en' : 'ur'; document.body.className = 'l-' + st.ui + (st.theme === 'light' ? ' light' : ''); const tc = document.querySelector('meta[name=theme-color]'); if (tc) tc.content = st.theme === 'light' ? '#f6f1e4' : '#05070e'; if (D) navUi(); $('#btnFullS').title = T('full'); $('#btnRead').title = T('reader'); if (window.FahmLab) FahmLab.lang = st.ui; $('#btnFull').title = T('full'); $('#btnReplay').title = T('replay'); $('#btnLabR').title = T('replay'); $('#bMushaf').innerHTML = '<b>' + ({ ur: 'پورا قرآن پڑھیں', ru: 'Poora Quran padhein', en: 'Read the whole Quran' }[st.ui] || '') + '</b><small>' + ({ ur: '۳ مصحف لے آؤٹ · حافظ موڈ · ہر آیت کے ساتھ آڈیو', ru: '3 mushaf layout · Hafiz mode · har ayat ki audio', en: '3 mushaf layouts · Hafiz mode · audio for every ayah' }[st.ui] || '') + '</small>'; }
 
 /* ---------- install hint ---------- */
 let deferred = null;
@@ -403,6 +449,8 @@ async function init() {
   applyUi(); bind(); renderAyah(false); scene.start(); iosHint();
   try { history.replaceState({ b: 1 }, ''); history.pushState({ a: 1 }, ''); window.addEventListener('popstate', () => { if (window.__fahmBack()) history.pushState({ a: 1 }, ''); }); } catch (e) { }
   window.__fahm = { scene, st, goTo, D, lemKey };
+  window.__fahmApp = { st: () => st, save, setPref, setMaslak, T, MASLAK, URD, stopAll, toast };
+  window.dispatchEvent(new Event('fahm-ready'));
   if ('serviceWorker' in navigator && /^https?:/.test(location.protocol)) navigator.serviceWorker.register('sw.js').catch(() => { });
 }
 init();

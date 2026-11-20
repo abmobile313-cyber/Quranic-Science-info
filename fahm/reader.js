@@ -253,7 +253,7 @@ function tick() {    /* small slip: one soft short tick */
   try { if (navigator.vibrate) navigator.vibrate(40); } catch (e) { }
 }
 const flowOn = () => (A.st().hflow || 'flow') === 'flow';
-const tickOn = () => (A.st().htick || 'on') === 'on';
+const tickOn = () => (A.st().htick || 'off') === 'on';
 
 /* ---------- speech recognition layer ---------- */
 function nativeOk() { try { return !!(window.FahmAndroid && window.FahmAndroid.speechAvailable && window.FahmAndroid.speechAvailable()); } catch (e) { return false; } }
@@ -287,7 +287,7 @@ window.__fahmSpeech = function (type, text) {
 function fatal(k) { A.toast(R(k), 4200); hzStop(); }
 
 /* ---------- Hafiz mode ---------- */
-const sensOf = () => A.st().hs || 'h';
+const sensOf = () => A.st().hs || 'n';
 const silOf = () => A.st().hsil || 4;
 const L3 = (u, r, e) => ({ ur: u, ru: r, en: e }[A.st().ui] || e);
 let DICT = null;
@@ -337,7 +337,7 @@ function onHeard(idx, text, fin) {
     for (const ev of r.ev) {
       if (ev.t === 'ok') { setOk(ev.from, ev.to); hz.lastAct = Date.now(); hz.cur.words += ev.to - ev.from; }
       else if (ev.t === 'soft') { const w = SC[ev.idx]; if (w) { hz.cur.soft.push({ ai: w.ai, idx: ev.idx, kind: ev.kind, n: ev.n || 0, heard: ev.heard, t: Date.now() - hz.cur.t0, abs: Date.now() }); if (flowOn() && tickOn()) tick(); } }
-      else if (ev.t === 'mistake') { if (!flowOn()) { hz.proc[idx] = done + used; hzMistake(ev); return; } hzFlowMistake(ev); if (hz.tr.done()) { hz.proc[idx] = done + used; hzDaurEnd(); return; } hard = true; }
+      else if (ev.t === 'mistake') { if (!flowOn() || ayahChange(ev)) { hz.proc[idx] = done + used; hzMistake(ev); return; } hzFlowMistake(ev); if (hz.tr.done()) { hz.proc[idx] = done + used; hzDaurEnd(); return; } hard = true; }
       else if (ev.t === 'end') { hz.proc[idx] = done + used; hzDaurEnd(); return; }
     }
     if (!hard || r.used <= 0) break;
@@ -350,6 +350,13 @@ function busyOn() { hz.busy = true; hz.busyAt = Date.now(); }
 function busyOff() { hz.busy = false; if (hz.busyAt) { hz.cur.busyMs += Date.now() - hz.busyAt; hz.busyAt = 0; } }
 function hzResume(ai) {
   const y = AY[ai]; clearAyahMarks(ai); hz.tr.setPos(y.first); markNext(); busyOff(); hz.lastAct = Date.now() + 600; hzStatus('listen'); recStart();
+}
+/* the ONLY thing that stops a Hafiz: the ayah itself changed (jumped to / skipped into another ayah). Everything else = beep + note, recitation continues. */
+function ayahChange(ev) {
+  const w = SC[ev.idx]; if (!w) return false;
+  if (ev.kind === 'jump') { const t = SC[ev.to || 0]; return !!t && t.ai !== w.ai; }
+  if (ev.kind === 'skip') { const t = SC[Math.min(SC.length - 1, ev.idx + (ev.n || 1))]; return !!t && t.ai !== w.ai; }
+  return false;
 }
 /* flow mode: hard mistake = two beeps + note, but the recitation is never interrupted */
 function hzFlowMistake(ev) {
@@ -442,7 +449,7 @@ function hzStart(fromAi, plan) {
   hz.own = !!hz.ownNext; hz.ownNext = false; hz.ownAi = null;
   stopAudio(); unlockAc(); popClose();
   hz.native = nativeOk(); if (!hz.native && !webOk()) { A.toast(R('noRec'), 4500); return; }
-  const st = A.st(); if (!st.hs) st.hs = 'h'; if (!st.hsil) st.hsil = 4; if (!st.hmode) st.hmode = 'look';
+  const st = A.st(); if (!st.v3h) { st.v3h = 1; st.hs = 'n'; st.htick = 'off'; st.hflow = 'flow'; A.save(); } if (!st.hs) st.hs = 'n'; if (!st.hsil) st.hsil = 4; if (!st.hmode) st.hmode = 'look';
   const pl = plan || planDefault(); st.hplan = pl; A.save();
   hz.plan = pl; hz.fi = AYI[pl.fs + ':' + pl.fa]; hz.ti = AYI[pl.ts + ':' + pl.ta]; hz.all = []; hz.daur = 1; hz.startAi = fromAi != null ? Math.max(hz.fi, Math.min(hz.ti, fromAi)) : hz.fi;
   hz.on = true; hz.want = true; hz.started = Date.now();
@@ -624,7 +631,7 @@ function popHafiz() {
     `<div class="pr"><span>${esc(R('sil'))}</span>${[3.5, 4, 5].map(v => sw('hsil', v, v + ' ' + R('sec'), (st.hsil || 4) === v)).join('')}</div>` +
     `<div class="pr"><span></span>${sw('hmode', 'look', R('look'), (st.hmode || 'look') === 'look')}${sw('hmode', 'mem', R('mem'), st.hmode === 'mem')}</div>` +
     `<div class="pr"><span>${esc(R('flowL'))}</span>${sw('hflow', 'flow', R('flowOn'), (st.hflow || 'flow') === 'flow')}${sw('hflow', 'ustad', R('flowOff'), st.hflow === 'ustad')}</div>` +
-    `<div class="pr"><span>${esc(R('tickL'))}</span>${sw('htick', 'on', R('on'), (st.htick || 'on') === 'on')}${sw('htick', 'off', R('off'), st.htick === 'off')}</div>` +
+    `<div class="pr"><span>${esc(R('tickL'))}</span>${sw('htick', 'on', R('on'), st.htick === 'on')}${sw('htick', 'off', R('off'), (st.htick || 'off') === 'off')}</div>` +
     `<div class="pr"><span>${esc(R('recL'))}</span>${sw('hrec', 'on', R('on'), st.hrec === 'on')}${sw('hrec', 'off', R('off'), (st.hrec || 'off') === 'off')}</div><div class="sec">${esc(R('fastL'))}</div><div class="chips">${sw('hfast', 'on', R('on'), fastOn())}${sw('hfast', 'off', R('off'), !fastOn())}</div>` +
     (fastOn() ? `<div class="chips">${FASTQ.map(f => sw('hfq', f, recName(f), (st.hfq || FASTQ[0]) === f)).join('')}</div><div class="pr"><span>${esc(R('rateL'))}</span>${[1, 1.25, 1.5].map(v => sw('hrate', v, v + '×', fastRate() === v)).join('')}</div><p class="pn">${esc(R('fastNote'))}</p>` : '') +
     `<p class="pn">${esc(R('info'))}</p>`;

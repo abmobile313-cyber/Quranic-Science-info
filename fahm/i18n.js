@@ -17,7 +17,7 @@ window.I18N = {
       surahs: 'Surahs', settings: 'Settings', ayah: 'Ayat', auto: 'Auto agli ayat', root: 'Root (jad)', same: 'Isi root ke aur lafz', listen: 'Lafz ki awaaz',
       nzh: 'Pas-e-manzar (Shaan-e-nuzool)', nzn: 'Yeh note mashhoor riwayat ka mukhtasar hai. Publish karne se pehle kisi aalim se tasdeeq zaroori hai.',
       ui: 'App ki zubaan', tr: 'Tarjume (jitne chahein chun lein)', rec: 'Qari', audioErr: 'Awaaz ke liye internet chahiye. Abhi sirf animation chal rahi hai.',
-      iosTip: 'iPhone par install: Share → “Add to Home Screen”', install: 'Install', close: 'Theek hai', installBar: 'Fahm ko phone par install karein',
+      iosTip: 'iPhone par install: Share → “Add to Home Screen”', install: 'Install', close: 'Theek hai', installBar: 'Fahmul Quraan ko phone par install karein',
       credits: 'Quran ka matan: Tanzil (Uthmani, Hafs). Lafz-ba-lafz: Quran.com, grammar: Quranic Arabic Corpus. Pas-e-manzar: Tafheem-ul-Quran (Syed Abul Ala Maududi), tafseer: Ibn Kathir (Quran.com). Tarjume: fawazahmed0/quran-api (har tarjume ke saath mutarjim ka naam). Awaaz: EveryAyah aur Quran.com. Animation: is app mein code se bani hai (kisi chehre ki tasveer nahi). Lafzi matlab aur pas-e-manzar ki tasdeeq kisi aalim se karwayein.',
       replay: 'Dobara', word: 'Lafz', of: 'mein se', story: 'Tafsiri kahani', full: 'Bari screen', noVoice: 'Is device par awaaz maujood nahi', drag: 'Ghumane ke liye ungli phiren', ayahWord: 'Ayat'
     },
@@ -26,7 +26,7 @@ window.I18N = {
       surahs: 'Surahs', settings: 'Settings', ayah: 'Ayah', auto: 'Auto next ayah', root: 'Root', same: 'More words from this root', listen: 'Hear the word',
       nzh: 'Background (Context of revelation)', nzn: 'A brief note from well-known reports. Please have a scholar verify before publishing.',
       ui: 'App language', tr: 'Translations (choose as many as you like)', rec: 'Reciter', audioErr: 'Audio needs an internet connection. Only the animation is playing.',
-      iosTip: 'On iPhone: Share → “Add to Home Screen”', install: 'Install', close: 'OK', installBar: 'Install Fahm on your phone',
+      iosTip: 'On iPhone: Share → “Add to Home Screen”', install: 'Install', close: 'OK', installBar: 'Install Fahmul Quraan on your phone',
       credits: 'Quran text: Tanzil (Uthmani, Hafs). Word-by-word: Quran.com, grammar: Quranic Arabic Corpus. Background: Tafheem-ul-Quran (Syed Abul Ala Maududi), tafseer: Ibn Kathir (Quran.com). Translations: fawazahmed0/quran-api (translator named on each). Audio: EveryAyah and Quran.com. Animations are drawn by code in this app (no faces are depicted). Word meanings and context notes should be verified by a scholar.',
       replay: 'Replay', word: 'Word', of: 'of', story: 'Story of the ayah', full: 'Full screen', noVoice: 'Voice is not supported on this device', drag: 'Drag to rotate', ayahWord: 'Ayah'
     }

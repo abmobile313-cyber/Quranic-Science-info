@@ -594,3 +594,10 @@ body.l-ur .mtabs button{font-family:'NastaliqU',serif;font-size:16px}
 #ws.d2 .wsw .ix,#ws.d3 .wsw .ix{font-size:7px}
 #ws.d2.intro .wsw .a,#ws.d2.outro .wsw .a{font-size:21px}#ws.d3.intro .wsw .a,#ws.d3.outro .wsw .a{font-size:16px}#ws.d1.intro .wsw .a,#ws.d1.outro .wsw .a{font-size:27px}
 #ws.d1.intro .wsw .rl,#ws.d2.intro .wsw .rl,#ws.d3.intro .wsw .rl{height:24px}
+
+/* ---- splash v2: static emblem + Fahmul Quraan ---- */
+#splash .sp-em{position:absolute;left:50%;top:42%;transform:translate(-50%,-50%);opacity:0;pointer-events:none;filter:drop-shadow(0 0 28px rgba(220,171,64,.35))}
+#splash .sp-em svg{width:100%;height:100%;display:block}
+#splash .sp-ar{font-size:50px;line-height:1.8;padding:2px 0 8px}
+#splash .sp-en{font-size:14px;letter-spacing:.5em;margin-inline-start:.5em;margin-top:6px}
+@media (orientation:landscape) and (max-height:520px){#splash .sp-ar{font-size:28px;line-height:1.5;padding:0}#splash .sp-en{font-size:11px;margin-top:0}#splash .sp-by{font-size:10px;margin-top:2px}#splash .sp-tag{display:none}}
