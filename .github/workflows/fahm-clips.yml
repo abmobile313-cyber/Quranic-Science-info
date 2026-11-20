@@ -22,7 +22,7 @@ jobs:
               s, a = k.split('_')
               raw = f'raw/{k}.mp4'
               out = f'fahm/video/{k}.mp4'
-              r = subprocess.run(['gdown', '--id', fid, '-O', raw, '-q'])
+              r = subprocess.run(['gdown', f'https://drive.google.com/uc?id={fid}', '-O', raw, '-q'])
               if r.returncode != 0 or not os.path.exists(raw) or os.path.getsize(raw) < 50000:
                   bad.append(k); print('FAILED', k); continue
               c = subprocess.run(['ffmpeg', '-y', '-loglevel', 'error', '-i', raw,
