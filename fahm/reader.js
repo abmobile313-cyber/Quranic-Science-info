@@ -201,19 +201,58 @@ function paintState() {
 /* ---------- real page turn: old page lifts around the spine (3D) + paper sound ---------- */
 function pageSound() {
   try {
-    if (A.st().sfx === 0) return; unlockAc(); if (!ac) return; const t = ac.currentTime, sr = ac.sampleRate, n = Math.floor(sr * .6), buf = ac.createBuffer(1, n, sr), d = buf.getChannelData(0);
-    for (let i = 0; i < n; i++) { const x = i / n, env = Math.min(1, x / .08) * Math.pow(1 - x, 1.6); d[i] = (Math.random() * 2 - 1) * env * (.6 + .4 * Math.sin(i / 90)); }
-    const src = ac.createBufferSource(); src.buffer = buf; const f = ac.createBiquadFilter(); f.type = 'bandpass'; f.Q.value = .9; f.frequency.setValueAtTime(900, t); f.frequency.exponentialRampToValueAtTime(3400, t + .45);
-    const g = ac.createGain(); g.gain.value = .55; src.connect(f); f.connect(g); g.connect(ac.destination); src.start(t);
-    const o = ac.createOscillator(), og = ac.createGain(); o.type = 'sine'; o.frequency.setValueAtTime(150, t + .42); o.frequency.exponentialRampToValueAtTime(70, t + .55); og.gain.setValueAtTime(.0001, t + .42); og.gain.exponentialRampToValueAtTime(.18, t + .44); og.gain.exponentialRampToValueAtTime(.0001, t + .58); o.connect(og); og.connect(ac.destination); o.start(t + .42); o.stop(t + .6);
+    if (A.st().sfx === 0) return;
+    const a = new Audio('sfx/flip' + (Math.random() < .7 ? 1 : 2) + '.mp3'); a.volume = .9; const p = a.play(); if (p && p.catch) p.catch(() => { });
   } catch (e) { }
 }
+/* corner peel: the bottom-left corner lifts, the fold line sweeps across and the page turns over the spine (right) */
+function clipPoly(poly, M, n, keepPos) {
+  const out = [], f = p => ((p[0] - M[0]) * n[0] + (p[1] - M[1]) * n[1]) * (keepPos ? 1 : -1);
+  for (let i = 0; i < poly.length; i++) {
+    const a = poly[i], b = poly[(i + 1) % poly.length], fa = f(a), fb = f(b);
+    if (fa >= 0) out.push(a);
+    if ((fa >= 0) !== (fb >= 0)) { const t = fa / (fa - fb); out.push([a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t]); }
+  }
+  return out;
+}
+const polyCss = p => p.length < 3 ? 'polygon(0 0,0 0,0 0)' : 'polygon(' + p.map(q => q[0].toFixed(1) + 'px ' + q[1].toFixed(1) + 'px').join(',') + ')';
 function flipFx(dir, run) {
   const pg = $('#rpage'), host = pg && pg.parentNode; if (!pg || !pg.offsetWidth || !$('#rin').children.length) { run(); return; }
-  const hr = host.getBoundingClientRect(), mk = () => { const r = pg.getBoundingClientRect(), c = pg.cloneNode(true); c.classList.remove('flip'); c.classList.add('fx'); Object.assign(c.style, { position: 'absolute', margin: '0', left: (r.left - hr.left) + 'px', top: (r.top - hr.top) + 'px', width: r.width + 'px', height: r.height + 'px', pointerEvents: 'none' }); return c; };
+  const hr = host.getBoundingClientRect(), r0 = pg.getBoundingClientRect(), W = r0.width, H = r0.height;
+  let pbg = getComputedStyle(pg).backgroundColor; if (!pbg || /rgba\(.*,\s*0\)$/.test(pbg) || pbg === 'transparent') pbg = document.body.classList.contains('light') ? '#f6efdc' : '#0a1815';
+  const mk = () => { const c = pg.cloneNode(true); c.removeAttribute('id'); c.classList.remove('flip'); Object.assign(c.style, { position: 'absolute', margin: '0', left: (r0.left - hr.left) + 'px', top: (r0.top - hr.top) + 'px', width: W + 'px', height: H + 'px', pointerEvents: 'none', transform: 'none', animation: 'none', transformOrigin: '0 0', background: pbg, boxShadow: 'none' }); return c; };
+  const wrap = (cls) => { const d = document.createElement('div'); d.className = cls; Object.assign(d.style, { position: 'absolute', left: (r0.left - hr.left) + 'px', top: (r0.top - hr.top) + 'px', width: W + 'px', height: H + 'px', pointerEvents: 'none' }); return d; };
   pageSound();
-  if (dir === 'next') { const o = mk(); run(); host.appendChild(o); o.classList.add('fl-next'); setTimeout(() => o.remove(), 700); }
-  else { const o = mk(); run(); const n = mk(); pg.style.visibility = 'hidden'; host.appendChild(o); host.appendChild(n); n.classList.add('fl-prev'); setTimeout(() => { o.remove(); n.remove(); pg.style.visibility = ''; }, 700); }
+  const oldC = mk(); let turnEl, baseEl = null; run();
+  if (dir === 'next') { turnEl = oldC; } else { baseEl = oldC; turnEl = mk(); pg.style.visibility = 'hidden'; }
+  const shell = wrap('pt-shell'); shell.style.zIndex = 7;
+  if (baseEl) { baseEl.style.left = '0'; baseEl.style.top = '0'; shell.appendChild(baseEl); }
+  turnEl.style.left = '0'; turnEl.style.top = '0'; turnEl.style.zIndex = 2;
+  const flapWrap = document.createElement('div'); Object.assign(flapWrap.style, { position: 'absolute', inset: '0', filter: 'drop-shadow(-5px 6px 9px rgba(0,0,0,.55))', zIndex: 3, pointerEvents: 'none' });
+  const flap = mk(); flap.style.left = '0'; flap.style.top = '0'; const back = document.createElement('div'); Object.assign(back.style, { position: 'absolute', inset: '0', pointerEvents: 'none' }); flap.appendChild(back);
+  flapWrap.appendChild(flap); shell.appendChild(turnEl); shell.appendChild(flapWrap); host.appendChild(shell);
+  const dark = document.body.classList.contains('light') ? '#ece3c8' : '#c9bf9e';
+  const T = 720, t0 = performance.now(), fwd = dir === 'next';
+  const rect = [[0, 0], [W, 0], [W, H], [0, H]];
+  function draw(t) {
+    const e = t < .5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+    const C = [e * 2.02 * W, H - Math.sin(Math.PI * Math.min(1, e * 1.15)) * H * .5 * (1 - e * .3)], A = [0, H];
+    let dx = C[0] - A[0], dy = C[1] - A[1], L = Math.hypot(dx, dy) || 1; const n = [dx / L, dy / L], M = [(A[0] + C[0]) / 2, (A[1] + C[1]) / 2];
+    if (e < .004) { turnEl.style.clipPath = 'none'; flapWrap.style.display = 'none'; return; }
+    flapWrap.style.display = '';
+    turnEl.style.clipPath = polyCss(clipPoly(rect, M, n, true));
+    flap.style.clipPath = polyCss(clipPoly(rect, M, n, false));
+    const mn = M[0] * n[0] + M[1] * n[1];
+    flap.style.transform = `matrix(${1 - 2 * n[0] * n[0]},${-2 * n[0] * n[1]},${-2 * n[0] * n[1]},${1 - 2 * n[1] * n[1]},${2 * mn * n[0]},${2 * mn * n[1]})`;
+    const ang = Math.atan2(n[0], -n[1]) * 180 / Math.PI, Lg = Math.abs(W * n[0]) + Math.abs(H * n[1]), sx = W / 2 - n[0] * Lg / 2, sy = H / 2 - n[1] * Lg / 2, fp = (((M[0] - sx) * n[0] + (M[1] - sy) * n[1]) / Lg) * 100, sp = Math.max(8, 180 / Lg * 100);
+    back.style.background = `linear-gradient(${ang}deg,${dark}f2 0%,${dark}f2 ${fp - sp * 2.2}%,rgba(60,45,20,.55) ${fp}%,rgba(60,45,20,.55) 100%),${dark}`;
+    flap.style.opacity = e > .9 ? String(Math.max(0, (1 - e) * 10)) : '1';
+  }
+  function step(now) {
+    let t = Math.min(1, (now - t0) / T); draw(fwd ? t : 1 - t);
+    if (t < 1) requestAnimationFrame(step); else { shell.remove(); pg.style.visibility = ''; }
+  }
+  draw(fwd ? 0 : 1); requestAnimationFrame(step);
 }
 function goPage(i, anim) { i = Math.max(0, Math.min(PG.length - 1, i)); if (i === pi && $('#rin').children.length) return; const dir = i > pi ? 'next' : 'prev'; pi = i; if (anim !== false && open) flipFx(dir, () => renderPage(false)); else renderPage(anim !== false); }
 function ensureLoc(loc) { const i = LP[loc]; if (i !== undefined && i !== pi) goPage(i); }

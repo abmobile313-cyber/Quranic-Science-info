@@ -24,13 +24,22 @@ const A = () => window.__fahmApp, ST = () => A().st(), lg = () => L[ST().ui] || 
 /* ---------- voice (free: phone's own speech engine). Urdu text is spoken for both Urdu and Roman-Urdu users. ---------- */
 const voiceOn = () => ST().onv !== 0;
 function say(text, done) {
-  try { speechSynthesis.cancel(); } catch (e) { }
+  stopV();
   if (!voiceOn() || !('speechSynthesis' in window) || !text) { if (done) done(); return; }
   try {
     const en = ST().ui === 'en', lang = en ? 'en-US' : 'ur-PK', u = new SpeechSynthesisUtterance(text); u.lang = lang; u.rate = .92;
     const vs = speechSynthesis.getVoices(), p = lang.slice(0, 2), v = vs.find(x => x.lang === lang) || vs.find(x => x.lang.slice(0, 2) === p) || (!en ? vs.find(x => x.lang.slice(0, 2) === 'hi') : null);
     if (v) u.voice = v; if (done) { u.onend = done; u.onerror = done; } speechSynthesis.speak(u);
   } catch (e) { if (done) done(); }
+}
+let au = null;
+function stopV() { try { speechSynthesis.cancel(); } catch (e) { } if (au) { try { au.pause(); } catch (e) { } au = null; } }
+/* recorded voice-over made for the Quranic Science site (hu = Urdu/Hindustani, en = English) */
+function clip(name, fb, done) {
+  stopV(); if (!voiceOn()) { if (done) done(); return; }
+  const l = ST().ui === 'en' ? 'en' : 'hu'; let fin = false; const end = () => { if (fin) return; fin = true; if (done) done(); };
+  try { const a = new Audio('vo/v-' + name + '-' + l + '.mp3'); au = a; a.onended = end; a.onerror = () => { au = null; fin = true; say(fb, done); }; const p = a.play(); if (p && p.catch) p.catch(() => { au = null; if (!fin) { fin = true; say(fb, done); } }); }
+  catch (e) { say(fb, done); }
 }
 const spoken = () => (ST().ui === 'en' ? L.en : L.ur);
 const vbtn = () => `<button class="ob-vol" data-a="vol" aria-label="voice">${voiceOn() ? '🔊' : '🔇'}</button>`;
@@ -64,11 +73,11 @@ function wuzu() {
   step = 'wuzu'; killGlobe(); const t = lg();
   shell().innerHTML = `<div class="ob-in c">${bubbles}${vbtn()}<div class="ob-orb"><span class="rg r1"></span><span class="rg r2"></span><span class="rg r3"></span><div class="ob-drop">${drop}</div></div><h2>${t.q}</h2><p>${t.qs}</p>
   <button class="ob-go b3d gold" data-a="yes">${t.yes}</button><button class="ob-alt b3d" data-a="no">${t.no}</button></div>`;
-  box.hidden = false; setTimeout(() => { if (step === 'wuzu') say(spoken().q + ' ' + spoken().qs); }, 450);
+  box.hidden = false; setTimeout(() => { if (step === 'wuzu') clip('wudu', spoken().q + ' ' + spoken().qs); }, 450);
 }
 
 /* ---------- 4. guided, spoken wudu ---------- */
-function steps(i) {
+function steps(i, quiet) {
   step = 'steps'; si = Math.max(0, Math.min(7, i || 0)); const t = lg(), rtl = ST().ui === 'ur', last = si === 7;
   shell().innerHTML = `<div class="ob-in c">${bubbles}${vbtn()}<h5>${t.st}</h5>
   <div class="ob-prog">${t.steps.map((_, k) => `<i class="${k < si ? 'd' : k === si ? 'n' : ''}"></i>`).join('')}</div>
@@ -77,20 +86,20 @@ function steps(i) {
   <div class="ob-row"><button class="ob-alt b3d sm" data-a="rp">🔊 ${t.rp}</button></div>
   ${last ? `<button class="ob-go b3d gold" data-a="yes">${t.done}</button><button class="ob-alt b3d" data-a="yes">${t.look}</button>` : `<button class="ob-go b3d gold" data-a="nx">${t.nx}</button>`}
   <button class="ob-alt b3d" data-a="${si ? 'pv' : 'wuzu'}">${t.back}</button></div>`;
-  box.hidden = false; say(spoken().steps[si]);
+  box.hidden = false; if (!quiet) say(spoken().steps[si]);
 }
 
 function shell() { if (!box) { box = D.createElement('div'); box.id = 'onb'; D.body.appendChild(box); box.addEventListener('click', onClick); } return box; }
-function close() { try { speechSynthesis.cancel(); } catch (e) { } killGlobe(); if (box) { box.classList.add('out'); setTimeout(() => { box && box.remove(); box = null; step = ''; }, 380); } }
+function close() { stopV(); killGlobe(); if (box) { box.classList.add('out'); setTimeout(() => { box && box.remove(); box = null; step = ''; }, 380); } }
 function onClick(e) {
   const b = e.target.closest('button'); if (!b) return; const a = A(), s = ST();
   if (b.dataset.lang) { a.setPref('ui', b.dataset.lang); const h = (b.dataset.lang === 'en' ? L.en : L.ur).hello; setup(); say(h); return; }
   if (b.dataset.p === 'mk') { a.setMaslak(b.dataset.v); setup(); return; }
   if (b.dataset.p) { a.setPref(b.dataset.p, b.dataset.v); setup(); return; }
   const k = b.dataset.a; if (!k) return;
-  if (k === 'vol') { s.onv = voiceOn() ? 0 : 1; a.save(); b.textContent = voiceOn() ? '🔊' : '🔇'; if (!voiceOn()) { try { speechSynthesis.cancel(); } catch (x) { } } else if (step === 'wuzu') say(spoken().q); else if (step === 'steps') say(spoken().steps[si]); return; }
+  if (k === 'vol') { s.onv = voiceOn() ? 0 : 1; a.save(); b.textContent = voiceOn() ? '🔊' : '🔇'; if (!voiceOn()) stopV(); else if (step === 'wuzu') clip('wudu', spoken().q); else if (step === 'steps') say(spoken().steps[si]); return; }
   if (k === 'rp') { say(spoken().steps[si]); return; }
-  if (k === 'next') { s.onb = 1; a.save(); wuzu(); } else if (k === 'no') steps(0); else if (k === 'nx') steps(si + 1); else if (k === 'pv') steps(si - 1); else if (k === 'wuzu') wuzu(); else if (k === 'yes') close();
+  if (k === 'next') { s.onb = 1; a.save(); wuzu(); } else if (k === 'no') { steps(0, true); clip('wuduno', spoken().q, () => { if (step === 'steps' && si === 0) say(spoken().steps[0]); }); } else if (k === 'nx') steps(si + 1); else if (k === 'pv') steps(si - 1); else if (k === 'wuzu') wuzu(); else if (k === 'yes') close();
 }
 function start() { if (window.__fahmOnb) return; window.__fahmOnb = 1; if (!ST().onb) { shell(); lang(); } else { shell(); wuzu(); } }
 let ready = false, splashGone = !D.documentElement.classList.contains('splashing') && !D.getElementById('splash');

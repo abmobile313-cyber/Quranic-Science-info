@@ -170,23 +170,6 @@ AR.rosette = (c, W, H, t, p, P) => {   // generative Islamic star pattern, uniqu
   for (let i = 0; i < n; i++) { const a = i / n * TAU + t * .15; glow(c, cx + Math.cos(a) * r0 * 1.12, cy + Math.sin(a) * r0 * 1.12, 6, i % 2 ? GOLD2 : CY, p * .7); } glow(c, cx, cy, r0 * .22, GOLD2, p * .8); lab(c, P.l[0], cx, H * .94, 'center', GOLD2, P);
 };
 
-AR.calli = (c, W, H, t, p, P) => {   // the word's own Arabic letters are written stroke-by-stroke; unique ornament + root constellation per word
-  const ar = P.ar || '', sd = P.seed || 1, hue = sd % 360, k = ease(p * .9);
-  c.save(); c.textAlign = 'center'; c.textBaseline = 'middle'; c.direction = 'rtl';
-  let fs = Math.min(H * .5, 150); c.font = fs + 'px AmiriQ, serif'; const m0 = c.measureText(ar).width || 1; if (m0 > W * .8) { fs = fs * W * .8 / m0; c.font = fs + 'px AmiriQ, serif'; }
-  const tw = c.measureText(ar).width, cx = W / 2, cy = H * .5, x1 = cx + tw / 2, x0 = cx - tw / 2, xe = x1 - tw * k;
-  const gr = c.createLinearGradient(x0, 0, x1, 0); gr.addColorStop(0, `hsl(${(hue + 40) % 360},85%,70%)`); gr.addColorStop(1, GOLD2);
-  c.lineWidth = 1.2; c.strokeStyle = rgba(GOLD, .3); c.strokeText(ar, cx, cy);
-  c.save(); c.beginPath(); c.rect(xe - 2, 0, x1 - xe + 6, H); c.clip(); c.fillStyle = gr; c.shadowColor = rgba(GOLD, .6); c.shadowBlur = 14; c.fillText(ar, cx, cy); c.restore();
-  if (k < 1) glow(c, xe, cy, fs * .35, GOLD2, .9);
-  // flourish under the word: bezier whose shape comes from the seed
-  const R = rnd(sd), amp = H * (.05 + R() * .07), n = 2 + (sd % 3), yb = cy + fs * .62; c.strokeStyle = `hsla(${(hue + 160) % 360},80%,68%,${.55 * p})`; c.lineWidth = 1.4; c.beginPath();
-  for (let i = 0; i <= 60; i++) { const u = i / 60, X = lerp(x0, x1, u * k), Y = yb + Math.sin(u * TAU * n + t * 1.3) * amp * Math.sin(u * PI); i ? c.lineTo(X, Y) : c.moveTo(X, Y); } c.stroke();
-  // floating nuqat
-  for (let i = 0; i < 3 + sd % 4; i++) { const a = R() * TAU, r = (.28 + R() * .2) * Math.min(W, H); glow(c, cx + Math.cos(a + t * .2) * r * 1.6, cy + Math.sin(a + t * .2) * r * .9, 5, `#${[GOLD2, CY, ROSE][i % 3].slice(1)}`, p * .8); }
-  c.restore();
-};
-
 /* ---------- word -> archetype (English gloss / lemma motif / root) ---------- */
 const MOTIF = { prep: 'arrow', pron: 'arrow', rain: 'drops', oneness: 'one', crowd: 'crowd', shatter: 'split', path: 'path', ripple: 'waves', push: 'arrow', descend: 'arrow', converge: 'orbits', caravan: 'path', whisper: 'ear', sphere: 'crescent', scales: 'scales', flames: 'flame', fade: 'timearc', day: 'burst', spiral: 'orbits', show: 'eye', rope: 'rope', river: 'waves', orbit: 'orbits', negate: 'negate', house: 'kaaba', globe: 'orbits', feed: 'seed', envy: 'eye', duo: 'waves', dawn: 'burst', coins: 'scales', beads: 'rope', elephants: 'crowd', link: 'arrow', rings: 'rings' };
 const RULES = [
@@ -212,7 +195,7 @@ function motifFor(W, lem) {
   if (lem && lem.m && MOTIF[lem.m]) return MOTIF[lem.m];
   const g = String(W.en || '').toLowerCase().replace(/\([^)]*\)/g, ' ').replace(/[^a-z' ]+/g, ' ').replace(/\s+/g, ' ').trim();
   for (const [re, m] of RULES) if (re.test(g)) return m;
-  return 'calli';
+  return 'rosette';
 }
 
 /* ---------- small multilingual UI strings ---------- */
@@ -250,7 +233,6 @@ const NOTES = {   // short meaning note per archetype: ur / ru / en
   rope: ['رسی اور بندھن', 'Rassi aur bandhan', 'A rope and a bond'],
   split: ['بکھرنا اور ٹوٹنا', 'Bikharna aur tootna', 'Shattering apart'],
   arrow: ['ایک لفظ جو دو چیزوں کو جوڑتا ہے', 'Ek lafz jo do cheezon ko jodta hai', 'A small word that links two things'],
-  calli: ['لفظ اپنے حروف سے لکھا جا رہا ہے', 'Lafz apne huroof se likha ja raha hai', 'The word being written, letter by letter'],
   rosette: ['اس لفظ کی اپنی نشانی', 'Is lafz ki apni nishani', 'This word’s own pattern']
 };
 const UI_I = { ur: 0, ru: 1, en: 2 };
@@ -290,21 +272,6 @@ function dataFor(i) {
   return { W, m, mm, mc, rtl, tl, note, gram, labs, seed: hash(W.ar + (W.root || '')) };
 }
 
-/* ---------- per-word signature: colour + orbiting root letters + own constellation (so no two words look alike) ---------- */
-function SIG(x, w, h, t, p, d, small) {
-  if (!d || !d.W) return; const cx = w / 2, cy = h / 2, Rx = w * (small ? .465 : .47), Ry = h * (small ? .44 : .45), sd = d.seed || 1, hue = sd % 360, dir = (sd >> 3) & 1 ? 1 : -1;
-  const raw = d.W.root ? [...d.W.root] : [...API.strip(d.W.ar)].slice(0, 4), L = raw.slice(0, 4), n = Math.max(1, L.length), k = 3 + (sd >> 5) % 5, a0 = (sd % 628) / 100;
-  x.save(); x.globalAlpha = Math.min(1, p);
-  const g = x.createRadialGradient(cx, cy, 0, cx, cy, Math.max(Rx, Ry)); g.addColorStop(0, `hsla(${hue},80%,60%,.10)`); g.addColorStop(1, 'hsla(0,0%,0%,0)'); x.fillStyle = g; x.fillRect(0, 0, w, h);
-  x.lineWidth = 1; x.strokeStyle = `hsla(${hue},85%,68%,.22)`; x.setLineDash([2 + (sd >> 7) % 5, 5 + (sd >> 9) % 7]); x.beginPath(); x.ellipse(cx, cy, Rx, Ry, 0, 0, 6.2832); x.stroke(); x.setLineDash([]);
-  x.strokeStyle = `hsla(${(hue + 120) % 360},80%,70%,.14)`; x.beginPath();
-  for (let i = 0; i <= k; i++) { const a = a0 - dir * t * .12 + (i % k) * 6.2832 / k, f = .86 + .04 * Math.sin(t + i); const X = cx + Math.cos(a) * Rx * f, Y = cy + Math.sin(a) * Ry * f; i ? x.lineTo(X, Y) : x.moveTo(X, Y); } x.stroke();
-  for (let i = 0; i < k; i++) { const a = a0 - dir * t * .12 + i * 6.2832 / k, f = .86 + .04 * Math.sin(t + i); x.fillStyle = `hsla(${(hue + 120) % 360},90%,75%,.55)`; x.beginPath(); x.arc(cx + Math.cos(a) * Rx * f, cy + Math.sin(a) * Ry * f, small ? 1.3 : 2, 0, 6.2832); x.fill(); }
-  x.font = `${small ? 12 : 22}px AmiriQ, serif`; x.textAlign = 'center'; x.textBaseline = 'middle';
-  L.forEach((ch, i) => { const a = a0 + dir * t * .32 + i * 6.2832 / n, X = cx + Math.cos(a) * Rx, Y = cy + Math.sin(a) * Ry, c = `hsl(${(hue + i * 63) % 360},88%,74%)`;
-    x.fillStyle = `hsla(${(hue + i * 63) % 360},90%,45%,.5)`; x.beginPath(); x.arc(X, Y, small ? 8 : 15, 0, 6.2832); x.fill(); x.fillStyle = c; x.fillText(ch, X, Y + 1); });
-  x.restore();
-}
 function buildDom() {
   if (el) return;
   el = document.createElement('div'); el.id = 'ws'; el.hidden = true;
@@ -355,7 +322,8 @@ function set(i) {
   const d = dataFor(i); drawMeta = d;
   cnt.textContent = `— ${L.word} ${i + 1} ${L.of} ${n}`;
   const root = d.W.root ? `<div class="ws-root"><span>${esc(L.root)}</span> ${esc(rootSp(d.W.root))}<b class="ar">${esc(letters(d.W.root))}</b></div>` : '';
-  body.innerHTML = `<div class="ws-m ${d.rtl ? 'u' : ''}" ${d.rtl ? 'dir="rtl"' : ''}>${esc(d.mm)}</div><div class="ws-side">${root}${d.note ? `<div class="ws-note ${d.rtl ? 'u' : ''}" ${d.rtl ? 'dir="rtl"' : ''}>${esc(d.note)}</div>` : ''}<div class="ws-gram ${d.rtl ? 'u' : ''}" ${d.rtl ? 'dir="rtl"' : ''}>${esc(d.gram)}</div></div>`;
+  body.innerHTML = `<div class="ws-m ${d.rtl ? 'u' : ''}" ${d.rtl ? 'dir="rtl"' : ''}>${esc(d.mm)}</div><div class="ws-side">${root}${d.note ? `<div class="ws-note ${d.rtl ? 'u' : ''}" ${d.rtl ? 'dir="rtl"' : ''}>${esc(d.note)}</div>` : ''}<div class="ws-gram ${d.rtl ? 'u' : ''}" ${d.rtl ? 'dir="rtl"' : ''}>${esc(d.gram)}</div><div class="ws-cn"></div></div>`;
+  if (window.FahmCnt) FahmCnt.load().then(() => { const h = FahmCnt.html(d.W.ar, d.W.root, st.ui, n2 => { try { const S0 = FahmData.D.surahs[n2 - 1]; return st.ui === 'ur' ? S0.ur : S0.en; } catch (e) { return n2; } }), box = Q('.ws-cn'); if (box && idx === i) box.innerHTML = h.replace(/<div class="cn-w">[\s\S]*$/, '</div>'); });
   const ac = Q('#wsAy .wsw.on'); if (ac && ac.scrollIntoView) { try { ac.scrollIntoView({ block: 'nearest', inline: 'nearest' }); } catch (e) { } }
 }
 let drawMeta = null;
@@ -366,10 +334,8 @@ function frame() {
   if (!drawMeta) { // intro / summary: calm rosette
     const P = { l: ['', '', ''], seed: 99, rtl: false }; AR.rosette(ctx, w, h, t + 1, ease(t * .7), P); return;
   }
-  const P = { l: drawMeta.labs, seed: drawMeta.seed, rtl: drawMeta.rtl, ar: drawMeta.W.ar, root: drawMeta.W.root }, pr = ease(t / 1.4), soft = drawMeta.m === 'arrow' || drawMeta.m === 'calli';
-  if (soft && drawMeta.m !== 'calli') { ctx.save(); ctx.globalAlpha = .45; AR.arrow(ctx, w, h, t, pr, Object.assign({}, P, { l: ['', '', ''] })); ctx.restore(); }
-  if (drawMeta.m === 'calli' || soft) AR.calli(ctx, w, h, t, pr, P); else { AR[drawMeta.m](ctx, w, h, t, pr, P); ctx.save(); ctx.globalAlpha = .13; AR.calli(ctx, w, h, 9, 1, Object.assign({}, P, { l: ['', '', ''] })); ctx.restore(); }
-  SIG(ctx, w, h, t, ease(t / 1.4), drawMeta, false);
+  const P = { l: drawMeta.labs, seed: drawMeta.seed, rtl: drawMeta.rtl };
+  (AR[drawMeta.m] || AR.rosette)(ctx, w, h, t, ease(t / 1.4), P);
 }
 function open(i) {
   buildDom(); isOpen = true; el.hidden = false; document.documentElement.classList.add('ws-on'); buildAyah(); sizeCv(); set(i == null ? -1 : i);
@@ -382,7 +348,7 @@ function updPlay() { if (!el) return; const p = API.isPlaying(); Q('#wsIcoP').st
 function miniInit(canvas) { mini = { cv: canvas, ctx: canvas.getContext('2d'), t0: performance.now(), d: null, raf: 0 }; }
 function miniSet(i) {
   if (!mini || !API) return; const { A } = API.cur(); if (i < 0 || i >= A.words.length) return; mini.d = dataFor(i); mini.t0 = performance.now();
-  if (!mini.raf) { const f = () => { mini.raf = requestAnimationFrame(f); const c = mini.cv; if (!c.offsetParent) return; const r = c.getBoundingClientRect(), dd = Math.min(2, devicePixelRatio || 1), w = Math.round(r.width * dd), h = Math.round(r.height * dd); if (c.width !== w || c.height !== h) { c.width = w; c.height = h; } const x = mini.ctx; x.setTransform(dd, 0, 0, dd, 0, 0); x.clearRect(0, 0, r.width, r.height); const t = (performance.now() - mini.t0) / 1000, d = mini.d; if (!d) return; const pr = ease(t / 1.4), P = { l: ['', '', ''], seed: d.seed, rtl: d.rtl, ar: d.W.ar, root: d.W.root }, sd = d.seed, W2 = r.width, H2 = r.height; x.save(); if ((sd >> 11) & 1) { x.translate(W2, 0); x.scale(-1, 1); } x.translate(W2 / 2, H2 / 2); x.rotate(((sd % 9) - 4) * .012); x.scale(.97 + (sd % 5) * .012, .97 + (sd % 5) * .012); x.translate(-W2 / 2, -H2 / 2); if (d.m === 'calli' || d.m === 'arrow') { if (d.m === 'arrow') { x.globalAlpha = .4; AR.arrow(x, W2, H2, t, pr, P); x.globalAlpha = 1; } x.restore(); x.save(); AR.calli(x, W2, H2, t, pr, P); } else { (AR[d.m] || AR.calli)(x, W2, H2, t, pr, P); } x.restore(); SIG(x, W2, H2, t, pr, d, true); }; mini.raf = requestAnimationFrame(f); }
+  if (!mini.raf) { const f = () => { mini.raf = requestAnimationFrame(f); const c = mini.cv; if (!c.offsetParent) return; const r = c.getBoundingClientRect(), dd = Math.min(2, devicePixelRatio || 1), w = Math.round(r.width * dd), h = Math.round(r.height * dd); if (c.width !== w || c.height !== h) { c.width = w; c.height = h; } const x = mini.ctx; x.setTransform(dd, 0, 0, dd, 0, 0); x.clearRect(0, 0, r.width, r.height); const t = (performance.now() - mini.t0) / 1000, d = mini.d; if (!d) return; (AR[d.m] || AR.rosette)(x, r.width, r.height, t, ease(t / 1.4), { l: ['', '', ''], seed: d.seed, rtl: d.rtl });}; mini.raf = requestAnimationFrame(f); }
 }
 function miniInfo(i) { const d = dataFor(i); return { m: d.m, note: d.note || d.gram, meaning: d.mm, rtl: d.rtl }; }
 

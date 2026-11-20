@@ -3,9 +3,9 @@
   'use strict';
   const NS = 'http://www.w3.org/2000/svg';
   const TXT = {
-    ur: { t: 'مخارجِ حروف', sub: 'حروف کے نکلنے کی ۱۷ جگہیں — صرف پڑھنے کے لیے', tap: 'کسی حصے کو دبائیں', btn: 'مخارجِ حروف', bs: '۵ مقامات · ۱۷ مخارج · تصویر کے ساتھ', letters: 'حروف', back: 'واپس', n: 'نمبر' },
-    ru: { t: 'Makharij-ul-Huroof', sub: 'Huroof nikalne ki 17 jagahein — sirf padhne ke liye', tap: 'Kisi hisse ko dabayein', btn: 'Makharij-ul-Huroof', bs: '5 maqamat · 17 makharij · tasveer ke saath', letters: 'Huroof', back: 'Wapas', n: 'No.' },
-    en: { t: 'Makharij al-Huroof', sub: 'The 17 articulation points of the Arabic letters — for reading only', tap: 'Tap an area', btn: 'Makharij al-Huroof', bs: '5 areas · 17 points · with a picture', letters: 'Letters', back: 'Back', n: 'No.' }
+    ur: { t: 'مخارجِ حروف', sub: 'حروف کے نکلنے کی ۱۷ جگہیں — صرف پڑھنے کے لیے', tap: 'کسی حصے کو دبائیں', btn: 'مخارجِ حروف', bs: '۵ مقامات · ۱۷ مخارج · تصویر کے ساتھ', letters: 'حروف', back: 'واپس', n: 'نمبر', mx: 'استاد ایکس رے', m3: 'تھری ڈی سر' },
+    ru: { t: 'Makharij-ul-Huroof', sub: 'Huroof nikalne ki 17 jagahein — sirf padhne ke liye', tap: 'Kisi hisse ko dabayein', btn: 'Makharij-ul-Huroof', bs: '5 maqamat · 17 makharij · tasveer ke saath', letters: 'Huroof', back: 'Wapas', n: 'No.', mx: 'Ustad X-Ray', m3: '3D Head' },
+    en: { t: 'Makharij al-Huroof', sub: 'The 17 articulation points of the Arabic letters — for reading only', tap: 'Tap an area', btn: 'Makharij al-Huroof', bs: '5 areas · 17 points · with a picture', letters: 'Letters', back: 'Back', n: 'No.', mx: 'Ustad X-Ray', m3: '3D Head' }
   };
   /* areas: ar name + description. dots = [x,y] in 300x230 side-view (face looks left). */
   const AREAS = [
@@ -80,6 +80,35 @@
     svg.innerHTML = g; return svg;
   }
 
+
+  /* ---- the Ustad's own face (X-ray) / photo-real 3D head, same engines as the Quranic Science AI lab ---- */
+  const ZONE = { jawf: ['jawf'], halq: ['h1', 'h2', 'h3'], lisan: ['l1', 'l2', 'l3', 'l4', 'l5', 'l5', 'l5', 'l6', 'l7', 'l8'], shaf: ['s1', 's2'], khay: ['kh'] };
+  let lab = null, labMode = 'xray', labHost = null, labLang = '';
+  const gl3 = () => { try { return !!(window.MLab3 && MLab3.ok()); } catch (e) { return false; } };
+  function mountLab(dg) {
+    if (labHost !== dg) { labHost = dg; lab = null; dg.innerHTML = ''; }
+    if (!dg.querySelector('.mk-modes')) {
+      dg.innerHTML = '<div class="mk-stage"></div><div class="mk-modes"><button data-m="xray"></button><button data-m="3d"></button></div>';
+      dg.querySelector('.mk-modes').onclick = e => { const b = e.target.closest('button'); if (!b) return; labMode = b.dataset.m; killLab(); mountLab(dg); labTo(sel); };
+    }
+    const T = tx(); dg.querySelectorAll('.mk-modes button').forEach(b => { b.textContent = b.dataset.m === 'xray' ? T.mx : T.m3; b.classList.toggle('on', b.dataset.m === labMode); b.hidden = b.dataset.m === '3d' && !gl3(); });
+    if (lab && labLang === lang()) return; killLab();
+    const st = dg.querySelector('.mk-stage'); st.innerHTML = ''; const svg = document.createElementNS(NS, 'svg'); st.appendChild(svg); labLang = lang();
+    try {
+      const Eng = labMode === '3d' && gl3() ? window.MLab3 : (window.MLabXray && MLabXray.ok() ? window.MLabXray : window.MLab);
+      lab = Eng.Lab(svg, labLang === 'ur' ? 'ur' : labLang === 'en' ? 'en' : 'ur'); lab.labels && lab.labels(true, labLang === 'en' ? 'en' : 'ur');
+    } catch (e) { lab = null; st.innerHTML = '<p class="mk-err">3D lab unavailable on this device.</p>'; }
+  }
+  function killLab() { try { lab && lab.destroy && lab.destroy(); } catch (e) { } lab = null; if (labHost) { const st = labHost.querySelector('.mk-stage'); if (st) st.innerHTML = ''; } }
+  let sel = 0;
+  function say(ch) {
+    try { speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(ch + '\u064E'); u.lang = 'ar-SA'; u.rate = .6; const v = speechSynthesis.getVoices().find(x => /^ar/i.test(x.lang)); if (v) u.voice = v; speechSynthesis.speak(u); } catch (e) { }
+  }
+  function labTo(i) {
+    sel = i; if (!lab) return; const a = AREAS[cur], z = (ZONE[a.id] || [])[i]; if (!z) return; const ch = a.pts[i].L.split(' ')[0];
+    try { lab.to(ch, z, 700, 'a'); } catch (e) { } say(ch);
+  }
+
   function render() {
     const T = tx(), L = lang(), a = AREAS[cur];
     root.querySelector('.mk-t').textContent = T.t; root.querySelector('.mk-sub').textContent = T.sub;
@@ -91,18 +120,16 @@
       const b = el('button', 'mk-tab' + (i === cur ? ' on' : ''), `<b>${x.ar}</b>`); b.style.setProperty('--c', x.c);
       b.onclick = () => { cur = i; render(); root.querySelector('.mk-body').scrollTo({ top: 0, behavior: 'smooth' }); }; tabs.appendChild(b);
     });
-    const dg = root.querySelector('.mk-dg'); dg.innerHTML = ''; dg.appendChild(diagram(a));
+    const dg = root.querySelector('.mk-dg'); mountLab(dg);
     root.querySelector('.mk-an').textContent = a.nm[L] || a.nm.ru;
     const list = root.querySelector('.mk-list'); list.innerHTML = '';
     a.pts.forEach((p, i) => {
       const c = el('div', 'mk-card', `<div class="mk-no" style="background:${a.c}">${starts[cur] + i}</div><div class="mk-lt">${p.L.split(' ').map(x => `<span>${x}</span>`).join('')}</div><p>${p.d[L] || p.d.ru}</p>`);
-      c.dataset.i = i; c.onclick = () => hi(i); list.appendChild(c);
+      c.dataset.i = i; c.onclick = () => { hi(i); labTo(i); }; list.appendChild(c);
     });
-    dg.querySelectorAll('.mk-dot').forEach(d => d.onclick = () => hi(+d.dataset.i));
   }
   function hi(i) {
     root.querySelectorAll('.mk-card').forEach(c => c.classList.toggle('on', +c.dataset.i === i));
-    root.querySelectorAll('.mk-dot').forEach(d => d.classList.toggle('on', +d.dataset.i === i));
     const c = root.querySelector('.mk-card[data-i="' + i + '"]'); if (c) c.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
   }
   function build() {
