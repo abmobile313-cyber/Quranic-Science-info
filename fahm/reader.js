@@ -20,6 +20,9 @@ const RS = {
 Object.assign(RS.ur, { goto: 'کہاں جانا ہے', surahL: 'سورت', juzL: 'پارہ', go: 'جائیں', pickJuz: 'پارہ چنیں', target: 'روزانہ ہدف', resume: 'جہاں چھوڑا تھا وہیں سے', from: 'کہاں سے', to: 'کہاں تک', reps: 'کتنے دَور', quick: 'جلدی چنیں', qFat: 'فاتحہ', qJuz: 'پارہ', qAll: 'پورا قرآن', history: 'پچھلی رپورٹیں', daur: 'دَور', kWrong: 'لفظ بدلا', kSkip: 'لفظ چھوٹا', kJump: 'آیت بدلی', clean: 'درست آیات', hard: 'سخت غلطی', stall: 'اٹکا', doubt: 'شک', time: 'وقت', wpm: 'لفظ/منٹ', atka: 'یہاں اٹکے', secHard: 'سخت غلطیاں اور ان کا اثر', secStall: 'کہاں کہاں اٹکے (لقمہ)', secDoubt: 'شک والی جگہیں', doubtNote: 'یہاں ریکارڈر نے صاف نہیں سنا یا چھوٹا لفظ ہلکا چھوٹا؛ بہاؤ نہیں توڑا گیا، دوبارہ دیکھ لیں۔', secOk: 'کیا درست رہا', daurRep: 'دَور کی رپورٹ', ask: 'کیا آپ نے یہ ساری غلطیاں نوٹ کر لیں؟ کیا الگ دَور شروع کریں؟', noteNext: 'نوٹ کر لیں — اگلا دَور', noteFinal: 'نوٹ کر لیں — آخری رپورٹ', again: 'اسی دَور کو دوبارہ', stopFinal: 'رکیں — آخری رپورٹ دکھائیں', finalRep: 'آخری رپورٹ', copy: 'رپورٹ کاپی کریں', newPlan: 'نیا ہدف / دَور', close: 'بند کریں', daurs: 'دَور', avgClean: 'اوسط درست', trend: 'پہلے سے آخری دَور', secRange: 'ہدف', secPer: 'ہر دَور', secRep: 'بار بار کی غلطیاں', secImpact: 'غلطیوں سے ترجمے/معنی کا نقصان', secOkAll: 'ہر دَور میں درست رہی آیات', limits: 'نوٹ: غلطی صرف الفاظ کی سطح پر پکڑی جاتی ہے؛ زبر/زیر/تجوید کی پہچان ریکارڈر نہیں کر سکتا۔', times: 'بار', info: 'نوٹ: آواز کی پہچان انٹرنیٹ سے ہوتی ہے، صرف الفاظ جانچتی ہے (حرکات/تجوید نہیں)۔ حافظ موڈ صرف سخت غلطی (آیت بدلنا، لمبا چھوٹنا) پر روکتا ہے۔', sS: 'سخت', sN: 'درمیانی', sH: 'حافظ (تیز رفتار)' });
 Object.assign(RS.ru, { goto: 'Kahan jana hai', surahL: 'Surah', juzL: 'Para', go: 'Jayein', pickJuz: 'Para chunein', target: 'Rozana target', resume: 'Jahan chhoda tha wahin se', from: 'Kahan se', to: 'Kahan tak', reps: 'Kitne daur', quick: 'Jaldi chunein', qFat: 'Fatiha', qJuz: 'Para', qAll: 'Poora Quran', history: 'Pichhli reports', daur: 'Daur', kWrong: 'Lafz badla', kSkip: 'Lafz chhoota', kJump: 'Ayat badli', clean: 'Durust ayat', hard: 'Sakht galti', stall: 'Atke', doubt: 'Shak', time: 'Waqt', wpm: 'lafz/min', atka: 'Yahan atke', secHard: 'Sakht galtiyan aur unka asar', secStall: 'Kahan kahan atke (lukma)', secDoubt: 'Shak wali jagahein', doubtNote: 'Yahan recogniser ne saaf nahin suna ya chhota lafz halka chhoota; rawani nahin todi gayi, dobara dekh lein.', secOk: 'Kya durust raha', daurRep: 'Daur ki report', ask: 'Kya aapne yeh saari galtiyan note kar li? Kya alag daur shuru karein?', noteNext: 'Note kar li — agla daur', noteFinal: 'Note kar li — final report', again: 'Isi daur ko dobara', stopFinal: 'Rukein — final report dikhayein', finalRep: 'Final report', copy: 'Report copy karein', newPlan: 'Naya target / daur', close: 'Band karein', daurs: 'Daur', avgClean: 'Ausat durust', trend: 'Pehle se aakhri daur', secRange: 'Target', secPer: 'Har daur', secRep: 'Baar baar ki galtiyan', secImpact: 'Galtiyon se tarjme/matlab ka nuksan', secOkAll: 'Har daur mein durust rahi ayat', limits: 'Note: galti sirf alfaaz ki satah par pakdi jaati hai; zabar/zer/tajweed ki pehchan recogniser nahin kar sakta.', times: 'baar', info: 'Note: awaaz ki pehchan internet se hoti hai aur sirf alfaaz jaanchti hai (harakat/tajweed nahin). Hafiz mode sirf sakht galti (ayat badalna, lamba chhootna) par rokta hai.', sS: 'Sakht', sN: 'Darmiyani', sH: 'Hafiz (tez raftar)' });
 Object.assign(RS.en, { goto: 'Go to', surahL: 'Surah', juzL: 'Juz (Para)', go: 'Go', pickJuz: 'Pick a Juz', target: 'Daily target', resume: 'Continue where you left off', from: 'From', to: 'To', reps: 'Number of rounds', quick: 'Quick pick', qFat: 'Fatiha', qJuz: 'Para (Juz)', qAll: 'Whole Quran', history: 'Past reports', daur: 'Round', kWrong: 'Word changed', kSkip: 'Word skipped', kJump: 'Ayah changed', clean: 'Clean ayat', hard: 'Hard mistakes', stall: 'Stalls', doubt: 'Doubts', time: 'Time', wpm: 'words/min', atka: 'Stalled here', secHard: 'Hard mistakes and their effect', secStall: 'Where you stalled (prompt)', secDoubt: 'Doubtful spots', doubtNote: 'The recogniser did not hear these clearly or a small word slipped; the flow was not interrupted — please recheck.', secOk: 'What went right', daurRep: 'Round report', ask: 'Did you note all these mistakes? Start another round?', noteNext: 'Noted — next round', noteFinal: 'Noted — final report', again: 'Repeat this round', stopFinal: 'Stop — show final report', finalRep: 'Final report', copy: 'Copy report', newPlan: 'New target / rounds', close: 'Close', daurs: 'Rounds', avgClean: 'Avg clean', trend: 'First to last round', secRange: 'Target', secPer: 'Each round', secRep: 'Repeated mistakes', secImpact: 'Loss to translation / meaning', secOkAll: 'Ayat clean in every round', limits: 'Note: mistakes are caught at word level only; zabar/zer/tajweed cannot be detected by the recogniser.', times: 'times', info: 'Note: recognition needs internet and checks words only (not harakat/tajweed). Hafiz mode interrupts only for hard mistakes (changed ayah, long skip).', sS: 'Strict', sN: 'Normal', sH: 'Hafiz (fast pace)' });
+Object.assign(RS.ru, { corL: 'Galti par sahi ayat kaun sunaye', corQ: 'Qari', corM: 'Meri apni awaaz', corN: 'Apni awaaz tabhi bajegi jab us ayat ki apni recording save ho; warna Qari sunaayega.' });
+Object.assign(RS.en, { corL: 'Who recites the fix after a mistake', corQ: 'Qari', corM: 'My own voice', corN: 'Your own voice plays only if that ayah was saved in your recordings; otherwise the Qari recites it.' });
+Object.assign(RS.ur, { corL: 'غلطی پر صحیح آیت کون سنائے', corQ: 'قاری', corM: 'میری اپنی آواز', corN: 'اپنی آواز تبھی چلے گی جب اس آیت کی ریکارڈنگ محفوظ ہو؛ ورنہ قاری سنائے گا۔' });
 Object.assign(RS.ru, { wrongF: 'Galti note ho gayi — padhte rahein', flowL: 'Rawani', flowOn: 'Bina roke (beep + note)', flowOff: 'Ustad (ruk kar sunaye)', tickL: 'Chhoti galti par tik', on: 'On', off: 'Off', recL: 'Meri awaaz record (taqabul ke liye, tajurba)', cQari: 'Qari', cMine: 'Meri awaaz', noRecYet: 'Is jagah ki recording nahin mili (record On karke naya daur shuru karein).', secHk: 'Harkaat ki jaanch-list (mushaf se khud tasdeeq karein)', hkNote: 'Mic harkat nahin sunta. In lafzon par zabar/zer/pesh/shadda badalne se maani badal jate hain. ⚠ = is ayat mein aaj shak/galti bhi thi. Qari button se sahi tilawat sunkar milayein.' });
 Object.assign(RS.en, { wrongF: 'Mistake noted — keep going', flowL: 'Flow', flowOn: 'No stopping (beep + note)', flowOff: 'Ustad (stops and recites)', tickL: 'Tick on small slips', on: 'On', off: 'Off', recL: 'Record my voice (to compare, experimental)', cQari: 'Qari', cMine: 'My voice', noRecYet: 'No recording for this spot (turn recording On and start a new round).', secHk: 'Harakat check-list (verify against the mushaf)', hkNote: 'The mic cannot hear harakat. For these words a wrong fatha/kasra/damma/shadda changes the meaning. ⚠ = this ayah also had a doubt/mistake today. Play the qari and compare.' });
 Object.assign(RS.ur, { wrongF: 'غلطی نوٹ ہو گئی — پڑھتے رہیں', flowL: 'روانی', flowOn: 'بغیر روکے (بیپ + نوٹ)', flowOff: 'استاد (رک کر سنائے)', tickL: 'چھوٹی غلطی پر ٹِک', on: 'آن', off: 'آف', recL: 'میری آواز ریکارڈ (موازنے کے لیے، تجرباتی)', cQari: 'قاری', cMine: 'میری آواز', noRecYet: 'اس جگہ کی ریکارڈنگ نہیں ملی۔', secHk: 'حرکات کی جانچ فہرست (مصحف سے خود تصدیق کریں)', hkNote: 'مائیک حرکات نہیں سنتا۔ ان الفاظ پر زبر/زیر/پیش/شدّ بدلنے سے معنی بدل جاتے ہیں۔ ⚠ = اس آیت میں آج شک/غلطی بھی تھی۔ قاری سے سن کر ملائیں۔' });
@@ -277,7 +280,7 @@ function startTick() {
   }, 50);
 }
 function setPlaying(p) { playing = p; $('#rIcoP').style.display = p ? 'none' : ''; $('#rIcoS').style.display = p ? '' : 'none'; }
-function stopAudio() { stopMine(); seqOn = false; rau.onended = null; rau.onerror = null; try { rau.pause(); } catch (e) { } clearInterval(tickT); setPlaying(false); clearHl(); document.querySelectorAll('#rpage .rev').forEach(e => e.classList.remove('rev')); hot = null; }
+function stopAudio() { stopMine(); stopCorr(); seqOn = false; rau.onended = null; rau.onerror = null; try { rau.pause(); } catch (e) { } clearInterval(tickT); setPlaying(false); clearHl(); document.querySelectorAll('#rpage .rev').forEach(e => e.classList.remove('rev')); hot = null; }
 function playSeq(ai) {
   if (ai >= AY.length) { stopAudio(); return; }
   seqOn = true; const y = AY[ai]; setCur(y.s, y.a); setPlaying(true);
@@ -435,18 +438,43 @@ function hzFlowMistake(ev) {
   }
   hz.tr.setPos(Math.min(np, hz.tr.lim)); hz.lastAct = now;
 }
+/* who announces the correct ayah after a mistake: the Qari (default) or the Hafiz's own saved voice (falls back to the Qari if that ayah was never saved) */
+let corr = null, corrBuf = {};
+function stopCorr() { if (!corr) return; corr.dead = true; try { corr.src.onended = null; corr.src.stop(); } catch (e) { } corr = null; }
+async function ownSlice(ai) {
+  let parts = []; try { parts = await DB.all(); } catch (e) { return null; }
+  let best = null;
+  parts.forEach(p => (p.marks || []).forEach(m => { if (m[0] === ai && m[2] - m[1] > 500 && (!best || p.t > best.p.t)) best = { p, m }; }));
+  if (!best) return null;
+  try {
+    if (!corrBuf[best.p.id]) { const b = await DB.blob(best.p.id), Ctx = window.OfflineAudioContext || window.webkitOfflineAudioContext; corrBuf[best.p.id] = await new Ctx(1, 1, 16000).decodeAudioData(await b.arrayBuffer()); }
+    return { buf: corrBuf[best.p.id], m: best.m };
+  } catch (e) { return null; }
+}
+async function playCorrection(ai, cb) {
+  const y = AY[ai];
+  if ((A.st().hcor || 'qari') !== 'mine') { playOnce(y.s, y.a, true, cb); return; }
+  unlockAc(); const sl = ac ? await ownSlice(ai) : null;
+  if (!hz.on) return;
+  if (!sl) { playOnce(y.s, y.a, true, cb); return; }
+  seqOn = false; rev = true; setCur(y.s, y.a); qa(y.s, y.a).forEach(x => x.classList.add('rev'));
+  const m = sl.m, off = Math.max(0, m[1] / 1000 - 0.05), dur = Math.max(0.3, (m[2] - m[1]) / 1000 + 0.12), src = ac.createBufferSource(), c = { src, dead: false }; corr = c;
+  let fin = false; const done = () => { if (fin) return; fin = true; clearInterval(tickT); if (corr === c) corr = null; qa(y.s, y.a).forEach(x => x.classList.remove('rev')); rev = null; clearHl(); hot = null; if (!c.dead) cb && cb(); };
+  src.buffer = sl.buf; src.connect(ac.destination); src.onended = done; const t0 = ac.currentTime; src.start(0, off, dur);
+  clearInterval(tickT); tickT = setInterval(() => { if (!c.dead) hotAt(y, (ac.currentTime - t0) / dur); }, 70);
+}
 function hzMistake(ev) {
   busyOn(); recStop(); const w = SC[ev.idx], ai = w.ai, y = AY[ai];
   hz.cur.mist.push({ ai, idx: ev.idx, kind: ev.kind, n: ev.n || 0, to: ev.to, heard: ev.heard, t: Date.now() - hz.cur.t0, abs: Date.now() });
   const e = q(w.loc); if (e) { e.classList.add('bad'); e.classList.remove('ok'); } okSet.delete(w.loc);
   hzStatus('wrong', 'bad'); beep();
-  setTimeout(() => { if (!hz.on) return; playOnce(y.s, y.a, true, () => { if (hz.on) hzResume(ai); }); }, 650);
+  setTimeout(() => { if (!hz.on) return; playCorrection(ai, () => { if (hz.on) hzResume(ai); }); }, 650);
 }
 function hzLukma() {
   if (hz.busy || !hz.tr || hz.tr.done()) return; busyOn(); recStop();
   const w = SC[hz.tr.p], ai = w.ai, y = AY[ai]; hzStatus('luq', 'warn');
   hz.cur.stalls.push({ ai, idx: hz.tr.p, t: Date.now() - hz.cur.t0, abs: Date.now(), wait: silOf() });
-  ensureLoc(w.loc); playOnce(y.s, y.a, true, () => { if (hz.on) hzResume(ai); });
+  ensureLoc(w.loc); playCorrection(ai, () => { if (hz.on) hzResume(ai); });
 }
 
 /* ----- plan (daily target) ----- */
@@ -715,7 +743,7 @@ function popHafiz() {
     `<div class="pr"><span></span>${sw('hmode', 'look', R('look'), (st.hmode || 'look') === 'look')}${sw('hmode', 'mem', R('mem'), st.hmode === 'mem')}</div>` +
     `<div class="pr"><span>${esc(R('flowL'))}</span>${sw('hflow', 'flow', R('flowOn'), (st.hflow || 'flow') === 'flow')}${sw('hflow', 'ustad', R('flowOff'), st.hflow === 'ustad')}</div>` +
     `<div class="pr"><span>${esc(R('tickL'))}</span>${sw('htick', 'on', R('on'), st.htick === 'on')}${sw('htick', 'off', R('off'), (st.htick || 'off') === 'off')}</div>` +
-    `<div class="pr"><span>${esc(R('recL'))}</span>${sw('hrec', 'on', R('on'), st.hrec === 'on')}${sw('hrec', 'off', R('off'), (st.hrec || 'off') === 'off')}</div><div class="sec">${esc(R('fastL'))}</div><div class="chips">${sw('hfast', 'on', R('on'), fastOn())}${sw('hfast', 'off', R('off'), !fastOn())}</div>` +
+    `<div class="pr"><span>${esc(R('recL'))}</span>${sw('hrec', 'on', R('on'), st.hrec === 'on')}${sw('hrec', 'off', R('off'), (st.hrec || 'off') === 'off')}</div><div class="pr"><span>${esc(R('corL'))}</span>${sw('hcor', 'qari', R('corQ'), (st.hcor || 'qari') === 'qari')}${sw('hcor', 'mine', R('corM'), st.hcor === 'mine')}</div><p class="pn">${esc(R('corN'))}</p><div class="sec">${esc(R('fastL'))}</div><div class="chips">${sw('hfast', 'on', R('on'), fastOn())}${sw('hfast', 'off', R('off'), !fastOn())}</div>` +
     (fastOn() ? `<div class="chips">${FASTQ.map(f => sw('hfq', f, recName(f), (st.hfq || FASTQ[0]) === f)).join('')}</div><div class="pr"><span>${esc(R('rateL'))}</span>${[1, 1.25, 1.5].map(v => sw('hrate', v, v + '×', fastRate() === v)).join('')}</div><p class="pn">${esc(R('fastNote'))}</p>` : '') +
     `<p class="pn">${esc(R('info'))}</p>`;
   $('#rpop').hidden = false;

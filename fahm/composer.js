@@ -197,7 +197,7 @@ const GRND = new Set(['tree', 'kaaba', 'dome', 'figures', 'camels', 'elephants',
 const SKYX = new Set(['bloom', 'orbits', 'scales', 'crown', 'pulse', 'core', 'hand', 'shield', 'rope', 'knots', 'beads']);
 const cache = new Map();
 
-function words(A) { return A.words.map(w => ({ en: (w.en || '').toLowerCase(), tl: (w.tl || '').toLowerCase(), root: (w.root || '').replace(/[^ء-ي]/g, '') })); }
+function words(A) { return A.words.map(w => ({ pos: w.pos || '', en: (w.en || '').toLowerCase(), tl: (w.tl || '').toLowerCase(), root: (w.root || '').replace(/[^ء-ي]/g, '') })); }
 
 function compose(S, A) {
   const key = S.n + ':' + A.v; if (cache.has(key)) return cache.get(key);
@@ -226,9 +226,15 @@ function compose(S, A) {
       items.push(Object.assign({ a, w: Math.min(nW - 1, h.wi) }, p));
     });
   });
-  /* guarantee a lively scene: ambient pulse on the opening word and a light on the closing word */
-  if (!items.length) { items.push({ a: 'bloom', w: 0, x: 200, y: UY.sky, r: 50 }); items.push({ a: 'pulse', w: Math.max(0, nW >> 1), x: 200, y: UY.sky, r: 80, col: r0 < 0.5 ? '#35d0e6' : '#e8b84a' }); }
-  else if (items.length === 1) items.push({ a: 'pulse', w: Math.max(0, nW - 1), x: items[0].x || 200, y: UY.sky, r: 78, col: '#e8b84a' });
+  /* 100% sync: every word of the ayah gets its own item that fires exactly when that word is recited */
+  const covered = new Set(items.map(it => it.w));
+  for (let k = 0; k < nW; k++) {
+    if (covered.has(k)) continue;
+    const xx = nW > 1 ? Math.round(340 - k * (280 / (nW - 1))) : 200, P = W[k].pos, h2 = hs(S.n * 7 + k, A.v);
+    if (P === 'V') items.push({ a: 'beam', w: k, x: xx, y: 214, col: h2 < 0.5 ? '#e8b84a' : '#35d0e6' });
+    else if (P === 'N' || P === 'PN' || P === 'ADJ') items.push({ a: 'bloom', w: k, x: xx, y: UY.sky, r: 34 + Math.round(h2 * 14), col: h2 < 0.5 ? '#9be3c4' : '#f3d98b' });
+    else items.push({ a: 'pulse', w: k, x: xx, y: UY.sky + 10, r: 46 + Math.round(h2 * 20), col: h2 < 0.5 ? '#35d0e6' : '#e8b84a' });
+  }
   let gr = need ? (sky === 'day' || sky === 'holy' ? 'flat' : (r0 < 0.6 ? 'dunes' : 'flat')) : 'none';
   if (pick.some(h => ['kaaba', 'camel', 'prayer', 'journey', 'elephant'].includes(h.t.id))) gr = 'dunes';
   const cx = pick.length ? { uru: pick.slice(0, 2).map(h => h.t.caps[0]).join(' '), ur: pick.slice(0, 2).map(h => h.t.caps[1]).join(' '), en: pick.slice(0, 2).map(h => h.t.caps[2]).join(' ') } : { uru: 'آیت کے الفاظ کے ساتھ روشنی ابھرتی ہے۔', ur: 'Ayat ke alfaaz ke saath roshni ubharti hai.', en: 'Light rises with the words of the ayah.' };

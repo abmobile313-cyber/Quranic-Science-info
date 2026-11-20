@@ -284,10 +284,12 @@ function buildDom() {
   document.body.appendChild(el);
   cv = Q('#wsCv'); ctx = cv.getContext('2d');
   el.addEventListener('click', e => {
+    const g = e.target.closest('[data-go]'); if (g) { const q = g.dataset.go.split(',').map(Number); close(); try { window.__fahm.goTo(q[0], q[1], q[2] || 0); } catch (er) { } return; }
     const b = e.target.closest('[data-ws]'), w = e.target.closest('.wsw');
     if (w) { API.pickWord(+w.dataset.i); return; }
+    const pk = e.target.closest('[data-pick]'); if (pk) { API.pickWord(+pk.dataset.pick); return; }
     if (!b) return; const a = b.dataset.ws;
-    if (a === 'close') close(); else if (a === 'play') API.togglePlay(); else if (a === 'next') step(1); else if (a === 'prev') step(-1); else if (a === 'begin') { API.playAyah(); }
+    if (a === 'close') close(); else if (a === 'play') API.togglePlay(); else if (a === 'next') step(1); else if (a === 'prev') step(-1); else if (a === 'begin') { API.playAyah(); } else if (a === 'det') { toggleSheet(); } else if (a === 'sx') { hideSheet(); }
   });
   window.addEventListener('resize', () => { if (isOpen) { sizeCv(); } });
 }
@@ -321,11 +323,43 @@ function set(i) {
   }
   const d = dataFor(i); drawMeta = d;
   cnt.textContent = `— ${L.word} ${i + 1} ${L.of} ${n}`;
-  const root = d.W.root ? `<div class="ws-root"><span>${esc(L.root)}</span> ${esc(rootSp(d.W.root))}<b class="ar">${esc(letters(d.W.root))}</b></div>` : '';
-  body.innerHTML = `<div class="ws-m ${d.rtl ? 'u' : ''}" ${d.rtl ? 'dir="rtl"' : ''}>${esc(d.mm)}</div><div class="ws-side">${root}${d.note ? `<div class="ws-note ${d.rtl ? 'u' : ''}" ${d.rtl ? 'dir="rtl"' : ''}>${esc(d.note)}</div>` : ''}<div class="ws-gram ${d.rtl ? 'u' : ''}" ${d.rtl ? 'dir="rtl"' : ''}>${esc(d.gram)}</div><div class="ws-cn"></div></div>`;
-  if (window.FahmCnt) FahmCnt.load().then(() => { const h = FahmCnt.html(d.W.ar, d.W.root, st.ui, n2 => { try { const S0 = FahmData.D.surahs[n2 - 1]; return st.ui === 'ur' ? S0.ur : S0.en; } catch (e) { return n2; } }), box = Q('.ws-cn'); if (box && idx === i) box.innerHTML = h.replace(/<div class="cn-w">[\s\S]*$/, '</div>'); });
+  body.innerHTML = `<div class="ws-m ${d.rtl ? 'u' : ''}" ${d.rtl ? 'dir="rtl"' : ''} data-ws="det">${esc(d.mm)}</div><button class="ws-more" data-ws="det"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.01"/></svg><span>${esc((SH[st.ui] || SH.en).more)}</span></button>`;
+  if (sheetOn) fillSheet();
   const ac = Q('#wsAy .wsw.on'); if (ac && ac.scrollIntoView) { try { ac.scrollIntoView({ block: 'nearest', inline: 'nearest' }); } catch (e) { } }
 }
+
+/* ---------- details sheet: opens only on tap, transparent glass ---------- */
+const SH = {
+  ur: { more: 'لفظ کی تفصیل', pos: 'قسمِ کلمہ', root: 'مادّہ (روٹ)', pic: 'مادّے کے حروف', cnt: 'قرآن میں کتنی بار', ex: 'یہی لفظ (اسی اعراب کے ساتھ)', sm: 'یہی حروف (کسی بھی اعراب میں)', rt: 'اسی مادّے کے الفاظ', where: 'کہاں کہاں آیا', langs: 'دوسری زبانوں میں', same: 'اسی آیت میں اسی مادّے کے الفاظ', pos2: 'لفظ نمبر', of: 'از', times: 'بار', first: 'پہلی بار یہاں', note: 'نکتہ', tr: 'تلفظ' },
+  ru: { more: 'Lafz ki tafseel', pos: 'Qism-e-kalima', root: 'Root (maadda)', pic: 'Root ke huroof', cnt: 'Quran mein kitni baar', ex: 'Yahi lafz (isi irab ke saath)', sm: 'Yahi huroof (kisi bhi irab mein)', rt: 'Isi root ke alfaaz', where: 'Kahan kahan aaya', langs: 'Doosri zubaanon mein', same: 'Isi ayat mein isi root ke alfaaz', pos2: 'Lafz number', of: 'mein se', times: 'baar', first: 'Pehli baar yahan', note: 'Nukta', tr: 'Talaffuz' },
+  en: { more: 'Word details', pos: 'Word type', root: 'Root', pic: 'Root letters', cnt: 'How often in the Quran', ex: 'This exact word (same vowels)', sm: 'These letters (any vowels)', rt: 'Words from this root', where: 'Where it occurs', langs: 'In other languages', same: 'Same root in this ayah', pos2: 'Word', of: 'of', times: 'times', first: 'First appears at', note: 'Insight', tr: 'Pronunciation' }
+};
+let sheetOn = false;
+function sheetEl() { let e = Q('#wsSheet'); if (!e) { e = document.createElement('div'); e.id = 'wsSheet'; e.hidden = true; el.appendChild(e); } return e; }
+function fillSheet() {
+  if (idx < 0) return; const { S: S_, A } = API.cur(), n = A.words.length; if (idx >= n) return;
+  const st = API.st(), u = st.ui, T = SH[u] || SH.en, d = dataFor(idx), W = d.W, nu = x => u === 'ur' ? String(x).replace(/\d/g, k => '۰۱۲۳۴۵۶۷۸۹'[k]) : String(x);
+  const tl = String(W.tl || '').replace(/'/g, '’'), gram = d.gram, sn = k => { try { const S0 = FahmData.D.surahs[k - 1]; return u === 'ur' ? S0.ur : S0.en; } catch (e) { return k; } };
+  const rootL = W.root ? [...W.root].map(c => `<i class="ar">${esc(c)}</i>`).join('<u></u>') : '';
+  const c = window.FahmCnt && FahmCnt.get ? FahmCnt.get(W.ar, W.root) : null;
+  const tile = (lab, v) => `<div class="sh-t"><b>${nu(v)}</b><span>${esc(lab)}</span></div>`;
+  const stats = c ? `<div class="sh-sec">${esc(T.cnt)}</div><div class="sh-tiles">${tile(T.ex, c.exact)}${c.same !== c.exact ? tile(T.sm, c.same) : ''}${W.root ? tile(T.rt, c.root) : ''}</div>` : '';
+  const where = c && c.refs.length ? `<div class="sh-sec">${esc(T.where)}</div><div class="sh-go">${c.refs.slice(0, 24).map(x => { const s1 = Math.floor(x / 1000), v1 = x % 1000; return `<button data-go="${s1 - 1},${v1 - 1},0">${esc(sn(s1))} ${nu(v1)}</button>`; }).join('')}</div>` : '';
+  const lang = []; if (W.en) lang.push(['En', W.en]); if (W.ur) lang.push(['اردو', W.ur]); if (W.ru) lang.push(['Ru', W.ru]); if (W.hi) lang.push(['हिं', W.hi]);
+  const langs = lang.length ? `<div class="sh-sec">${esc(T.langs)}</div><div class="sh-lg">${lang.map(([k, v]) => `<div><em>${esc(k)}</em><span>${esc(v)}</span></div>`).join('')}</div>` : '';
+  const same = A.words.map((w2, k) => ({ w2, k })).filter(o => W.root && o.k !== idx && o.w2.root === W.root);
+  const sameH = same.length ? `<div class="sh-sec">${esc(T.same)}</div><div class="sh-same">${same.map(o => `<button class="ar" data-pick="${o.k}">${esc(o.w2.ar)}</button>`).join('')}</div>` : '';
+  const chips = `<div class="sh-chips">${gram ? `<span>${esc(gram)}</span>` : ''}<span>${esc(T.pos2)} ${nu(idx + 1)} ${esc(T.of)} ${nu(n)}</span><span>${esc(API.sName(S_)[0])} ${nu(S_.n)}:${nu(A.v)}</span></div>`;
+  const note = d.note ? `<div class="sh-note ${d.rtl ? 'u' : ''}" ${d.rtl ? 'dir="rtl"' : ''}><em>${esc(T.note)}</em> ${esc(d.note)}</div>` : '';
+  const e = sheetEl();
+  e.innerHTML = `<div class="sh-grab" data-ws="sx"></div><button class="sh-x" data-ws="sx" aria-label="Close"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+  <div class="sh-head"><div class="sh-ar ar">${esc(W.ar)}</div><div class="sh-tl">${rtlSafe(tl, u)}</div><div class="sh-mm ${d.rtl ? 'u' : ''}" ${d.rtl ? 'dir="rtl"' : ''}>${esc(d.mm)}</div></div>
+  ${chips}${W.root ? `<div class="sh-sec">${esc(T.pic)}</div><div class="sh-root" dir="rtl">${rootL}</div>` : ''}${note}${stats}${langs}${sameH}${where}`;
+}
+const rtlSafe = (t, u) => u === 'ur' ? '' : esc(t);
+function showSheet() { if (!el || idx < 0) return; sheetOn = true; fillSheet(); const e = sheetEl(); e.hidden = false; requestAnimationFrame(() => e.classList.add('on')); e.scrollTop = 0; }
+function hideSheet() { sheetOn = false; const e = Q('#wsSheet'); if (e) { e.classList.remove('on'); setTimeout(() => { if (!sheetOn) e.hidden = true; }, 260); } }
+function toggleSheet() { sheetOn ? hideSheet() : showSheet(); }
 let drawMeta = null;
 function frame() {
   raf = requestAnimationFrame(frame); if (!isOpen) return; sizeCv();
@@ -341,11 +375,11 @@ function open(i) {
   buildDom(); isOpen = true; el.hidden = false; document.documentElement.classList.add('ws-on'); buildAyah(); sizeCv(); set(i == null ? -1 : i);
   if (!raf) raf = requestAnimationFrame(frame); updPlay();
 }
-function close() { if (!isOpen) return; isOpen = false; el.hidden = true; document.documentElement.classList.remove('ws-on'); cancelAnimationFrame(raf); raf = 0; if (API && API.onClose) API.onClose(); }
+function close() { if (!isOpen) return; sheetOn = false; const sh = Q('#wsSheet'); if (sh) { sh.hidden = true; sh.classList.remove('on'); } isOpen = false; el.hidden = true; document.documentElement.classList.remove('ws-on'); cancelAnimationFrame(raf); raf = 0; if (API && API.onClose) API.onClose(); }
 function updPlay() { if (!el) return; const p = API.isPlaying(); Q('#wsIcoP').style.display = p ? 'none' : ''; Q('#wsIcoS').style.display = p ? '' : 'none'; }
 
 /* ---------- compact word box under the ayah (same line-art, small) ---------- */
-function miniInit(canvas) { mini = { cv: canvas, ctx: canvas.getContext('2d'), t0: performance.now(), d: null, raf: 0 }; }
+function miniInit(canvas) { try { const bx = canvas.parentElement; if (bx && !bx._tap) { bx._tap = 1; bx.addEventListener('click', e => { if (e.target.closest('button')) return; const f = document.getElementById('btnFull'); if (f) f.click(); setTimeout(() => { if (isOpen) showSheet(); }, 350); }); } } catch (er) { } mini = { cv: canvas, ctx: canvas.getContext('2d'), t0: performance.now(), d: null, raf: 0 }; }
 function miniSet(i) {
   if (!mini || !API) return; const { A } = API.cur(); if (i < 0 || i >= A.words.length) return; mini.d = dataFor(i); mini.t0 = performance.now();
   if (!mini.raf) { const f = () => { mini.raf = requestAnimationFrame(f); const c = mini.cv; if (!c.offsetParent) return; const r = c.getBoundingClientRect(), dd = Math.min(2, devicePixelRatio || 1), w = Math.round(r.width * dd), h = Math.round(r.height * dd); if (c.width !== w || c.height !== h) { c.width = w; c.height = h; } const x = mini.ctx; x.setTransform(dd, 0, 0, dd, 0, 0); x.clearRect(0, 0, r.width, r.height); const t = (performance.now() - mini.t0) / 1000, d = mini.d; if (!d) return; (AR[d.m] || AR.rosette)(x, r.width, r.height, t, ease(t / 1.4), { l: ['', '', ''], seed: d.seed, rtl: d.rtl });}; mini.raf = requestAnimationFrame(f); }
@@ -354,6 +388,6 @@ function miniInfo(i) { const d = dataFor(i); return { m: d.m, note: d.note || d.
 
 window.FahmWS = {
   init(api) { API = api; }, open, close, set(i, fromAudio) { if (isOpen) set(i); }, isOpen: () => isOpen, refresh(i) { if (isOpen) { buildAyah(); set(i == null ? -1 : i); } }, updPlay,
-  miniInit, miniSet, miniInfo, archetypes: AR, motifFor
+  miniInit, miniSet, miniInfo, showSheet, hideSheet, archetypes: AR, motifFor
 };
 })();
