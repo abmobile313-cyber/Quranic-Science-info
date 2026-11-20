@@ -6,13 +6,13 @@
 const D = document;
 const L = {
   ur: { pick: 'اپنی زبان چنیں', pick2: 'زمین کو گھمائیں، پھر اپنی زبان دبائیں', hi: 'فہم القرآن میں خوش آمدید', sub: 'اپنی ترجیحات چن لیں (بعد میں بھی بدل سکتے ہیں)', theme: 'تھیم', dark: 'ڈارک', light: 'لائٹ', mk: 'ترجمہ / مسلک', go: 'آگے چلیں',
-    q: 'کیا آپ نے وضو کیا ہے؟', qs: 'قرآنِ مجید کو چھونے سے پہلے باوضو ہونا بہتر ہے۔', yes: 'جی ہاں، وضو ہے', no: 'نہیں', st: 'وضو کا آسان طریقہ', done: 'وضو کر لیا، شروع کریں', look: 'ابھی صرف دیکھنا/سننا ہے', back: 'واپس', nx: 'اگلا قدم', rp: 'دوبارہ سنیں', stp: 'قدم',
+    q: 'کیا آپ نے وضو کیا ہے؟', qs: 'قرآنِ مجید کو چھونے سے پہلے باوضو ہونا بہتر ہے۔', yes: 'جی ہاں، وضو ہے', no: 'نہیں', st: 'وضو کا آسان طریقہ', done: 'وضو کر لیا، شروع کریں', see: 'وضو کا طریقہ دیکھیں', look: 'ابھی صرف دیکھنا/سننا ہے', back: 'واپس', nx: 'اگلا قدم', rp: 'دوبارہ سنیں', stp: 'قدم',
     steps: ['نیت اور بسم اللہ پڑھیں', 'دونوں ہاتھ گٹوں تک تین بار دھوئیں', 'کلی کریں اور ناک میں پانی ڈالیں، تین بار', 'پورا چہرہ تین بار دھوئیں', 'دونوں بازو کہنیوں سمیت تین بار دھوئیں', 'پورے سر کا ایک بار مسح کریں', 'کانوں کا مسح کریں', 'دونوں پاؤں ٹخنوں سمیت تین بار دھوئیں'], mkl: { d: 'دیوبندی', b: 'بریلوی', a: 'اہلِ حدیث', j: 'جماعتِ اسلامی', s: 'شیعہ' }, hello: 'السلام علیکم، فہم القرآن میں خوش آمدید' },
   ru: { pick: 'Apni zubaan chunein', pick2: 'Zameen ko ghumayein, phir apni zubaan dabayein', hi: 'Fahmul Quraan mein khush aamdeed', sub: 'Apni tarjeehaat chun lein (baad mein bhi badal sakte hain)', theme: 'Theme', dark: 'Dark', light: 'Light', mk: 'Tarjuma / Maslak', go: 'Aage chalein',
-    q: 'Kya aapne wuzu kiya hai?', qs: 'Quran-e-Majeed ko chhoone se pehle baa-wuzu hona behtar hai.', yes: 'Ji haan, wuzu hai', no: 'Nahin', st: 'Wuzu ka aasaan tareeqa', done: 'Wuzu kar liya, shuru karein', look: 'Abhi sirf dekhna/sunna hai', back: 'Wapas', nx: 'Agla qadam', rp: 'Dobara sunein', stp: 'Qadam',
+    q: 'Kya aapne wuzu kiya hai?', qs: 'Quran-e-Majeed ko chhoone se pehle baa-wuzu hona behtar hai.', yes: 'Ji haan, wuzu hai', no: 'Nahin', st: 'Wuzu ka aasaan tareeqa', done: 'Wuzu kar liya, shuru karein', see: 'Wuzu ka tareeqa dekhein', look: 'Abhi sirf dekhna/sunna hai', back: 'Wapas', nx: 'Agla qadam', rp: 'Dobara sunein', stp: 'Qadam',
     steps: ['Niyyat aur Bismillah padhein', 'Dono haath gattoN tak teen baar dhoyein', 'Kulli karein aur naak mein paani daalein, teen baar', 'Poora chehra teen baar dhoyein', 'Dono baazu kohniyon samet teen baar dhoyein', 'Poore sar ka ek baar masah karein', 'Kaanon ka masah karein', 'Dono paaon takhnon samet teen baar dhoyein'], mkl: { d: 'Deobandi', b: 'Barelvi', a: 'Ahl-e-Hadith', j: 'Jamaat-e-Islami', s: 'Shia' }, hello: 'Assalamu alaikum, Fahmul Quraan mein khush aamdeed' },
   en: { pick: 'Choose your language', pick2: 'Spin the Earth, then tap your language', hi: 'Welcome to Fahmul Quraan', sub: 'Pick your preferences first (you can change them later)', theme: 'Theme', dark: 'Dark', light: 'Light', mk: 'Translation / school', go: 'Continue',
-    q: 'Have you made wudu (ablution)?', qs: 'It is best to be in wudu before touching the Quran.', yes: 'Yes, I have wudu', no: 'No', st: 'How to make wudu', done: 'Wudu done, start', look: 'Just viewing / listening for now', back: 'Back', nx: 'Next step', rp: 'Hear again', stp: 'Step',
+    q: 'Have you made wudu (ablution)?', qs: 'It is best to be in wudu before touching the Quran.', yes: 'Yes, I have wudu', no: 'No', st: 'How to make wudu', done: 'Wudu done, start', see: 'See how to make wudu', look: 'Just viewing / listening for now', back: 'Back', nx: 'Next step', rp: 'Hear again', stp: 'Step',
     steps: ['Make the intention and say Bismillah', 'Wash both hands up to the wrists, 3 times', 'Rinse the mouth and nose, 3 times', 'Wash the whole face, 3 times', 'Wash both arms including the elbows, 3 times', 'Wipe the whole head once', 'Wipe the ears', 'Wash both feet including the ankles, 3 times'], mkl: { d: 'Deobandi', b: 'Barelvi', a: 'Ahl-e-Hadith', j: 'Jamaat-e-Islami', s: 'Shia' }, hello: 'Assalamu alaikum, welcome to Fahmul Quraan' }
 };
 const ICON = ['🤲', '🙌', '👄', '🙂', '💪', '🧑', '👂', '🦶'];
@@ -27,8 +27,10 @@ function say(text, done) {
   stopV();
   if (!voiceOn() || !('speechSynthesis' in window) || !text) { if (done) done(); return; }
   try {
-    const en = ST().ui === 'en', lang = en ? 'en-US' : 'ur-PK', u = new SpeechSynthesisUtterance(text); u.lang = lang; u.rate = .92;
-    const vs = speechSynthesis.getVoices(), p = lang.slice(0, 2), v = vs.find(x => x.lang === lang) || vs.find(x => x.lang.slice(0, 2) === p) || (!en ? vs.find(x => x.lang.slice(0, 2) === 'hi') : null);
+    const xb = ST().xl && window.FahmXL && FahmXL.bcp(); if (xb) { text = FahmXL.t(text); }
+    const en = ST().ui === 'en', lang = xb || (en ? 'en-US' : 'ur-PK'), u = new SpeechSynthesisUtterance(text); u.lang = lang; u.rate = .92;
+    const vs = speechSynthesis.getVoices(), p = lang.slice(0, 2), v = vs.find(x => x.lang === lang) || vs.find(x => x.lang.slice(0, 2) === p) || (!en && !xb ? vs.find(x => x.lang.slice(0, 2) === 'hi') : null);
+    if (xb && !v) { if (done) done(); return; }
     if (v) u.voice = v; if (done) { u.onend = done; u.onerror = done; } speechSynthesis.speak(u);
   } catch (e) { if (done) done(); }
 }
@@ -68,12 +70,63 @@ function setup() {
   box.hidden = false;
 }
 
+
+/* ---------- water scene: falling drops, crown splash, ripples, rebound jet, bubbles and light shafts (canvas, loops while on screen) ---------- */
+function waterScene(host, opt) {
+  opt = opt || {}; if (!host) return; const cv = D.createElement('canvas'); cv.className = 'ob-wc'; host.insertBefore(cv, host.firstChild); const x = cv.getContext('2d'); if (!x) return;
+  const reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  let W = 300, H = 200, dpr = Math.min(2, window.devicePixelRatio || 1), SY = 130; const drops = [], rip = [], parts = [], bub = [], R = Math.random;
+  const size = () => { const r = host.getBoundingClientRect(); W = Math.max(120, r.width || 300); H = Math.max(100, r.height || 200); cv.width = W * dpr; cv.height = H * dpr; x.setTransform(dpr, 0, 0, dpr, 0, 0); SY = H * (opt.pool || .7); };
+  size(); try { new ResizeObserver(size).observe(host); } catch (e) { }
+  const spawn = big => { const r = W * (big ? .034 : .024); drops.push({ x: W * (.5 + (R() - .5) * (opt.spread || .22)), y: (opt.startY || -r * 2) * 1, r, vy: 0, big }); };
+  for (let i = 0; i < 14; i++) bub.push({ x: R() * W, y: SY + R() * (H - SY), r: 1 + R() * 2.4, v: 6 + R() * 14, ph: R() * 6.28 });
+  let t = 0, last = 0, next = .35, k = 0;
+  const burst = (px, big) => {
+    rip.push({ x: px, r: 2, a: .9, v: W * .16 }); rip.push({ x: px, r: 0, a: .6, v: W * .11, d: .12 });
+    const n = big ? 13 : 7; for (let i = 0; i < n; i++) { const an = -Math.PI * (.15 + .7 * R()), sp = W * (big ? .55 : .36) * (.5 + R() * .7); parts.push({ x: px, y: SY, vx: Math.cos(an) * sp, vy: Math.sin(an) * sp, r: (big ? 2.4 : 1.8) * (.5 + R()), life: 1 }); }
+    if (big) parts.push({ x: px, y: SY, vx: 0, vy: -H * 1.25, r: W * .014, life: 1, jet: 1 });
+  };
+  const surf = px => { let y = SY + Math.sin(px * .035 + t * 1.6) * 1.6 + Math.sin(px * .08 - t * 2.3) * .9; rip.forEach(q => { const d = Math.abs(px - q.x) - q.r; if (d < 14 && d > -14) y += Math.cos(d * .45) * 3.2 * q.a * (1 - Math.abs(d) / 14); }); return y; };
+  const frame = ts => {
+    if (!host.isConnected) return; const dt = Math.min(.05, (ts - last) / 1000 || .016); last = ts; if (!reduce) t += dt; else t = 1.2;
+    x.clearRect(0, 0, W, H);
+    /* light shafts */
+    for (let i = 0; i < 3; i++) { const cx = W * (.2 + i * .3) + Math.sin(t * .5 + i * 2) * W * .05, g = x.createLinearGradient(0, 0, 0, SY); g.addColorStop(0, 'rgba(190,245,252,.20)'); g.addColorStop(1, 'rgba(190,245,252,0)'); x.fillStyle = g; x.beginPath(); x.moveTo(cx - W * .03, 0); x.lineTo(cx + W * .03, 0); x.lineTo(cx + W * .11, SY); x.lineTo(cx - W * .09, SY); x.closePath(); x.fill(); }
+    /* pool */
+    const pg = x.createLinearGradient(0, SY, 0, H); pg.addColorStop(0, 'rgba(70,214,236,.62)'); pg.addColorStop(.5, 'rgba(18,120,160,.78)'); pg.addColorStop(1, 'rgba(6,44,70,.92)');
+    x.beginPath(); x.moveTo(0, H); for (let px = 0; px <= W; px += 4) x.lineTo(px, surf(px)); x.lineTo(W, H); x.closePath(); x.fillStyle = pg; x.fill();
+    x.beginPath(); for (let px = 0; px <= W; px += 4) { const y = surf(px); px ? x.lineTo(px, y) : x.moveTo(px, y); } x.strokeStyle = 'rgba(214,250,255,.8)'; x.lineWidth = 1.6; x.stroke();
+    /* caustic sparkles */
+    for (let i = 0; i < 9; i++) { const cx = (i * 97.3 + t * 18) % W, cy = SY + 8 + ((i * 53.7) % (H - SY - 12)), a = .18 + .16 * Math.sin(t * 2 + i * 1.7); x.fillStyle = 'rgba(220,252,255,' + Math.max(0, a) + ')'; x.beginPath(); x.ellipse(cx, cy, 7 + (i % 3) * 3, 1.6, 0, 0, 6.28); x.fill(); }
+    /* bubbles */
+    bub.forEach(b => { b.y -= b.v * dt; b.x += Math.sin(t * 2 + b.ph) * .25; if (b.y < SY + 3) { b.y = H - 2; b.x = R() * W; } x.strokeStyle = 'rgba(214,250,255,.55)'; x.lineWidth = 1; x.beginPath(); x.arc(b.x, b.y, b.r, 0, 6.28); x.stroke(); x.fillStyle = 'rgba(255,255,255,.35)'; x.beginPath(); x.arc(b.x - b.r * .3, b.y - b.r * .3, b.r * .3, 0, 6.28); x.fill(); });
+    /* spawn + falling drops */
+    next -= dt; if (next <= 0 && !reduce) { k++; spawn(k % 3 !== 0); next = 1.9 + R() * .8; }
+    if (reduce && !drops.length && !k) { k = 1; spawn(true); drops[0].y = SY * .55; }
+    for (let i = drops.length - 1; i >= 0; i--) { const d = drops[i]; if (!reduce) { d.vy += H * 1.7 * dt; d.y += d.vy * dt; }
+      if (d.y + d.r >= SY - 1) { burst(d.x, d.big); drops.splice(i, 1); continue; }
+      const st = 1 + Math.min(.55, d.vy / (H * 1.6)), w = d.r, hh = d.r * 1.35 * st; x.save(); x.translate(d.x, d.y);
+      const gg = x.createRadialGradient(-w * .3, -hh * .1, w * .1, 0, 0, hh * 1.1); gg.addColorStop(0, 'rgba(240,255,255,.98)'); gg.addColorStop(.45, 'rgba(120,225,242,.95)'); gg.addColorStop(1, 'rgba(24,150,190,.95)');
+      x.beginPath(); x.moveTo(0, -hh * 1.9); x.bezierCurveTo(w * .25, -hh * 1.1, w * 1.1, -hh * .2, w, hh * .35); x.arc(0, hh * .35, w, 0, Math.PI, false); x.bezierCurveTo(-w * 1.1, -hh * .2, -w * .25, -hh * 1.1, 0, -hh * 1.9); x.closePath(); x.fillStyle = gg; x.shadowColor = 'rgba(51,203,224,.7)'; x.shadowBlur = 10; x.fill(); x.shadowBlur = 0;
+      x.strokeStyle = 'rgba(255,255,255,.7)'; x.lineWidth = 1; x.stroke(); x.fillStyle = 'rgba(255,255,255,.85)'; x.beginPath(); x.ellipse(-w * .38, hh * .05, w * .16, w * .36, .3, 0, 6.28); x.fill(); x.restore(); }
+    /* splash particles + rebound jet */
+    for (let i = parts.length - 1; i >= 0; i--) { const q = parts[i]; q.vy += H * 3 * dt; q.x += q.vx * dt; q.y += q.vy * dt; q.life -= dt * .5;
+      if (q.y > SY && q.vy > 0) { if (q.jet) rip.push({ x: q.x, r: 1, a: .55, v: W * .1 }); parts.splice(i, 1); continue; }
+      x.fillStyle = 'rgba(190,245,252,' + Math.max(.2, q.life) + ')'; x.beginPath(); x.arc(q.x, q.y, q.r, 0, 6.28); x.fill(); if (q.jet) { x.fillStyle = 'rgba(255,255,255,.7)'; x.beginPath(); x.arc(q.x - q.r * .3, q.y - q.r * .3, q.r * .3, 0, 6.28); x.fill(); } }
+    /* ripples (ellipses on the surface) */
+    for (let i = rip.length - 1; i >= 0; i--) { const q = rip[i]; if (q.d) { q.d -= dt; continue; } q.r += q.v * dt; q.a -= dt * .42; if (q.a <= 0 || q.r > W * .6) { rip.splice(i, 1); continue; }
+      x.strokeStyle = 'rgba(214,250,255,' + q.a + ')'; x.lineWidth = 1.6; x.beginPath(); x.ellipse(q.x, SY + 1, q.r, q.r * .22, 0, 0, 6.28); x.stroke(); }
+    if (!reduce) requestAnimationFrame(frame); else if (k && !cv._once) { cv._once = 1; requestAnimationFrame(frame); }
+  };
+  requestAnimationFrame(frame);
+}
+
 /* ---------- 3. wuzu question (spoken) ---------- */
 function wuzu() {
   step = 'wuzu'; killGlobe(); const t = lg();
-  shell().innerHTML = `<div class="ob-in c">${bubbles}${vbtn()}<div class="ob-orb"><span class="rg r1"></span><span class="rg r2"></span><span class="rg r3"></span><div class="ob-drop">${drop}</div></div><h2>${t.q}</h2><p>${t.qs}</p>
-  <button class="ob-go b3d gold" data-a="yes">${t.yes}</button><button class="ob-alt b3d" data-a="no">${t.no}</button></div>`;
-  box.hidden = false; setTimeout(() => { if (step === 'wuzu') clip('wudu', spoken().q + ' ' + spoken().qs); }, 450);
+  shell().innerHTML = `<div class="ob-in c">${bubbles}${vbtn()}<div class="ob-wv big"></div><h2>${t.q}</h2><p>${t.qs}</p>
+  <button class="ob-go b3d gold" data-a="yes">${t.yes}</button><button class="ob-alt b3d" data-a="no">${t.no}</button><button class="ob-alt b3d sm" data-a="see">💧 ${t.see}</button></div>`;
+  box.hidden = false; waterScene(box.querySelector('.ob-wv'), { pool: .72, spread: .2 }); setTimeout(() => { if (step === 'wuzu') clip('wudu', spoken().q + ' ' + spoken().qs); }, 450);
 }
 
 /* ---------- 4. guided, spoken wudu ---------- */
@@ -81,12 +134,12 @@ function steps(i, quiet) {
   step = 'steps'; si = Math.max(0, Math.min(7, i || 0)); const t = lg(), rtl = ST().ui === 'ur', last = si === 7;
   shell().innerHTML = `<div class="ob-in c">${bubbles}${vbtn()}<h5>${t.st}</h5>
   <div class="ob-prog">${t.steps.map((_, k) => `<i class="${k < si ? 'd' : k === si ? 'n' : ''}"></i>`).join('')}</div>
-  <div class="ob-step"><div class="ob-ic"><span>${ICON[si]}</span><em class="w1"></em><em class="w2"></em><em class="w3"></em></div>
+  <div class="ob-step"><div class="ob-wv"><span class="ob-em">${ICON[si]}</span></div>
   <div class="ob-sn">${t.stp} ${si + 1} / 8</div><h2 ${rtl ? 'dir="rtl"' : ''}>${t.steps[si]}</h2></div>
   <div class="ob-row"><button class="ob-alt b3d sm" data-a="rp">🔊 ${t.rp}</button></div>
   ${last ? `<button class="ob-go b3d gold" data-a="yes">${t.done}</button><button class="ob-alt b3d" data-a="yes">${t.look}</button>` : `<button class="ob-go b3d gold" data-a="nx">${t.nx}</button>`}
   <button class="ob-alt b3d" data-a="${si ? 'pv' : 'wuzu'}">${t.back}</button></div>`;
-  box.hidden = false; if (!quiet) say(spoken().steps[si]);
+  box.hidden = false; waterScene(box.querySelector('.ob-wv'), { pool: .76, spread: .16, startY: 44 }); if (!quiet) say(spoken().steps[si]);
 }
 
 function shell() { if (!box) { box = D.createElement('div'); box.id = 'onb'; D.body.appendChild(box); box.addEventListener('click', onClick); } return box; }
@@ -99,7 +152,7 @@ function onClick(e) {
   const k = b.dataset.a; if (!k) return;
   if (k === 'vol') { s.onv = voiceOn() ? 0 : 1; a.save(); b.textContent = voiceOn() ? '🔊' : '🔇'; if (!voiceOn()) stopV(); else if (step === 'wuzu') clip('wudu', spoken().q); else if (step === 'steps') say(spoken().steps[si]); return; }
   if (k === 'rp') { say(spoken().steps[si]); return; }
-  if (k === 'next') { s.onb = 1; a.save(); wuzu(); } else if (k === 'no') { steps(0, true); clip('wuduno', spoken().q, () => { if (step === 'steps' && si === 0) say(spoken().steps[0]); }); } else if (k === 'nx') steps(si + 1); else if (k === 'pv') steps(si - 1); else if (k === 'wuzu') wuzu(); else if (k === 'yes') close();
+  if (k === 'next') { s.onb = 1; a.save(); wuzu(); } else if (k === 'no') { steps(0, true); clip('wuduno', spoken().q, () => { if (step === 'steps' && si === 0) say(spoken().steps[0]); }); } else if (k === 'see') steps(0); else if (k === 'nx') steps(si + 1); else if (k === 'pv') steps(si - 1); else if (k === 'wuzu') wuzu(); else if (k === 'yes') close();
 }
 function start() { if (window.__fahmOnb) return; window.__fahmOnb = 1; if (!ST().onb) { shell(); lang(); } else { shell(); wuzu(); } }
 let ready = false, splashGone = !D.documentElement.classList.contains('splashing') && !D.getElementById('splash');

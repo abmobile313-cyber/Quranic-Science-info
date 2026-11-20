@@ -17,9 +17,9 @@ const RS = {
   en: { lay15: '15-Line (Hafizi)', lay13q: '13-Line · Qudratullah', lay13t: '13-Line · Taj', pg: 'Page', hafiz: 'Hafiz Mode', look: 'Looking', mem: 'From memory', sens: 'Strictness', sS: 'Strict', sN: 'Normal', sR: 'Relaxed', sil: 'Prompt after silence', sec: 'sec', listen: 'Listening… recite', wrong: 'Mistake! Listen to the ayah', luq: 'Prompt — listen to the ayah', done: 'MashaAllah! Complete', noRec: 'Speech recognition is not available here. Use Chrome or the Android app.', mic: 'Microphone permission was not granted.', info: 'Note: recognition needs internet and checks words only (not harakat/tajweed).', tap: 'Tap any ayah to start from there', audioErr: 'Audio failed (check internet)', settings: 'Settings', layout: 'Mushaf layout', stop: 'Stop', start: 'Start', from: 'Start here', first: 'First part', page: 'Page' }
 };
 
-Object.assign(RS.ur, { goto: 'کہاں جانا ہے', surahL: 'سورت', juzL: 'پارہ', go: 'جائیں', pickJuz: 'پارہ چنیں', target: 'روزانہ ہدف', resume: 'جہاں چھوڑا تھا وہیں سے', from: 'کہاں سے', to: 'کہاں تک', reps: 'کتنے دَور', quick: 'جلدی چنیں', qFat: 'فاتحہ', qJuz: 'پارہ', qAll: 'پورا قرآن', history: 'پچھلی رپورٹیں', daur: 'دَور', kWrong: 'لفظ بدلا', kSkip: 'لفظ چھوٹا', kJump: 'آیت بدلی', clean: 'درست آیات', hard: 'سخت غلطی', stall: 'اٹکا', doubt: 'شک', time: 'وقت', wpm: 'لفظ/منٹ', atka: 'یہاں اٹکے', secHard: 'سخت غلطیاں اور ان کا اثر', secStall: 'کہاں کہاں اٹکے (لقمہ)', secDoubt: 'شک والی جگہیں', doubtNote: 'یہاں ریکارڈر نے صاف نہیں سنا یا چھوٹا لفظ ہلکا چھوٹا؛ بہاؤ نہیں توڑا گیا، دوبارہ دیکھ لیں۔', secOk: 'کیا درست رہا', daurRep: 'دَور کی رپورٹ', ask: 'کیا آپ نے یہ ساری غلطیاں نوٹ کر لیں؟ کیا الگ دَور شروع کریں؟', noteNext: 'نوٹ کر لیں — اگلا دَور', noteFinal: 'نوٹ کر لیں — آخری رپورٹ', again: 'اسی دَور کو دوبارہ', stopFinal: 'رکیں — آخری رپورٹ دکھائیں', finalRep: 'آخری رپورٹ', copy: 'رپورٹ کاپی کریں', newPlan: 'نیا ہدف / دَور', close: 'بند کریں', daurs: 'دَور', avgClean: 'اوسط درست', trend: 'پہلے سے آخری دَور', secRange: 'ہدف', secPer: 'ہر دَور', secRep: 'بار بار کی غلطیاں', secImpact: 'غلطیوں سے ترجمے/معنی کا نقصان', secOkAll: 'ہر دَور میں درست رہی آیات', limits: 'نوٹ: غلطی صرف الفاظ کی سطح پر پکڑی جاتی ہے؛ زبر/زیر/تجوید کی پہچان ریکارڈر نہیں کر سکتا۔', times: 'بار', info: 'نوٹ: آواز کی پہچان انٹرنیٹ سے ہوتی ہے، صرف الفاظ جانچتی ہے (حرکات/تجوید نہیں)۔ حافظ موڈ صرف سخت غلطی (آیت بدلنا، لمبا چھوٹنا) پر روکتا ہے۔', sS: 'سخت', sN: 'درمیانی', sH: 'حافظ (تیز رفتار)' });
-Object.assign(RS.ru, { goto: 'Kahan jana hai', surahL: 'Surah', juzL: 'Para', go: 'Jayein', pickJuz: 'Para chunein', target: 'Rozana target', resume: 'Jahan chhoda tha wahin se', from: 'Kahan se', to: 'Kahan tak', reps: 'Kitne daur', quick: 'Jaldi chunein', qFat: 'Fatiha', qJuz: 'Para', qAll: 'Poora Quran', history: 'Pichhli reports', daur: 'Daur', kWrong: 'Lafz badla', kSkip: 'Lafz chhoota', kJump: 'Ayat badli', clean: 'Durust ayat', hard: 'Sakht galti', stall: 'Atke', doubt: 'Shak', time: 'Waqt', wpm: 'lafz/min', atka: 'Yahan atke', secHard: 'Sakht galtiyan aur unka asar', secStall: 'Kahan kahan atke (lukma)', secDoubt: 'Shak wali jagahein', doubtNote: 'Yahan recogniser ne saaf nahin suna ya chhota lafz halka chhoota; rawani nahin todi gayi, dobara dekh lein.', secOk: 'Kya durust raha', daurRep: 'Daur ki report', ask: 'Kya aapne yeh saari galtiyan note kar li? Kya alag daur shuru karein?', noteNext: 'Note kar li — agla daur', noteFinal: 'Note kar li — final report', again: 'Isi daur ko dobara', stopFinal: 'Rukein — final report dikhayein', finalRep: 'Final report', copy: 'Report copy karein', newPlan: 'Naya target / daur', close: 'Band karein', daurs: 'Daur', avgClean: 'Ausat durust', trend: 'Pehle se aakhri daur', secRange: 'Target', secPer: 'Har daur', secRep: 'Baar baar ki galtiyan', secImpact: 'Galtiyon se tarjme/matlab ka nuksan', secOkAll: 'Har daur mein durust rahi ayat', limits: 'Note: galti sirf alfaaz ki satah par pakdi jaati hai; zabar/zer/tajweed ki pehchan recogniser nahin kar sakta.', times: 'baar', info: 'Note: awaaz ki pehchan internet se hoti hai aur sirf alfaaz jaanchti hai (harakat/tajweed nahin). Hafiz mode sirf sakht galti (ayat badalna, lamba chhootna) par rokta hai.', sS: 'Sakht', sN: 'Darmiyani', sH: 'Hafiz (tez raftar)' });
-Object.assign(RS.en, { goto: 'Go to', surahL: 'Surah', juzL: 'Juz (Para)', go: 'Go', pickJuz: 'Pick a Juz', target: 'Daily target', resume: 'Continue where you left off', from: 'From', to: 'To', reps: 'Number of rounds', quick: 'Quick pick', qFat: 'Fatiha', qJuz: 'Para (Juz)', qAll: 'Whole Quran', history: 'Past reports', daur: 'Round', kWrong: 'Word changed', kSkip: 'Word skipped', kJump: 'Ayah changed', clean: 'Clean ayat', hard: 'Hard mistakes', stall: 'Stalls', doubt: 'Doubts', time: 'Time', wpm: 'words/min', atka: 'Stalled here', secHard: 'Hard mistakes and their effect', secStall: 'Where you stalled (prompt)', secDoubt: 'Doubtful spots', doubtNote: 'The recogniser did not hear these clearly or a small word slipped; the flow was not interrupted — please recheck.', secOk: 'What went right', daurRep: 'Round report', ask: 'Did you note all these mistakes? Start another round?', noteNext: 'Noted — next round', noteFinal: 'Noted — final report', again: 'Repeat this round', stopFinal: 'Stop — show final report', finalRep: 'Final report', copy: 'Copy report', newPlan: 'New target / rounds', close: 'Close', daurs: 'Rounds', avgClean: 'Avg clean', trend: 'First to last round', secRange: 'Target', secPer: 'Each round', secRep: 'Repeated mistakes', secImpact: 'Loss to translation / meaning', secOkAll: 'Ayat clean in every round', limits: 'Note: mistakes are caught at word level only; zabar/zer/tajweed cannot be detected by the recogniser.', times: 'times', info: 'Note: recognition needs internet and checks words only (not harakat/tajweed). Hafiz mode interrupts only for hard mistakes (changed ayah, long skip).', sS: 'Strict', sN: 'Normal', sH: 'Hafiz (fast pace)' });
+Object.assign(RS.ur, { tjDoubt: 'تجوید کا شک', secTj: 'تجوید / مخرج کے شک', tjNote: 'ریکارڈر نے مطلوبہ حرف کی جگہ ملتی جلتی آواز کا حرف سنا (مثلاً ث↔س، ق↔ك)۔ یہ صرف شک ہے، قاری سے ملا کر دیکھ لیں؛ غلطی میں شمار نہیں ہوتا۔', hkBad: 'حرکات کی غلطی (آپ کی نشاندہی)', hkOk: '✓ درست', hkNo: '✗ مجھ سے غلطی ہوئی', hkSelf: 'ہر لفظ قاری سے سن کر ایمانداری سے نشان لگائیں۔ آپ کے نشان رپورٹ اور ہسٹری میں محفوظ ہو جاتے ہیں۔', saveFile: 'فائل ڈاؤن لوڈ کریں', share: 'شیئر کریں', print: 'پرنٹ / PDF', savedApp: 'رپورٹ ہسٹری میں محفوظ ہو گئی', sTitle: 'میری کارکردگی', sDay: 'دن', sWeek: 'ہفتہ', sMonth: 'مہینہ', sYear: 'سال', sRounds: 'دَور', sMin: 'منٹ', sTop: 'سب سے زیادہ دہرائی گئی غلطیاں', sTimeline: 'ٹائم لائن — کب کیا غلطی ہوئی', sNone: 'اس مدت میں کوئی تلاوت نہیں', sReports: 'محفوظ رپورٹیں', micWeak: 'مائیک کی آواز کمزور لگ رہی ہے — فون منہ کے قریب رکھیں۔ شک والی جگہیں غلطی نہیں گنی جائیں گی۔', goto: 'کہاں جانا ہے', surahL: 'سورت', juzL: 'پارہ', go: 'جائیں', pickJuz: 'پارہ چنیں', target: 'روزانہ ہدف', resume: 'جہاں چھوڑا تھا وہیں سے', from: 'کہاں سے', to: 'کہاں تک', reps: 'کتنے دَور', quick: 'جلدی چنیں', qFat: 'فاتحہ', qJuz: 'پارہ', qAll: 'پورا قرآن', history: 'پچھلی رپورٹیں', daur: 'دَور', kWrong: 'لفظ بدلا', kSkip: 'لفظ چھوٹا', kJump: 'آیت بدلی', clean: 'درست آیات', hard: 'سخت غلطی', stall: 'اٹکا', doubt: 'شک', time: 'وقت', wpm: 'لفظ/منٹ', atka: 'یہاں اٹکے', secHard: 'سخت غلطیاں اور ان کا اثر', secStall: 'کہاں کہاں اٹکے (لقمہ)', secDoubt: 'شک والی جگہیں', doubtNote: 'یہاں ریکارڈر نے صاف نہیں سنا یا چھوٹا لفظ ہلکا چھوٹا؛ بہاؤ نہیں توڑا گیا، دوبارہ دیکھ لیں۔', secOk: 'کیا درست رہا', daurRep: 'دَور کی رپورٹ', ask: 'کیا آپ نے یہ ساری غلطیاں نوٹ کر لیں؟ کیا الگ دَور شروع کریں؟', noteNext: 'نوٹ کر لیں — اگلا دَور', noteFinal: 'نوٹ کر لیں — آخری رپورٹ', again: 'اسی دَور کو دوبارہ', stopFinal: 'رکیں — آخری رپورٹ دکھائیں', finalRep: 'آخری رپورٹ', copy: 'رپورٹ کاپی کریں', newPlan: 'نیا ہدف / دَور', close: 'بند کریں', daurs: 'دَور', avgClean: 'اوسط درست', trend: 'پہلے سے آخری دَور', secRange: 'ہدف', secPer: 'ہر دَور', secRep: 'بار بار کی غلطیاں', secImpact: 'غلطیوں سے ترجمے/معنی کا نقصان', secOkAll: 'ہر دَور میں درست رہی آیات', limits: 'نوٹ: غلطی صرف الفاظ کی سطح پر پکڑی جاتی ہے؛ زبر/زیر/تجوید کی پہچان ریکارڈر نہیں کر سکتا۔', times: 'بار', info: 'نوٹ: آواز کی پہچان انٹرنیٹ سے ہوتی ہے، صرف الفاظ جانچتی ہے (حرکات/تجوید نہیں)۔ حافظ موڈ صرف سخت غلطی (آیت بدلنا، لمبا چھوٹنا) پر روکتا ہے۔', sS: 'سخت', sN: 'درمیانی', sH: 'حافظ (تیز رفتار)' });
+Object.assign(RS.ru, { tjDoubt: 'Tajweed ka shak', secTj: 'Tajweed / makhraj ke shak', tjNote: 'Recogniser ne matlooba harf ki jagah milti-julti awaaz ka harf suna (masalan ث↔س, ق↔ك). Yeh sirf shak hai, qari se mila kar dekh lein; galti mein shamil nahin hota.', hkBad: 'Harakat ki galti (aapki nishandahi)', hkOk: '✓ Durust', hkNo: '✗ Mujh se galti hui', hkSelf: 'Har lafz qari se sun kar imandari se nishan lagayein. Aapke nishan report aur history mein mehfooz ho jate hain.', saveFile: 'File download karein', share: 'Share karein', print: 'Print / PDF', savedApp: 'Report history mein mehfooz ho gayi', sTitle: 'Meri karkardagi', sDay: 'Din', sWeek: 'Hafta', sMonth: 'Mahina', sYear: 'Saal', sRounds: 'Daur', sMin: 'Minute', sTop: 'Sab se ziyada dohrai gayi galtiyan', sTimeline: 'Timeline — kab kya galti hui', sNone: 'Is muddat mein koi tilawat nahin', sReports: 'Mehfooz reports', micWeak: 'Mic ki awaaz kamzor lag rahi hai — phone munh ke qareeb rakhein. Shak wali jagahein galti nahin ginni jayengi.', goto: 'Kahan jana hai', surahL: 'Surah', juzL: 'Para', go: 'Jayein', pickJuz: 'Para chunein', target: 'Rozana target', resume: 'Jahan chhoda tha wahin se', from: 'Kahan se', to: 'Kahan tak', reps: 'Kitne daur', quick: 'Jaldi chunein', qFat: 'Fatiha', qJuz: 'Para', qAll: 'Poora Quran', history: 'Pichhli reports', daur: 'Daur', kWrong: 'Lafz badla', kSkip: 'Lafz chhoota', kJump: 'Ayat badli', clean: 'Durust ayat', hard: 'Sakht galti', stall: 'Atke', doubt: 'Shak', time: 'Waqt', wpm: 'lafz/min', atka: 'Yahan atke', secHard: 'Sakht galtiyan aur unka asar', secStall: 'Kahan kahan atke (lukma)', secDoubt: 'Shak wali jagahein', doubtNote: 'Yahan recogniser ne saaf nahin suna ya chhota lafz halka chhoota; rawani nahin todi gayi, dobara dekh lein.', secOk: 'Kya durust raha', daurRep: 'Daur ki report', ask: 'Kya aapne yeh saari galtiyan note kar li? Kya alag daur shuru karein?', noteNext: 'Note kar li — agla daur', noteFinal: 'Note kar li — final report', again: 'Isi daur ko dobara', stopFinal: 'Rukein — final report dikhayein', finalRep: 'Final report', copy: 'Report copy karein', newPlan: 'Naya target / daur', close: 'Band karein', daurs: 'Daur', avgClean: 'Ausat durust', trend: 'Pehle se aakhri daur', secRange: 'Target', secPer: 'Har daur', secRep: 'Baar baar ki galtiyan', secImpact: 'Galtiyon se tarjme/matlab ka nuksan', secOkAll: 'Har daur mein durust rahi ayat', limits: 'Note: galti sirf alfaaz ki satah par pakdi jaati hai; zabar/zer/tajweed ki pehchan recogniser nahin kar sakta.', times: 'baar', info: 'Note: awaaz ki pehchan internet se hoti hai aur sirf alfaaz jaanchti hai (harakat/tajweed nahin). Hafiz mode sirf sakht galti (ayat badalna, lamba chhootna) par rokta hai.', sS: 'Sakht', sN: 'Darmiyani', sH: 'Hafiz (tez raftar)' });
+Object.assign(RS.en, { tjDoubt: 'Tajweed doubt', secTj: 'Tajweed / makhraj doubts', tjNote: 'The recogniser heard a similar-sounding letter instead of the expected one (for example ث↔س, ق↔ك). This is only a doubt to verify with the qari — it is not counted as a mistake.', hkBad: 'Harakat mistake (marked by you)', hkOk: '✓ Correct', hkNo: '✗ I made a mistake', hkSelf: 'Listen to the qari for each word and mark honestly. Your marks are saved in the report and in your history.', saveFile: 'Download file', share: 'Share', print: 'Print / PDF', savedApp: 'Report saved in your history', sTitle: 'My progress', sDay: 'Day', sWeek: 'Week', sMonth: 'Month', sYear: 'Year', sRounds: 'Rounds', sMin: 'Minutes', sTop: 'Most repeated mistakes', sTimeline: 'Timeline — what went wrong and when', sNone: 'No recitation in this period', sReports: 'Saved reports', micWeak: 'The mic sounds weak — hold the phone closer. Doubtful spots are not counted as mistakes.', goto: 'Go to', surahL: 'Surah', juzL: 'Juz (Para)', go: 'Go', pickJuz: 'Pick a Juz', target: 'Daily target', resume: 'Continue where you left off', from: 'From', to: 'To', reps: 'Number of rounds', quick: 'Quick pick', qFat: 'Fatiha', qJuz: 'Para (Juz)', qAll: 'Whole Quran', history: 'Past reports', daur: 'Round', kWrong: 'Word changed', kSkip: 'Word skipped', kJump: 'Ayah changed', clean: 'Clean ayat', hard: 'Hard mistakes', stall: 'Stalls', doubt: 'Doubts', time: 'Time', wpm: 'words/min', atka: 'Stalled here', secHard: 'Hard mistakes and their effect', secStall: 'Where you stalled (prompt)', secDoubt: 'Doubtful spots', doubtNote: 'The recogniser did not hear these clearly or a small word slipped; the flow was not interrupted — please recheck.', secOk: 'What went right', daurRep: 'Round report', ask: 'Did you note all these mistakes? Start another round?', noteNext: 'Noted — next round', noteFinal: 'Noted — final report', again: 'Repeat this round', stopFinal: 'Stop — show final report', finalRep: 'Final report', copy: 'Copy report', newPlan: 'New target / rounds', close: 'Close', daurs: 'Rounds', avgClean: 'Avg clean', trend: 'First to last round', secRange: 'Target', secPer: 'Each round', secRep: 'Repeated mistakes', secImpact: 'Loss to translation / meaning', secOkAll: 'Ayat clean in every round', limits: 'Note: mistakes are caught at word level only; zabar/zer/tajweed cannot be detected by the recogniser.', times: 'times', info: 'Note: recognition needs internet and checks words only (not harakat/tajweed). Hafiz mode interrupts only for hard mistakes (changed ayah, long skip).', sS: 'Strict', sN: 'Normal', sH: 'Hafiz (fast pace)' });
 Object.assign(RS.ru, { rgT: 'Ayat ka daur (range) chalayein', rgH: 'Shuruaati aur aakhri ayat chunein.', rgS: 'Shuru ki ayat', rgE: 'Aakhri ayat', rgSu: 'Surah', rgAy: 'Ayat', rgGo: 'Shuru karein', rgNo: 'Wapas', rgRep: 'Kitni baar dohrayein' });
 Object.assign(RS.en, { rgT: 'Play Ayah Range', rgH: 'Configure the start and end ayah for your playback.', rgS: 'Start Ayah', rgE: 'End Ayah', rgSu: 'Surah', rgAy: 'Ayah', rgGo: 'Start', rgNo: 'Cancel', rgRep: 'Repeat' });
 Object.assign(RS.ur, { rgT: 'آیات کی رینج چلائیں', rgH: 'شروع اور آخری آیت منتخب کریں۔', rgS: 'ابتدائی آیت', rgE: 'آخری آیت', rgSu: 'سورت', rgAy: 'آیت', rgGo: 'شروع کریں', rgNo: 'منسوخ', rgRep: 'کتنی بار دہرائیں' });
@@ -151,7 +151,7 @@ function fitHdr() {
   document.querySelectorAll('#rhd span').forEach(e => {
     e.style.removeProperty('font-size'); const cw = e.clientWidth; if (!cw) return;
     const nat = () => { const r = document.createRange(); r.selectNodeContents(e); return r.getBoundingClientRect().width; };
-    for (let i = 0; i < 8 && nat() > cw - 14; i++) { const fs = parseFloat(getComputedStyle(e).fontSize) || 14; e.style.setProperty('font-size', Math.max(7, fs * Math.min(.97, (cw - 16) / nat())) + 'px', 'important'); }
+    const pad = Math.max(3, cw * .1); for (let i = 0; i < 8 && nat() > cw - pad; i++) { const fs = parseFloat(getComputedStyle(e).fontSize) || 14; e.style.setProperty('font-size', Math.max(5, fs * Math.min(.97, (cw - pad - 1) / nat())) + 'px', 'important'); }
   });
 }
 function fit() {
@@ -161,19 +161,38 @@ function fit() {
   for (let it = 0; it < 3; it++) {
     let need = 0;
     inner.querySelectorAll('.ml:not(.e):not(.h)').forEach(l => {
-      let s = 0; const ch = l.children; for (let i = 0; i < ch.length; i++) s += ch[i].offsetWidth; s += Math.max(0, ch.length - 1) * fs * 0.1; if (s > need) need = s;
+      let s = 0; const ch = l.children; for (let i = 0; i < ch.length; i++) s += ch[i].offsetWidth; const gp = parseFloat(getComputedStyle(l).columnGap); s += Math.max(0, ch.length - 1) * (isNaN(gp) ? fs * 0.1 : gp); if (s > need) need = s;
     });
     if (!need) break; const f = fs * Math.min(1, (W * 0.972) / need); if (Math.abs(f - fs) < 0.3 && it) break; fs = f; $('#rpage').style.setProperty('--fs', fs + 'px');
   }
-  $('#rpage').style.setProperty('--fs', Math.min(fs, rowH * 0.78) + 'px'); clampBadges();
+  $('#rpage').style.setProperty('--fs', Math.min(fs, rowH * 0.78) + 'px'); $('#rpage').style.setProperty('--hb', (rowH * .92).toFixed(1) + 'px'); placeTabs(); if (!$('#rpage').classList.contains('sf')) clampBadges();
 }
-/* side badges that would stick out above / below the text area (first or last line) are nudged back inside */
+/* side badges of the Ottoman (arch) pages that would stick out above / below the text area are nudged back inside */
 function clampBadges() {
   const rin = $('#rin'); if (!rin) return; const rr = rin.getBoundingClientRect();
   rin.querySelectorAll('.ml').forEach(ml => {
     ml.style.removeProperty('--bdy'); const bs = ml.querySelectorAll('.bg'); if (!bs.length) return; let t = 1e9, b = -1e9;
     bs.forEach(e => { const q = e.getBoundingClientRect(); t = Math.min(t, q.top); b = Math.max(b, q.bottom); });
     let dy = 0; if (t < rr.top) dy = rr.top - t; else if (b > rr.bottom) dy = rr.bottom - b; if (Math.abs(dy) > .5) ml.style.setProperty('--bdy', dy.toFixed(1) + 'px');
+  });
+}
+/* border tabs (like the printed mushaf): ruku + sajda on the right edge, para-fraction on the left edge; each sits in the frame at the height of its line, never overlapping each other */
+function placeTabs() {
+  const pg = $('#rpage'), rin = $('#rin'); if (!pg || !rin) return; let L = $('#rtabs'); if (!L) { L = document.createElement('div'); L.id = 'rtabs'; pg.appendChild(L); } L.innerHTML = '';
+  if (!pg.classList.contains('sf')) return;
+  const pr = pg.getBoundingClientRect(), sc = pr.height / Math.max(1, pg.offsetHeight), s = parseFloat(pg.style.getPropertyValue('--s')) || pg.offsetWidth / 878, H = pg.offsetHeight;
+  L.insertAdjacentHTML('beforeend', '<i class="dm l"></i><i class="dm r"></i>');
+  const items = { R: [], L: [] };
+  rin.querySelectorAll('.ml .bg').forEach(b => {
+    const r = b.parentElement.getBoundingClientRect(), cy = ((r.top + r.bottom) / 2 - pr.top) / sc, side = b.classList.contains('lf') ? 'L' : 'R', sj = b.classList.contains('sj');
+    items[side].push({ cy, h: (sj || side === 'L' ? 150 : 124) * s, html: b.innerHTML, cls: (side === 'L' ? 'lf ' : sj ? 'sj ' : 'rt ') + (b.classList.contains('jz') ? 'jz ' : '') + (((b.querySelector('b') || {}).textContent || '').length > 1 ? 'n2' : ''), tip: b.title });
+  });
+  const lo = 76 * s, hi = H - 76 * s, gap = 4 * s;
+  Object.keys(items).forEach(sd => {
+    const a = items[sd].sort((x, y) => x.cy - y.cy); let prev = lo;
+    a.forEach(t => { t.top = Math.max(prev, t.cy - t.h / 2); prev = t.top + t.h + gap; });
+    let lim = hi; for (let i = a.length - 1; i >= 0; i--) { if (a[i].top + a[i].h > lim) a[i].top = lim - a[i].h; lim = a[i].top - gap; }
+    a.forEach(t => { L.insertAdjacentHTML('beforeend', `<div class="tb ${sd === 'L' ? 'tbl' : 'tbr'} ${t.cls}" style="top:${t.top.toFixed(1)}px;height:${t.h.toFixed(1)}px" title="${esc(t.tip || '')}"><span>${t.html}</span></div>`); });
   });
 }
 /* ---------- mushaf ornaments (header, surah banner, ruku/sajda marks, manzil) ---------- */
@@ -198,15 +217,21 @@ function rukuInfo(s, a) { /* {n: ruku number inside the para} for the ruku that 
 }
 function manzilOfAi(ai) { let m = 1; M.meta.M.forEach((x, i) => { const k = AYI[x[0] + ':' + x[1]]; if (k !== undefined && k <= ai) m = i + 1; }); return m; }
 function bannerHtml(sn) {
-  const S = M.meta.S[sn] || [0, 0, 1, 0], nm = M.n[sn] || '';
-  return `<div class="ml h"><div class="sbx"><span class="sbs"><i>آیاتھا</i><b>${adx(S[0])}</b></span><span class="sbc">${esc(nm)}<small>(${adx(sn)}) ${S[2] ? 'مکیۃ' : 'مدنیۃ'}</small></span><span class="sbs"><i>رکوعھا</i><b>${adx(S[1])}</b></span></div></div>`;
+  const S = M.meta.S[sn] || [0, 0, 1, 0], nm = (window.FAHM_SN && FAHM_SN.u[sn - 1]) || M.n[sn] || '';
+  return `<div class="ml h"><div class="sbx"><span class="sbs"><i>آیاتھا</i><b>${adx(S[0])}</b></span><span class="sbc"><em>${esc(nm)}</em><small>${adx(sn)} · ${S[2] ? 'مکی' : 'مدنی'}</small></span><span class="sbs"><i>رکوعھا</i><b>${adx(S[1])}</b></span></div></div>`;
 }
-function headerHtml(lines) {
+function headerHtmlOld(lines) {
   const ps = lines.map(lineParts).filter(x => x.a).map(x => +x.a.split(':')[0]); if (!ps.length) return '';
   const s1 = ps[0], s2 = ps[ps.length - 1], f = lines.map(lineParts).find(x => x.a), [fs, fa] = f.a.split(':').map(Number), ai = AYI[fs + ':' + fa];
   const nmo = n => (M.n[n] || '').replace(/^سُورَةُ\s*|^سورة\s*/, '');
   const rng = s1 === s2 ? nmo(s1) + '-' + adx(s1) : nmo(s1) + '-' + adx(s1) + ' ' + nmo(s2) + '-' + adx(s2);
   return `<span class="hr1"><i>پارہ</i> <b>${adx(juzOfAi(ai))}</b></span><span class="hr2">${esc(rng)}</span><span class="hr3"><b>${adx(PG[pi])}</b></span>`;
+}
+function headerHtml(lines) {
+  const ps = lines.map(lineParts).filter(x => x.a).map(x => +x.a.split(':')[0]); if (!ps.length) return '';
+  const s1 = ps[0], f = lines.map(lineParts).find(x => x.a), [fs, fa] = f.a.split(':').map(Number), ai = AYI[fs + ':' + fa];
+  const nmu = (window.FAHM_SN && FAHM_SN.u[s1 - 1]) || (M.n[s1] || '').replace(/[\u064B-\u0652\u0670]/g, '');
+  return `<span class="hr1"><i>پارہ</i> <b>${adx(juzOfAi(ai))}</b></span><span class="hr2">${esc('سورۃ ' + nmu.replace(/^سورۃ\s*/, ''))}</span><span class="hr3"><b>${adx(PG[pi])}</b></span>`;
 }
 function wordHtml(x) {
   const loc = locOf(x.s, x.a, x.w), c = ['wd']; if (isMk(x.t)) c.push('mk');
@@ -263,11 +288,15 @@ function thinFrame(w, h) {
 }
 function drawFrame(w, h) {
   const p = $('#rpage'); if (!p) return; let f = $('#rfr'); if (!f) { f = document.createElement('div'); f.id = 'rfr'; p.insertBefore(f, p.firstChild); }
-  const cv = p.classList.contains('cover'), thin = !cv && !p.classList.contains('arch'); p.classList.toggle('thin', thin);
-  const v = (w / h) < 0.64 ? 'b' : 'a', g = frameGeo(v), k = Math.round(w) + 'x' + Math.round(h) + v + (cv ? 'c' : thin ? 't' : 'm'); if (f.dataset.k === k) return; f.dataset.k = k;
+  const cv = p.classList.contains('cover'), arch = p.classList.contains('arch'), sf = !cv && !arch; p.classList.toggle('sf', sf); p.classList.toggle('sbq', !cv); p.classList.remove('thin');
+  const v = (w / h) < 0.64 ? 'b' : 'a', g = frameGeo(v), k = Math.round(w) + 'x' + Math.round(h) + v + (cv ? 'c' : sf ? 's' : 'm'); if (f.dataset.k === k) return; f.dataset.k = k;
   const set = (n, val) => p.style.setProperty(n, val);
-  if (thin) { const t = thinFrame(w, h); f.className = 'ft'; f.innerHTML = t.svg; Object.keys(t.vars).forEach(n => set(n, t.vars[n])); return; }
-  f.className = 'v-' + v + (cv ? ' fc' : ' fm'); f.innerHTML = '';
+  if (sf) { /* sample-based illuminated frame (9-slice border-image); all sizes derive from --s = page width / 878 */
+    ['--pt', '--pb', '--pl', '--pr', '--hy', '--hh', '--bpy', '--bph'].forEach(n => p.style.removeProperty(n));
+    set('--s', (w / 878).toFixed(5)); f.className = 'fs'; f.innerHTML = ''; return;
+  }
+  /* cover and the first two (arch) pages keep the Ottoman frame unchanged */
+  f.className = 'v-' + v + (cv ? ' fc' : ' fm'); f.innerHTML = ''; p.style.removeProperty('--s');
   const X = x => (x / 740 * w) + 'px', Yp = y => (y / g.H * h) + 'px';
   set('--pt', Yp(g.yt)); set('--pb', ((g.H - g.yb) / g.H * h) + 'px'); set('--pl', X(g.xL)); set('--pr', X(740 - g.xR));
   set('--hy', Yp(g.hy)); set('--hh', Yp(g.hh)); set('--bpy', Yp(g.bpy)); set('--bph', Yp(g.bph));
@@ -303,7 +332,7 @@ function renderPage(anim) {
   });
   const pg = $('#rpage'); pg.classList.toggle('mem', hz.on && A.st().hmode === 'mem');
   $('#rin').innerHTML = h; $('#rin').style.setProperty('--rows', rows);
-  { ornSets(); const f0 = lines.map(lineParts).find(x => x.a); const mz = f0 ? manzilOfAi(AYI[f0.a.split(':').slice(0, 2).join(':')]) : 0; $('#rpn').textContent = mz ? 'منزل ' + adx(mz) : ''; $('#rhd').innerHTML = headerHtml(lines); }
+  { ornSets(); const f0 = lines.map(lineParts).find(x => x.a); const mz = f0 ? manzilOfAi(AYI[f0.a.split(':').slice(0, 2).join(':')]) : 0; $('#rpn').textContent = mz ? 'منزل ' + adx(mz) : ''; $('#rhd').innerHTML = arch ? headerHtmlOld(lines) : headerHtml(lines); }
   sizePage(); fit(); bmUpd(); applyHl();
   warm(pageSurah(pi));
   $('#rTitle').textContent = surahName(pageSurah(pi)) + ' · ' + R('pg') + ' ' + (A.st().ui === 'ur' ? ad(PG[pi]) : PG[pi]);
@@ -398,7 +427,7 @@ function startTick() {
   }, 50);
 }
 function setPlaying(p) { playing = p; $('#rIcoP').style.display = p ? 'none' : ''; $('#rIcoS').style.display = p ? '' : 'none'; bgSync(p); if (p) mediaSess(); }
-function stopAudio() { stopMine(); stopCorr(); try { speechSynthesis.cancel(); } catch (e) { } seqOn = false; rau.onended = null; rau.onerror = null; try { rau.pause(); } catch (e) { } clearInterval(tickT); setPlaying(false); clearHl(); document.querySelectorAll('#rpage .rev').forEach(e => e.classList.remove('rev')); hot = null; }
+function stopAudio() { stopMine(); stopCorr(); try { stopWordAu(); } catch (e) { } try { speechSynthesis.cancel(); } catch (e) { } seqOn = false; rau.onended = null; rau.onerror = null; try { rau.pause(); } catch (e) { } clearInterval(tickT); setPlaying(false); clearHl(); document.querySelectorAll('#rpage .rev').forEach(e => e.classList.remove('rev')); hot = null; }
 let seqEnd = -1, seqFrom = 0, seqLeft = 1;
 function playRange(fi, ti, reps) { stopAudio(); seqEnd = ti; seqFrom = fi; seqLeft = Math.max(1, reps || 1); playSeq(fi, true); }
 function playSeq(ai, keep) {
@@ -541,7 +570,7 @@ function hzResumeSnap() {
 }
 const posAi = () => Math.min(hz.tr.p, SC.length - 1);
 function onHeard(idx, text, fin) {
-  if (!hz.on || hz.busy || !hz.tr) return;
+  if (!hz.on || hz.busy || !hz.tr) return; hz.lastRes = Date.now();
   const toks = String(text || '').trim().split(/\s+/).map(H.norm).filter(Boolean);
   let done = hz.proc[idx] || 0;
   if (hz.prev && hz.prev.idx !== idx) { const pt = hz.prev.toks; if (pt.length && toks.length >= pt.length && pt.every((t, j) => t === toks[j])) done = Math.max(done, pt.length); }
@@ -552,9 +581,25 @@ function onHeard(idx, text, fin) {
   while (rest.length) {
     const r = hz.tr.feed(rest, fin); used += r.used; let hard = false;
     for (const ev of r.ev) {
-      if (ev.t === 'ok') { setOk(ev.from, ev.to); hz.lastAct = Date.now(); hz.cur.words += ev.to - ev.from; }
-      else if (ev.t === 'soft') { const w = SC[ev.idx]; if (w) { hz.cur.soft.push({ ai: w.ai, idx: ev.idx, kind: ev.kind, n: ev.n || 0, heard: ev.heard, t: Date.now() - hz.cur.t0, abs: Date.now() }); if (flowOn() && tickOn()) tick(); } }
-      else if (ev.t === 'mistake') { if (!flowOn() || ayahChange(ev)) { hz.proc[idx] = done + used; hzMistake(ev); return; } hzFlowMistake(ev); if (hz.tr.done()) { hz.proc[idx] = done + used; hzDaurEnd(); return; } hard = true; }
+      if (ev.t === 'ok') { setOk(ev.from, ev.to); hz.lastAct = Date.now(); hz.cur.words += ev.to - ev.from; if (hz.retry) for (const k in hz.retry) if (+k >= ev.from && +k < ev.to) delete hz.retry[k]; }
+      else if (ev.t === 'soft') { const w = SC[ev.idx]; if (w) {
+        /* substitution: a wrong word was said and the very next words were right again */
+        if (ev.kind === 'skip' && ev.sub && ev.sub.length && (ev.n || 1) === 1) {
+          if (realDiffer(ev.sub, w)) { hz.proc[idx] = done + used; hzMistake({ t: 'mistake', idx: ev.idx, kind: 'wrong', heard: ev.sub.slice() }); return; }
+          hz.cur.soft.push({ ai: w.ai, idx: ev.idx, kind: 'wrong', n: 0, heard: ev.sub.slice(), t: Date.now() - hz.cur.t0, abs: Date.now(), mic: 1 }); if (flowOn() && tickOn()) tick(); continue;
+        }
+        hz.cur.soft.push({ ai: w.ai, idx: ev.idx, kind: ev.kind, n: ev.n || 0, heard: ev.heard, letters: ev.letters, t: Date.now() - hz.cur.t0, abs: Date.now() }); if (flowOn() && tickOn()) tick(); }  }
+      else if (ev.t === 'mistake') {
+        const cl = classifyMist(ev);
+        if (cl === 'alarm') {
+          const need2 = !fin && ev.kind !== 'jump' && !(hz.sus && hz.sus.idx === ev.idx && Date.now() - hz.sus.t < 5000);
+          if (need2) { /* not sure yet (interim text can still change / weak mic): wait for the next update before alarming */
+            hz.sus = { idx: ev.idx, t: Date.now() }; const hl = (ev.heard || []).length; hz.tr.bad = (ev.heard || []).slice(0, Math.max(0, hl - 1)); hz.proc[idx] = Math.max(done, done + used - 1); return; }
+          hz.sus = null; hz.proc[idx] = done + used; hzMistake(ev); return;
+        }
+        if (cl === 'doubt') hzFlowDoubt(ev); else hzFlowMistake(ev);
+        if (hz.tr.done()) { hz.proc[idx] = done + used; hzDaurEnd(); return; } hard = true;
+      }
       else if (ev.t === 'back') { for (let i = ev.to; i < ev.from; i++) { const w = SC[i]; if (!w) continue; okSet.delete(w.loc); const e = q(w.loc); if (e) e.classList.remove('ok', 'bad'); } hz.cur.backs = (hz.cur.backs || 0) + 1; hz.lastAct = Date.now(); hzStatus('backF', 'ok'); setTimeout(() => { if (hz.on && !hz.busy) hzStatus('listen'); }, 1400); }
       else if (ev.t === 'end') { hz.proc[idx] = done + used; hzDaurEnd(); return; }
     }
@@ -566,15 +611,50 @@ function onHeard(idx, text, fin) {
 }
 function busyOn() { hz.busy = true; hz.busyAt = Date.now(); }
 function busyOff() { hz.busy = false; if (hz.busyAt) { hz.cur.busyMs += Date.now() - hz.busyAt; hz.busyAt = 0; } }
-function hzResume(ai) {
-  const y = AY[ai]; clearAyahMarks(ai); hz.tr.setPos(y.first); markNext(); busyOff(); hz.lastAct = Date.now() + 600; hzStatus('listen'); recStart();
+function hzResume(ai, idx) {
+  const y = AY[ai]; clearAyahMarks(ai); const p = idx != null && idx >= y.first && idx <= y.last ? idx : y.first;
+  for (let i = y.first; i < p; i++) { setOk(i, i + 1); } hz.tr.setPos(p); markNext(); busyOff(); hz.lastAct = Date.now() + 600; hzStatus('listen'); recStart();
 }
+/* play only the faulty word (+ the next one) from the word-by-word audio; falls back to the whole ayah if that audio is not available */
+let wAu = null;
+function playWordsFrom(idx, count, cb) {
+  const w0 = SC[idx]; if (!w0) { cb(false); return; }
+  const list = []; for (let i = idx; i < Math.min(SC.length, idx + count); i++) { const w = SC[i]; if (w.ai !== w0.ai) break; const p3 = n => String(n).padStart(3, '0'); list.push({ i, url: 'https://audio.qurancdn.com/wbw/' + p3(w.s) + '_' + p3(w.a) + '_' + p3(w.w) + '.mp3', loc: w.loc }); }
+  if (!list.length) { cb(false); return; }
+  seqOn = false; stopCmp(); let k = 0, fin = false; wAu = wAu || new Audio();
+  const end = ok => { if (fin) return; fin = true; wAu.onended = null; wAu.onerror = null; document.querySelectorAll('#rpage .rev').forEach(e => e.classList.remove('rev')); cb(ok); };
+  const one = () => { if (fin || !hz.on) { end(false); return; } if (k >= list.length) { end(true); return; } const it = list[k++]; const e = q(it.loc); if (e) { ensureLoc(it.loc); e.classList.add('rev'); }
+    wAu.onended = () => { if (e) e.classList.remove('rev'); setTimeout(one, 120); }; wAu.onerror = () => end(k > 1); wAu.src = it.url; setRate(wAu, fastRate()); const pr = wAu.play(); if (pr && pr.catch) pr.catch(() => end(k > 1)); };
+  setTimeout(() => end(k > 0), 9000); one();
+}
+function stopWordAu() { if (wAu) { wAu.onended = null; wAu.onerror = null; try { wAu.pause(); } catch (e) { } } }
 /* the ONLY thing that stops a Hafiz: the ayah itself changed (jumped to / skipped into another ayah). Everything else = beep + note, recitation continues. */
 function ayahChange(ev) {
   const w = SC[ev.idx]; if (!w) return false;
   if (ev.kind === 'jump') { const t = SC[ev.to || 0]; return !!t && t.ai !== w.ai; }
   if (ev.kind === 'skip') { const t = SC[Math.min(SC.length - 1, ev.idx + (ev.n || 1))]; return !!t && t.ai !== w.ai; }
   return false;
+}
+/* Mic-tolerant judgement (Build 21): a real listener does not shout because the phone mic garbled a syllable.
+   alarm = a REAL different Quran word was heard, or 3+ words skipped, or the ayah changed -> stop, warn, correct
+   doubt = unknown/garbled sounds (recogniser noise) -> logged as a doubt, nothing interrupts
+   flow  = 1-2 skipped words -> beeps + noted, recitation continues */
+let RWS = null;
+const isQWord = t => { if (!RWS) { RWS = new Set(); try { Object.keys(M.w).forEach(k => M.w[k].forEach(x => { const n = H.norm(x); if (n) RWS.add(n); })); } catch (e) { } } return RWS.has(t); };
+const realDiffer = (heard, w) => (heard || []).some(t => t.length >= 3 && isQWord(t) && !H.eq(t, w.n, 'n'));
+function classifyMist(ev) {
+  if (ayahChange(ev)) return 'alarm';
+  if (ev.kind === 'wrong') {
+    const w = SC[ev.idx]; return realDiffer(ev.heard, w) ? 'alarm' : 'doubt';
+  }
+  if (ev.kind === 'skip') return (ev.n || 1) >= 3 ? 'alarm' : 'flow';
+  return 'flow';
+}
+function hzFlowDoubt(ev) {
+  const w = SC[ev.idx]; if (!w) return; const now = Date.now(), n = Math.max(1, (ev.heard || []).length);
+  hz.cur.soft.push({ ai: w.ai, idx: ev.idx, kind: 'wrong', n: 0, heard: ev.heard, t: now - hz.cur.t0, abs: now, mic: 1 });
+  setOk(ev.idx, Math.min(SC.length, ev.idx + n)); hz.tr.setPos(Math.min(ev.idx + n, hz.tr.lim)); hz.lastAct = now; if (tickOn()) tick();
+  const c = hz.cur; if (!c.micWarned && c.soft.length >= 5 && c.soft.length * 5 > c.words) { c.micWarned = true; A.toast(R('micWeak'), 5000); }
 }
 /* flow mode: hard mistake = two beeps + note, but the recitation is never interrupted */
 function hzFlowMistake(ev) {
@@ -632,12 +712,12 @@ function nativeSay(txt, lang, rate, cb) {
   try { if (!(window.FahmAndroid && window.FahmAndroid.speak)) return false; window.__fahmSpoke = ok => { window.__fahmSpoke = null; cb(ok !== false); }; const r = window.FahmAndroid.speak(txt, lang, rate); if (r === 'no') { window.__fahmSpoke = null; return false; } return true; } catch (e) { return false; }
 }
 function speakWarn(done, kind) {
-  const m = A.st().hwarn || 'ur', k = kind === 'skip' || kind === 'jump' ? kind : 'wrong'; let fin = false, tm = null; const end = () => { if (fin) return; fin = true; clearTimeout(tm); try { window.__fahmSpoke = null; } catch (e) { } done && done(); };
+  const m0 = A.st().hwarn || 'ur', m = (A.st().xl && m0 === 'ur') ? 'en' : m0, k = kind === 'skip' || kind === 'jump' ? kind : 'wrong'; let fin = false, tm = null; const end = () => { if (fin) return; fin = true; clearTimeout(tm); try { window.__fahmSpoke = null; } catch (e) { } done && done(); };
   if (m === 'off') { end(); return; }
   const order = m === 'all' ? ['ur', 'en'] : m === 'ur' ? ['ur'] : [m]; tm = setTimeout(end, 9000); let i = 0, spoke = false;
   const nx = () => {
     if (fin || !hz.on) { end(); return; } if (i >= order.length) { end(); return; }
-    const lg = order[i++], tries = lg === 'ur' ? [WARN.ur[k], WARN.hi[k], WARN.en[k]] : [WARN[lg][k]]; let j = 0;
+    const lg = order[i++], xb = window.FahmXL && FahmXL.bcp && FahmXL.bcp(); let tries = lg === 'ur' ? [WARN.ur[k], WARN.hi[k], WARN.en[k]] : [WARN[lg][k]]; if (xb && lg !== 'ur') tries = xb === 'ar' ? [WARN.ar[k]] : [[FahmXL.t(WARN.en[k][0]), xb], WARN.en[k]]; let j = 0;
     const one = () => {
       if (fin) return; if (j >= tries.length) { if (!spoke && i >= order.length) end(); else nx(); return; }
       const [txt, lang] = tries[j++];
@@ -656,7 +736,14 @@ function hzMistake(ev) {
   { const L = hz.cur.mist[hz.cur.mist.length - 1]; if (!(L && L.ai === ai && Date.now() - L.abs < 2500)) hz.cur.mist.push({ ai, idx: ev.idx, kind: ev.kind, n: ev.n || 0, to: ev.to, heard: ev.heard, t: Date.now() - hz.cur.t0, abs: Date.now() }); else { L.kind = ev.kind; L.abs = Date.now(); } }
   const e = q(w.loc); if (e) { e.classList.add('bad'); e.classList.remove('ok'); } okSet.delete(w.loc);
   hzStatus('wrong', 'bad'); beep3();
-  setTimeout(() => { if (!hz.on) return; speakWarn(() => { if (hz.on) playCorrection(ai, () => { if (hz.on) hzResume(ai); }); }, ev.kind); }, 700);
+  hz.retry = hz.retry || {}; const tries = hz.retry[ev.idx] = (hz.retry[ev.idx] || 0) + 1;
+  setTimeout(() => { if (!hz.on) return; speakWarn(() => {
+    if (!hz.on) return;
+    const whole = () => { delete hz.retry[ev.idx]; playCorrection(ai, () => { if (hz.on) hzResume(ai); }); };
+    if (tries >= 3) { whole(); return; }                       /* third failed try at the same spot: now the whole ayah */
+    const cnt = ev.kind === 'skip' && (ev.n || 1) >= 2 ? 2 : (ev.kind === 'wrong' && (ev.heard || []).length >= 2 ? 2 : 2);
+    playWordsFrom(ev.idx, cnt, ok => { if (!hz.on) return; if (ok) hzResume(ai, ev.idx); else whole(); });
+  }, ev.kind); }, 700);
 }
 function hzLukma() {
   if (hz.busy || !hz.tr || hz.tr.done()) return; busyOn(); recStop();
@@ -759,11 +846,12 @@ function hzStart(fromAi, plan, daur0) {
   hz.on = true; hz.want = true; hz.started = Date.now();
   { const S0 = A.st(); if (S0.hzTr !== false && S0.trw) { S0.trwWas = 1; S0.trw = false; A.save(); } try { speechSynthesis.cancel(); } catch (e) { } }
   $('#rrep').hidden = true; $('#rhz').hidden = false; $('#rhHold').hidden = !hz.own; $('#rhHold').textContent = '⏸ ' + R('myHold'); $('#rhMode').textContent = R(st.hmode); $('#rMic').classList.add('on'); $('#rpage').classList.toggle('mem', st.hmode === 'mem');
-  clearInterval(hz.sil); hz.sil = setInterval(() => { if (hz.on && !hz.busy && Date.now() - hz.lastAct > silOf() * 1000) hzLukma(); }, 250);
+  clearInterval(hz.sil); hz.sil = setInterval(() => { if (hz.on && !hz.busy && Date.now() - hz.lastAct > silOf() * 1000 && Date.now() - (hz.lastRes || 0) > 1800) hzLukma(); }, 250);
   recBegin();
   hzBeginDaur(hz.startAi);
 }
 function hzBeginDaur(ai) {
+  try { for (let i = hz.fi; i <= hz.ti; i++) { const sn = AY[i].s; if (!hz._w || !hz._w[sn]) { (hz._w = hz._w || {})[sn] = 1; warm(sn); } } } catch (e) { }
   hz.finished = false; hz.cur = newDaur(hz.daur); hz.tr = new H.Tracker(SC, sensOf(), STARTS); hz.tr.lim = AY[hz.ti].last + 1; hz.tr.fi = AY[hz.fi].first; hz.tr.setPos(AY[ai].first);
   okSet = new Set(); clearHl(); curAy = null; hz.busy = false; hz.lastAct = Date.now() + 3000; hz.proc = {}; hz.prev = null;
   renderPage(false); ensureLoc(SC[hz.tr.p].loc); markNext(); savePos(ai); hzStatus('listen'); $('#rhDaur').textContent = R('daur') + ' ' + hz.daur + '/' + (hz.plan.reps || 1);
@@ -777,7 +865,7 @@ function hzStop() {
 }
 function hzDaurEnd() {
   if (hz.own) { ownAdvance(hz.ti + 1); recEnd(); }
-  busyOn(); recStop(); const d = hz.cur; d.t1 = Date.now(); hz.all.push(d); hz.finished = true; snapClear(); hzStatus('done', 'ok'); hz.busyAt = 0; hz.busy = true;
+  busyOn(); recStop(); const d = hz.cur; d.t1 = Date.now(); hz.all.push(d); try { logRound(d, { fi: hz.fi, ti: hz.ti }); } catch (e) { } hz.finished = true; snapClear(); hzStatus('done', 'ok'); hz.busyAt = 0; hz.busy = true;
   A.st().hlast = { s: AY[hz.fi].s, a: AY[hz.fi].a }; A.save();
   setTimeout(() => showDaurReport(d), 700);
 }
@@ -817,19 +905,13 @@ function cmpBtns(m) {
   return `<span class="cmp"><button class="po sm" data-hq="${m.ai}">▶ ${esc(R('cQari'))}</button>${mine}</span>`;
 }
 const hkNote = k => { const v = window.FahmHK && window.FahmHK[k]; return v ? (A.st().ui === 'en' ? v[1] : v[0]) : ''; };
-function hkRows(flag, onlyFlag) {
-  const out = [], seen = new Set();
-  for (let ai = VM.fi; ai <= VM.ti; ai++) {
-    const y = AY[ai], fl = flag.has(ai); if (onlyFlag && !fl) continue;
-    for (let i = y.first; i <= y.last; i++) { const w = SC[i], k = w.s + ':' + w.a + ':' + w.w, n = hkNote(k); if (!n) continue;
-      out.push({ fl, html: `<div class="ri"><b>${esc(ayRef(ai))}</b> · ${fl ? '⚠ ' : ''}<span class="ar">${esc(M.w[w.s + ':' + w.a][w.w - 1].replace(/[۝].*/, ''))}</span> <button class="po sm" data-hq="${ai}">▶ ${esc(R('cQari'))}</button><br><small>${esc(n)}</small></div>` }); }
-  }
-  out.sort((a, b) => (b.fl ? 1 : 0) - (a.fl ? 1 : 0)); return out.map(x => x.html).join('');
-}
-const flagSet = list => { const f = new Set(); list.forEach(d => { d.mist.forEach(m => f.add(m.ai)); d.stalls.forEach(m => f.add(m.ai)); d.soft.forEach(m => f.add(m.ai)); }); return f; };
-
 /* ----- reports ----- */
 const fmtT = ms => { const s = Math.round(ms / 1000), m = Math.floor(s / 60); return m + ':' + String(s % 60).padStart(2, '0'); };
+const nu = v => (A.st().ui === 'ur' ? ad(v) : v);
+const clk = ms => { try { return new Date(ms).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }); } catch (e) { return ''; } };
+const clk2 = ms => { try { return new Date(ms).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }); } catch (e) { return ''; } };
+const dstr = ms => { try { return new Date(ms).toLocaleDateString(undefined, { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' }); } catch (e) { return ''; } };
+const wAr = (s, a, w) => { try { return M.w[s + ':' + a][w - 1].replace(/[۝].*/, ''); } catch (e) { return ''; } };
 let VM = { fi: 0, ti: 0 };
 function dStats(d) {
   const hi = d.reach != null ? Math.min(VM.ti, d.reach) : VM.ti, bad = new Set([...d.mist.map(m => m.ai), ...d.stalls.map(m => m.ai)]), n = Math.max(1, hi - VM.fi + 1), clean = [];
@@ -859,22 +941,50 @@ function impact(m, soft) {
     `Sahi lafz: ${ar} (${mean}). Suna gaya: ${heardTxt(m)}${hm ? ' (' + hm + ')' : ''}. ${hm ? `Matlab badal gaya: "${mean}" ki jagah "${hm}".` : 'Is lafz ka tarjma ayat mein zaya/ghalat ho jata hai.'}`,
     `Correct word: ${ar} (${mean}). Heard: ${heardTxt(m)}${hm ? ' (' + hm + ')' : ''}. ${hm ? `Meaning shifts: "${mean}" becomes "${hm}".` : 'The meaning of this word is lost or wrong in the translation.'}`);
 }
-const kindTxt = k => ({ wrong: R('kWrong'), skip: R('kSkip'), jump: R('kJump') }[k] || k);
-function section(title, body, cls) { return body ? `<div class="rs ${cls || ''}"><h5>${esc(title)}</h5>${body}</div>` : ''; }
-function mistakeList(list, soft) {
-  return list.map(m => { const y = AY[m.ai], w = SC[m.idx]; return `<div class="ri"><b>${esc(ayRef(m.ai))}</b> · ${esc(kindTxt(m.kind))} · ${esc(M.w[w.s + ':' + w.a][w.w - 1])} ${cmpBtns(m)}<br><small>${esc(impact(m, soft))}</small></div>`; }).join('');
+const kindTxt = k => ({ wrong: R('kWrong'), skip: R('kSkip'), jump: R('kJump'), stall: R('atka'), doubt: R('doubt'), makhraj: R('tjDoubt'), harakat: R('hkBad'), extra: R('doubt') }[k] || k);
+const kindCls = k => ({ wrong: 'bad', skip: 'bad', jump: 'bad', stall: 'warn', doubt: 'dbt', extra: 'dbt', makhraj: 'tj', harakat: 'hk' }[k] || '');
+function section(title, body, cls, icon) { return body ? `<div class="rs ${cls || ''}"><h5>${icon ? '<i>' + icon + '</i>' : ''}${esc(title)}</h5>${body}</div>` : ''; }
+const tmB = m => m.abs ? `<span class="rtm">⏱ ${esc(clk2(m.abs))}${m.t != null ? ' · +' + esc(fmtT(m.t)) : ''}</span>` : '';
+function mistakeList(list) {
+  return list.map(m => { const w = SC[m.idx]; return `<div class="ri"><div class="rih"><b>${esc(ayRef(m.ai))}</b><span class="rk ${kindCls(m.kind)}">${esc(kindTxt(m.kind))}</span>${tmB(m)}</div><div class="rwd ar">${esc(wAr(w.s, w.a, w.w))}</div>${cmpBtns(m)}<small>${esc(impact(m))}</small></div>`; }).join('');
 }
-function daurHtml(d, final) {
-  if (!DICT) dictBuild(); const s = dStats(d);
-  const cards = `<div class="rc"><div><b>${A.st().ui === 'ur' ? ad(s.cleanPct) : s.cleanPct}%</b><small>${esc(R('clean'))}</small></div><div><b>${d.mist.length}</b><small>${esc(R('hard'))}</small></div><div><b>${d.stalls.length}</b><small>${esc(R('stall'))}</small></div><div><b>${d.soft.length}</b><small>${esc(R('doubt'))}</small></div><div><b>${fmtT(d.t1 - d.t0)}</b><small>${esc(R('time'))}</small></div><div><b>${s.wpm}</b><small>${esc(R('wpm'))}</small></div></div>`;
-  const stalls = d.stalls.map(x => `<div class="ri"><b>${esc(ayRef(x.ai))}</b> · ${esc(R('atka'))}: ${esc(M.w[SC[x.idx].s + ':' + SC[x.idx].a][SC[x.idx].w - 1])} ${cmpBtns(x)}</div>`).join('');
-  const soft = d.soft.map(m => `<div class="ri"><b>${esc(ayRef(m.ai))}</b> · ${esc(M.w[SC[m.idx].s + ':' + SC[m.idx].a][SC[m.idx].w - 1])}${m.heard && m.heard.length ? ' ← ' + esc(heardTxt(m)) : ''} ${cmpBtns(m)}</div>`).join('');
-  const clean = s.clean.length ? `<div class="ri">${s.clean.map(i => esc(ayRef(i))).join(' · ')}</div>` : '';
-  return cards + section(R('secHard'), mistakeList(d.mist), 'bad') + section(R('secStall'), stalls, 'warn') + section(R('secDoubt'), soft && `<p class="pn">${esc(R('doubtNote'))}</p>` + soft) + section(R('secOk'), clean, 'ok') + (() => { const h = hkRows(flagSet([d]), true); return h ? section(R('secHk'), `<p class="pn">${esc(R('hkNote'))}</p>` + h, 'warn') : ''; })();
+/* hero: ring + chips */
+function hero(title, pct, sub, chips) {
+  return `<div class="rhero"><div class="rring" style="--p:${pct}"><b>${nu(pct)}%</b><small>${esc(R('clean'))}</small></div><div class="rhm"><h4>${esc(title)}</h4><div class="rsub">${esc(sub)}</div></div></div>` +
+    `<div class="rchips">${chips.map(c => `<span class="rch ${c[0]}"><b>${c[1]}</b><small>${esc(c[2])}</small></span>`).join('')}</div>`;
 }
+const flagSet = list => { const f = new Set(); list.forEach(d => { d.mist.forEach(m => f.add(m.ai)); d.stalls.forEach(m => f.add(m.ai)); d.soft.forEach(m => f.add(m.ai)); }); return f; };
+/* ----- harakat / tajweed self-check (the phone mic cannot hear harakat; the Hafiz listens to the qari and marks honestly) ----- */
+let HKM = {};
+function hkMark(key, val) {
+  const [s, a, w] = key.split(':').map(Number), day = new Date().setHours(0, 0, 0, 0), lg = hlLoad();
+  lg.e = lg.e.filter(x => !(x.k === 'harakat' && x.hk === key && x.day === day)); if (val === 'bad') lg.e.push({ at: Date.now(), r: 0, k: 'harakat', s, a, w, hk: key, day });
+  hlSave(lg); if (val) HKM[key] = val; else delete HKM[key];
+}
+function hkRows(flag, onlyFlag) {
+  const out = [], seen = new Set();
+  for (let ai = VM.fi; ai <= VM.ti; ai++) {
+    const y = AY[ai], fl = flag.has(ai); if (onlyFlag && !fl) continue;
+    for (let i = y.first; i <= y.last; i++) { const w = SC[i], k = w.s + ':' + w.a + ':' + w.w, n = hkNote(k); if (!n) continue; const st = HKM[k] || '';
+      out.push({ fl, html: `<div class="ri"><div class="rih"><b>${esc(ayRef(ai))}</b>${fl ? '<span class="rk warn">⚠</span>' : ''}</div><div class="rwd ar">${esc(wAr(w.s, w.a, w.w))}</div><button class="po sm" data-hq="${ai}">▶ ${esc(R('cQari'))}</button><button class="po sm hkb ${st === 'ok' ? 'on' : ''}" data-hkm="ok" data-hkk="${k}">${esc(R('hkOk'))}</button><button class="po sm hkb bad ${st === 'bad' ? 'on' : ''}" data-hkm="bad" data-hkk="${k}">${esc(R('hkNo'))}</button><small>${esc(n)}</small></div>` }); }
+  }
+  out.sort((a, b) => (b.fl ? 1 : 0) - (a.fl ? 1 : 0)); return out.map(x => x.html).join('');
+}
+function daurHtml(d) {
+  if (!DICT) dictBuild(); const s = dStats(d), mk = d.soft.filter(x => x.kind === 'makhraj'), ds = d.soft.filter(x => x.kind !== 'makhraj');
+  const stalls = d.stalls.map(x => `<div class="ri"><div class="rih"><b>${esc(ayRef(x.ai))}</b><span class="rk warn">${esc(R('atka'))}</span>${tmB(x)}</div><div class="rwd ar">${esc(wAr(SC[x.idx].s, SC[x.idx].a, SC[x.idx].w))}</div>${cmpBtns(x)}</div>`).join('');
+  const soft = ds.map(m => `<div class="ri"><div class="rih"><b>${esc(ayRef(m.ai))}</b>${tmB(m)}</div><div class="rwd ar">${esc(wAr(SC[m.idx].s, SC[m.idx].a, SC[m.idx].w))}</div>${m.heard && m.heard.length ? '<small class="hd">← ' + esc(heardTxt(m)) + '</small>' : ''}${cmpBtns(m)}</div>`).join('');
+  const tj = mk.map(m => `<div class="ri"><div class="rih"><b>${esc(ayRef(m.ai))}</b>${tmB(m)}</div><div class="rwd ar">${esc(wAr(SC[m.idx].s, SC[m.idx].a, SC[m.idx].w))}</div><small class="hd">← ${esc(heardTxt(m))}${m.letters ? ' (' + esc(m.letters.join(' ، ')) + ')' : ''}</small>${cmpBtns(m)}</div>`).join('');
+  const clean = s.clean.length ? `<div class="ri rcl">${s.clean.map(i => `<span>${esc(ayRef(i))}</span>`).join('')}</div>` : '';
+  const hkh = hkRows(flagSet([d]), true);
+  return hero(R('daurRep') + ' ' + nu(d.n), s.cleanPct, dstr(d.t0) + ' · ' + clk(d.t0) + ' → ' + clk(d.t1 || Date.now()), [['bad', nu(d.mist.length), R('hard')], ['warn', nu(d.stalls.length), R('stall')], ['dbt', nu(ds.length), R('doubt')], ['tj', nu(mk.length), R('tjDoubt')], ['neu', fmtT(d.t1 - d.t0), R('time')], ['neu', nu(s.wpm), R('wpm')]]) +
+    section(R('secHard'), mistakeList(d.mist), 'bad', '⛔') + section(R('secStall'), stalls, 'warn', '⏸') + section(R('secDoubt'), soft && `<p class="pn">${esc(R('doubtNote'))}</p>` + soft, 'dbt', '❔') +
+    section(R('secTj'), tj && `<p class="pn">${esc(R('tjNote'))}</p>` + tj, 'tj', '🎙') + section(R('secOk'), clean, 'ok', '✓') + (hkh ? section(R('secHk'), `<p class="pn">${esc(R('hkNote'))}</p><p class="pn">${esc(R('hkSelf'))}</p>` + hkh, 'hk', '☪') : '');
+}
+const SAVEBAR = () => `<div class="rsave"><button class="po on" data-rn="file">⬇ ${esc(R('saveFile'))}</button><button class="po" data-rn="share">📤 ${esc(R('share'))}</button><button class="po" data-rn="print">🖨 ${esc(R('print'))}</button><button class="po" data-rn="copy">📋 ${esc(R('copy'))}</button></div>`;
 function showDaurReport(d) {
   VM = { fi: hz.fi, ti: hz.ti }; const last = hz.daur >= (hz.plan.reps || 1);
-  $('#rrep').innerHTML = `<div class="rrin"><h4>${esc(R('daurRep'))} ${hz.daur}/${hz.plan.reps || 1}</h4>${daurHtml(d)}<p class="rq">${esc(R('ask'))}</p>` +
+  $('#rrep').innerHTML = `<div class="rrin">${daurHtml(d)}<p class="rq">${esc(R('ask'))}</p>` +
     `<button class="po on" data-rn="${last ? 'final' : 'next'}">${esc(last ? R('noteFinal') : R('noteNext') + ' (' + (hz.daur + 1) + '/' + (hz.plan.reps || 1) + ')')}</button>` +
     `<button class="po" data-rn="again">${esc(R('again'))}</button><button class="po" data-rn="final">${esc(R('stopFinal'))}</button></div>`;
   $('#rrep').hidden = false; $('#rrep').scrollTop = 0; hz.busy = true;
@@ -882,31 +992,101 @@ function showDaurReport(d) {
 function finalHtml(all, meta) {
   if (!DICT) dictBuild(); VM = { fi: meta.fi, ti: meta.ti }; const cnt = {}, st = {};
   all.forEach(d => { d.mist.forEach(m => { cnt[m.ai] = (cnt[m.ai] || 0) + 1; }); d.stalls.forEach(m => { st[m.ai] = (st[m.ai] || 0) + 1; }); });
-  const rows = all.map(d => { const s = dStats(d); return `<div class="ri"><b>${esc(R('daur'))} ${d.n}</b> · ${s.cleanPct}% · ${esc(R('hard'))} ${d.mist.length} · ${esc(R('stall'))} ${d.stalls.length} · ${esc(R('doubt'))} ${d.soft.length} · ${fmtT(d.t1 - d.t0)} · ${s.wpm} ${esc(R('wpm'))}</div>`; }).join('');
-  const rep = Object.keys(cnt).sort((a, b) => cnt[b] - cnt[a]).map(i => `<div class="ri"><b>${esc(ayRef(+i))}</b> — ${cnt[i]} ${esc(R('times'))}${st[i] ? ' + ' + esc(R('atka')) + ' ' + st[i] : ''}</div>`).join('');
-  const stl = Object.keys(st).filter(i => !cnt[i]).map(i => `<div class="ri"><b>${esc(ayRef(+i))}</b> — ${esc(R('atka'))} ${st[i]} ${esc(R('times'))}</div>`).join('');
+  const rows = all.map(d => { const s = dStats(d); return `<div class="ri rrow"><b>${esc(R('daur'))} ${nu(d.n)}</b><span class="rtm">⏱ ${esc(clk(d.t0))} → ${esc(clk(d.t1))}</span><div class="rmini"><i class="pc" style="--p:${s.cleanPct}"></i><span>${nu(s.cleanPct)}%</span><span class="rk bad">${nu(d.mist.length)} ${esc(R('hard'))}</span><span class="rk warn">${nu(d.stalls.length)} ${esc(R('stall'))}</span><span class="rk dbt">${nu(d.soft.filter(x => x.kind !== 'makhraj').length)} ${esc(R('doubt'))}</span><span class="rk tj">${nu(d.soft.filter(x => x.kind === 'makhraj').length)}</span><small>${esc(fmtT(d.t1 - d.t0))} · ${nu(s.wpm)} ${esc(R('wpm'))}</small></div></div>`; }).join('');
+  const rep = Object.keys(cnt).sort((a, b) => cnt[b] - cnt[a]).map(i => `<div class="ri"><b>${esc(ayRef(+i))}</b> — ${nu(cnt[i])} ${esc(R('times'))}${st[i] ? ' + ' + esc(R('atka')) + ' ' + nu(st[i]) : ''}</div>`).join('');
+  const stl = Object.keys(st).filter(i => !cnt[i]).map(i => `<div class="ri"><b>${esc(ayRef(+i))}</b> — ${esc(R('atka'))} ${nu(st[i])} ${esc(R('times'))}</div>`).join('');
   const everClean = []; for (let i = meta.fi; i <= meta.ti; i++) if (!cnt[i] && !st[i]) everClean.push(i);
   const tot = all.reduce((a, d) => a + dStats(d).cleanPct, 0), avg = Math.round(tot / all.length);
   const allMist = all.flatMap(d => d.mist.map(m => Object.assign({ daur: d.n }, m)));
-  const imp = allMist.map(m => `<div class="ri"><b>${esc(R('daur'))} ${m.daur} · ${esc(ayRef(m.ai))}</b> ${cmpBtns(m)}<br><small>${esc(impact(m))}</small></div>`).join('');
-  const trend = all.length > 1 ? (() => { const a = dStats(all[0]).cleanPct, b = dStats(all[all.length - 1]).cleanPct; return `<p class="pn">${esc(R('trend'))}: ${a}% → ${b}%</p>`; })() : '';
-  return `<div class="rc"><div><b>${all.length}</b><small>${esc(R('daurs'))}</small></div><div><b>${avg}%</b><small>${esc(R('avgClean'))}</small></div><div><b>${allMist.length}</b><small>${esc(R('hard'))}</small></div></div>${trend}` +
-    section(R('secRange'), `<div class="ri">${esc(ayRef(meta.fi))} → ${esc(ayRef(meta.ti))}</div>`) + section(R('secPer'), rows) + section(R('secRep'), rep + stl, 'bad') + section(R('secImpact'), imp, 'bad') +
-    section(R('secOkAll'), everClean.length ? `<div class="ri">${everClean.map(i => esc(ayRef(i))).join(' · ')}</div>` : '', 'ok') + section(R('secHk'), `<p class="pn">${esc(R('hkNote'))}</p>` + hkRows(flagSet(all), false), 'warn') + `<p class="pn">${esc(R('limits'))}</p>`;
+  const imp = allMist.map(m => `<div class="ri"><div class="rih"><b>${esc(R('daur'))} ${nu(m.daur)} · ${esc(ayRef(m.ai))}</b><span class="rk ${kindCls(m.kind)}">${esc(kindTxt(m.kind))}</span>${tmB(m)}</div><div class="rwd ar">${esc(wAr(SC[m.idx].s, SC[m.idx].a, SC[m.idx].w))}</div>${cmpBtns(m)}<small>${esc(impact(m))}</small></div>`).join('');
+  const trend = all.length > 1 ? (() => { const a = dStats(all[0]).cleanPct, b = dStats(all[all.length - 1]).cleanPct; return `<p class="pn rtr">${esc(R('trend'))}: ${nu(a)}% → ${nu(b)}% ${b >= a ? '📈' : '📉'}</p>`; })() : '';
+  const nS = all.reduce((a, d) => a + d.stalls.length, 0), nD = all.reduce((a, d) => a + d.soft.filter(x => x.kind !== 'makhraj').length, 0), nT = all.reduce((a, d) => a + d.soft.filter(x => x.kind === 'makhraj').length, 0), tm = all.reduce((a, d) => a + (d.t1 - d.t0), 0);
+  const tjAll = all.flatMap(d => d.soft.filter(x => x.kind === 'makhraj').map(m => Object.assign({ daur: d.n }, m))).map(m => `<div class="ri"><div class="rih"><b>${esc(R('daur'))} ${nu(m.daur)} · ${esc(ayRef(m.ai))}</b>${tmB(m)}</div><div class="rwd ar">${esc(wAr(SC[m.idx].s, SC[m.idx].a, SC[m.idx].w))}</div><small class="hd">← ${esc(heardTxt(m))}${m.letters ? ' (' + esc(m.letters.join(' ، ')) + ')' : ''}</small>${cmpBtns(m)}</div>`).join('');
+  const hkh = hkRows(flagSet(all), false);
+  const t0 = all[0].t0;
+  return hero(R('finalRep'), avg, dstr(t0) + ' · ' + ayRef(meta.fi) + ' → ' + ayRef(meta.ti), [['neu', nu(all.length), R('daurs')], ['bad', nu(allMist.length), R('hard')], ['warn', nu(nS), R('stall')], ['dbt', nu(nD), R('doubt')], ['tj', nu(nT), R('tjDoubt')], ['neu', fmtT(tm), R('time')]]) + trend +
+    section(R('secPer'), rows, '', '🔁') + section(R('secRep'), rep + stl, 'bad', '⛔') + section(R('secImpact'), imp, 'bad', '📖') + section(R('secTj'), tjAll && `<p class="pn">${esc(R('tjNote'))}</p>` + tjAll, 'tj', '🎙') +
+    section(R('secOkAll'), everClean.length ? `<div class="ri rcl">${everClean.map(i => `<span>${esc(ayRef(i))}</span>`).join('')}</div>` : '', 'ok', '✓') + (hkh ? section(R('secHk'), `<p class="pn">${esc(R('hkNote'))}</p><p class="pn">${esc(R('hkSelf'))}</p>` + hkh, 'hk', '☪') : '') + `<p class="pn">${esc(R('limits'))}</p>`;
 }
+const stripBtns = h => h.replace(/<button[\s\S]*?<\/button>/g, '').replace(/<span class="cmp"><\/span>/g, '');
 function reportText(all, meta) {
-  const tmp = document.createElement('div'); tmp.innerHTML = finalHtml(all, meta).replace(/<\/(div|h5|p|small)>/g, '\n$&').replace(/<br>/g, '\n'); return tmp.textContent.replace(/\n{2,}/g, '\n').trim();
+  const tmp = document.createElement('div'); tmp.innerHTML = stripBtns(finalHtml(all, meta)).replace(/<\/(div|h5|p|small|h4)>/g, '\n$&').replace(/<br>/g, '\n'); return tmp.textContent.replace(/[ \t]+\n/g, '\n').replace(/\n{2,}/g, '\n').trim();
+}
+const REPCSS = 'body{font-family:"Noto Nastaliq Urdu","Segoe UI",Arial,sans-serif;background:#fbf6e6;color:#1b1710;max-width:720px;margin:auto;padding:18px;line-height:1.7}h4{color:#7a1f2b;font-size:22px;margin:0}.rhero{display:flex;gap:14px;align-items:center}.rring{width:84px;height:84px;border-radius:50%;background:conic-gradient(#b9862b calc(var(--p)*1%),#e6dcc0 0);display:grid;place-items:center}.rring b{background:#fbf6e6;border-radius:50%;width:62px;height:62px;display:grid;place-items:center;font-size:18px}.rring small{display:none}.rchips{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0}.rch{border:1px solid #c9b57a;border-radius:10px;padding:4px 10px;background:#fff8e1}.rch b{margin-inline-end:6px}.rs{margin:14px 0;padding:10px 12px;border-radius:12px;background:#fff;border-inline-start:5px solid #b9862b}.rs.bad{border-color:#a32a2a}.rs.warn{border-color:#e0a030}.rs.ok{border-color:#2f9e6a}.rs.tj{border-color:#1da7bb}.rs h5{margin:0 0 6px;font-size:16px;color:#7a1f2b}.ri{padding:6px 0;border-bottom:1px dashed #ddd}.rk{font-size:12px;border-radius:8px;padding:1px 8px;margin:0 6px;background:#eee}.rtm{font-size:12px;color:#777}.rwd{font-family:"Amiri",serif;font-size:22px}.pn,small{font-size:13px;color:#555}';
+function reportDoc(all, meta) {
+  return `<!doctype html><html lang="${A.st().ui === 'ur' ? 'ur' : 'en'}" dir="${A.st().ui === 'ur' ? 'rtl' : 'ltr'}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Fahmul Quraan — ${esc(R('finalRep'))}</title><style>${REPCSS}</style></head><body>${stripBtns(finalHtml(all, meta))}<p class="pn">Fahmul Quraan · Quranic Science</p></body></html>`;
+}
+function reportAction(k) {
+  const f = $('#rrep')._fin; if (!f) return; const nm = 'fahm-report-' + new Date(f.all[0].t0).toISOString().slice(0, 10);
+  if (k === 'copy') { const t = reportText(f.all, f.meta); try { navigator.clipboard.writeText(t); A.toast('✓ ' + R('copy')); } catch (x) { A.toast(t.slice(0, 200)); } return; }
+  if (k === 'print') { try { const fr = document.createElement('iframe'); fr.style.cssText = 'position:fixed;width:0;height:0;border:0;opacity:0'; document.body.appendChild(fr); fr.srcdoc = reportDoc(f.all, f.meta); fr.onload = () => { try { fr.contentWindow.focus(); fr.contentWindow.print(); } catch (x) { } setTimeout(() => fr.remove(), 4000); }; } catch (x) { } return; }
+  const html = reportDoc(f.all, f.meta), blob = new Blob([html], { type: 'text/html' }), file = (() => { try { return new File([blob], nm + '.html', { type: 'text/html' }); } catch (x) { return null; } })();
+  if (k === 'share') { if (file && navigator.canShare && navigator.canShare({ files: [file] })) { navigator.share({ files: [file], title: 'Fahmul Quraan' }).catch(() => { }); return; } if (navigator.share) { navigator.share({ title: 'Fahmul Quraan', text: reportText(f.all, f.meta).slice(0, 6000) }).catch(() => { }); return; } reportAction('copy'); return; }
+  try { const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = nm + '.html'; document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 4000); A.toast('✓ ' + R('saveFile')); } catch (x) { reportAction('share'); }
 }
 function showFinal(all, meta, fromHist) {
-  $('#rrep').innerHTML = `<div class="rrin"><h4>${esc(R('finalRep'))}</h4>${finalHtml(all, meta)}` +
-    `<button class="po" data-rn="copy">${esc(R('copy'))}</button>` + (fromHist ? '' : `<button class="po on" data-rn="new">${esc(R('newPlan'))}</button>`) + `<button class="po" data-rn="close">${esc(R('close'))}</button></div>`;
+  $('#rrep').innerHTML = `<div class="rrin">${finalHtml(all, meta)}${SAVEBAR()}` + (fromHist ? '' : `<button class="po on" data-rn="new">${esc(R('newPlan'))}</button>`) + `<button class="po" data-rn="close">${esc(R('close'))}</button></div>`;
   $('#rrep').hidden = false; $('#rrep').scrollTop = 0; $('#rrep')._fin = { all, meta };
 }
+/* ----- permanent log: every round and every mistake with its clock time -> day / week / month / year reports ----- */
+const HLK = 'fahm.hlog';
+function hlLoad() { try { const o = JSON.parse(localStorage.getItem(HLK) || 'null'); if (o && Array.isArray(o.r) && Array.isArray(o.e)) return o; } catch (e) { } return { r: [], e: [] }; }
+function hlSave(o) { try { if (o.r.length > 3000) o.r = o.r.slice(-3000); if (o.e.length > 9000) o.e = o.e.slice(-9000); localStorage.setItem(HLK, JSON.stringify(o)); } catch (e) { } }
+function logRound(d, meta) {
+  if (!d || d._lg) return; d._lg = 1; const keep = VM; VM = { fi: meta.fi, ti: meta.ti }; const s = dStats(d); VM = keep; const lg = hlLoad(), y0 = AY[meta.fi], y1 = AY[meta.ti];
+  if (lg.r.some(x => x.id === d.t0)) return;
+  lg.r.push({ id: d.t0, at: d.t0, end: d.t1 || Date.now(), n: d.n, f: y0.s + ':' + y0.a, t: y1.s + ':' + y1.a, cp: s.cleanPct, h: d.mist.length, st: d.stalls.length, d: d.soft.filter(x => x.kind !== 'makhraj').length, tj: d.soft.filter(x => x.kind === 'makhraj').length, w: d.words, sec: Math.round(s.net / 1000), wpm: s.wpm });
+  const ev = (list, k) => list.forEach(m => { const w = SC[m.idx]; if (!w) return; lg.e.push({ at: m.abs || d.t0 + (m.t || 0), r: d.t0, k: k || m.kind, s: w.s, a: w.a, w: w.w, h: heardTxt(m) }); });
+  ev(d.mist); ev(d.stalls, 'stall'); ev(d.soft.filter(x => x.kind !== 'makhraj'), 'doubt'); ev(d.soft.filter(x => x.kind === 'makhraj'), 'makhraj'); hlSave(lg);
+}
+/* ----- "My progress": Day / Week / Month / Year ----- */
+let STM = { m: 'week', o: 0 };
+function periodRange(m, o) {
+  const n = new Date(); let a, b;
+  if (m === 'day') { a = new Date(n.getFullYear(), n.getMonth(), n.getDate() + o); b = new Date(a.getFullYear(), a.getMonth(), a.getDate() + 1); }
+  else if (m === 'week') { const dow = (n.getDay() + 6) % 7; a = new Date(n.getFullYear(), n.getMonth(), n.getDate() - dow + 7 * o); b = new Date(a.getFullYear(), a.getMonth(), a.getDate() + 7); }
+  else if (m === 'month') { a = new Date(n.getFullYear(), n.getMonth() + o, 1); b = new Date(a.getFullYear(), a.getMonth() + 1, 1); }
+  else { a = new Date(n.getFullYear() + o, 0, 1); b = new Date(a.getFullYear() + 1, 0, 1); }
+  return [a.getTime(), b.getTime()];
+}
+function periodLabel(m, a, b) {
+  try {
+    if (m === 'day') return dstr(a); if (m === 'week') return dstr(a) + ' – ' + dstr(b - 1);
+    if (m === 'month') return new Date(a).toLocaleDateString(undefined, { month: 'long', year: 'numeric' }); return String(new Date(a).getFullYear());
+  } catch (e) { return ''; }
+}
+function bucketOf(m, a, t) { const d = new Date(t); if (m === 'day') return d.getHours(); if (m === 'week') return (d.getDay() + 6) % 7; if (m === 'month') return d.getDate() - 1; return d.getMonth(); }
+function bucketN(m, a) { if (m === 'day') return 24; if (m === 'week') return 7; if (m === 'month') return new Date(new Date(a).getFullYear(), new Date(a).getMonth() + 1, 0).getDate(); return 12; }
+function bucketLbl(m, a, i) { if (m === 'day') return i % 6 === 0 ? String(i) : ''; if (m === 'week') { try { return new Date(a + i * 864e5).toLocaleDateString(undefined, { weekday: 'narrow' }); } catch (e) { return ''; } } if (m === 'month') return (i + 1) % 5 === 0 || i === 0 ? String(i + 1) : ''; try { return new Date(new Date(a).getFullYear(), i, 1).toLocaleDateString(undefined, { month: 'narrow' }); } catch (e) { return ''; } }
+function statsHtml() {
+  const { m, o } = STM, [a, b] = periodRange(m, o), lg = hlLoad(), R0 = lg.r.filter(x => x.at >= a && x.at < b), E0 = lg.e.filter(x => x.at >= a && x.at < b);
+  const nB = bucketN(m, a), bars = new Array(nB).fill(0), brd = new Array(nB).fill(0);
+  E0.forEach(x => { if (x.k !== 'doubt' && x.k !== 'makhraj') bars[Math.min(nB - 1, bucketOf(m, a, x.at))]++; }); R0.forEach(x => { brd[Math.min(nB - 1, bucketOf(m, a, x.at))]++; });
+  const mx = Math.max(1, ...bars), avg = R0.length ? Math.round(R0.reduce((s, x) => s + x.cp, 0) / R0.length) : 0, sum = k => R0.reduce((s, x) => s + (x[k] || 0), 0), mins = Math.round(sum('sec') / 60);
+  const tab = (k, t) => `<button class="po sm ${m === k ? 'on' : ''}" data-sm="${k}">${esc(t)}</button>`;
+  const chart = `<div class="hsbars">${bars.map((v, i) => `<div class="hsb"><i class="${brd[i] ? 'has' : ''}" style="height:${v ? Math.max(8, Math.round(v * 100 / mx)) : (brd[i] ? 4 : 0)}%" title="${v}"></i><u>${esc(bucketLbl(m, a, i))}</u></div>`).join('')}</div>`;
+  const top = {}; E0.forEach(x => { if (x.k === 'doubt' || x.k === 'makhraj') return; const k = x.s + ':' + x.a; top[k] = (top[k] || 0) + 1; });
+  const topH = Object.keys(top).sort((p, q) => top[q] - top[p]).slice(0, 8).map(k => { const [s, a2] = k.split(':').map(Number), ai = AYI[k]; return `<div class="ri"><b>${esc(surahName(s) + ' ' + nu(a2))}</b> — ${nu(top[k])} ${esc(R('times'))}${ai != null ? ` <button class="po sm" data-hq="${ai}">▶ ${esc(R('cQari'))}</button>` : ''}</div>`; }).join('');
+  const evRow = x => `<div class="ri"><div class="rih"><span class="rtm">⏱ ${esc(clk2(x.at))}</span><b>${esc(surahName(x.s) + ' ' + nu(x.a))}</b><span class="rk ${kindCls(x.k)}">${esc(kindTxt(x.k))}</span></div><div class="rwd ar">${esc(wAr(x.s, x.a, x.w))}</div>${x.h ? `<small class="hd">← ${esc(x.h)}</small>` : ''}${AYI[x.s + ':' + x.a] != null ? ` <button class="po sm" data-hq="${AYI[x.s + ':' + x.a]}">▶ ${esc(R('cQari'))}</button>` : ''}</div>`;
+  const days = {}; R0.slice().sort((p, q) => q.at - p.at).slice(0, 80).forEach(x => { const k = new Date(x.at).setHours(0, 0, 0, 0); (days[k] = days[k] || []).push(x); });
+  const hkDays = {}; E0.filter(x => x.k === 'harakat').forEach(x => { (hkDays[x.day] = hkDays[x.day] || []).push(x); });
+  const dk = [...new Set([...Object.keys(days), ...Object.keys(hkDays)])].map(Number).sort((p, q) => q - p);
+  const line = dk.map(k => `<div class="sday"><h6>${esc(dstr(k))}</h6>` + (days[k] || []).map(r => { const evs = lg.e.filter(x => x.r === r.id).sort((p, q) => p.at - q.at);
+    return `<details class="rd"><summary><span class="rtm">⏱ ${esc(clk(r.at))}</span> <b>${esc(R('daur'))} ${nu(r.n)}</b> · ${esc(surahName(+r.f.split(':')[0]) + ' ' + nu(+r.f.split(':')[1]))} → ${esc(surahName(+r.t.split(':')[0]) + ' ' + nu(+r.t.split(':')[1]))} · <b>${nu(r.cp)}%</b><span class="rk bad">${nu(r.h)}</span><span class="rk warn">${nu(r.st)}</span><span class="rk dbt">${nu(r.d)}</span><span class="rk tj">${nu(r.tj)}</span></summary>${evs.length ? evs.map(evRow).join('') : `<p class="pn">✓ ${esc(R('clean'))}</p>`}</details>`; }).join('') + (hkDays[k] ? `<details class="rd" open><summary>☪ ${esc(R('hkBad'))} · ${nu(hkDays[k].length)}</summary>${hkDays[k].map(evRow).join('')}</details>` : '') + '</div>').join('');
+  const hist = (() => { let h = []; try { h = JSON.parse(localStorage.getItem('fahm.hist') || '[]'); } catch (e) { } const nm = loc => { const [s, a2] = loc.split(':').map(Number); return surahName(s) + ' ' + nu(a2); };
+    return h.length ? `<div class="rs"><h5><i>🗂</i>${esc(R('sReports'))}</h5>${h.map((x, i) => `<button class="po" data-hi="${i}">${esc(dstr(x.at))} ${esc(clk(x.at))} · ${esc(nm(x.names[0]))} → ${esc(nm(x.names[1]))} · ${nu(x.all.length)}×</button>`).join('')}</div>` : ''; })();
+  return `<div class="rrin"><h4>📊 ${esc(R('sTitle'))}</h4><div class="rtabs">${tab('day', R('sDay'))}${tab('week', R('sWeek'))}${tab('month', R('sMonth'))}${tab('year', R('sYear'))}</div>` +
+    `<div class="rnav"><button class="po sm" data-so="-1">‹</button><b>${esc(periodLabel(m, a, b))}</b><button class="po sm" data-so="1" ${o >= 0 ? 'disabled' : ''}>›</button></div>` +
+    (R0.length ? `<div class="rchips">${[['neu', nu(R0.length), R('sRounds')], ['ok', nu(avg) + '%', R('avgClean')], ['bad', nu(sum('h')), R('hard')], ['warn', nu(sum('st')), R('stall')], ['dbt', nu(sum('d')), R('doubt')], ['tj', nu(sum('tj')), R('tjDoubt')], ['neu', (mins || '<1'), R('sMin')]].map(c => `<span class="rch ${c[0]}"><b>${c[1]}</b><small>${esc(c[2])}</small></span>`).join('')}</div>${chart}` + section(R('sTop'), topH, 'bad', '⛔') + section(R('sTimeline'), line, '', '🕒') : `<p class="pn">${esc(R('sNone'))}</p>${line ? section(R('sTimeline'), line, '', '🕒') : ''}`) + hist +
+    `<button class="po" data-rn="close">${esc(R('close'))}</button></div>`;
+}
+function showStats() { const r = $('#rrep'), t = r.scrollTop; r.innerHTML = statsHtml(); r.hidden = false; r._fin = null; r.scrollTop = r._st === 1 ? t : 0; r._st = 1; }
+function popHist() { popClose(); STM = { m: STM.m, o: 0 }; $('#rrep')._st = 0; showStats(); }
 function hzFinishAll(partial) {
   hz.busy = true;
   const meta = { fi: hz.fi, ti: hz.ti, ps: hz.plan }; const all = hz.all.slice();
   if (partial && hz.cur && hz.cur.words >= 3 && !all.includes(hz.cur)) { hz.cur.t1 = Date.now(); hz.cur.reach = hz.tr ? SC[Math.min(hz.tr.p, SC.length - 1)].ai : hz.ti; all.push(hz.cur); }
-  hzStop(); if (!all.length) return;
+  hzStop(); if (!all.length) return; try { all.forEach(d => logRound(d, meta)); } catch (e) { }
   try {
     const wk = weakGet(), cn = {}, now = Date.now(); const hiR = all.reduce((m, d) => Math.max(m, d.reach != null ? d.reach : meta.ti), meta.fi);
     all.forEach(d => { d.mist.forEach(m => { cn[m.ai] = (cn[m.ai] || 0) + 1; }); d.stalls.forEach(m => { cn[m.ai] = (cn[m.ai] || 0) + 1; }); (d.hints || []).forEach(i => { cn[i] = (cn[i] || 0) + 1; }); });
@@ -917,8 +1097,8 @@ function hzFinishAll(partial) {
     }
     weakSet(wk);
   } catch (e) { }
-  try { const h =JSON.parse(localStorage.getItem('fahm.hist') || '[]'); h.unshift({ at: Date.now(), meta, all: all.map(d => Object.assign({}, d)), lay, names: [AY[meta.fi].s + ':' + AY[meta.fi].a, AY[meta.ti].s + ':' + AY[meta.ti].a] }); localStorage.setItem('fahm.hist', JSON.stringify(h.slice(0, 20))); } catch (e) { }
-  showFinal(all, meta, false);
+  try { const h =JSON.parse(localStorage.getItem('fahm.hist') || '[]'); h.unshift({ at: Date.now(), meta, all: all.map(d => Object.assign({}, d)), lay, names: [AY[meta.fi].s + ':' + AY[meta.fi].a, AY[meta.ti].s + ':' + AY[meta.ti].a] }); localStorage.setItem('fahm.hist', JSON.stringify(h.slice(0, 60))); } catch (e) { }
+  showFinal(all, meta, false); try { A.toast('✓ ' + R('savedApp'), 3200); } catch (e) { }
 }
 function hzRepAction(act) {
   if (act === 'next') { hz.daur++; $('#rrep').hidden = true; hzBeginDaur(hz.fi); }
@@ -936,14 +1116,6 @@ function popWeak() {
       `<button class="po on" data-wall="1">${esc(R('weakAll'))}</button><button class="po sm" data-wclr="1">${esc(R('weakClr'))}</button>` : `<p class="pn">${esc(R('weakEmpty'))}</p>`);
   $('#rpop').hidden = false;
 }
-function popHist() {
-  let h = []; try { h = JSON.parse(localStorage.getItem('fahm.hist') || '[]'); } catch (e) { }
-  const nm = loc => { const [s, a] = loc.split(':').map(Number); return surahName(s) + ' ' + a; };
-  $('#rpop').dataset.pk = 'hist';
-  $('#rpop').innerHTML = `<h4>${esc(R('history'))}</h4>` + (h.length ? h.map((x, i) => { return `<button class="po" data-hi="${i}">${esc(new Date(x.at).toLocaleDateString())} · ${esc(nm(x.names[0]))} → ${esc(nm(x.names[1]))} · ${x.all.length}×</button>`; }).join('') : `<p class="pn">—</p>`);
-  $('#rpop').hidden = false;
-}
-
 /* ---------- UI ---------- */
 function popClose() { $('#rpop').hidden = true; $('#rpop').dataset.pk = ''; }
 /* ---------- bookmarks (page ribbon + list) ---------- */
@@ -1153,8 +1325,12 @@ function init(api) {
   $('#rrep').addEventListener('click', e => {
     const q1 = e.target.closest('[data-hq]'); if (q1) { playQari(+q1.dataset.hq); return; }
     const m1 = e.target.closest('[data-hm]'); if (m1) { playMine(+m1.dataset.hm); return; }
+    const hkm = e.target.closest('[data-hkm]'); if (hkm) { const k0 = hkm.dataset.hkk, v0 = hkm.dataset.hkm, on = HKM[k0] === v0; hkMark(k0, on ? '' : v0); const row = hkm.parentNode; row.querySelectorAll('.hkb').forEach(x => x.classList.toggle('on', !on && x.dataset.hkm === v0)); return; }
+    const sm = e.target.closest('[data-sm]'); if (sm) { STM = { m: sm.dataset.sm, o: 0 }; showStats(); return; }
+    const so = e.target.closest('[data-so]'); if (so) { if (!so.disabled) { STM.o = Math.min(0, STM.o + +so.dataset.so); showStats(); } return; }
+    const hi2 = e.target.closest('[data-hi]'); if (hi2) { let h = []; try { h = JSON.parse(localStorage.getItem('fahm.hist') || '[]'); } catch (x) { } const x = h[+hi2.dataset.hi]; if (x) { if (x.lay && x.lay !== lay) relayout(x.lay); showFinal(x.all, x.meta, true); } return; }
     const b = e.target.closest('[data-rn]'); if (!b) return; const k = b.dataset.rn;
-    if (k === 'copy') { const f = $('#rrep')._fin; if (f) { const t = reportText(f.all, f.meta); try { navigator.clipboard.writeText(t); A.toast('✓'); } catch (x) { A.toast(t.slice(0, 200)); } } return; }
+    if (k === 'copy' || k === 'file' || k === 'share' || k === 'print') { reportAction(k); return; }
     if (k === 'close') { $('#rrep').hidden = true; return; }
     if (k === 'new') { $('#rrep').hidden = true; popSetup(); return; }
     hzRepAction(k);
@@ -1239,3 +1415,6 @@ window.FahmReader = {
   _RS: () => RS, _hz: () => hz, _plan: () => hz.plan, _sc: () => SC, _heard: onHeard, _page: () => pi, _show: n => { pi = n; renderPage(false); }, _n: () => PG.length
 };
 })();
+
+/* tap the translation strip of the full-screen animation to expand / collapse it */
+document.addEventListener('click', e => { const c = e.target.closest && e.target.closest('#story.big #cx'); if (c) c.closest('#story').classList.toggle('open'); });

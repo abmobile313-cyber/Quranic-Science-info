@@ -37,6 +37,11 @@
     const A = skel(a), B = skel(b); if (A === B) return true;
     const t = tol(Math.max(A.length, B.length), sens); return t > 0 && lev(A, B, t) <= t;
   }
+  /* tajweed (makhraj) slip: the heard word differs from the expected one ONLY by letters a reciter can confuse (ث/س, ص/س, ذ/ز, ظ/ز, ض/د, ط/ت, ق/ك, ح/ه, ع/ا, غ/خ). Only a doubt to verify - recognisers confuse them too. */
+  function mkSlip(h, e) {
+    if (h === e) return null; const a = skel(h), b = skel(e); if (a === b || a.length !== b.length) return null;
+    if (fold(a, 'r') !== fold(b, 'r')) return null; const o = []; for (let i = 0; i < a.length; i++) if (a[i] !== b[i]) o.push(b[i] + '→' + a[i]); return o.length ? o : null;
+  }
   const NEED = { s: 1, n: 2, r: 3, h: 3 };
   const BISM = ['بسم', 'الله', 'الرحمن', 'الرحيم'];
 
@@ -63,7 +68,7 @@ Tracker.prototype.jumpTo = function (b) {
       if (this.starts[this.p] && !this.bmDone[this.p] && this.bm === 0 && eq(h, BISM[0], sens) && !eq(h, w[this.p].n, sens)) { this.bm = 1; i++; continue; }
       if (this.bm > 0) { this.bm++; if (this.bm >= 4) { this.bm = 0; this.bmDone[this.p] = 1; } i++; continue; }
       const e = w[this.p].n;
-      if (eq(h, e, sens)) { adv(1); i++; continue; }
+      if (eq(h, e, sens)) { if (sens !== 's') { const ms = mkSlip(h, e); if (ms) ev.push({ t: 'soft', idx: this.p, kind: 'makhraj', heard: [h], letters: ms }); } adv(1); i++; continue; }
       if (i + 1 < tok.length && eq(h + tok[i + 1], e, sens)) { adv(1); i += 2; continue; }
       if (this.p + 1 < w.length && h.length >= 3 && eq(h, e + w[this.p + 1].n, sens)) { adv(2); i++; continue; }
       if (!can) break;                                     /* wait: the last interim word may still change */
@@ -76,8 +81,10 @@ Tracker.prototype.jumpTo = function (b) {
       if (h.length >= 3) for (let j = 1; j <= win && this.p + j < this.lim; j++) if (eq(h, w[this.p + j].n, sens)) { k = j; break; }
       if (k) {
         if (sens === 'h' ? k >= 6 : sens === 'r' ? k >= 3 : sens === 'n' ? k >= 2 : true) { const idx = this.p; this.bad = []; ev.push({ t: 'mistake', idx, kind: 'skip', n: k, heard: [h] }); i++; return { ev, used: i }; }
-        ev.push({ t: 'soft', idx: this.p, kind: 'skip', n: k, heard: [h] }); this.bad = []; this.p += k; adv(1); i++; continue;   /* 1–2 skipped words: logged, flow not broken */
+        ev.push({ t: 'soft', idx: this.p, kind: 'skip', n: k, heard: [h], sub: this.bad.slice() }); this.bad = []; this.p += k; adv(1); i++; continue;   /* 1–2 skipped words: logged, flow not broken */
       }
+      /* mic noise / stray syllable: the very next heard word is the expected one -> the odd word was an extra, not a mistake */
+      if (i + 1 < tok.length && !this.bad.length && tok[i + 1] !== h && eq(tok[i + 1], e, sens)) { ev.push({ t: 'soft', idx: this.p, kind: 'extra', heard: [h] }); i++; continue; }
       this.bad.push(h); i++;
       if (this.bad.length >= 2 && sens !== 's') { const j = this.jumpTo(this.bad); if (j >= 0 && j < this.p && j >= (this.fi || 0)) { const from = this.p; this.bad = []; this.p = j + 2; ev.push({ t: 'back', from, to: j }); ev.push({ t: 'ok', from: j, to: j + 2 }); continue; } if (j >= 0) { const idx = this.p, hd = this.bad.slice(); this.bad = []; ev.push({ t: 'mistake', idx, kind: 'jump', to: j, heard: hd }); return { ev, used: i }; } }
       if (this.bad.length >= need) { const idx = this.p, hd = this.bad.slice(); this.bad = []; ev.push({ t: 'mistake', idx, kind: 'wrong', heard: hd }); return { ev, used: i }; }
@@ -85,6 +92,6 @@ Tracker.prototype.jumpTo = function (b) {
     if (this.p >= this.lim) ev.push({ t: 'end' });
     return { ev, used: i };
   };
-  root.FahmHafiz = { norm, eq, Tracker, BISM };
+  root.FahmHafiz = { norm, eq, Tracker, BISM, mkSlip };
   if (typeof module !== 'undefined') module.exports = root.FahmHafiz;
 })(typeof window !== 'undefined' ? window : globalThis);

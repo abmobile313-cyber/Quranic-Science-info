@@ -313,7 +313,7 @@ body.light .nzt button{background:rgba(138,100,16,.07);border-color:rgba(138,100
 /* ===== Build 18: glass-transparent look everywhere ===== */
 :root{--gl-bg:linear-gradient(145deg,rgba(255,255,255,.10),rgba(255,255,255,.035));--gl-bd:rgba(255,255,255,.17);--gl-sh:0 8px 26px rgba(0,0,0,.28),inset 0 1px 0 rgba(255,255,255,.22),inset 0 -1px 0 rgba(255,255,255,.04)}
 body.light{--gl-bg:linear-gradient(145deg,rgba(255,255,255,.62),rgba(255,255,255,.30));--gl-bd:rgba(120,85,30,.22);--gl-sh:0 8px 22px rgba(90,60,20,.14),inset 0 1px 0 rgba(255,255,255,.9)}
-#wordcard,#stage,#story,#trans,#nz,#cx,.dsaa,.brand,#words,.card,.bcr,.tafx,.intro{background:var(--gl-bg)!important;border:1px solid var(--gl-bd)!important;box-shadow:var(--gl-sh)!important;-webkit-backdrop-filter:blur(16px) saturate(1.35);backdrop-filter:blur(16px) saturate(1.35)}
+#wordcard,#trans,#nz,.dsaa,.brand,#words,.card,.bcr,.tafx,.intro{background:var(--gl-bg)!important;border:1px solid var(--gl-bd)!important;box-shadow:var(--gl-sh)!important;-webkit-backdrop-filter:blur(16px) saturate(1.35);backdrop-filter:blur(16px) saturate(1.35)}
 .sheet-in,#rpop,#setBody,.mtabs,.seg{-webkit-backdrop-filter:blur(22px) saturate(1.4);backdrop-filter:blur(22px) saturate(1.4)}
 .sheet-in{background:linear-gradient(180deg,rgba(255,255,255,.12),rgba(255,255,255,.05))!important;border:1px solid var(--gl-bd);border-bottom:0;box-shadow:0 -14px 44px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.25)!important}
 body.light .sheet-in{background:linear-gradient(180deg,rgba(255,255,255,.82),rgba(255,255,255,.58))!important}
@@ -383,3 +383,35 @@ body.light #onb .ob-seg button.on{color:#fff3d0!important}
 .tile .tn{font-size:9px!important;max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:0 1px}
 .bsup{margin-top:6px!important;padding:8px!important;font-size:13px!important;border-radius:12px!important}
 @media (max-width:340px){.tiles{grid-template-columns:repeat(3,1fr)!important}}
+
+/* ===== Build 21: animation stays visible - translation / note sit on a light bottom gradient (no glass box), tap to expand, landscape safe ===== */
+#stage,#story{background:#000!important;border:0!important;box-shadow:none!important;-webkit-backdrop-filter:none!important;backdrop-filter:none!important}
+#stage.lab{background:#03050b!important}
+#cx{background:linear-gradient(0deg,rgba(2,4,10,.78) 0,rgba(2,4,10,.5) 55%,rgba(2,4,10,0) 100%)!important;border:0!important;box-shadow:none!important;-webkit-backdrop-filter:none!important;backdrop-filter:none!important;text-shadow:0 1px 3px rgba(0,0,0,.95),0 0 10px rgba(0,0,0,.8)}
+#story.big #cx{padding:34px max(18px,calc((100% - 760px)/2)) calc(78px + var(--sa));pointer-events:auto;cursor:pointer;max-height:36%;overflow:hidden}
+#story.big #cx .cxt{-webkit-line-clamp:3;font-size:15px;line-height:1.7}
+body.l-ur #story.big #cx .cxt.u,#story.big #cx .cxt.u{font-size:17px;line-height:2}
+#story.big #cx .cxs{-webkit-line-clamp:2;font-size:12.5px;margin-top:3px}
+body.l-ur #story.big #cx .cxs{font-size:13px;line-height:1.9}
+#story.big.open #cx{max-height:62%;overflow:auto;background:linear-gradient(0deg,rgba(2,4,10,.92) 0,rgba(2,4,10,.78) 70%,rgba(2,4,10,.2) 100%)!important}
+#story.big.open #cx .cxt,#story.big.open #cx .cxs{-webkit-line-clamp:unset}
+#story.big #cx::after{content:'';display:block;width:34px;height:3px;border-radius:2px;background:rgba(240,206,128,.55);margin:6px auto 0}
+#stage.big #labCap{padding-top:26px;background:linear-gradient(0deg,rgba(3,5,11,.8) 0,rgba(3,5,11,.45) 60%,rgba(3,5,11,0) 100%)}
+#stage #labN{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;text-shadow:0 1px 3px #000}
+#stage #labM{text-shadow:0 1px 4px #000,0 0 12px rgba(0,0,0,.8)}
+@media (orientation:landscape) and (max-height:520px){
+  #story.big #cx{max-height:36%;padding:12px max(18px,env(safe-area-inset-left)) calc(52px + var(--sa)) ;width:68%;right:auto}
+  #story.big #cx .cxt{-webkit-line-clamp:2;font-size:13px;line-height:1.6}#story.big #cx .cxs{-webkit-line-clamp:1}
+  #stage.big #labN{-webkit-line-clamp:2}#stage.big #labM{font-size:clamp(18px,5vmin,30px)}
+}
+
+/* ===== Build 21: wudu water scene (canvas video-type animation) ===== */
+#onb .ob-wv{position:relative;width:min(100%,340px);height:190px;margin:4px auto 10px;border-radius:26px;overflow:hidden;background:radial-gradient(ellipse at 50% 0%,rgba(47,208,230,.18),rgba(8,40,52,.55) 70%),linear-gradient(180deg,#0a2a34,#07151c);border:1px solid rgba(47,208,230,.45);box-shadow:0 0 34px rgba(47,208,230,.22),inset 0 0 26px rgba(255,255,255,.05)}
+#onb .ob-wv.big{height:min(240px,34vh)}
+#onb .ob-wv .ob-wc{position:absolute;inset:0;width:100%;height:100%;display:block}
+#onb .ob-wv .ob-em{position:absolute;left:50%;top:8px;transform:translateX(-50%);font-size:46px;line-height:1;z-index:2;animation:obf 2.4s ease-in-out infinite;filter:drop-shadow(0 4px 8px rgba(0,0,0,.45))}
+body.light #onb .ob-wv{background:radial-gradient(ellipse at 50% 0%,rgba(255,255,255,.7),rgba(150,225,238,.55) 70%),linear-gradient(180deg,#bfe9f2,#8fd3e4);border-color:rgba(15,111,130,.45)}
+@media (orientation:landscape) and (max-height:520px){#onb .ob-wv,#onb .ob-wv.big{height:112px;width:min(100%,240px)}#onb .ob-wv .ob-em{font-size:30px}}
+/* Build 21: report / progress screens are opaque so the mushaf page never shows through */
+body #rrep{background:#150d12!important;-webkit-backdrop-filter:none!important;backdrop-filter:none!important}
+body.light #rrep{background:#fbf6e6!important}

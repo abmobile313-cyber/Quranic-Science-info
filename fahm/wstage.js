@@ -158,7 +158,7 @@ AR.timearc = (c, W, H, t, p, P) => {
   const a = PI + ((t * .12) % 1) * PI * ease(p) + (1 - ease(p)) * 0; glow(c, cx + Math.cos(a) * R, cy + Math.sin(a) * R, 18, a < PI * 1.5 ? GOLD2 : '#9fb8ff', p); path(c, [[cx, cy], [cx + Math.cos(a) * R * .8, cy + Math.sin(a) * R * .8]], GOLD2, 1, .5); lab(c, P.l[0], cx, H * .12, 'center', GOLD2, P);
 };
 AR.one = (c, W, H, t, p, P) => {
-  const cx = W * .5, cy = H * .52; for (let k = 1; k < 9; k++) { c.strokeStyle = rgba(k % 2 ? GOLD : CY, (.7 - k * .07) * p); c.lineWidth = 1; c.beginPath(); c.arc(cx, cy, k * H * .05 * ease(p) + Math.sin(t * 1.5 - k) * 2, 0, TAU); c.stroke(); } glow(c, cx, cy, H * .16, '#fff1c8', p); lab(c, P.l[0], cx, H * .93, 'center', GOLD2, P);
+  const cx = W * .5, cy = H * .52; for (let k = 1; k < 9; k++) { c.strokeStyle = rgba(k % 2 ? GOLD : CY, (.7 - k * .07) * p); c.lineWidth = 1; c.beginPath(); c.arc(cx, cy, Math.max(.5, k * H * .05 * ease(p) + Math.sin(t * 1.5 - k) * 2), 0, TAU); c.stroke(); } glow(c, cx, cy, H * .16, '#fff1c8', p); lab(c, P.l[0], cx, H * .93, 'center', GOLD2, P);
 };
 AR.split = (c, W, H, t, p, P) => {
   const R = rnd(P.seed), cx = W * .5, cy = H * .5, k = ease(p); for (let i = 0; i < 40; i++) { const a = R() * TAU, d = (30 + R() * H * .3) * k, s = 6 + R() * 18; const x = cx + Math.cos(a) * d, y = cy + Math.sin(a) * d + Math.sin(t * 2 + i) * 2; c.strokeStyle = rgba(i % 3 ? GOLD : ROSE, .8 - d / (H * .6)); c.lineWidth = 1.3; c.beginPath(); c.moveTo(x, y); c.lineTo(x + Math.cos(a + 1) * s, y + Math.sin(a + 1) * s); c.lineTo(x + Math.cos(a + 2.2) * s * .8, y + Math.sin(a + 2.2) * s * .8); c.closePath(); c.stroke(); }
@@ -351,10 +351,11 @@ function fillSheet() {
   const sameH = same.length ? `<div class="sh-sec">${esc(T.same)}</div><div class="sh-same">${same.map(o => `<button class="ar" data-pick="${o.k}">${esc(o.w2.ar)}</button>`).join('')}</div>` : '';
   const chips = `<div class="sh-chips">${gram ? `<span>${esc(gram)}</span>` : ''}<span>${esc(T.pos2)} ${nu(idx + 1)} ${esc(T.of)} ${nu(n)}</span><span>${esc(API.sName(S_)[0])} ${nu(S_.n)}:${nu(A.v)}</span></div>`;
   const note = d.note ? `<div class="sh-note ${d.rtl ? 'u' : ''}" ${d.rtl ? 'dir="rtl"' : ''}><em>${esc(T.note)}</em> ${esc(d.note)}</div>` : '';
+  let ij = ''; try { ij = window.FahmIjaz ? FahmIjaz.html(S_.n, A.v, W.ar, u, esc) : ''; } catch (er) { }
   const e = sheetEl();
   e.innerHTML = `<div class="sh-grab" data-ws="sx"></div><button class="sh-x" data-ws="sx" aria-label="Close"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
   <div class="sh-head"><div class="sh-ar ar">${esc(W.ar)}</div><div class="sh-tl">${rtlSafe(tl, u)}</div><div class="sh-mm ${d.rtl ? 'u' : ''}" ${d.rtl ? 'dir="rtl"' : ''}>${esc(d.mm)}</div></div>
-  ${chips}${W.root ? `<div class="sh-sec">${esc(T.pic)}</div><div class="sh-root" dir="rtl">${rootL}</div>` : ''}${note}${stats}${langs}${sameH}${where}`;
+  ${chips}${ij}${W.root ? `<div class="sh-sec">${esc(T.pic)}</div><div class="sh-root" dir="rtl">${rootL}</div>` : ''}${note}${stats}${langs}${sameH}${where}`;
 }
 const rtlSafe = (t, u) => u === 'ur' ? '' : esc(t);
 function showSheet() { if (!el || idx < 0) return; sheetOn = true; fillSheet(); const e = sheetEl(); e.hidden = false; requestAnimationFrame(() => e.classList.add('on')); e.scrollTop = 0; }

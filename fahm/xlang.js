@@ -11,12 +11,29 @@
     map = {}; keys = []; var t = D.T[c]; if (!t) return;
     D.K.forEach(function (k, i) { map[k] = t[i]; keys.push(k); }); keys.sort(function (a, b) { return b.length - a.length; });
   }
+  var UNITS = ['ayat', 'ruku', 'Juz', 'Para', 'Page', 'Round', 'Rounds', 'times', 'min', 'Minutes', 'words/min', 'Surah', 'Ayah'];
+  function tr1(t) {
+    if (map[t] !== undefined) return map[t];
+    var m = /^(Word) (\d+) (of) (\d+)$/.exec(t); if (m) return map.Word + ' ' + m[2] + ' ' + map.of + ' ' + m[4];
+    for (var i = 0; i < keys.length; i++) { var k = keys[i]; if (k.length > 2 && t.indexOf(k + ' ') === 0 && /^[\d⁦]/.test(t.slice(k.length + 1))) return map[k] + t.slice(k.length); }
+    m = /^([^A-Za-z0-9\u0600-\u06FF\u0900-\u0DFF]+\s*)(.+)$/.exec(t); if (m && m[2] !== t) { var r = tr1(m[2]); if (r !== m[2]) return m[1] + r; }
+    m = /^(.+?)(…|\.\.\.)$/.exec(t); if (m) { var r2 = tr1(m[1]); if (r2 !== m[1]) return r2 + m[2]; }
+    m = /^(\d+)\s+([A-Za-z\/]+)(.*)$/.exec(t); if (m && UNITS.indexOf(m[2]) >= 0 && map[m[2]] !== undefined) return m[1] + ' ' + map[m[2]] + m[3];
+    m = /^(\d+)\s+([A-Za-z\/]+)\s*\/\s*(\d+)$/.exec(t); if (m && map[m[2]] !== undefined) return m[1] + ' ' + map[m[2]] + ' / ' + m[3];
+    m = /^(≈\s*)?(\d+)\s+([A-Za-z]+)$/.exec(t); if (m && map[m[3]] !== undefined) return (m[1] || '') + m[2] + ' ' + map[m[3]];
+    m = /^([A-Za-z][A-Za-z '\-]*?)\s*:\s*(.+)$/.exec(t); if (m && map[m[1]] !== undefined) return map[m[1]] + ': ' + (tr1(m[2]) || m[2]);
+    m = /^([A-Za-z][A-Za-z '\-]*) (\d+)$/.exec(t); if (m && map[m[1]] !== undefined) return map[m[1]] + ' ' + m[2];
+    return t;
+  }
   function tr(s) {
     if (!map) return s; var t = s.trim(); if (!t) return s;
     var lead = s.slice(0, s.indexOf(t)), tail = s.slice(s.indexOf(t) + t.length);
-    if (map[t] !== undefined) return lead + map[t] + tail;
-    var m = /^(Word) (\d+) (of) (\d+)$/.exec(t); if (m) return lead + map.Word + ' ' + m[2] + ' ' + map.of + ' ' + m[4] + tail;
-    for (var i = 0; i < keys.length; i++) { var k = keys[i]; if (k.length > 2 && t.indexOf(k + ' ') === 0 && /^[\d⁦]/.test(t.slice(k.length + 1))) return lead + map[k] + t.slice(k.length) + tail; }
+    var r = tr1(t); if (r !== t) return lead + r + tail;
+    if (t.indexOf(' · ') > 0 || t.indexOf(' — ') > 0) {
+      var sep = t.indexOf(' · ') > 0 ? ' · ' : ' — ', parts = t.split(sep), ch = false;
+      var out = parts.map(function (p) { var q = tr1(p); if (q !== p) ch = true; return q; });
+      if (ch) return lead + out.join(sep) + tail;
+    }
     return s;
   }
   function dig(s) { var d = DIG[lang]; return d ? s.replace(/[0-9]/g, function (x) { return d[x]; }) : s; }
@@ -66,5 +83,5 @@
   document.addEventListener('click', function (e) { var b = e.target.closest && e.target.closest('#btnLang'); if (b && app()) { e.stopImmediatePropagation(); e.preventDefault(); panel(); } }, true);
   window.addEventListener('fahm-ready', function () { var st = app().st(); if (st.xl && D.T[st.xl]) { apply(st.xl); setTimeout(function () { apply(st.xl); }, 800); } });
   setInterval(function () { if (lang) headerLabels(); }, 900);
-  window.FahmXL = { apply: apply, choose: choose };
+  window.FahmXL = { apply: apply, choose: choose, t: function (x) { return map ? tr(x) : x; }, lang: function () { return lang; }, bcp: function () { return lang ? (TCODE[lang] || lang) : ''; } };
 })();
