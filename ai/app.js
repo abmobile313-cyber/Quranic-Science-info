@@ -617,6 +617,7 @@ const HOW = {
   s2: { en: "Both lips: firmly closed for baa and meem, rounded (not closed) for waw.", ur: "دونوں ہونٹ: ب اور م میں مضبوطی سے بند، و میں گول (بند نہیں)۔", hi: "दोनों होंठ: बा और मीम में मज़बूती से बंद, वाव में गोल (बंद नहीं)।" },
   kh: { en: "The air goes through the nose. Hold the ghunnah for two counts.", ur: "ہوا ناک سے نکلتی ہے۔ غنہ دو حرکت تک رکھیں۔", hi: "हवा नाक से निकलती है। ग़ुन्ना दो हरकत तक रखें।" } };
 const LABX = {
+  vX: { en: "X-Ray Ustad", ur: "ایکس رے اُستاد", hi: "एक्स-रे उस्ताद" },
   wordT: { en: "Learn a Qur'an word", ur: "قرآن کا لفظ سیکھیں", hi: "क़ुरआन का लफ़्ज़ सीखें" }, oneT: { en: "Or tap one letter", ur: "یا ایک حرف دبائیں", hi: "या एक हर्फ़ दबाएँ" },
   wordD: { en: "Tap a word: hear the qari, then see where each letter comes from.", ur: "لفظ دبائیں: قاری سے سنیں، پھر دیکھیں ہر حرف کہاں سے نکلتا ہے۔", hi: "लफ़्ज़ दबाएँ: क़ारी से सुनें, फिर देखें हर हर्फ़ कहाँ से निकलता है।" },
   s1: { en: "Where", ur: "کہاں سے", hi: "कहाँ से" }, s2: { en: "How", ur: "کیسے", hi: "कैसे" }, s3: { en: "Note", ur: "خاص بات", hi: "ख़ास बात" }, s4: { en: "Practice", ur: "مشق", hi: "मश्क़" },
@@ -681,8 +682,8 @@ const PART_Z = { lips: ["s1", "s2"], teeth: ["l6", "l7", "l8", "s1"], tongue: ["
 function wireLab(root, opt) {
   opt = opt || {}; const fig = $(".mlab", root); if (!fig || !window.MLab) return null;
   /* the picture: REAL clips (photoreal video of the mouth) by default, the 3D head as a second view; the choice is remembered */
-  const engines = () => { const e = ["3d"]; if (window.MLabClip && MLabClip.ok()) e.push("clip"); return e; };
-  const pickEng = () => { const ok = engines(), s = LS.get("qsai-labview2"); return ok.includes(s) ? s : ok[0]; };
+  const engines = () => { const e = []; if (window.MLabXray && MLabXray.ok()) e.push("xray"); e.push("3d"); if (window.MLabClip && MLabClip.ok()) e.push("clip"); return e; };
+  const pickEng = () => { const ok = engines(), s = LS.get("qsai-labview3"); return ok.includes(s) ? s : ok[0]; };
   /* the 3D head also gets the front-view lips window: every letter and harakat shows its own lip shape next to the head */
   const withLips = (l3) => { const bx = $(".ml3", fig); if (!bx || !window.MLabClip || !MLabClip.ok()) return l3; let lp = null;
     try { const d = document.createElementNS("http://www.w3.org/2000/svg", "svg"); bx.appendChild(d); lp = MLabClip.Lab(d, LANG, { lipsOnly: true }); } catch (e) { return l3; }
@@ -690,7 +691,7 @@ function wireLab(root, opt) {
     const O = { to: (...a) => both("to", a), flow: (...a) => both("flow", a), speak: (...a) => both("speak", a), rest: (...a) => both("rest", a),
       destroy: () => { try { lp.destroy(); } catch (e) {} return l3.destroy && l3.destroy(); } };
     return new Proxy(l3, { get: (t, k) => k in O ? O[k] : typeof t[k] === "function" ? t[k].bind(t) : t[k] }); };
-  const mkLab = (kind, svg) => kind === "clip" ? MLabClip.Lab(svg, LANG) : withLips((window.MLab3 && MLab3.ok() ? MLab3 : MLab).Lab(svg, LANG));
+  const mkLab = (kind, svg) => kind === "clip" ? MLabClip.Lab(svg, LANG) : kind === "xray" ? MLabXray.Lab(svg, LANG) : withLips((window.MLab3 && MLab3.ok() ? MLab3 : MLab).Lab(svg, LANG));
   let eng = pickEng(), lab = mkLab(eng, $(".mlsvg", fig)), slow = false, lbl = true, busy = 0, all = false;
   const labProxy = new Proxy({}, { get: (_, k) => typeof lab[k] === "function" ? (...a) => lab[k](...a) : lab[k] });
   const cap = (c, z) => { $(".mlch", fig).textContent = c || "";
@@ -708,13 +709,13 @@ function wireLab(root, opt) {
     await lab.rest(slow ? 1100 : 500); b && b.classList.remove("on");
   }
   let box = $(".ml3", fig);
-  const addTags = () => { if (box && lab.at) box.insertAdjacentHTML("beforeend", `<div class="mlwd ar" hidden></div><div class="mltag ar" hidden></div>`); };
+  const addTags = () => { if (box) box.insertAdjacentHTML("beforeend", lab.at ? `<div class="mlwd ar" hidden></div><div class="mltag ar" hidden></div>` : `<div class="mlwd ar" hidden></div><div class="mltag ar" hidden style="display:none"></div>`); };
   addTags();
   /* 🎞️ real clips  <->  🧊 3D head */
-  const viewBtn = $(".mlview", fig), viewTxt = () => eng === "clip" ? "🎞️ " + pick(LABX.vReal) : "🧊 " + pick(LABX.v3d);
+  const viewBtn = $(".mlview", fig), viewTxt = () => eng === "clip" ? "🎞️ " + pick(LABX.vReal) : eng === "xray" ? "🩻 " + pick(LABX.vX) : "🧊 " + pick(LABX.v3d);
   const swapEng = (nx, keep) => { busy++; all = false; endWord(); $(".mlall", fig).classList.remove("on");
     try { lab.destroy && lab.destroy(); } catch (e) {} const old = $(".ml3", fig), svg = document.createElementNS("http://www.w3.org/2000/svg", "svg"); svg.setAttribute("class", "mlsvg"); old.replaceWith(svg);
-    eng = nx; if (!keep) LS.set("qsai-labview2", eng); lab = mkLab(eng, svg); box = $(".ml3", fig); addTags(); lab.labels(lbl, LANG); if (viewBtn) viewBtn.textContent = viewTxt(); cap(); };
+    eng = nx; if (!keep) LS.set("qsai-labview3", eng); lab = mkLab(eng, svg); box = $(".ml3", fig); addTags(); lab.labels(lbl, LANG); if (viewBtn) viewBtn.textContent = viewTxt(); cap(); };
   if (viewBtn) { if (engines().length < 2) viewBtn.hidden = true; else viewBtn.textContent = viewTxt();
     viewBtn.onclick = () => { const ok = engines(); swapEng(ok[(ok.indexOf(eng) + 1) % ok.length]); }; }
   fig.addEventListener("mlclipfail", () => { if (eng === "clip") swapEng("3d", true); }); /* clips could not be loaded (offline, blocked): the 3D head takes over */
@@ -732,7 +733,7 @@ function wireLab(root, opt) {
     for (let k = 0; k < segs.length; k++) {
       const { ch: c, zone: z, v: vw } = segs[k]; if (!z) continue;
       ems.forEach((e, j) => { e.classList.toggle("on", j === k); e.classList.toggle("ok", j < k); });
-      tag.hidden = true; cam(true, lab.at(c, z)); cap(c, z);
+      tag.hidden = true; cam(true, lab.at && lab.at(c, z)); cap(c, z);
       await lab.to(c, z, slow ? 1500 : 900); if (my !== busy) return;
       tag.textContent = c; tag.hidden = false;
       await new Promise(r => setTimeout(r, vw ? (slow ? 1800 : 1100) : (slow ? 3200 : 2000))); if (my !== busy) return;
