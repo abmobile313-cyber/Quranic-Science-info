@@ -683,7 +683,14 @@ function wireLab(root, opt) {
   /* the picture: REAL clips (photoreal video of the mouth) by default, the 3D head as a second view; the choice is remembered */
   const engines = () => { const e = ["3d"]; if (window.MLabClip && MLabClip.ok()) e.push("clip"); return e; };
   const pickEng = () => { const ok = engines(), s = LS.get("qsai-labview2"); return ok.includes(s) ? s : ok[0]; };
-  const mkLab = (kind, svg) => (kind === "clip" ? MLabClip : window.MLab3 && MLab3.ok() ? MLab3 : MLab).Lab(svg, LANG);
+  /* the 3D head also gets the front-view lips window: every letter and harakat shows its own lip shape next to the head */
+  const withLips = (l3) => { const bx = $(".ml3", fig); if (!bx || !window.MLabClip || !MLabClip.ok()) return l3; let lp = null;
+    try { const d = document.createElementNS("http://www.w3.org/2000/svg", "svg"); bx.appendChild(d); lp = MLabClip.Lab(d, LANG, { lipsOnly: true }); } catch (e) { return l3; }
+    const both = (k, a) => { const r = [l3[k] && l3[k](...a), lp[k] && lp[k](...a)]; return Promise.all(r).then(x => x[0]); };
+    const O = { to: (...a) => both("to", a), flow: (...a) => both("flow", a), speak: (...a) => both("speak", a), rest: (...a) => both("rest", a),
+      destroy: () => { try { lp.destroy(); } catch (e) {} return l3.destroy && l3.destroy(); } };
+    return new Proxy(l3, { get: (t, k) => k in O ? O[k] : typeof t[k] === "function" ? t[k].bind(t) : t[k] }); };
+  const mkLab = (kind, svg) => kind === "clip" ? MLabClip.Lab(svg, LANG) : withLips((window.MLab3 && MLab3.ok() ? MLab3 : MLab).Lab(svg, LANG));
   let eng = pickEng(), lab = mkLab(eng, $(".mlsvg", fig)), slow = false, lbl = true, busy = 0, all = false;
   const labProxy = new Proxy({}, { get: (_, k) => typeof lab[k] === "function" ? (...a) => lab[k](...a) : lab[k] });
   const cap = (c, z) => { $(".mlch", fig).textContent = c || "";

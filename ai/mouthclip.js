@@ -43,15 +43,16 @@
   /* lip + vowel poses live in a small second clip (mk/lips.mp4), shown as a front-view inset when the lips decide the sound */
   /* every letter has its own lip shape in the front view: [pose, how far 0..1 from the resting lips] */
   const LIPMAP = { "ب": ["B", 1], "م": ["B", 1], "و": ["O", 1], "ف": ["F", 1], "ي": ["E", 1], "ى": ["E", 1],
-    "ا": ["A", 1], "أ": ["A", 1], "إ": ["A", .9], "آ": ["A", 1], "ٱ": ["A", .9], "ء": ["A", .8], "ه": ["A", .9], "ع": ["A", 1], "ح": ["A", .8], "غ": ["A", .7], "خ": ["A", .7], "ق": ["A", .8], "ك": ["A", .6],
-    "ج": ["O", .5], "ش": ["O", .55], "ض": ["A", .45], "ل": ["A", .45], "ن": ["A", .35], "ر": ["A", .4], "ت": ["A", .3], "د": ["A", .3], "ط": ["A", .35],
-    "ث": ["E", .35], "ذ": ["E", .35], "ظ": ["E", .4], "س": ["E", .6], "ص": ["E", .55], "ز": ["E", .6], "ة": ["A", .4], "ؤ": ["O", .8], "ئ": ["E", .8] };
+    "ا": ["A", 1], "أ": ["A", 1], "إ": ["A", .9], "آ": ["A", 1], "ٱ": ["A", .9], "ء": ["A", .8], "ه": ["A", .9], "ع": ["A", 1], "ح": ["A", .8], "غ": ["A", .7], "خ": ["A", .7], "ق": ["Q", 1], "ك": ["Q", .7],
+    "ج": ["SH", .6], "ش": ["SH", 1], "ض": ["T", .8], "ل": ["T", 1], "ن": ["T", .6], "ر": ["T", .7], "ت": ["T", .7], "د": ["T", .7], "ط": ["T", .8],
+    "ث": ["TH", 1], "ذ": ["TH", 1], "ظ": ["TH", .9], "س": ["S", 1], "ص": ["S", .9], "ز": ["S", 1], "ة": ["A", .4], "ؤ": ["O", .8], "ئ": ["E", .8] };
   const LOCKL = "بمفو";
 
-  function Lab(svgEl, lang) {
-    const wrap = document.createElement("div"); wrap.className = "ml3";
-    const vid = document.createElement("video"); vid.className = "ml3c"; vid.muted = true; vid.playsInline = true; vid.preload = "auto"; vid.setAttribute("playsinline", ""); vid.setAttribute("muted", ""); vid.disablePictureInPicture = true; vid.style.objectFit = "cover"; vid.style.background = "#0a0f16";
-    const ov = document.createElementNS(NS, "svg"); ov.setAttribute("viewBox", `0 0 ${V} ${V}`); ov.setAttribute("class", "ml3o");
+  function Lab(svgEl, lang, opt) {
+    opt = opt || {}; const LO = !!opt.lipsOnly; /* lipsOnly: just the front-view lips window, driven next to the 3D head */
+    const wrap = document.createElement("div"); wrap.className = LO ? "mllips" : "ml3"; if (LO) wrap.style.cssText = "position:absolute;inset:0;pointer-events:none;z-index:6";
+    const vid = document.createElement("video"); vid.className = LO ? "" : "ml3c"; if (LO) vid.style.display = "none"; vid.muted = true; vid.playsInline = true; vid.preload = "auto"; vid.setAttribute("playsinline", ""); vid.setAttribute("muted", ""); vid.disablePictureInPicture = true; vid.style.objectFit = "cover"; vid.style.background = "#0a0f16";
+    const ov = document.createElementNS(NS, "svg"); ov.setAttribute("viewBox", `0 0 ${V} ${V}`); ov.setAttribute("class", LO ? "" : "ml3o"); if (LO) ov.style.display = "none";
     ov.addEventListener("click", e => { const g = e.target.closest && e.target.closest("[data-part]"); if (g) wrap.dispatchEvent(new CustomEvent("mlpart", { detail: g.getAttribute("data-part"), bubbles: true })); });
     ov.innerHTML = `<defs><radialGradient id="m3g"><stop offset="0" stop-color="#fff7c2"/><stop offset=".35" stop-color="#ffd23f" stop-opacity=".9"/><stop offset="1" stop-color="#ffb000" stop-opacity="0"/></radialGradient>
       <filter id="m3b" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="4"/></filter>
@@ -66,13 +67,13 @@
     const lcap = document.createElement("b"); lcap.style.cssText = "position:absolute;left:0;right:0;bottom:0;padding:3px 6px;font:700 11px Outfit,sans-serif;color:#ffe08a;background:linear-gradient(#0000,#000b);text-align:center"; lcap.textContent = "الشفتان";
     inset.append(lv, lcap); wrap.append(vid, ov, inset); svgEl.replaceWith(wrap);
     const q = id => ov.querySelector("#" + id);
-    let L = lang, showLbl = true, raf = 0, ready = false, dead = false, state = { id: null, w: 0, lip: null, lw: 0 }, lastSeek = -1, lastLip = -1, hold = null;
+    let L = lang, showLbl = true, raf = 0, ready = LO, dead = false, state = { id: null, w: 0, lip: null, lw: 0 }, lastSeek = -1, lastLip = -1, hold = null;
 
     const seekTo = (t) => { if (!ready) return; if (Math.abs(vid.currentTime - t) > 0.0005) { try { vid.currentTime = t; } catch (e) {} } };
     function frameOf(id, w) { const c = IDX && IDX.clips[id || "jawf"]; if (!c) return 0; if (!id) return c.start; return w <= 1 ? lerp(c.start, c.peak, clamp(w, 0, 1)) : lerp(c.peak, c.end, clamp((w - 1) / .5, 0, 1)); }
     function draw() {
-      if (!IDX) return; const fps = IDX.fps || 24, f = Math.round(frameOf(state.id, state.w));
-      if (f !== lastSeek) { lastSeek = f; seekTo((f + .5) / fps); }
+      if (!IDX && !LO) return;
+      if (!LO) { const fps = IDX.fps || 24, f = Math.round(frameOf(state.id, state.w)); if (f !== lastSeek) { lastSeek = f; seekTo((f + .5) / fps); } }
       if (LIPS && lv.readyState >= 1) { const lc = state.lip && LIPS.poses[state.lip]; const lf = lc ? Math.round(lerp(lc.start, lc.peak, clamp(state.lw, 0, 1))) : 0;
         if (lf !== lastLip) { lastLip = lf; try { lv.currentTime = (lf + .5) / (LIPS.fps || 24); } catch (e) {} }
         inset.style.opacity = lc && state.lw > .02 ? 1 : 0; }
@@ -111,13 +112,13 @@
       return new Promise(res => { const step = now => { if (dead) return res(); const k = clamp((now - t0) / (ms || 1), 0, 1); apply(mixp(from, target, ease(k)));
         if (k < 1) raf = requestAnimationFrame(step); else { then && then(); res(); } }; raf = requestAnimationFrame(step); });
     }
-    const target = (ch, zone, vowel) => { const id = clipFor(ch, zone), lm = LIPMAP[ch] || null, lock = LOCKL.includes(ch),
+    const target = (ch, zone, vowel) => { const id = LO ? null : clipFor(ch, zone), lm = LIPMAP[ch] || null, lock = LOCKL.includes(ch),
         vl = vowel === "u" ? ["O", 1] : vowel === "i" ? ["E", 1] : vowel === "a" ? ["A", .85] : null, lp = lock && !vowel ? lm : (vl || lm);
       if (vowel === "a" && id && !lock) return { id: "jawf", w: .6, lip: "A", lw: .85 }; return { id, w: id ? 1 : 0, lip: lp ? lp[0] : null, lw: lp ? lp[1] : 0 }; };
     /* a little life after the pose is reached: the air keeps flowing (س ص ز), the clip's own ending plays */
     function alive(id) { const c = IDX && IDX.clips[id]; if (!c || c.end <= c.peak + 1 || id !== "l7") return; const t0 = performance.now();
       const step = now => { if (dead || state.id !== id || state.w < 1) return; const k = clamp((now - t0) / 1600, 0, 1); state.w = 1 + .5 * ease(k); draw(); if (k < 1) raf = requestAnimationFrame(step); }; raf = requestAnimationFrame(step); }
-    Promise.all([idx(), blobUrl("sprite." + FMT)]).then(([j, u]) => { if (dead) return; if (!j || !u) { wrap.dispatchEvent(new CustomEvent("mlclipfail", { bubbles: true })); return; }
+    if (!LO) Promise.all([idx(), blobUrl("sprite." + FMT)]).then(([j, u]) => { if (dead) return; if (!j || !u) { wrap.dispatchEvent(new CustomEvent("mlclipfail", { bubbles: true })); return; }
       vid.src = u; vid.load(); ready = true; draw(); });
     (LIPS ? Promise.resolve(LIPS) : fetch(BASE + "lips.json").then(r => r.ok ? r.json() : null).then(j => (j ? (LIPS = j) : null)).catch(() => null))
       .then(j => j && blobUrl("lips." + FMT).then(u => { if (u && !dead) { lv.src = u; lv.load(); draw(); } }));
