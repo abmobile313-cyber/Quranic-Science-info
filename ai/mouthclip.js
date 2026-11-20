@@ -41,7 +41,12 @@
     nose: "M300,445 C305,380 306,320 296,250 C290,190 250,130 190,118 C130,108 70,120 20,138"
   };
   /* lip + vowel poses live in a small second clip (mk/lips.mp4), shown as a front-view inset when the lips decide the sound */
-  const LIPPOSE = { "ب": "B", "م": "B", "و": "O", "ف": "F", "ي": "E" };
+  /* every letter has its own lip shape in the front view: [pose, how far 0..1 from the resting lips] */
+  const LIPMAP = { "ب": ["B", 1], "م": ["B", 1], "و": ["O", 1], "ف": ["F", 1], "ي": ["E", 1], "ى": ["E", 1],
+    "ا": ["A", 1], "أ": ["A", 1], "إ": ["A", .9], "آ": ["A", 1], "ٱ": ["A", .9], "ء": ["A", .8], "ه": ["A", .9], "ع": ["A", 1], "ح": ["A", .8], "غ": ["A", .7], "خ": ["A", .7], "ق": ["A", .8], "ك": ["A", .6],
+    "ج": ["O", .5], "ش": ["O", .55], "ض": ["A", .45], "ل": ["A", .45], "ن": ["A", .35], "ر": ["A", .4], "ت": ["A", .3], "د": ["A", .3], "ط": ["A", .35],
+    "ث": ["E", .35], "ذ": ["E", .35], "ظ": ["E", .4], "س": ["E", .6], "ص": ["E", .55], "ز": ["E", .6], "ة": ["A", .4], "ؤ": ["O", .8], "ئ": ["E", .8] };
+  const LOCKL = "بمفو";
 
   function Lab(svgEl, lang) {
     const wrap = document.createElement("div"); wrap.className = "ml3";
@@ -106,8 +111,9 @@
       return new Promise(res => { const step = now => { if (dead) return res(); const k = clamp((now - t0) / (ms || 1), 0, 1); apply(mixp(from, target, ease(k)));
         if (k < 1) raf = requestAnimationFrame(step); else { then && then(); res(); } }; raf = requestAnimationFrame(step); });
     }
-    const target = (ch, zone, vowel) => { const id = clipFor(ch, zone), lip = LIPPOSE[ch] || (vowel === "u" ? "O" : vowel === "i" ? "E" : vowel === "a" && !id ? "A" : null);
-      if (vowel === "a" && id) return { id: "jawf", w: .6, lip: "A", lw: .8 }; return { id, w: id ? 1 : 0, lip, lw: lip ? 1 : 0 }; };
+    const target = (ch, zone, vowel) => { const id = clipFor(ch, zone), lm = LIPMAP[ch] || null, lock = LOCKL.includes(ch),
+        vl = vowel === "u" ? ["O", 1] : vowel === "i" ? ["E", 1] : vowel === "a" ? ["A", .85] : null, lp = lock && !vowel ? lm : (vl || lm);
+      if (vowel === "a" && id && !lock) return { id: "jawf", w: .6, lip: "A", lw: .85 }; return { id, w: id ? 1 : 0, lip: lp ? lp[0] : null, lw: lp ? lp[1] : 0 }; };
     /* a little life after the pose is reached: the air keeps flowing (س ص ز), the clip's own ending plays */
     function alive(id) { const c = IDX && IDX.clips[id]; if (!c || c.end <= c.peak + 1 || id !== "l7") return; const t0 = performance.now();
       const step = now => { if (dead || state.id !== id || state.w < 1) return; const k = clamp((now - t0) / 1600, 0, 1); state.w = 1 + .5 * ease(k); draw(); if (k < 1) raf = requestAnimationFrame(step); }; raf = requestAnimationFrame(step); }
@@ -121,9 +127,9 @@
     function speak(segs, getP) {
       cancelAnimationFrame(raf);
       overlay(null, "", false);
-      const K = [{ t: 0, p: cl(state), ch: "", z: null }]; let t = 0; const LOCK = "بمفو";
+      const K = [{ t: 0, p: cl(state), ch: "", z: null }]; let t = 0; const LOCK = LOCKL;
       segs.forEach(sg => {
-        const V = target(sg.ch, sg.zone, sg.v || ""), C = target(sg.ch, sg.zone, ""); if (!LOCK.includes(sg.ch) && sg.v && C.id) { C.lip = V.lip; C.lw = V.lw * .6; }
+        const V = target(sg.ch, sg.zone, sg.v || ""), C = target(sg.ch, sg.zone, ""); if (!LOCK.includes(sg.ch) && sg.v) { C.lip = V.lip; C.lw = V.lw * .6; }
         const cw = sg.dbl ? 1.7 : sg.ch === "ء" ? .7 : 1;
         t += cw * .7; K.push({ t, p: cl(C), ch: sg.ch, z: sg.zone }); t += cw * .3;
         if (sg.dbl) { t += .5; K.push({ t, p: cl(C), ch: sg.ch, z: sg.zone }); }
