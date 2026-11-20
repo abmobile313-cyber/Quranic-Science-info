@@ -15,13 +15,27 @@ const MASLAK = [['d', 'ur'], ['b', 'urk'], ['a', 'urg'], ['j', 'urm'], ['s', 'ur
 const DEF_TL = { ur: ['ur'], ru: ['rur'], en: ['en'] };
 if (!st.tl || !st.tl.length) st.tl = DEF_TL[st.ui].slice();
 const T = k => STR[st.ui][k];
-const sName = S => (I.surah[S.n] || {})[st.ui] || [S.en, S.mean];
+const sName = S => {
+  const o = (I.surah[S.n] || {})[st.ui]; if (o) return o;
+  if (st.ui === 'ur') return [S.ur.replace(/^سورۃ\s*/, ''), S.meanUr || S.mean];
+  if (st.ui === 'ru') { const mu = window.FahmConv && FahmConv.ok() ? FahmConv.roman(S.meanUr) : null; return [S.en, mu ? mu.charAt(0).toUpperCase() + mu.slice(1) : S.mean]; }
+  return [S.en, S.mean];
+};
+/* extra UI strings (ur / ru / en) */
+const X = {
+  ur: { surahTab: 'سورتیں', juzTab: 'پارے', para: 'پارہ', ctxH: 'پس منظر اور شانِ نزول', tafH: 'تفسیر', tafBtn: 'اس آیت کی تفسیر پڑھیں', tafLoad: 'تفسیر لوڈ ہو رہی ہے…', tafErr: 'تفسیر کے لیے انٹرنیٹ درکار ہے', more: 'مزید پڑھیں', less: 'کم کریں', anim: 'لفظ بہ لفظ اینیمیشن', hzTr: 'حافظ موڈ شروع ہوتے ہی ترجمہ خودکار بند', loading: 'لوڈ ہو رہا ہے…', ctxSrc: 'ماخذ', ctxEn: 'اس زبان کے لیے پس منظر انگریزی میں دکھایا جا رہا ہے', juzOf: 'پارہ', makki: 'مکی', madani: 'مدنی' },
+  ru: { surahTab: 'Surahs', juzTab: 'Paare (Juz)', para: 'Paara', ctxH: 'Pas-e-manzar aur Shaan-e-nuzool', tafH: 'Tafseer', tafBtn: 'Is ayat ki tafseer padhein', tafLoad: 'Tafseer load ho rahi hai…', tafErr: 'Tafseer ke liye internet zaroori hai', more: 'Mazeed padhein', less: 'Kam karein', anim: 'Lafz ba lafz animation', hzTr: 'Hafiz mode shuru hote hi tarjuma khud band', loading: 'Load ho raha hai…', ctxSrc: 'Mukhaiz', ctxEn: 'Is zubaan ke liye pas-e-manzar English mein hai', juzOf: 'Paara', makki: 'Makki', madani: 'Madani' },
+  en: { surahTab: 'Surahs', juzTab: 'Juz (para)', para: 'Juz', ctxH: 'Background & context of revelation', tafH: 'Tafseer', tafBtn: 'Read tafseer of this ayah', tafLoad: 'Loading tafseer…', tafErr: 'Tafseer needs an internet connection', more: 'Read more', less: 'Show less', anim: 'Word-by-word animation', hzTr: 'Switch translation off automatically when Hafiz mode starts', loading: 'Loading…', ctxSrc: 'Source', ctxEn: 'Background is shown in English for this language', juzOf: 'Juz', makki: 'Makki', madani: 'Madani' }
+};
+const XT = k => (X[st.ui] || X.en)[k];
 const lName = c => I.lang[st.ui][c] || c;
 const tName = c => I.translator[st.ui][c] || '';
 const RECS = window.FAHM_RECS || [];
 const rName = r => { const e = RECS.find(x => x[0] === r); return e ? (st.ui === 'ur' ? e[2] : e[1]) : ((I.reciter[r] || {})[st.ui] || r); };
 const pick = o => o ? (st.ui === 'ur' ? o.ur : st.ui === 'ru' ? o.ru : o.en) : '';
-let VID = {}, D, scene, rootIdx = {}, playing = false, timer = null, bounds = [], hist = [], exitAt = 0;
+let VID = {}, D, scene, rootIdx = FahmData.roots, playing = false, timer = null, bounds = [], hist = [], exitAt = 0;
+const codesNeeded = () => { const c = st.tl.slice(); if (c.includes('rur') && !c.includes('ur')) c.push('ur'); return c; };
+async function ensureS(si) { try { await FahmData.load(si, codesNeeded()); } catch (e) { toast(T('audioErr')); throw e; } }
 const au = new Audio(); au.preload = 'auto';
 let wordAu = null;
 
@@ -31,24 +45,26 @@ function toast(m, ms = 2800) { const e = $('#toast'); e.textContent = m; e.hidde
 
 function lemKey(s) { return stripD(s).replace(/ٱ/g, 'ا').replace(/ـ/g, ''); }
 function wordMeaning(w) { return st.ui === 'ur' ? [w.ur, 'u'] : st.ui === 'ru' ? [w.ru, ''] : [w.en, '']; }
-function capOf(spec, key) { return st.ui === 'ur' ? (window.FAHM_CX_UR[key] || '') : st.ui === 'ru' ? spec.cx.ur : spec.cx.en; }
+function capOf(spec, key) { return st.ui === 'ur' ? (window.FAHM_CX_UR[key] || spec.cx.uru || '') : st.ui === 'ru' ? spec.cx.ur : spec.cx.en; }
 
 function renderAyah(keepPlay) {
   const { S, A } = cur(); if (st.w >= A.words.length) st.w = 0;
   const sn = sName(S); $('#tAr').textContent = sn[0]; $('#tSub').textContent = sn[1];
   $('#ayahNo').textContent = `${T('ayah')} \u2066${A.v} / ${S.ayat.length}\u2069`; $('#storyH').textContent = T('story');
   $('#words').innerHTML = A.words.map((w, i) => { const [m, c] = wordMeaning(w); return `<button class="w" data-i="${i}"><span class="a ar">${esc(w.ar)}</span><span class="m ${c}">${esc(m)}</span></button>`; }).join('');
-  const spec = window.FAHM_SCENES[`${S.n}:${A.v}`] || { sky: 'night', items: [], cx: { ur: '', en: '' } };
+  const spec = window.FAHM_SCENES[`${S.n}:${A.v}`] || (window.FahmCompose ? FahmCompose.spec(S, A) : { sky: 'night', items: [], cx: { ur: '', en: '' } });
   videoFor(`${S.n}:${A.v}`);
   scene.set(spec); scene.all(); $('#cx').textContent = capOf(spec, `${S.n}:${A.v}`) || '';
   renderTrans(); renderNZ(); setWord(st.w, false, true); computeBounds(); save(); navUi();
   if (!keepPlay) stopAll();
+  if (window.FahmWS && FahmWS.isOpen()) FahmWS.refresh(playing ? 0 : -1);
 }
 
 function setWord(i, fromAudio, silent) {
   st.w = i; scene.show(i);
   document.querySelectorAll('#words .w').forEach((b, k) => { b.classList.toggle('on', k === i); b.classList.toggle('seen', k < i); });
   renderWordCard(); showLab();
+  if (window.FahmWS) FahmWS.set(i, !!fromAudio);
   if (!fromAudio && !silent) save();
 }
 
@@ -73,19 +89,54 @@ function renderTrans() {
   }).join('');
 }
 
-function renderNZ() {
-  const { S } = cur(), n = window.FAHM_NZ[S.n]; if (!n) { $('#nz').innerHTML = ''; return; }
-  $('#nz').innerHTML = `<h4>${T('nzh')}</h4><p>${esc(st.ui === 'en' ? n.en : st.ui === 'ur' ? (window.FAHM_NZ_UR[S.n] || '') : n.ur)}</p><small>${T('nzn')}</small>`;
-  $('#credits').innerHTML = brandHtml();
+/* Background (pas-e-manzar / shan-e-nuzool) and tafseer follow the FIRST selected translation:
+   any Urdu translation -> Urdu, Roman Urdu -> Roman, Hindi -> Hindi (Devanagari), English and the other languages -> English. */
+function ctxFam() { const c = st.tl[0] || (st.ui === 'ur' ? 'ur' : st.ui === 'ru' ? 'rur' : 'en'); return URD.includes(c) && c !== 'rur' ? 'ur' : c === 'rur' ? 'ru' : c === 'hi' ? 'hi' : c === 'en' ? 'en' : 'oth'; }
+const famUi = f => f === 'ur' ? 'ur' : f === 'ru' ? 'ru' : f === 'hi' ? 'hi' : 'en';
+function txtFam(urText, enText, fam) {   // pick / convert text for a language family
+  if (fam === 'ur') return urText; if (fam === 'ru') return window.FahmConv && FahmConv.ok() ? FahmConv.roman(urText) : null; if (fam === 'hi') return window.FahmConv && FahmConv.ok() ? FahmConv.dev(urText) : null; return enText;
+}
+let nzTok = 0;
+async function renderNZ() {
+  const { S, A } = cur(), tok = ++nzTok, fam = ctxFam(), box = $('#nz'); $('#credits').innerHTML = brandHtml();
+  if ((fam === 'ru' || fam === 'hi') && window.FahmConv && !FahmConv.ok()) { box.innerHTML = `<h4>${esc(XT('ctxH'))}</h4><p class="dim">${esc(XT('loading'))}</p>`; await FahmConv.load(); if (tok !== nzTok) return; }
+  const nz = window.FAHM_NZ[S.n], dir = fam === 'ur' ? ' dir="rtl" class="u"' : '';
+  let intro = null; try { intro = await FahmData.intro(S.n); } catch (e) { }
+  if (tok !== nzTok) return;
+  const hdr = { ur: 'پس منظر اور شانِ نزول', ru: 'Pas-e-manzar aur Shaan-e-nuzool', hi: 'पृष्ठभूमि और शाने-नुज़ूल', en: 'Background & context of revelation' }[famUi(fam)];
+  const nzTxt = nz ? (fam === 'en' || fam === 'oth' ? nz.en : fam === 'ur' ? (window.FAHM_NZ_UR[S.n] || '') : fam === 'ru' ? nz.ur : txtFam(window.FAHM_NZ_UR[S.n] || '', '', 'hi')) : '';
+  let html = `<h4>${esc(hdr)}</h4>`;
+  if (nzTxt) html += `<p${dir}>${esc(nzTxt)}</p>`;
+  if (intro) {
+    const raw = fam === 'en' || fam === 'oth' ? intro.en : (fam === 'ur' ? intro.ur : (txtFam(intro.ur, '', fam) || ''));
+    html += `<div class="intro ${nzTxt ? 'fold' : ''}" id="introBox"${dir}>${raw}</div><button class="more" data-more="1">${esc(XT('more'))}</button><small>${esc(XT('ctxSrc'))}: ${esc(intro.src || 'Tafheem-ul-Quran')} (S. Abul A'la Maududi)${fam === 'oth' ? ' · ' + esc(XT('ctxEn')) : ''}</small>`;
+  } else if (nz) html += `<small>${T('nzn')}</small>`;
+  html += `<div class="taf"><h4>${esc({ ur: 'تفسیر', ru: 'Tafseer', hi: 'तफ़सीर', en: 'Tafseer' }[famUi(fam)])}</h4><button class="tafb" data-taf="1">${esc({ ur: 'اس آیت کی تفسیر پڑھیں', ru: 'Is ayat ki tafseer padhein', hi: 'इस आयत की तफ़सीर पढ़ें', en: 'Read tafseer of this ayah' }[famUi(fam)])}</button><div id="tafBody"></div></div>`;
+  box.innerHTML = html;
+  const ib = $('#introBox'); if (ib && !nzTxt) ib.classList.add('open');
+  const mb = box.querySelector('[data-more]'); if (mb && !nzTxt) mb.hidden = true;
+}
+const TAF = {}; /* ayah tafseer from Quran.com (needs internet): Urdu = Tafsir Ibn Kathir (Urdu), everything else = Tafsir Ibn Kathir (English) */
+async function loadTafsir() {
+  const { S, A } = cur(), fam = ctxFam(), id = fam === 'ur' || fam === 'ru' || fam === 'hi' ? 160 : 169, key = `${id}:${S.n}:${A.v}`, bx = $('#tafBody'); if (!bx) return;
+  const msg = { ur: ['تفسیر لوڈ ہو رہی ہے…', 'تفسیر کے لیے انٹرنیٹ درکار ہے'], ru: ['Tafseer load ho rahi hai…', 'Tafseer ke liye internet zaroori hai'], hi: ['तफ़सीर लोड हो रही है…', 'तफ़सीर के लिए इंटरनेट ज़रूरी है'], en: ['Loading tafseer…', 'Tafseer needs an internet connection'] }[famUi(fam)];
+  bx.innerHTML = `<p class="dim">${msg[0]}</p>`;
+  try {
+    if (!TAF[key]) { const r = await fetch(`https://api.quran.com/api/v4/tafsirs/${id}/by_ayah/${S.n}:${A.v}`); if (!r.ok) throw 0; const j = await r.json(); TAF[key] = { t: (j.tafsir.text || '').replace(/<(?!\/?(p|br|b|i|h[1-6])\b)[^>]*>/gi, '').replace(/<(p|br|b|i|h[1-6])\b[^>]*>/gi, '<$1>'), n: j.tafsir.resource_name || '' }; }
+    let t = TAF[key].t; if (id === 160 && fam !== 'ur') { await FahmConv.load(); t = fam === 'ru' ? FahmConv.roman(t) : FahmConv.dev(t); }
+    if (key !== `${id}:${cur().S.n}:${cur().A.v}`) return;
+    bx.innerHTML = `<div class="tafx"${fam === 'ur' ? ' dir="rtl"' : ''}>${t}</div><small>${esc(TAF[key].n)} · Quran.com</small>`;
+  } catch (e) { bx.innerHTML = `<p class="dim">${msg[1]}</p>`; }
 }
 
 /* ---------- 3D word scene ---------- */
 function showLab() {
-  const { S, A, W } = cur(), key = `${S.n}:${A.v}:${st.w}`, spec = (window.FAHM_LAB || {})[key] || (window.FAHM_LEM || {})[lemKey(W.ar)] || null, [m] = wordMeaning(W);
+  const { A, W } = cur(), [m] = wordMeaning(W);
   $('#labTop').textContent = `${T('word')} ${st.w + 1} ${T('of')} ${A.words.length}`;
+  const inf = FahmWS.miniInfo(st.w);
   $('#labM').textContent = m; $('#labM').className = st.ui === 'ur' ? 'u' : '';
-  $('#labN').textContent = spec && spec.n ? pick(spec.n) : '';
-  if (window.FahmLab && FahmLab.ok) FahmLab.show(spec, { key, ar: W.ar, root: W.root });
+  $('#labN').textContent = inf.note || '';
+  FahmWS.miniSet(st.w);
 }
 
 /* ---------- Quranic Science branding footer ---------- */
@@ -133,6 +184,7 @@ function navUi() {
   $('#lPrev').textContent = T('prevL'); $('#lNext').textContent = T('nextL');
   $('#bPrev').disabled = atStart(); $('#bNext').disabled = atEnd();
 }
+function openStage(i) { stopAll(); FahmWS.open(i == null ? -1 : i); }
 function openPick() {
   const S = D.surahs[st.s]; $('#pickT').textContent = `${sName(S)[0]} — ${T('pick')}`;
   $('#pickGrid').innerHTML = S.ayat.map((A, i) => `<button class="pk ${i === st.a ? 'on' : ''}" data-pa="${i}">${A.v}</button>`).join('');
@@ -145,6 +197,7 @@ function setFull(id, on) {
 }
 /* returns true when the app used the back press itself */
 window.__fahmBack = function () {
+  if (window.FahmWS && FahmWS.isOpen()) { FahmWS.close(); return true; }
   if (FahmReader.isOpen()) { FahmReader.back(); return true; }
   for (const id of ['#pick', '#settings', '#menu']) if (!$(id).hidden) { $(id).hidden = true; return true; }
   if ($('#stage').classList.contains('big')) { setFull('#stage', false); return true; }
@@ -158,7 +211,18 @@ const AD = '٠١٢٣٤٥٦٧٨٩', ad = n => String(n).replace(/\d/g, d => AD[d]
 function openReader() { stopAll(); const S = D.surahs[st.s]; FahmReader.open(S.n, S.ayat[st.a].v); }
 function closeReader() { FahmReader.back(); }
 
-function goTo(s, a, w = 0, play = false, noHist = false) { if (!noHist && (s !== st.s || a !== st.a)) { hist.push([st.s, st.a]); if (hist.length > 60) hist.shift(); } st.s = s; st.a = a; st.w = w; renderAyah(false); $('#main').scrollTo({ top: 0, behavior: 'smooth' }); if (play) playAyah(); }
+function reloadTr() { if (st.tl.includes('rur') || ctxFam() === 'ru' || ctxFam() === 'hi') FahmConv.load(); return FahmData.tr(st.s, codesNeeded()).then(() => { renderTrans(); renderNZ(); }); }
+let goTok = 0;
+async function goTo(s, a, w = 0, play = false, noHist = false) {
+  const tok = ++goTok; stopAll();
+  if (!D.surahs[s].loaded) { $('#words').innerHTML = `<div class="ld">${esc(XT('loading'))}</div>`; }
+  try { await ensureS(s); } catch (e) { return; }
+  if (tok !== goTok) return;
+  if (a === -1 || a >= D.surahs[s].ayat.length) a = D.surahs[s].ayat.length - 1;
+  if (!noHist && (s !== st.s || a !== st.a)) { hist.push([st.s, st.a]); if (hist.length > 60) hist.shift(); }
+  st.s = s; st.a = a; st.w = w; renderAyah(false); $('#main').scrollTo({ top: 0, behavior: 'smooth' }); if (play) playAyah();
+  if (D.surahs[s + 1] && !D.surahs[s + 1].loaded && a > D.surahs[s].ayat.length - 4) FahmData.load(s + 1, codesNeeded()).catch(() => { });
+}
 function next(play) {
   const S = D.surahs[st.s];
   if (st.a < S.ayat.length - 1) return goTo(st.s, st.a + 1, 0, play);
@@ -167,10 +231,10 @@ function next(play) {
 }
 function atStart() { return st.s === 0 && st.a === 0; }
 function atEnd() { return st.s === D.surahs.length - 1 && st.a === D.surahs[st.s].ayat.length - 1; }
-function prev() { if (st.a > 0) goTo(st.s, st.a - 1); else if (st.s > 0) goTo(st.s - 1, D.surahs[st.s - 1].ayat.length - 1); }
+function prev() { if (st.a > 0) goTo(st.s, st.a - 1); else if (st.s > 0) goTo(st.s - 1, -1); }
 
 /* ---------- audio ---------- */
-function setPlaying(p) { playing = p; $('#icoPlay').style.display = p ? 'none' : ''; $('#icoPause').style.display = p ? '' : 'none'; $('#sPlay').innerHTML = p ? '<svg viewBox="0 0 24 24"><path d="M7 5h4v14H7zM13 5h4v14h-4z" style="fill:currentColor;stroke:none"/></svg>' : '<svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z" style="fill:currentColor;stroke:none"/></svg>'; }
+function setPlaying(p) { playing = p; if (window.FahmWS) FahmWS.updPlay(); $('#icoPlay').style.display = p ? 'none' : ''; $('#icoPause').style.display = p ? '' : 'none'; $('#sPlay').innerHTML = p ? '<svg viewBox="0 0 24 24"><path d="M7 5h4v14H7zM13 5h4v14h-4z" style="fill:currentColor;stroke:none"/></svg>' : '<svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z" style="fill:currentColor;stroke:none"/></svg>'; }
 function stopAll() { FahmSfx.stop(); try { $('#sv').pause(); } catch (e) { } clearInterval(timer); timer = null; try { au.pause(); } catch (e) { } if (wordAu) { try { wordAu.pause(); } catch (e) { } } try { speechSynthesis.cancel(); } catch (e) { } setPlaying(false); }
 function computeBounds() {
   const { A } = cur(), wts = A.words.map(w => stripD(w.ar).length + 1.2), tot = wts.reduce((x, y) => x + y, 0); bounds = []; let acc = 0;
@@ -190,7 +254,8 @@ function playAyah() {
   au.src = ayahUrl(); const pr = au.play(); if (pr && pr.catch) pr.catch(() => fallback());
 }
 function onEnded() {
-  scene.all(); const go = () => { if (!playing) return; if (st.auto) setTimeout(() => { if (playing) next(true); }, 500); else { setPlaying(false); FahmSfx.stop(); } };
+  scene.all(); const wsOn = window.FahmWS && FahmWS.isOpen(); if (wsOn) FahmWS.set(cur().A.words.length);
+  const go = () => { if (!playing) return; if (st.auto) setTimeout(() => { if (playing) next(true); }, wsOn ? 2200 : 500); else { setPlaying(false); FahmSfx.stop(); } };
   if (st.trw) { FahmSfx.stop(); speakTrList(go); } else go();
 }
 function playWord() {
@@ -225,18 +290,21 @@ function speakTr(c) {
 }
 
 /* ---------- sheets ---------- */
-function openMenu() {
+let menuTab = 'surah';
+const num = n => st.ui === 'ur' ? ad(n) : String(n);
+function openMenu(tab) {
+  if (typeof tab === 'string') menuTab = tab;
   $('#menuT').textContent = T('surahs');
-  const SN = window.FAHM_SN || { r: [], u: [], c: [] };
-  const lrn = { ur: 'لفظ بہ لفظ + اینیمیشن', ru: 'lafz ba lafz + animation', en: 'word-by-word + animation' }[st.ui] || '';
-  let html = '';
-  for (let n = 1; n <= 114; n++) {
-    const si = D.surahs.findIndex(x => x.n === n);
-    if (si >= 0) { const s = D.surahs[si]; html += `<button class="srow ${si === st.s ? 'on' : ''}" data-s="${si}"><span class="n">${s.n}</span><span class="t">${esc(sName(s)[0])}<small>${esc(sName(s)[1])} · ${s.ayat.length} ${T('ayah')} · ✨ ${esc(lrn)}</small></span></button>`; }
-    else { const nm = (st.ui === 'ur' ? SN.u : SN.r)[n - 1] || ('Surah ' + n); html += `<button class="srow" data-q="${n}"><span class="n">${n}</span><span class="t">${esc(nm)}<small>${SN.c[n - 1] || ''} ${T('ayah')}</small></span></button>`; }
+  let html = `<div class="mtabs"><button data-mt="surah" class="${menuTab === 'surah' ? 'on' : ''}">${esc(XT('surahTab'))}</button><button data-mt="juz" class="${menuTab === 'juz' ? 'on' : ''}">${esc(XT('juzTab'))}</button></div>`;
+  const place = p => p === 'madinah' ? XT('madani') : XT('makki');
+  if (menuTab === 'surah') {
+    D.surahs.forEach((s, si) => { const nm = sName(s); html += `<button class="srow ${si === st.s ? 'on' : ''}" data-s="${si}"><span class="n">${num(s.n)}</span><span class="t">${esc(nm[0])}<small>${esc(nm[1])} · ${num(s.count)} ${T('ayah')} · ${esc(place(s.place))}</small></span><span class="jz">${esc(XT('para'))} ${num(FahmData.juzOf(s.n, 1))}</span></button>`; });
+  } else {
+    FahmData.juz.forEach(([j, sn, an], k) => { const s = D.surahs[sn - 1], nm = sName(s); const nxt = FahmData.juz[k + 1]; const last = nxt ? (nxt[2] === 1 ? D.surahs[nxt[1] - 2] : D.surahs[nxt[1] - 1]) : D.surahs[113]; html += `<button class="srow juz" data-j="${sn},${an}"><span class="n">${num(j)}</span><span class="t">${esc(XT('para'))} ${num(j)}<small>${esc(nm[0])} ${num(sn)}:${num(an)} → ${esc(sName(last)[0])}</small></span></button>`; });
   }
   $('#menuList').innerHTML = html;
   $('#menu').hidden = false;
+  const on = $('#menuList .srow.on'); if (on) on.scrollIntoView({ block: 'center' });
 }
 function openSettings() {
   $('#setT').textContent = T('settings');
@@ -245,7 +313,7 @@ function openSettings() {
     `<div class="set-g"><h5>${T('ui')}</h5>${seg(I.ui, st.ui, 'ui')}</div>` +
     `<div class="set-g"><h5>${T('theme')}</h5>${seg([['dark', T('dark')], ['light', T('light')]], st.theme, 'theme')}</div>` +
     `<div class="set-g"><h5>${T('sfx')}</h5>${seg([['0', T('sfxOff')], ['1', T('sfxLow')], ['2', T('sfxMid')]], String(st.sfx), 'sfx')}</div>` +
-    `<div class="set-g"><label class="chk"><input type="checkbox" id="autoNext" ${st.auto ? 'checked' : ''}><span>${esc(T('autoOpt'))}</span></label><label class="chk"><input type="checkbox" id="trVoice" ${st.trw ? 'checked' : ''}><span>${esc(T('trVoice'))}</span></label></div>` +
+    `<div class="set-g"><label class="chk"><input type="checkbox" id="autoNext" ${st.auto ? 'checked' : ''}><span>${esc(T('autoOpt'))}</span></label><label class="chk"><input type="checkbox" id="trVoice" ${st.trw ? 'checked' : ''}><span>${esc(T('trVoice'))}</span></label><label class="chk"><input type="checkbox" id="hzTr" ${st.hzTr ? 'checked' : ''}><span>${esc(XT('hzTr'))}</span></label></div>` +
     `<div class="set-g"><h5>${T('maslak')}</h5>${seg(MASLAK.map(([k, c]) => [c, T('mk')[k]]), (MASLAK.find(([k, c]) => st.tl.includes(c)) || [0, ''])[1], 'maslak')}</div>` +
     `<div class="set-g"><h5>${T('tr')}</h5>${D.langs.filter(l => l.c !== 'ar').map(l => `<label class="chk"><input type="checkbox" data-tl="${l.c}" ${st.tl.includes(l.c) ? 'checked' : ''}><span>${esc(lName(l.c))}<small>${esc(tName(l.c))}</small></span></label>`).join('')}</div>` +
     `<div class="set-g"><h5>${T('rec')}</h5><select id="recSel" class="sel">${['h','w'].map(g => `<optgroup label="${g === 'h' ? 'Hafs ‘an ‘Asim' : 'Warsh ‘an Nafi‘'}">${RECS.filter(r => r[3] === g).map(r => `<option value="${esc(r[0])}" ${st.rec === r[0] ? 'selected' : ''}>${esc(rName(r[0]))}</option>`).join('')}</optgroup>`).join('')}${RECS.some(r => r[0] === st.rec) ? '' : `<option value="${esc(st.rec)}" selected>${esc(st.rec)}</option>`}</select><input id="recCus" class="sel" dir="ltr" placeholder="${esc(T('recCus'))}" value=""></div>`;
@@ -265,6 +333,7 @@ function bind() {
   document.addEventListener('click', e => {
     if (e.target.id === 'autoNext') { st.auto = e.target.checked; save(); return; }
     if (e.target.id === 'trVoice') { st.trw = e.target.checked; save(); if (st.trw) speakTrList(null, true); return; }
+    if (e.target.id === 'hzTr') { st.hzTr = e.target.checked; save(); return; }
     const pa = e.target.closest('[data-pa]'); if (pa) { $('#pick').hidden = true; goTo(st.s, +pa.dataset.pa); return; }
     const t = e.target.closest('button,label,input,aside'); if (!t) return;
     if (t.classList && t.classList.contains('sheet') && e.target === t) { t.hidden = true; return; }
@@ -272,16 +341,20 @@ function bind() {
     const g = e.target.closest('[data-go]'); if (g) { const [s, a, ww] = g.dataset.go.split(',').map(Number); goTo(s, a, ww); return; }
     const sp = e.target.closest('#spkW'); if (sp) { playWord(); return; }
     const tt = e.target.closest('[data-tts]'); if (tt) { speakTr(tt.dataset.tts); return; }
-    const qr = e.target.closest('[data-q]'); if (qr) { $('#menu').hidden = true; stopAll(); if (FahmReader.isOpen()) FahmReader.gotoSurah(+qr.dataset.q); else FahmReader.open(+qr.dataset.q, 1); return; }
+    const mt = e.target.closest('[data-mt]'); if (mt) { openMenu(mt.dataset.mt); return; }
+    const jr = e.target.closest('[data-j]'); if (jr) { const [sn, an] = jr.dataset.j.split(',').map(Number); $('#menu').hidden = true; stopAll(); if (FahmReader.isOpen()) FahmReader.open(sn, an); else goTo(sn - 1, an - 1); return; }
     const sr = e.target.closest('[data-s]'); if (sr) { $('#menu').hidden = true; if (FahmReader.isOpen()) FahmReader.gotoSurah(D.surahs[+sr.dataset.s].n); else goTo(+sr.dataset.s, 0); return; }
-    const kv = e.target.closest('[data-k]'); if (kv && kv.dataset.k === 'maslak') { st.tl = st.tl.filter(x => !URD.includes(x)); st.tl.push(kv.dataset.v); st.tl.sort((x, y) => D.langs.findIndex(l => l.c === x) - D.langs.findIndex(l => l.c === y)); save(); renderTrans(); openSettings(); return; }
-    if (kv) { st[kv.dataset.k] = kv.dataset.k === 'sfx' ? +kv.dataset.v : kv.dataset.v; if (kv.dataset.k === 'sfx') { FahmSfx.unlock(); FahmSfx.setLevel(st.sfx); if (st.sfx && playing) FahmSfx.start((scene.spec || {}).sky); } if (kv.dataset.k === 'ui') st.tl = DEF_TL[st.ui].slice(); save(); applyUi(); renderAyah(true); openSettings(); return; }
+    const mo = e.target.closest('[data-more]'); if (mo) { const ib = $('#introBox'); const open = ib.classList.toggle('open'); mo.textContent = open ? XT('less') : XT('more'); return; }
+    if (e.target.closest('[data-taf]')) { loadTafsir(); return; }
+    if (e.target.closest('[data-anim]')) { openStage(-1); return; }
+    const kv = e.target.closest('[data-k]'); if (kv && kv.dataset.k === 'maslak') { st.tl = st.tl.filter(x => !URD.includes(x)); st.tl.push(kv.dataset.v); st.tl.sort((x, y) => D.langs.findIndex(l => l.c === x) - D.langs.findIndex(l => l.c === y)); save(); reloadTr(); openSettings(); return; }
+    if (kv) { st[kv.dataset.k] = kv.dataset.k === 'sfx' ? +kv.dataset.v : kv.dataset.v; if (kv.dataset.k === 'sfx') { FahmSfx.unlock(); FahmSfx.setLevel(st.sfx); if (st.sfx && playing) FahmSfx.start((scene.spec || {}).sky); } if (kv.dataset.k === 'ui') { st.tl = DEF_TL[st.ui].slice(); if (st.ui === 'ru') FahmConv.load(); } save(); applyUi(); FahmData.tr(st.s, codesNeeded()).then(() => renderAyah(true)); openSettings(); return; }
   });
   document.addEventListener('change', e => {
     if (e.target.id === 'recSel') { st.rec = e.target.value; save(); return; }
     if (e.target.id === 'recCus') { const v = e.target.value.trim().replace(/^https?:\/\/everyayah\.com\/data\//, '').replace(/\/+$/, ''); if (v) { st.rec = v; save(); toast(v); } return; }
     const c = e.target.closest('[data-tl]'); if (!c) return;
-    const code = c.dataset.tl; st.tl = st.tl.filter(x => x !== code); if (c.checked) st.tl.push(code); st.tl.sort((a, b) => D.langs.findIndex(l => l.c === a) - D.langs.findIndex(l => l.c === b)); save(); renderTrans();
+    const code = c.dataset.tl; st.tl = st.tl.filter(x => x !== code); if (c.checked) st.tl.push(code); st.tl.sort((a, b) => D.langs.findIndex(l => l.c === a) - D.langs.findIndex(l => l.c === b)); save(); reloadTr();
   });
   document.addEventListener('keydown', e => { if (e.key === 'Escape') { window.__fahmBack(); return; } if (e.key === 'ArrowRight') next(false); else if (e.key === 'ArrowLeft') prev(); else if (e.key === ' ' && e.target === document.body) { e.preventDefault(); $('#bPlay').click(); } });
   let x0 = null; const stg = $('#story');
@@ -292,8 +365,9 @@ function bind() {
   window.addEventListener('resize', fitSoon); window.addEventListener('orientationchange', () => { fitSoon(); setTimeout(fit, 600); });
   if (window.ResizeObserver) { const ro = new ResizeObserver(() => fit()); ro.observe($('#story')); ro.observe($('#stage')); }
   if (screen.orientation && screen.orientation.addEventListener) screen.orientation.addEventListener('change', fitSoon);
-  $('#btnLabR').onclick = () => FahmLab.replay();
-  $('#btnFull').onclick = () => setFull('#stage', !$('#stage').classList.contains('big'));
+  $('#btnLabR').onclick = e => { e.stopPropagation(); FahmWS.miniSet(st.w); };
+  $('#btnFull').onclick = e => { e.stopPropagation(); openStage(st.w); };
+  $('#stage').addEventListener('click', e => { if (!e.target.closest('button')) openStage(st.w); });
   window.addEventListener('visibilitychange', () => { if (document.hidden) scene.stop(); else scene.start(); });
 }
 function applyUi() { document.documentElement.lang = st.ui === 'en' ? 'en' : 'ur'; document.body.className = 'l-' + st.ui + (st.theme === 'light' ? ' light' : ''); const tc = document.querySelector('meta[name=theme-color]'); if (tc) tc.content = st.theme === 'light' ? '#f6f1e4' : '#05070e'; if (D) navUi(); $('#btnFullS').title = T('full'); $('#btnRead').title = T('reader'); if (window.FahmLab) FahmLab.lang = st.ui; $('#btnFull').title = T('full'); $('#btnReplay').title = T('replay'); $('#btnLabR').title = T('replay'); $('#bMushaf').innerHTML = '<b>' + ({ ur: 'پورا قرآن پڑھیں', ru: 'Poora Quran padhein', en: 'Read the whole Quran' }[st.ui] || '') + '</b><small>' + ({ ur: '۳ مصحف لے آؤٹ · حافظ موڈ · ہر آیت کے ساتھ آڈیو', ru: '3 mushaf layout · Hafiz mode · har ayat ki audio', en: '3 mushaf layouts · Hafiz mode · audio for every ayah' }[st.ui] || '') + '</small>'; }
@@ -309,12 +383,23 @@ function iosHint() {
 async function init() {
   window.FahmSfx = window.FahmSfx || { unlock() { }, setLevel() { }, cue() { }, start() { }, stop() { } };
   scene = (window.FahmStory && FahmStory.ok()) ? new FahmStory($('#cv')) : new FahmScene($('#cv')); if (window.FahmLab) FahmLab.lang = st.ui, FahmLab.init($('#stage'));
-  D = await (await fetch('data.json')).json();
-  D.surahs.forEach((S, si) => S.ayat.forEach((A, ai) => A.words.forEach((w, wi) => { if (w.root) (rootIdx[w.root] = rootIdx[w.root] || []).push({ s: si, a: ai, w: wi }); })));
-  try { VID = await (await fetch('video/manifest.json')).json(); } catch (e) { VID = {}; }
+  D = await FahmData.init();
+  if (!st.v2) { st.v2 = 1; st.s = 0; st.a = 0; st.w = 0; save(); }   /* surah index now covers all 114 surahs */
+  if (st.hzTr === undefined) st.hzTr = true;
   if (st.s >= D.surahs.length) st.s = 0;
+  if (st.ui === 'ru' || ctxFam() === 'ru' || ctxFam() === 'hi') FahmConv.load();
+  try { await ensureS(st.s); } catch (e) { }
+  if (st.a >= D.surahs[st.s].ayat.length) st.a = 0;
   FahmSfx.setLevel(st.sfx); scene.onBorn = it => { if (playing && st.sfx) FahmSfx.cue(it.a); };
   FahmReader.init({ D: () => D, st: () => st, save, toast, openMenu, onClose: () => document.body.classList.toggle('noscroll', anyFull()) });
+  FahmWS.init({
+    st: () => st, cur, wordMeaning, lemKey, strip: stripD, sName,
+    pickWord: i => { stopAll(); setWord(i); try { playWord(); } catch (e) { } FahmWS.set(i); },
+    togglePlay: () => { if (playing) { stopAll(); FahmWS.updPlay(); } else { playAyah(); FahmWS.updPlay(); } },
+    playAyah: () => { playAyah(); FahmWS.updPlay(); }, stopAudio: stopAll, isPlaying: () => playing,
+    nextAyah: () => { next(false); }, prevAyah: () => { prev(); }, onClose: () => { stopAll(); }
+  });
+  FahmWS.miniInit($('#wsMini'));
   applyUi(); bind(); renderAyah(false); scene.start(); iosHint();
   try { history.replaceState({ b: 1 }, ''); history.pushState({ a: 1 }, ''); window.addEventListener('popstate', () => { if (window.__fahmBack()) history.pushState({ a: 1 }, ''); }); } catch (e) { }
   window.__fahm = { scene, st, goTo, D, lemKey };

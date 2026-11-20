@@ -178,6 +178,7 @@ function renderPage(anim) {
   $('#rin').innerHTML = h; $('#rin').style.setProperty('--rows', rows);
   { ornSets(); const f0 = lines.map(lineParts).find(x => x.a); const mz = f0 ? manzilOfAi(AYI[f0.a.split(':').slice(0, 2).join(':')]) : 0; $('#rpn').textContent = mz ? 'منزل ' + adx(mz) : ''; $('#rhd').innerHTML = headerHtml(lines); }
   sizePage(); fit();
+  warm(pageSurah(pi));
   $('#rTitle').textContent = surahName(pageSurah(pi)) + ' · ' + R('pg') + ' ' + (A.st().ui === 'ur' ? ad(PG[pi]) : PG[pi]);
   $('#rPg').textContent = (A.st().ui === 'ur' ? ad(pi + 1) + ' / ' + ad(PG.length) : (pi + 1) + ' / ' + PG.length);
   if (anim) { pg.classList.remove('flip'); void pg.offsetWidth; pg.classList.add('flip'); }
@@ -290,6 +291,7 @@ const sensOf = () => A.st().hs || 'h';
 const silOf = () => A.st().hsil || 4;
 const L3 = (u, r, e) => ({ ur: u, ru: r, en: e }[A.st().ui] || e);
 let DICT = null;
+function warm(sn) { try { if (!sn || !window.FahmData) return; const si = sn - 1, S = FahmData.D.surahs[si]; if (S && !S.loaded) FahmData.load(si, A.st().tl || []).then(() => { DICT = null; }).catch(() => { }); } catch (e) { } }
 function dictBuild() {
   DICT = {}; A.D().surahs.forEach(S => S.ayat.forEach(Ay => Ay.words.forEach(W => { const n = H.norm(W.ar); if (n && !DICT[n]) DICT[n] = W; })));
 }
@@ -444,6 +446,7 @@ function hzStart(fromAi, plan) {
   const pl = plan || planDefault(); st.hplan = pl; A.save();
   hz.plan = pl; hz.fi = AYI[pl.fs + ':' + pl.fa]; hz.ti = AYI[pl.ts + ':' + pl.ta]; hz.all = []; hz.daur = 1; hz.startAi = fromAi != null ? Math.max(hz.fi, Math.min(hz.ti, fromAi)) : hz.fi;
   hz.on = true; hz.want = true; hz.started = Date.now();
+  { const S0 = A.st(); if (S0.hzTr !== false && S0.trw) { S0.trwWas = 1; S0.trw = false; A.save(); } try { speechSynthesis.cancel(); } catch (e) { } }
   $('#rrep').hidden = true; $('#rhz').hidden = false; $('#rhHold').hidden = !hz.own; $('#rhHold').textContent = '⏸ ' + R('myHold'); $('#rhMode').textContent = R(st.hmode); $('#rMic').classList.add('on'); $('#rpage').classList.toggle('mem', st.hmode === 'mem');
   clearInterval(hz.sil); hz.sil = setInterval(() => { if (hz.on && !hz.busy && Date.now() - hz.lastAct > silOf() * 1000) hzLukma(); }, 250);
   recBegin();
@@ -456,6 +459,7 @@ function hzBeginDaur(ai) {
   recStart();
 }
 function hzStop() {
+  { const S0 = A.st(); if (S0.trwWas) { S0.trw = true; delete S0.trwWas; A.save(); } }
   recEnd(); hz.on = false; hz.want = false; hz.busy = false; recStop(); clearInterval(hz.sil); stopAudio(); $('#rhz').hidden = true; $('#rMic').classList.remove('on');
   $('#rpage').classList.remove('mem'); document.querySelectorAll('#rpage .nx,#rpage .bad,#rpage .ok').forEach(e => e.classList.remove('nx', 'bad', 'ok')); okSet = new Set();
 }
@@ -748,6 +752,7 @@ function mineStep(tok) {
 }
 function init(api) {
   A = api;
+  if ($('#rList')) $('#rList').onclick = () => A.openMenu();
   $('#rClose').onclick = close; $('#rTitle').onclick = () => { if ($('#rpop').dataset.pk === 'g' && !$('#rpop').hidden) popClose(); else popGoto(); }; $('#rPg').onclick = $('#rTitle').onclick;
   $('#rLay').onclick = () => { if ($('#rpop').hidden || !$('#rpop').dataset.pk || $('#rpop').dataset.pk !== 'l') { $('#rpop').dataset.pk = 'l'; popLayout(); } else popClose(); };
   $('#rMinus').onclick = () => applyZoom(-0.15); $('#rPlus').onclick = () => applyZoom(0.15);

@@ -15,6 +15,7 @@
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
+<script src="splash.js"></script>
 <div id="app">
   <header class="top">
     <button id="btnMenu" class="ib" aria-label="Surahs"><svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h10"/></svg></button>
@@ -26,8 +27,8 @@
   <main id="main">
     <div class="col-a">
       <section id="words" class="glass" dir="rtl" aria-label="Lafz ba lafz"></section>
-      <section id="stage" class="lab">
-        <canvas id="lab3d"></canvas><div class="lbs"></div><div class="fade"></div>
+      <section id="stage" class="lab mini">
+        <canvas id="wsMini"></canvas><div class="fade"></div>
         <div id="labTop"></div>
         <div id="labCap"><b id="labM"></b><small id="labN"></small></div>
         <button id="btnLabR" class="ib small" aria-label="Replay"><svg viewBox="0 0 24 24"><path d="M4 12a8 8 0 1 0 3-6.2M4 4v4h4"/></svg></button>
@@ -66,6 +67,7 @@
   <aside id="pick" class="sheet" hidden><div class="sheet-in glass"><h3 id="pickT"></h3><div id="pickGrid"></div></div></aside>
   <div id="reader" hidden>
     <div class="rtop"><button id="rClose" class="ib" aria-label="Close"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button><div id="rTitle"></div>
+      <button id="rList" class="ib sm" aria-label="Surah / Para list"><svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h10"/></svg></button>
       <button id="rLay" class="ib sm" aria-label="Layout"><svg viewBox="0 0 24 24"><path d="M5 4h14v16H5zM8 8h8M8 12h8M8 16h8"/></svg></button>
       <button id="rMinus" class="ib sm"><b>A</b></button><button id="rPlus" class="ib sm"><b style="font-size:20px">A</b></button></div>
     <div id="rstage"><div id="rpage"><div id="rhd"></div><div id="rin"></div><div id="rpn"></div></div></div>
@@ -84,14 +86,8 @@
 <script src="sfx.js"></script>
 <script src="engine.js"></script>
 <script src="scenes.js"></script>
+<script src="composer.js"></script>
 <script src="three.min.js"></script>
-<script src="lab.js"></script>
-<script src="labmotifs.js"></script>
-<script src="labm2a.js"></script>
-<script src="labm2b.js"></script>
-<script src="labm2c.js"></script>
-<script src="labm2d.js"></script>
-<script src="labv.js"></script>
 <script src="labspecs.js"></script>
 <script src="lemspecs.js"></script>
 <script src="lemspecs2.js"></script>
@@ -101,6 +97,9 @@
 <script src="hafiz.js"></script>
 <script src="hk.js"></script>
 <script src="surahnames.js"></script>
+<script src="data.js"></script>
+<script src="conv.js"></script>
+<script src="wstage.js"></script>
 <script src="reader.js"></script>
 <script src="i18n.js"></script>
 <script src="content_ur.js"></script>

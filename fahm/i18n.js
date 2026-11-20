@@ -9,7 +9,7 @@ window.I18N = {
       nzh: 'پس منظر (شانِ نزول)', nzn: 'یہ نوٹ مشہور روایات کا مختصر خلاصہ ہے۔ شائع کرنے سے پہلے کسی عالم سے تصدیق ضرور کروائیں۔',
       ui: 'ایپ کی زبان', tr: 'ترجمے (جتنے چاہیں منتخب کریں)', rec: 'قاری', audioErr: 'آواز کے لیے انٹرنیٹ درکار ہے۔ فی الحال صرف اینیمیشن چل رہی ہے۔',
       iosTip: 'آئی فون پر انسٹال کرنے کے لیے: شیئر ← “ہوم اسکرین میں شامل کریں”', install: 'انسٹال', close: 'ٹھیک ہے', installBar: 'فہم کو فون پر انسٹال کریں',
-      credits: 'قرآن کا متن: تنزیل (عثمانی، حفص)۔ لفظ بہ لفظ: قرآن ڈاٹ کام۔ ترجمے: فواز احمد کی قرآن اے پی آئی (ہر ترجمے کے ساتھ مترجم کا نام)۔ آواز: ایوری آیت اور قرآن ڈاٹ کام۔ اینیمیشن اسی ایپ میں کوڈ سے بنی ہے (کسی چہرے کی تصویر نہیں)۔ الفاظ کے معنی اور پس منظر کی تصدیق کسی عالم سے کروائیں۔',
+      credits: 'قرآن کا متن: تنزیل (عثمانی، حفص)۔ لفظ بہ لفظ: قرآن ڈاٹ کام، گرامر: Quranic Arabic Corpus۔ پس منظر: تفہیم القرآن (سید ابوالاعلیٰ مودودی)، تفسیر: ابنِ کثیر (قرآن ڈاٹ کام)۔ ترجمے: فواز احمد کی قرآن اے پی آئی (ہر ترجمے کے ساتھ مترجم کا نام)۔ آواز: ایوری آیت اور قرآن ڈاٹ کام۔ اینیمیشن اسی ایپ میں کوڈ سے بنی ہے (کسی چہرے کی تصویر نہیں)۔ الفاظ کے معنی اور پس منظر کی تصدیق کسی عالم سے کروائیں۔',
       replay: 'دوبارہ', word: 'لفظ', of: 'از', story: 'تفسیری کہانی', full: 'بڑی اسکرین', noVoice: 'اس ڈیوائس پر آواز دستیاب نہیں', drag: 'گھمانے کے لیے انگلی پھیریں', ayahWord: 'آیت'
     },
     ru: {
@@ -18,7 +18,7 @@ window.I18N = {
       nzh: 'Pas-e-manzar (Shaan-e-nuzool)', nzn: 'Yeh note mashhoor riwayat ka mukhtasar hai. Publish karne se pehle kisi aalim se tasdeeq zaroori hai.',
       ui: 'App ki zubaan', tr: 'Tarjume (jitne chahein chun lein)', rec: 'Qari', audioErr: 'Awaaz ke liye internet chahiye. Abhi sirf animation chal rahi hai.',
       iosTip: 'iPhone par install: Share → “Add to Home Screen”', install: 'Install', close: 'Theek hai', installBar: 'Fahm ko phone par install karein',
-      credits: 'Quran ka matan: Tanzil (Uthmani, Hafs). Lafz-ba-lafz: Quran.com. Tarjume: fawazahmed0/quran-api (har tarjume ke saath mutarjim ka naam). Awaaz: EveryAyah aur Quran.com. Animation: is app mein code se bani hai (kisi chehre ki tasveer nahi). Lafzi matlab aur pas-e-manzar ki tasdeeq kisi aalim se karwayein.',
+      credits: 'Quran ka matan: Tanzil (Uthmani, Hafs). Lafz-ba-lafz: Quran.com, grammar: Quranic Arabic Corpus. Pas-e-manzar: Tafheem-ul-Quran (Syed Abul Ala Maududi), tafseer: Ibn Kathir (Quran.com). Tarjume: fawazahmed0/quran-api (har tarjume ke saath mutarjim ka naam). Awaaz: EveryAyah aur Quran.com. Animation: is app mein code se bani hai (kisi chehre ki tasveer nahi). Lafzi matlab aur pas-e-manzar ki tasdeeq kisi aalim se karwayein.',
       replay: 'Dobara', word: 'Lafz', of: 'mein se', story: 'Tafsiri kahani', full: 'Bari screen', noVoice: 'Is device par awaaz maujood nahi', drag: 'Ghumane ke liye ungli phiren', ayahWord: 'Ayat'
     },
     en: {
@@ -27,7 +27,7 @@ window.I18N = {
       nzh: 'Background (Context of revelation)', nzn: 'A brief note from well-known reports. Please have a scholar verify before publishing.',
       ui: 'App language', tr: 'Translations (choose as many as you like)', rec: 'Reciter', audioErr: 'Audio needs an internet connection. Only the animation is playing.',
       iosTip: 'On iPhone: Share → “Add to Home Screen”', install: 'Install', close: 'OK', installBar: 'Install Fahm on your phone',
-      credits: 'Quran text: Tanzil (Uthmani, Hafs). Word-by-word: Quran.com. Translations: fawazahmed0/quran-api (translator named on each). Audio: EveryAyah and Quran.com. Animations are drawn by code in this app (no faces are depicted). Word meanings and context notes should be verified by a scholar.',
+      credits: 'Quran text: Tanzil (Uthmani, Hafs). Word-by-word: Quran.com, grammar: Quranic Arabic Corpus. Background: Tafheem-ul-Quran (Syed Abul Ala Maududi), tafseer: Ibn Kathir (Quran.com). Translations: fawazahmed0/quran-api (translator named on each). Audio: EveryAyah and Quran.com. Animations are drawn by code in this app (no faces are depicted). Word meanings and context notes should be verified by a scholar.',
       replay: 'Replay', word: 'Word', of: 'of', story: 'Story of the ayah', full: 'Full screen', noVoice: 'Voice is not supported on this device', drag: 'Drag to rotate', ayahWord: 'Ayah'
     }
   },
