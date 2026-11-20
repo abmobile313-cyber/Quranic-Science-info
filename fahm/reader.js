@@ -26,6 +26,9 @@ Object.assign(RS.ur, { rgT: 'آیات کی رینج چلائیں', rgH: 'شرو�
 Object.assign(RS.ru, { wrL: 'Sakht galti par awaaz', wrAll: 'Teeno (Eng+Urdu+Arabi)', wrUr: 'Urdu', wrEn: 'English', wrAr: 'Arabi', wrOff: 'Band' });
 Object.assign(RS.en, { wrL: 'Voice on a serious mistake', wrAll: 'All three (Eng+Urdu+Arabic)', wrUr: 'Urdu', wrEn: 'English', wrAr: 'Arabic', wrOff: 'Off' });
 Object.assign(RS.ur, { wrL: 'سخت غلطی پر آواز', wrAll: 'تینوں (انگریزی+اردو+عربی)', wrUr: 'اردو', wrEn: 'انگریزی', wrAr: 'عربی', wrOff: 'بند' });
+Object.assign(RS.ru, { rsT: 'Reader settings', rsLay: 'Mushaf', dmL: 'Page palatne ka andaaz', dmC: 'Kagaz palatna', dmS: 'Slide', dmI: 'Seedha', qrL: 'Qari (tilawat ka qari)', hlL: 'Tilawat ke saath ayat highlight', bgL: 'Background playback (screen band ho tab bhi)', bgN: 'APK mein screen band hone ya app chhupane par bhi awaaz chalti rahegi.', thL: 'Theme', thD: 'Dark', thLt: 'Light' });
+Object.assign(RS.en, { rsT: 'Reader settings', rsLay: 'Mushaf', dmL: 'Page-turn style', dmC: 'Page curl', dmS: 'Slide', dmI: 'Instant', qrL: 'Reciter (Qari)', hlL: 'Highlight the ayah while reciting', bgL: 'Background playback (screen off)', bgN: 'In the Android app audio keeps playing with the screen off or the app minimised.', thL: 'Theme', thD: 'Dark', thLt: 'Light' });
+Object.assign(RS.ur, { rsT: 'ریڈر ترتیبات', rsLay: 'مصحف', dmL: 'صفحہ پلٹنے کا انداز', dmC: 'کاغذ پلٹنا', dmS: 'سلائیڈ', dmI: 'سیدھا', qrL: 'قاری (تلاوت کا قاری)', hlL: 'تلاوت کے ساتھ آیت ہائی لائٹ', bgL: 'بیک گراؤنڈ پلے بیک (اسکرین بند ہو تب بھی)', bgN: 'اینڈرائیڈ ایپ میں اسکرین بند ہونے یا ایپ چھپانے پر بھی آواز چلتی رہے گی۔', thL: 'تھیم', thD: 'ڈارک', thLt: 'لائٹ' });
 Object.assign(RS.ru, { bmT: 'Bookmark', bmAdd: 'Is page par bookmark lagao', bmDel: 'Is page ka bookmark hatao', bmNone: 'Abhi koi bookmark nahin', bmP: 'Safha' });
 Object.assign(RS.en, { bmT: 'Bookmarks', bmAdd: 'Bookmark this page', bmDel: 'Remove bookmark from this page', bmNone: 'No bookmarks yet', bmP: 'Page' });
 Object.assign(RS.ur, { bmT: 'بک مارک', bmAdd: 'اس صفحے پر بک مارک لگائیں', bmDel: 'اس صفحے کا بک مارک ہٹائیں', bmNone: 'ابھی کوئی بک مارک نہیں', bmP: 'صفحہ' });
@@ -149,7 +152,7 @@ function fit() {
     inner.querySelectorAll('.ml:not(.e):not(.h)').forEach(l => {
       let s = 0; const ch = l.children; for (let i = 0; i < ch.length; i++) s += ch[i].offsetWidth; s += Math.max(0, ch.length - 1) * fs * 0.1; if (s > need) need = s;
     });
-    if (!need) break; const f = fs * Math.min(1, (W * 0.995) / need); if (Math.abs(f - fs) < 0.3 && it) break; fs = f; $('#rpage').style.setProperty('--fs', fs + 'px');
+    if (!need) break; const f = fs * Math.min(1, (W * 0.985) / need); if (Math.abs(f - fs) < 0.3 && it) break; fs = f; $('#rpage').style.setProperty('--fs', fs + 'px');
   }
   $('#rpage').style.setProperty('--fs', Math.min(fs, rowH * 0.78) + 'px');
 }
@@ -202,7 +205,7 @@ function frameSvg(w, h, arch) {
   if (arch === 2) {
     const cy = h * .185, R = w * .082, pts = []; for (let i = 0; i < 16; i++) { const r = i % 2 ? R * .46 : R * .92, t = i * Math.PI / 8 - Math.PI / 2; pts.push((c + r * Math.cos(t)).toFixed(1) + ',' + (cy + r * Math.sin(t)).toFixed(1)); }
     const dts = Array.from({ length: 24 }, (_, i) => { const t = i * Math.PI / 12; return `<circle cx="${(c + R * 1.2 * Math.cos(t)).toFixed(1)}" cy="${(cy + R * 1.2 * Math.sin(t)).toFixed(1)}" r="${(w * .0035).toFixed(1)}" fill="currentColor"/>`; }).join('');
-    const ln = d => `<path d="M${c + d * R * 1.55} ${cy}H${c + d * R * 2.6}" stroke="currentColor" stroke-width="1.2"/><path d="M${c + d * R * 2.6} ${cy - 5}l${d * 6} 5-${d * 6} 5-${d * 6}-5z" fill="currentColor"/><circle cx="${c + d * R * 1.55}" cy="${cy}" r="${w * .006}" fill="currentColor"/>`;
+    const ln = d => `<path d="M${c + d * R * 1.55} ${cy}H${c + d * R * 2.6}" stroke="currentColor" stroke-width="1.2"/><path d="M${c + d * R * 2.6} ${cy - 5}L${c + d * R * 2.6 + d * 6} ${cy}L${c + d * R * 2.6} ${cy + 5}L${c + d * R * 2.6 - d * 6} ${cy}Z" fill="currentColor"/><circle cx="${c + d * R * 1.55}" cy="${cy}" r="${w * .006}" fill="currentColor"/>`;
     orn = `<g color="inherit"><circle cx="${c}" cy="${cy}" r="${R * 1.08}" fill="var(--pgbg)" stroke="currentColor" stroke-width="2"/><polygon points="${pts.join(' ')}" fill="currentColor" opacity=".9"/><circle cx="${c}" cy="${cy}" r="${R * .3}" fill="var(--pgbg)" stroke="currentColor" stroke-width="1.4"/><circle cx="${c}" cy="${cy}" r="${R * .12}" fill="currentColor"/>${dts}${ln(1)}${ln(-1)}</g>`;
   }
   return `<svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" aria-hidden="true"><defs>${pat}</defs>` +
@@ -248,7 +251,7 @@ function renderPage(anim) {
   const pg = $('#rpage'); pg.classList.toggle('mem', hz.on && A.st().hmode === 'mem');
   $('#rin').innerHTML = h; $('#rin').style.setProperty('--rows', rows);
   { ornSets(); const f0 = lines.map(lineParts).find(x => x.a); const mz = f0 ? manzilOfAi(AYI[f0.a.split(':').slice(0, 2).join(':')]) : 0; $('#rpn').textContent = mz ? 'منزل ' + adx(mz) : ''; $('#rhd').innerHTML = headerHtml(lines); }
-  sizePage(); fit(); bmUpd();
+  sizePage(); fit(); bmUpd(); applyHl();
   warm(pageSurah(pi));
   $('#rTitle').textContent = surahName(pageSurah(pi)) + ' · ' + R('pg') + ' ' + (A.st().ui === 'ur' ? ad(PG[pi]) : PG[pi]);
   $('#rPg').textContent = (A.st().ui === 'ur' ? ad(pi + 1) + ' / ' + ad(PG.length) : (pi + 1) + ' / ' + PG.length);
@@ -285,7 +288,7 @@ function flipFx(dir, run) {
   const pg = $('#rpage'), host = pg && pg.parentNode; if (!pg || !pg.offsetWidth || !$('#rin').children.length) { run(); return; }
   const hr = host.getBoundingClientRect(), r0 = pg.getBoundingClientRect(), W = r0.width, H = r0.height;
   let pbg = getComputedStyle(pg).backgroundColor; if (!pbg || /rgba\(.*,\s*0\)$/.test(pbg) || pbg === 'transparent') pbg = document.body.classList.contains('light') ? '#f6efdc' : '#0a1815';
-  const mk = () => { const c = pg.cloneNode(true); c.removeAttribute('id'); c.classList.remove('flip'); Object.assign(c.style, { position: 'absolute', margin: '0', left: (r0.left - hr.left) + 'px', top: (r0.top - hr.top) + 'px', width: W + 'px', height: H + 'px', pointerEvents: 'none', transform: 'none', animation: 'none', transformOrigin: '0 0', background: pbg, boxShadow: 'none' }); return c; };
+  const mk = () => { const c = pg.cloneNode(true); c.classList.remove('flip'); c.setAttribute('data-clone', '1'); Object.assign(c.style, { willChange: 'clip-path, transform', contain: 'layout paint', position: 'absolute', margin: '0', left: (r0.left - hr.left) + 'px', top: (r0.top - hr.top) + 'px', width: W + 'px', height: H + 'px', pointerEvents: 'none', transform: 'none', animation: 'none', transformOrigin: '0 0', background: pbg, boxShadow: 'none' }); return c; };
   const wrap = (cls) => { const d = document.createElement('div'); d.className = cls; Object.assign(d.style, { position: 'absolute', left: (r0.left - hr.left) + 'px', top: (r0.top - hr.top) + 'px', width: W + 'px', height: H + 'px', pointerEvents: 'none' }); return d; };
   pageSound();
   const oldC = mk(); let turnEl, baseEl = null; run();
@@ -293,7 +296,7 @@ function flipFx(dir, run) {
   const shell = wrap('pt-shell'); shell.style.zIndex = 7;
   if (baseEl) { baseEl.style.left = '0'; baseEl.style.top = '0'; shell.appendChild(baseEl); }
   turnEl.style.left = '0'; turnEl.style.top = '0'; turnEl.style.zIndex = 2;
-  const flapWrap = document.createElement('div'); Object.assign(flapWrap.style, { position: 'absolute', inset: '0', filter: 'drop-shadow(-5px 6px 9px rgba(0,0,0,.55))', zIndex: 3, pointerEvents: 'none' });
+  const flapWrap = document.createElement('div'); Object.assign(flapWrap.style, { position: 'absolute', inset: '0', zIndex: 3, pointerEvents: 'none' });
   const flap = mk(); flap.style.left = '0'; flap.style.top = '0'; const back = document.createElement('div'); Object.assign(back.style, { position: 'absolute', inset: '0', pointerEvents: 'none' }); flap.appendChild(back);
   flapWrap.appendChild(flap); shell.appendChild(turnEl); shell.appendChild(flapWrap); host.appendChild(shell);
   const dark = document.body.classList.contains('light') ? '#ece3c8' : '#c9bf9e';
@@ -319,13 +322,13 @@ function flipFx(dir, run) {
   }
   draw(fwd ? 0 : 1); requestAnimationFrame(step);
 }
-function goPage(i, anim) { i = Math.max(-1, Math.min(PG.length - 1, i)); if (i === pi && $('#rin').children.length) return; const dir = i > pi ? 'next' : 'prev'; pi = i; if (anim !== false && open) flipFx(dir, () => renderPage(false)); else renderPage(anim !== false); }
+function goPage(i, anim) { i = Math.max(-1, Math.min(PG.length - 1, i)); if (i === pi && $('#rin').children.length) return; const dir = i > pi ? 'next' : 'prev'; pi = i; if (anim !== false && open) { const fm = A.st().rflip || 'curl'; if (fm === 'curl') flipFx(dir, () => renderPage(false)); else renderPage(fm === 'slide'); } else renderPage(anim !== false); }
 function ensureLoc(loc) { const i = LP[loc]; if (i !== undefined && i !== pi) goPage(i); }
 
 /* ---------- ayah audio + live word highlight ---------- */
 function clearHl() { document.querySelectorAll('#rpage .cur,#rpage .hot').forEach(e => e.classList.remove('cur', 'hot')); }
 function setCur(s, a) {
-  clearHl(); hot = null; curAy = { s, a }; const key = s + ':' + a, ai = AYI[key];
+  clearHl(); hot = null; curAy = { s, a }; mediaSess(); const key = s + ':' + a, ai = AYI[key];
   if (ai !== undefined) { const f = SC[AY[ai].first]; ensureLoc(f.loc); }
   qa(s, a).forEach(e => e.classList.add('cur'));
 }
@@ -341,7 +344,7 @@ function startTick() {
     if (hot !== pick.loc) { const o = hot && q(hot); if (o) o.classList.remove('hot'); hot = pick.loc; ensureLoc(pick.loc); const e = q(pick.loc); if (e) e.classList.add('hot', 'cur'); if (rev) { qa(curAy.s, curAy.a).forEach(x => x.classList.add('rev')); } }
   }, 50);
 }
-function setPlaying(p) { playing = p; $('#rIcoP').style.display = p ? 'none' : ''; $('#rIcoS').style.display = p ? '' : 'none'; }
+function setPlaying(p) { playing = p; $('#rIcoP').style.display = p ? 'none' : ''; $('#rIcoS').style.display = p ? '' : 'none'; bgSync(p); if (p) mediaSess(); }
 function stopAudio() { stopMine(); stopCorr(); try { speechSynthesis.cancel(); } catch (e) { } seqOn = false; rau.onended = null; rau.onerror = null; try { rau.pause(); } catch (e) { } clearInterval(tickT); setPlaying(false); clearHl(); document.querySelectorAll('#rpage .rev').forEach(e => e.classList.remove('rev')); hot = null; }
 let seqEnd = -1, seqFrom = 0, seqLeft = 1;
 function playRange(fi, ti, reps) { stopAudio(); seqEnd = ti; seqFrom = fi; seqLeft = Math.max(1, reps || 1); playSeq(fi, true); }
@@ -853,9 +856,26 @@ function popBm() {
   $('#rpop').hidden = false;
 }
 function popLayout() {
-  const st = A.st(); const row = (k, t, on) => `<button class="po ${on ? 'on' : ''}" data-lay="${k}">${esc(t)}</button>`;
-  $('#rpop').innerHTML = `<h4>${esc(R('layout'))}</h4>` + ['15', '13q', '13t'].map(k => row(k, R('lay' + k), lay === k)).join('') + `<button class="po" data-rgopen="1">▶ ${esc(R('rgT'))}</button>`;
+  const st = A.st(), light = document.body.classList.contains('light'); const row = (k, t, on) => `<button class="po ${on ? 'on' : ''}" data-lay="${k}">${esc(t)}</button>`;
+  const sw = (k, v, t, on) => `<button class="po sm ${on ? 'on' : ''}" data-rk="${k}" data-rv="${v}">${esc(t)}</button>`;
+  const recs = (window.FAHM_RECS || []).map(r => `<option value="${esc(r[0])}" ${r[0] === rec() ? 'selected' : ''}>${esc(st.ui === 'ur' ? r[2] : r[1])}</option>`).join('');
+  $('#rpop').innerHTML = `<h4>${esc(R('layout'))}</h4>` + ['15', '13q', '13t'].map(k => row(k, R('lay' + k), lay === k)).join('') +
+    `<div class="pr"><span>${esc(R('dmL'))}</span>${sw('rflip', 'curl', R('dmC'), (st.rflip || 'curl') === 'curl')}${sw('rflip', 'slide', R('dmS'), st.rflip === 'slide')}${sw('rflip', 'off', R('dmI'), st.rflip === 'off')}</div>` +
+    `<div class="pr"><span>${esc(R('thL'))}</span>${sw('rtheme', 'dark', R('thD'), !light)}${sw('rtheme', 'light', R('thLt'), light)}</div>` +
+    `<div class="pr"><span>${esc(R('qrL'))}</span><select id="rQ" class="sel">${recs}</select></div>` +
+    `<div class="pr"><span>${esc(R('hlL'))}</span>${sw('rhl', 'on', R('on'), (st.rhl || 'on') === 'on')}${sw('rhl', 'off', R('off'), st.rhl === 'off')}</div>` +
+    `<div class="pr"><span>${esc(R('bgL'))}</span>${sw('rbg', 'on', R('on'), (st.rbg || 'on') === 'on')}${sw('rbg', 'off', R('off'), st.rbg === 'off')}</div><div class="pr"><small>${esc(R('bgN'))}</small></div>` +
+    `<button class="po" data-rgopen="1">▶ ${esc(R('rgT'))}</button>`;
   $('#rpop').hidden = false;
+}
+function applyHl() { const p = $('#rpage'); if (p) p.classList.toggle('nohl', A.st().rhl === 'off'); }
+function bgSync(p) { try { if (window.FahmAndroid && FahmAndroid.bg) FahmAndroid.bg(!!p && (A.st().rbg || 'on') === 'on'); } catch (e) { } }
+function mediaSess() {
+  try {
+    if (!('mediaSession' in navigator) || typeof MediaMetadata === 'undefined') return; const y = curAy;
+    navigator.mediaSession.metadata = new MediaMetadata({ title: y ? surahName(y.s) + ' · ' + y.a : 'Fahmul Quraan', artist: recName(rec()), album: 'Fahmul Quraan by Quranic Science', artwork: [{ src: 'icons/icon-512.png', sizes: '512x512', type: 'image/png' }] });
+    navigator.mediaSession.setActionHandler('pause', () => stopAudio()); navigator.mediaSession.setActionHandler('play', () => { const b = $('#rPlay'); if (b) b.click(); });
+  } catch (e) { }
 }
 function popRange() {
   const st = A.st(), ur = st.ui === 'ur', cur0 = curAy && AYI[curAy.s + ':' + curAy.a] != null ? AY[AYI[curAy.s + ':' + curAy.a]] : AY[0];
@@ -883,7 +903,8 @@ function popHafiz() {
     `<p class="pn">${esc(R('info'))}</p>`;
   $('#rpop').hidden = false;
 }
-function applyZoom(d) { const st = A.st(); st.rz = Math.max(1, Math.min(1.8, Math.round(((st.rz || 1) + d) * 100) / 100)); A.save(); sizePage(); fit(); }
+function applyZoom(d) { const st = A.st(); st.rz = Math.max(1, Math.min(1.8, Math.round(((st.rz || 1) + d) * 100) / 100)); A.save(); sizePage(); fit(); centerStage(); }
+function centerStage() { const g = $('#rstage'); if (g) g.scrollLeft = Math.max(0, (g.scrollWidth - g.clientWidth) / 2); }
 function openAt(s, a) {
   return load().then(() => {
     lay = A.st().lay || '15'; if (!M.L[lay]) lay = '15'; buildIndex();
@@ -1008,6 +1029,7 @@ function init(api) {
   A = api;
   if ($('#rList')) $('#rList').onclick = () => A.openMenu();
   $('#rClose').onclick = close; $('#rTitle').onclick = () => { if ($('#rpop').dataset.pk === 'g' && !$('#rpop').hidden) popClose(); else popGoto(); }; $('#rPg').onclick = $('#rTitle').onclick;
+  $('#rTheme').onclick = () => { const tb = document.getElementById('btnTheme'); if (tb) tb.click(); setTimeout(() => { try { renderPage(false); } catch (e) { } }, 120); };
   $('#rBm').onclick = () => { if (!$('#rpop').hidden && $('#rpop').dataset.pk === 'b') popClose(); else popBm(); };
   $('#rLay').onclick = () => { if ($('#rpop').hidden || !$('#rpop').dataset.pk || $('#rpop').dataset.pk !== 'l') { $('#rpop').dataset.pk = 'l'; popLayout(); } else popClose(); };
   $('#rMinus').onclick = () => applyZoom(-0.15); $('#rPlus').onclick = () => applyZoom(0.15);
@@ -1060,6 +1082,7 @@ function init(api) {
     if (e.target.closest('[data-hres]')) { const st = A.st(), la = st.hlast, pl = Object.assign({}, planDefault()); const fi = AYI[la.s + ':' + la.a]; let ti = AYI[pl.ts + ':' + pl.ta]; if (ti < fi) { let j = fi; while (j + 1 < AY.length && AY[j + 1].s === la.s) j++; ti = j; } const y = AY[fi], z = AY[ti]; hzStart(fi, { fs: y.s, fa: y.a, ts: z.s, ta: z.a, reps: pl.reps || 1 }); return; }
     if (e.target.closest('[data-hgo]')) { hzStart(null, readPlan2()); return; }
     if (e.target.closest('[data-rgopen]')) { popRange(); return; }
+    const rkb = e.target.closest('[data-rk]'); if (rkb) { const st = A.st(), k2 = rkb.dataset.rk, v2 = rkb.dataset.rv; if (k2 === 'rtheme') { const tb = document.getElementById('btnTheme'); if (tb && (v2 === 'light') !== document.body.classList.contains('light')) tb.click(); setTimeout(popLayout, 150); return; } st[k2] = v2; A.save(); if (k2 === 'rhl') applyHl(); if (k2 === 'rbg' && v2 === 'off') bgSync(false); else if (k2 === 'rbg' && playing) bgSync(true); popLayout(); return; }
     if (e.target.closest('[data-bmadd]')) { let L = bmLoad(); if (bmHere().length) L = L.filter(b => bmPage(b) !== pi); else { const y = bmFirstAy(); if (y) L.push({ s: y.s, a: y.a, t: Date.now() }); } bmSave(L); bmUpd(); popBm(); return; }
     const bg = e.target.closest('[data-bmgo]'); if (bg) { const b = bmLoad()[+bg.dataset.bmgo]; if (b) { popClose(); goPage(bmPage(b)); } return; }
     const bx = e.target.closest('[data-bmx]'); if (bx) { const L = bmLoad(); L.splice(+bx.dataset.bmx, 1); bmSave(L); bmUpd(); popBm(); return; }
@@ -1072,6 +1095,7 @@ function init(api) {
   });
   $('#rpop').addEventListener('change', e => {
     const id0 = e.target.id;
+    if (id0 === 'rQ') { A.st().rec = $('#rQ').value; A.save(); A.toast(recName(A.st().rec)); return; }
     if (id0 === 'rkJ' || id0 === 'rkF' || id0 === 'rkT') { const j = +$('#rkJ').value, n = rukuList(j).length; let f = id0 === 'rkJ' ? 1 : +$('#rkF').value, t = id0 === 'rkJ' ? n : +$('#rkT').value; if (id0 === 'rkF' && t < f) t = f; if (id0 === 'rkT' && t < f) f = t; applyRuku(j, f, t); popSetup(); return; }
     if (id0 === 'tJ') { if (e.target.value) { const j = +e.target.value, pl = Object.assign({}, planDefault()), a = juzStartAi(j); pl.fs = AY[a].s; pl.fa = AY[a].a; const z = AY[pl.amt ? endForAmt(a, pl.amt) : juzRange(j)[1]]; pl.ts = z.s; pl.ta = z.a; A.st().hplan = pl; A.save(); popSetup(); } return; }
     if (id0 === 'rgS1' || id0 === 'rgS2') { const s0 = +e.target.value, sel = $(id0 === 'rgS1' ? '#rgA1' : '#rgA2'); sel.innerHTML = AY.filter(y => y.s === s0).map(y => `<option value="${y.a}">${A.st().ui === 'ur' ? ad(y.a) : y.a}</option>`).join(''); if (id0 === 'rgS2') sel.selectedIndex = sel.options.length - 1; return; }

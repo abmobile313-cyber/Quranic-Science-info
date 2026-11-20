@@ -711,3 +711,16 @@ body.light .cv-top .cv-en{color:#0a7389!important}
 #splash .sp-ar,#splash .sp-en,#splash .sp-by{display:none!important}
 #splash .sp-tag{margin-top:0!important;color:#f1dca0!important;font-weight:500}
 .ob-ic{width:84px;height:84px;display:block;margin:0 auto 6px;filter:drop-shadow(0 6px 16px rgba(0,0,0,.5))}
+
+/* Build 19: text never touches the frame (ink of diacritics included) */
+#rpage{padding-left:9.8%!important;padding-right:9.4%!important}
+.ml .rm{right:calc(100% + var(--pw)*.0375)!important}
+#rstage{scroll-behavior:auto}
+
+/* Build 19: reader top bar fits 7 buttons on small phones */
+.rtop{gap:4px}.rtop .ib.sm{width:36px;height:36px;border-radius:12px}.rtop .ib{width:38px;height:38px}
+@media (max-width:380px){.rtop .ib.sm{width:32px;height:32px}.rtop .ib{width:34px;height:34px}#rTitle{font-size:14px}}
+#rpage.nohl .wd.cur,#rpage.nohl .wd.hot,#rpage.nohl .cur,#rpage.nohl .hot{background:none!important;box-shadow:none!important;text-shadow:none!important;outline:0!important;filter:none!important;color:inherit!important}
+#rpop select.sel{width:100%;padding:10px;border-radius:12px;margin-top:6px}
+#rpop .pr{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:10px 0}#rpop .pr>span{flex:1 0 100%;font-weight:600;opacity:.9}
+#rpop .pr small{opacity:.7;line-height:1.5}

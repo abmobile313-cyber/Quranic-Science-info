@@ -361,3 +361,25 @@ body.light #onb .ob-alt.b3d{background:linear-gradient(160deg,#fffdf5,#f1e8cf)!i
 body.light #onb .ob-alt.b3d,body.light #onb .ob-alt.b3d *{color:#5a1424!important}
 .ob-lbtns .b3d b{color:#2a0912!important}
 #onb .ob-ic{border-radius:22%!important;border:0!important;box-shadow:none!important;width:96px;height:96px;object-fit:contain;background:none!important}
+/* Build 19: selected state must be obvious in BOTH themes (gold in dark, deep maroon in light) + tick mark */
+.seg button.on,.po.on,.pk.on,.mtabs button.on,.tafc button.on,.nzt button.on,#onb .ob-seg button.on,#rpop .po.on,#rpop .po.sm.on,.xlg button.on,#mkh .mk-modes button.on,#mkh .mk-tab.on,#mkh .mk-card.on{
+ background:linear-gradient(135deg,#ecca78,#c99a3a)!important;color:#2a0912!important;border-color:#fff0bd!important;font-weight:700!important;box-shadow:0 0 0 2px rgba(233,198,112,.5),0 4px 12px rgba(12,2,6,.35)!important}
+.seg button.on *,.po.on *,.pk.on *,.mtabs button.on *,.tafc button.on *,.nzt button.on *,#onb .ob-seg button.on *,.xlg button.on *{color:#2a0912!important}
+.seg button.on::before,.po.on::before,#onb .ob-seg button.on::before,.xlg button.on::before,.nzt button.on::before{content:'✓';margin-inline-end:.4em;font-weight:800}
+.srow.on{background:linear-gradient(90deg,rgba(233,198,112,.28),transparent)!important;box-shadow:inset 4px 0 0 #e9c670}
+body.light .seg button.on,body.light .po.on,body.light .pk.on,body.light .mtabs button.on,body.light .tafc button.on,body.light .nzt button.on,body.light #onb .ob-seg button.on,body.light #rpop .po.on,body.light #rpop .po.sm.on,body.light .xlg button.on,body.light #mkh .mk-modes button.on,body.light #mkh .mk-tab.on,body.light #mkh .mk-card.on{
+ background:linear-gradient(135deg,#86203c,#521127)!important;color:#fff3d0!important;border-color:#c8932a!important;box-shadow:0 0 0 2px rgba(200,147,42,.6),0 4px 12px rgba(80,20,30,.3)!important}
+body.light .seg button.on *,body.light .po.on *,body.light .pk.on *,body.light .mtabs button.on *,body.light .tafc button.on *,body.light .nzt button.on *,body.light #onb .ob-seg button.on *,body.light .xlg button.on *{color:#fff3d0!important}
+body.light .srow.on{background:linear-gradient(90deg,rgba(134,32,60,.18),transparent)!important;box-shadow:inset 4px 0 0 #86203c}
+body.light #onb .ob-seg button.on{color:#fff3d0!important}
+/* Build 19: compact social card - small boxes in one row */
+.brand{margin-top:10px!important;padding:8px 8px 8px!important;border-radius:16px!important}
+.brand .bhead{gap:8px!important;margin-bottom:6px!important}.brand .bhead img{width:32px!important;height:32px!important;border-radius:9px!important}
+.brand .bn b{font-size:14px!important}.brand .bn em{font-size:10.5px!important}
+.tiles{grid-template-columns:repeat(6,1fr)!important;gap:5px!important;padding:2px 0 4px!important}
+.tile{padding:6px 1px 5px!important;border-radius:12px!important;gap:3px!important;min-width:0}
+.tile::before{display:none!important}
+.tile .ti,.tile .ti svg,.tile .ti img{width:30px!important;height:30px!important}
+.tile .tn{font-size:9px!important;max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:0 1px}
+.bsup{margin-top:6px!important;padding:8px!important;font-size:13px!important;border-radius:12px!important}
+@media (max-width:340px){.tiles{grid-template-columns:repeat(3,1fr)!important}}
