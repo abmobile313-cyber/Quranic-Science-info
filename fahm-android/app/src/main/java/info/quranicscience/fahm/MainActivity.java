@@ -39,6 +39,7 @@ public class MainActivity extends Activity {
     private WebView web;
     private SpeechRecognizer sr;
     private String pendingLang = "ar-SA";
+    private boolean bgPlay = false;
     private final android.os.Handler ui = new android.os.Handler(Looper.getMainLooper());
 
     /** Hafiz mode: Android WebView has no Web Speech API, so we expose the system recogniser to the page. */
@@ -88,6 +89,19 @@ public class MainActivity extends Activity {
                 try { beginListen(); } catch (Exception e) { js("error", "start"); }
             } });
         }
+        /** Background playback: keep audio running with the screen off / app minimised (foreground service). */
+        @JavascriptInterface public void bg(final boolean on) {
+            ui.post(new Runnable() { @Override public void run() {
+                bgPlay = on;
+                try {
+                    Intent s = new Intent(MainActivity.this, PlayService.class);
+                    if (on) {
+                        if (Build.VERSION.SDK_INT >= 33 && checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) requestPermissions(new String[]{Manifest.permission.POST_NOTIFICATIONS}, 78);
+                        if (Build.VERSION.SDK_INT >= 26) startForegroundService(s); else startService(s);
+                    } else stopService(s);
+                } catch (Exception ignored) { }
+            } });
+        }
         @JavascriptInterface public void stopListen() {
             ui.post(new Runnable() { @Override public void run() { if (sr != null) { try { sr.cancel(); sr.destroy(); } catch (Exception ignored) { } sr = null; } } });
         }
@@ -96,7 +110,7 @@ public class MainActivity extends Activity {
         super.onRequestPermissionsResult(code, p, g);
         if (code == 77) js(g.length > 0 && g[0] == PackageManager.PERMISSION_GRANTED ? "permok" : "permno", "");
     }
-    @Override protected void onDestroy() { if (sr != null) { try { sr.destroy(); } catch (Exception ignored) { } } super.onDestroy(); }
+    @Override protected void onDestroy() { try { stopService(new Intent(this, PlayService.class)); } catch (Exception ignored) { } if (sr != null) { try { sr.destroy(); } catch (Exception ignored) { } } super.onDestroy(); }
 
     /** Serves files from assets with correct MIME types (woff2, json, webmanifest ...). */
     private class Handler implements WebViewAssetLoader.PathHandler {
@@ -165,7 +179,7 @@ public class MainActivity extends Activity {
     }
 
     @Override protected void onSaveInstanceState(Bundle o) { super.onSaveInstanceState(o); web.saveState(o); }
-    @Override protected void onPause() { super.onPause(); web.onPause(); }
+    @Override protected void onPause() { super.onPause(); if (!bgPlay) web.onPause(); }
     @Override protected void onResume() { super.onResume(); web.onResume(); }
     @Override public void onBackPressed() {
         // let the app handle back first (close reader/sheets, previous ayah); exit only when it says so
