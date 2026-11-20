@@ -103,7 +103,7 @@ function openSupport() {
   o.hidden = false;
 }
 function brandHtml() {
-  const u = st.ui, L = { ur: { tag: 'علم جو سوچ بدل دے', c: 'ہم سے رابطہ', e: 'ای میل', w: 'واٹس ایپ', cr: 'رابطہ اور ماخذ', by: 'فہم — قرآنک سائنس کی طرف سے مفت', nm: 'قرآنک سائنس', fb: 'فیس بک', ig: 'انسٹاگرام', yt: 'یوٹیوب', web: 'ویب سائٹ', sup: 'سپورٹ کریں' }, ru: { tag: 'Ilm Jo Soch Badal De', c: 'Rabta', e: 'Email', w: 'WhatsApp', cr: 'Rabta aur mukhaiz', by: 'Fahm — Quranic Science ki taraf se muft', nm: 'Quranic Science', fb: 'Facebook', ig: 'Instagram', yt: 'YouTube', web: 'Website', sup: 'Support karein' }, en: { tag: 'Ilm Jo Soch Badal De', c: 'Contact', e: 'Email', w: 'WhatsApp', cr: 'Contact & credits', by: 'Fahm — free from Quranic Science', nm: 'Quranic Science', fb: 'Facebook', ig: 'Instagram', yt: 'YouTube', web: 'Website', sup: 'Support us' } }[u] || {};
+  const u = st.ui, L = { ur: { tag: 'علم جو سوچ بدل دے', c: 'ہم سے رابطہ', e: 'ای میل', w: 'واٹس ایپ', cr: 'رابطہ اور ماخذ', by: 'فہم — قرآنک سائنس کی طرف سے مفت', nm: 'قرآنک سائنس', fb: 'فیس بک', ig: 'انسٹاگرام', yt: 'یوٹیوب', web: 'ویب سائٹ', sup: 'سپورٹ کریں', ds: 'نماز کے اوقات کے لیے', dn: 'دین ساتھی ایپ', dd: 'ڈاؤن لوڈ کریں' }, ru: { tag: 'Ilm Jo Soch Badal De', c: 'Rabta', e: 'Email', w: 'WhatsApp', cr: 'Rabta aur mukhaiz', by: 'Fahm — Quranic Science ki taraf se muft', nm: 'Quranic Science', fb: 'Facebook', ig: 'Instagram', yt: 'YouTube', web: 'Website', sup: 'Support karein', ds: 'Namaz ke auqaat ke liye', dn: 'Deen Saathi app', dd: 'Download karein' }, en: { tag: 'Ilm Jo Soch Badal De', c: 'Contact', e: 'Email', w: 'WhatsApp', cr: 'Contact & credits', by: 'Fahm — free from Quranic Science', nm: 'Quranic Science', fb: 'Facebook', ig: 'Instagram', yt: 'YouTube', web: 'Website', sup: 'Support us', ds: 'For prayer times', dn: 'Deen Saathi app', dd: 'Download' } }[u] || {};
   const ic = {
     fb: '<svg viewBox="0 0 24 24"><path d="M14 8h3V4h-3a4 4 0 0 0-4 4v3H7v4h3v6h4v-6h3l1-4h-4V8z"/></svg>',
     ig: '<svg viewBox="0 0 24 24"><rect x="3.5" y="3.5" width="17" height="17" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.2" cy="6.8" r=".8" style="fill:currentColor"/></svg>',
@@ -113,7 +113,8 @@ function brandHtml() {
     bmail: '<svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="M4 7l8 6 8-6"/></svg>'
   };
   const a = (k, t, h) => `<a class="bl ${k}" href="${h}" target="_blank" rel="noopener" aria-label="${t}" title="${t}">${ic[k]}</a>`;
-  return `<div class="brand"><div class="bn"><b>${L.nm}</b><em>${L.tag}</em></div>` +
+  const dsCard = `<a class="dsaa" href="https://quranicscience.info/deen-saathi/" target="_blank" rel="noopener"><span class="dsi">🕌</span><span class="dst"><small>${L.ds}</small><b>${L.dn}</b></span><span class="dsb">⬇ ${L.dd}</span></a>`;
+  return dsCard + `<div class="brand"><div class="bn"><b>${L.nm}</b><em>${L.tag}</em></div>` +
     `<div class="brow">${a('fb', L.fb, BRAND.fb)}${a('ig', L.ig, BRAND.ig)}${a('yt', L.yt, BRAND.yt)}${a('web', L.web, BRAND.web)}${a('wa', L.w, BRAND.wa)}<a class="bl bmail" href="mailto:${BRAND.mail}" aria-label="${L.e}" title="${L.e}">${ic.bmail}</a></div>` +
     `<button class="bsup" data-bsup="1">❤ ${L.sup}</button>` +
     `<details class="bcr"><summary>${L.cr}</summary><div class="bct"><a href="mailto:${BRAND.mail}">✉ ${BRAND.mail}</a><a href="${BRAND.wa}" target="_blank" rel="noopener">${L.w} ${BRAND.ph}</a><a href="${BRAND.web}" target="_blank" rel="noopener">🌐 ${BRAND.web.replace('https://', '')}</a></div><p>${esc(T('credits'))}</p><p class="bby">${L.by}</p></details></div>`;
@@ -226,7 +227,15 @@ function speakTr(c) {
 /* ---------- sheets ---------- */
 function openMenu() {
   $('#menuT').textContent = T('surahs');
-  $('#menuList').innerHTML = D.surahs.map((s, i) => `<button class="srow ${i === st.s ? 'on' : ''}" data-s="${i}"><span class="n">${s.n}</span><span class="t">${esc(sName(s)[0])}<small>${esc(sName(s)[1])} · ${s.ayat.length} ${T('ayah')}</small></span></button>`).join('');
+  const SN = window.FAHM_SN || { r: [], u: [], c: [] };
+  const lrn = { ur: 'لفظ بہ لفظ + اینیمیشن', ru: 'lafz ba lafz + animation', en: 'word-by-word + animation' }[st.ui] || '';
+  let html = '';
+  for (let n = 1; n <= 114; n++) {
+    const si = D.surahs.findIndex(x => x.n === n);
+    if (si >= 0) { const s = D.surahs[si]; html += `<button class="srow ${si === st.s ? 'on' : ''}" data-s="${si}"><span class="n">${s.n}</span><span class="t">${esc(sName(s)[0])}<small>${esc(sName(s)[1])} · ${s.ayat.length} ${T('ayah')} · ✨ ${esc(lrn)}</small></span></button>`; }
+    else { const nm = (st.ui === 'ur' ? SN.u : SN.r)[n - 1] || ('Surah ' + n); html += `<button class="srow" data-q="${n}"><span class="n">${n}</span><span class="t">${esc(nm)}<small>${SN.c[n - 1] || ''} ${T('ayah')}</small></span></button>`; }
+  }
+  $('#menuList').innerHTML = html;
   $('#menu').hidden = false;
 }
 function openSettings() {
@@ -263,6 +272,7 @@ function bind() {
     const g = e.target.closest('[data-go]'); if (g) { const [s, a, ww] = g.dataset.go.split(',').map(Number); goTo(s, a, ww); return; }
     const sp = e.target.closest('#spkW'); if (sp) { playWord(); return; }
     const tt = e.target.closest('[data-tts]'); if (tt) { speakTr(tt.dataset.tts); return; }
+    const qr = e.target.closest('[data-q]'); if (qr) { $('#menu').hidden = true; stopAll(); if (FahmReader.isOpen()) FahmReader.gotoSurah(+qr.dataset.q); else FahmReader.open(+qr.dataset.q, 1); return; }
     const sr = e.target.closest('[data-s]'); if (sr) { $('#menu').hidden = true; if (FahmReader.isOpen()) FahmReader.gotoSurah(D.surahs[+sr.dataset.s].n); else goTo(+sr.dataset.s, 0); return; }
     const kv = e.target.closest('[data-k]'); if (kv && kv.dataset.k === 'maslak') { st.tl = st.tl.filter(x => !URD.includes(x)); st.tl.push(kv.dataset.v); st.tl.sort((x, y) => D.langs.findIndex(l => l.c === x) - D.langs.findIndex(l => l.c === y)); save(); renderTrans(); openSettings(); return; }
     if (kv) { st[kv.dataset.k] = kv.dataset.k === 'sfx' ? +kv.dataset.v : kv.dataset.v; if (kv.dataset.k === 'sfx') { FahmSfx.unlock(); FahmSfx.setLevel(st.sfx); if (st.sfx && playing) FahmSfx.start((scene.spec || {}).sky); } if (kv.dataset.k === 'ui') st.tl = DEF_TL[st.ui].slice(); save(); applyUi(); renderAyah(true); openSettings(); return; }

@@ -134,9 +134,34 @@ function fit() {
   }
   $('#rpage').style.setProperty('--fs', Math.min(fs, rowH * 0.78) + 'px');
 }
+/* ---------- mushaf ornaments (header, surah banner, ruku/sajda marks, manzil) ---------- */
+let RUKE = null, SAJ = null;
+function ornSets() {
+  if (RUKE) return; RUKE = new Set(); SAJ = new Set();
+  const R = M.meta.R; for (let i = 1; i <= R.length; i++) { const e = i < R.length ? AYI[R[i][0] + ':' + R[i][1]] - 1 : AY.length - 1; if (e >= 0 && AY[e]) RUKE.add(AY[e].s + ':' + AY[e].a); }
+  M.meta.SJ.forEach(x => SAJ.add(x[0] + ':' + x[1]));
+}
+function rukuInfo(s, a) { /* {n: ruku number inside the para} for the ruku that ends at this ayah */
+  const R = M.meta.R, ai = AYI[s + ':' + a], jb = juzOfAi(ai), js = juzStartAi(jb);
+  let n = 0; for (let i = 0; i < R.length; i++) { const e = i + 1 < R.length ? AYI[R[i + 1][0] + ':' + R[i + 1][1]] - 1 : AY.length - 1; if (e >= js && e <= ai) n++; if (e >= ai) break; }
+  return n;
+}
+function manzilOfAi(ai) { let m = 1; M.meta.M.forEach((x, i) => { const k = AYI[x[0] + ':' + x[1]]; if (k !== undefined && k <= ai) m = i + 1; }); return m; }
+function bannerHtml(sn) {
+  const S = M.meta.S[sn] || [0, 0, 1, 0], nm = M.n[sn] || '';
+  return `<div class="ml h"><div class="sbx"><span class="sbs"><i>آیاتھا</i><b>${adx(S[0])}</b></span><span class="sbc">${esc(nm)}<small>(${adx(sn)}) ${S[2] ? 'مکیۃ' : 'مدنیۃ'}</small></span><span class="sbs"><i>رکوعھا</i><b>${adx(S[1])}</b></span></div></div>`;
+}
+function headerHtml(lines) {
+  const ps = lines.map(lineParts).filter(x => x.a).map(x => +x.a.split(':')[0]); if (!ps.length) return '';
+  const s1 = ps[0], s2 = ps[ps.length - 1], f = lines.map(lineParts).find(x => x.a), [fs, fa] = f.a.split(':').map(Number), ai = AYI[fs + ':' + fa];
+  const nmo = n => (M.n[n] || '').replace(/^سُورَةُ\s*|^سورة\s*/, '');
+  const rng = s1 === s2 ? nmo(s1) + '-' + adx(s1) : nmo(s1) + '-' + adx(s1) + ' ' + nmo(s2) + '-' + adx(s2);
+  return `<span class="hr1">پارہ ${adx(juzOfAi(ai))}</span><span class="hr2">${adx(PG[pi])} / ${adx(PG[PG.length - 1])}</span><span class="hr3">${esc(rng)}</span>`;
+}
 function wordHtml(x) {
   const loc = locOf(x.s, x.a, x.w), c = ['wd']; if (isMk(x.t)) c.push('mk');
   if (okSet.has(loc)) c.push('ok');
+  if (isMk(x.t)) { ornSets(); const ak = x.s + ':' + x.a; if (RUKE.has(ak)) c.push('ruk'); if (SAJ.has(ak)) c.push('saj'); }
   return `<span class="${c.join(' ')}" data-loc="${loc}">${esc(x.t)}</span>`;
 }
 function renderPage(anim) {
@@ -146,12 +171,12 @@ function renderPage(anim) {
     const { k, a, b } = lineParts(ln);
     if (k === 'e') h += '<div class="ml e"></div>';
     else if (k === 'b') h += `<div class="ml b">${M.w['1:1'].slice(0, 4).map(esc).join(' ')}</div>`;
-    else if (k[0] === 'h') h += `<div class="ml h"><span class="sb">${esc(M.n[k.slice(1)] || '')}</span></div>`;
-    else h += `<div class="ml ${k}">${rangeLocs(a, b).map(wordHtml).join('')}</div>`;
+    else if (k[0] === 'h') h += bannerHtml(+k.slice(1));
+    else { const ws = rangeLocs(a, b); let rm = ''; ws.forEach(x => { if (isMk(x.t)) { ornSets(); if (RUKE.has(x.s + ':' + x.a)) rm = `<span class="rm"><b>ع</b><i>${adx(x.a)}</i><u>${adx(rukuInfo(x.s, x.a))}</u></span>`; } }); h += `<div class="ml ${k}">${ws.map(wordHtml).join('')}${rm}</div>`; }
   });
   const pg = $('#rpage'); pg.classList.toggle('mem', hz.on && A.st().hmode === 'mem');
   $('#rin').innerHTML = h; $('#rin').style.setProperty('--rows', rows);
-  $('#rpn').textContent = A.st().ui === 'ur' ? ad(PG[pi]) : PG[pi];
+  { ornSets(); const f0 = lines.map(lineParts).find(x => x.a); const mz = f0 ? manzilOfAi(AYI[f0.a.split(':').slice(0, 2).join(':')]) : 0; $('#rpn').textContent = mz ? 'منزل ' + adx(mz) : ''; $('#rhd').innerHTML = headerHtml(lines); }
   sizePage(); fit();
   $('#rTitle').textContent = surahName(pageSurah(pi)) + ' · ' + R('pg') + ' ' + (A.st().ui === 'ur' ? ad(PG[pi]) : PG[pi]);
   $('#rPg').textContent = (A.st().ui === 'ur' ? ad(pi + 1) + ' / ' + ad(PG.length) : (pi + 1) + ' / ' + PG.length);
@@ -160,6 +185,7 @@ function renderPage(anim) {
   paintState();
 }
 const AD = '٠١٢٣٤٥٦٧٨٩', ad = n => String(n).replace(/\d/g, d => AD[d]);
+const adx = n => String(n).replace(/\d/g, d => '۰۱۲۳۴۵۶۷۸۹'[d]);
 function paintState() {
   if (curAy && (playing || hz.on)) qa(curAy.s, curAy.a).forEach(e => e.classList.add('cur'));
   if (hot) { const e = q(hot); if (e) e.classList.add('hot'); }
