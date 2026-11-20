@@ -38,6 +38,9 @@ Object.assign(RS.ur, { rkS: 'رکوع کے حساب سے', rkW: 'رکوع', rkF:
 Object.assign(RS.ru, { corL: 'Galti par sahi ayat kaun sunaye', corQ: 'Qari', corM: 'Meri apni awaaz', corN: 'Apni awaaz tabhi bajegi jab us ayat ki apni recording save ho; warna Qari sunaayega.' });
 Object.assign(RS.en, { corL: 'Who recites the fix after a mistake', corQ: 'Qari', corM: 'My own voice', corN: 'Your own voice plays only if that ayah was saved in your recordings; otherwise the Qari recites it.' });
 Object.assign(RS.ur, { corL: 'غلطی پر صحیح آیت کون سنائے', corQ: 'قاری', corM: 'میری اپنی آواز', corN: 'اپنی آواز تبھی چلے گی جب اس آیت کی ریکارڈنگ محفوظ ہو؛ ورنہ قاری سنائے گا۔' });
+Object.assign(RS.ru, { backF: 'Peeche se dohra rahe hain — theek hai', resBar: 'Hafiz mode: wahin se shuru karein', resGo: 'Shuru', resNew: 'Naye sire se', snapSaved: 'Aapka sabaq save hai' });
+Object.assign(RS.en, { backF: 'Re-reading from earlier — fine', resBar: 'Hafiz mode: continue from where you stopped', resGo: 'Start', resNew: 'Start over', snapSaved: 'Your progress is saved' });
+Object.assign(RS.ur, { backF: 'پیچھے سے دوبارہ پڑھ رہے ہیں — ٹھیک ہے', resBar: 'حافظ موڈ: وہیں سے شروع کریں', resGo: 'شروع', resNew: 'نئے سرے سے', snapSaved: 'آپ کا سبق محفوظ ہے' });
 Object.assign(RS.ru, { wrongF: 'Galti note ho gayi — padhte rahein', flowL: 'Rawani', flowOn: 'Bina roke (beep + note)', flowOff: 'Ustad (ruk kar sunaye)', tickL: 'Chhoti galti par tik', on: 'On', off: 'Off', recL: 'Meri awaaz record (taqabul ke liye, tajurba)', cQari: 'Qari', cMine: 'Meri awaaz', noRecYet: 'Is jagah ki recording nahin mili (record On karke naya daur shuru karein).', secHk: 'Harkaat ki jaanch-list (mushaf se khud tasdeeq karein)', hkNote: 'Mic harkat nahin sunta. In lafzon par zabar/zer/pesh/shadda badalne se maani badal jate hain. ⚠ = is ayat mein aaj shak/galti bhi thi. Qari button se sahi tilawat sunkar milayein.' });
 Object.assign(RS.en, { wrongF: 'Mistake noted — keep going', flowL: 'Flow', flowOn: 'No stopping (beep + note)', flowOff: 'Ustad (stops and recites)', tickL: 'Tick on small slips', on: 'On', off: 'Off', recL: 'Record my voice (to compare, experimental)', cQari: 'Qari', cMine: 'My voice', noRecYet: 'No recording for this spot (turn recording On and start a new round).', secHk: 'Harakat check-list (verify against the mushaf)', hkNote: 'The mic cannot hear harakat. For these words a wrong fatha/kasra/damma/shadda changes the meaning. ⚠ = this ayah also had a doubt/mistake today. Play the qari and compare.' });
 Object.assign(RS.ur, { wrongF: 'غلطی نوٹ ہو گئی — پڑھتے رہیں', flowL: 'روانی', flowOn: 'بغیر روکے (بیپ + نوٹ)', flowOff: 'استاد (رک کر سنائے)', tickL: 'چھوٹی غلطی پر ٹِک', on: 'آن', off: 'آف', recL: 'میری آواز ریکارڈ (موازنے کے لیے، تجرباتی)', cQari: 'قاری', cMine: 'میری آواز', noRecYet: 'اس جگہ کی ریکارڈنگ نہیں ملی۔', secHk: 'حرکات کی جانچ فہرست (مصحف سے خود تصدیق کریں)', hkNote: 'مائیک حرکات نہیں سنتا۔ ان الفاظ پر زبر/زیر/پیش/شدّ بدلنے سے معنی بدل جاتے ہیں۔ ⚠ = اس آیت میں آج شک/غلطی بھی تھی۔ قاری سے سن کر ملائیں۔' });
@@ -141,7 +144,15 @@ let archRows = 0;
 function rowsOf() { return archRows || (lay === '15' ? 15 : 13); }
 function sizePage() {
   const st = $('#rstage'), z = A.st().rz || 1, sw = st.clientWidth - 16, sh = st.clientHeight - 16, r = ratio();
-  const w = sw > sh * 1.1 ? Math.max(200, Math.min(sw, 640)) * z : Math.max(200, Math.min(sw, sh * r)) * z;   /* landscape: full-width page, scroll down */ const p = $('#rpage'); p.style.width = w + 'px'; p.style.height = (w / r) + 'px'; p.style.setProperty('--pw', w + 'px'); drawFrame(w, w / r);
+  const w = sw > sh * 1.1 ? Math.max(200, Math.min(sw, 640)) * z : Math.max(200, Math.min(sw, sh * r)) * z;   /* landscape: full-width page, scroll down */ const p = $('#rpage'); p.style.width = w + 'px'; p.style.height = (w / r) + 'px'; p.style.setProperty('--pw', w + 'px'); drawFrame(w, w / r); fitHdr();
+}
+/* header text always sits fully inside its compartment (long double-surah names shrink to fit) */
+function fitHdr() {
+  document.querySelectorAll('#rhd span').forEach(e => {
+    e.style.removeProperty('font-size'); const cw = e.clientWidth; if (!cw) return;
+    const nat = () => { const r = document.createRange(); r.selectNodeContents(e); return r.getBoundingClientRect().width; };
+    for (let i = 0; i < 8 && nat() > cw - 14; i++) { const fs = parseFloat(getComputedStyle(e).fontSize) || 14; e.style.setProperty('font-size', Math.max(7, fs * Math.min(.97, (cw - 16) / nat())) + 'px', 'important'); }
+  });
 }
 function fit() {
   const inner = $('#rin'); if (!inner || pi < 0) return; const rows = rowsOf();
@@ -152,19 +163,33 @@ function fit() {
     inner.querySelectorAll('.ml:not(.e):not(.h)').forEach(l => {
       let s = 0; const ch = l.children; for (let i = 0; i < ch.length; i++) s += ch[i].offsetWidth; s += Math.max(0, ch.length - 1) * fs * 0.1; if (s > need) need = s;
     });
-    if (!need) break; const f = fs * Math.min(1, (W * 0.985) / need); if (Math.abs(f - fs) < 0.3 && it) break; fs = f; $('#rpage').style.setProperty('--fs', fs + 'px');
+    if (!need) break; const f = fs * Math.min(1, (W * 0.972) / need); if (Math.abs(f - fs) < 0.3 && it) break; fs = f; $('#rpage').style.setProperty('--fs', fs + 'px');
   }
-  $('#rpage').style.setProperty('--fs', Math.min(fs, rowH * 0.78) + 'px');
+  $('#rpage').style.setProperty('--fs', Math.min(fs, rowH * 0.78) + 'px'); clampBadges();
+}
+/* side badges that would stick out above / below the text area (first or last line) are nudged back inside */
+function clampBadges() {
+  const rin = $('#rin'); if (!rin) return; const rr = rin.getBoundingClientRect();
+  rin.querySelectorAll('.ml').forEach(ml => {
+    ml.style.removeProperty('--bdy'); const bs = ml.querySelectorAll('.bg'); if (!bs.length) return; let t = 1e9, b = -1e9;
+    bs.forEach(e => { const q = e.getBoundingClientRect(); t = Math.min(t, q.top); b = Math.max(b, q.bottom); });
+    let dy = 0; if (t < rr.top) dy = rr.top - t; else if (b > rr.bottom) dy = rr.bottom - b; if (Math.abs(dy) > .5) ml.style.setProperty('--bdy', dy.toFixed(1) + 'px');
+  });
 }
 /* ---------- mushaf ornaments (header, surah banner, ruku/sajda marks, manzil) ---------- */
 let RUBI = null;
 function rubSet() { if (RUBI) return; RUBI = {}; FAHM_RUB.forEach((x, i) => RUBI[x[0] + ':' + x[1]] = i); }
-function rubMark(i) { const k = i % 4, lab = i % 8 === 0 ? 'جزء' : ['حزب', 'ربع', 'نصف', 'ثلثة'][k], n = k; return `<span class="rb k${k}${i % 8 === 0 ? ' jz' : ''}" data-rb="${esc(lab)}|${i + 1}"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="11" fill="#5a1a2a" stroke="#e8b84a" stroke-width="1.4"/><path d="M12 3.5l2.3 3.7 4.3-.6-.6 4.3L21 12l-3.7 2.3.6 4.3-4.3-.6L12 20.5l-2.3-3.7-4.3.6.6-4.3L3 12l3.7-2.3-.6-4.3 4.3.6z" fill="#f3d98b"/></svg>${n ? '<u>' + '<s></s>'.repeat(n) + '</u>' : ''}</span>`; }
+/* Royal Ottoman side badge: pointed shield, small label on top, number below (ruku / sajda / hizb / juz / quarter marks) */
+function bdg(cls, lab, num, tip) { return `<span class="bg ${cls}" title="${esc(tip || lab + ' ' + num)}"><i>${esc(lab)}</i><b>${num}</b></span>`; }
+function rubMark(i) {
+  const k = i % 4, jz = i % 8 === 0, hz = Math.floor(i / 4) + 1, lab = jz ? 'پارہ' : ['حزب', 'ربع', 'نصف', 'ثلثہ'][k], num = jz ? adx(i / 8 + 1) : adx(hz);
+  return bdg('lf k' + k + (jz ? ' jz' : ''), lab, num, lab + ' ' + num);
+}
 let RUKE = null, SAJ = null;
 function ornSets() {
-  if (RUKE) return; RUKE = new Set(); SAJ = new Set();
+  if (RUKE) return; RUKE = new Set(); SAJ = new Map();
   const R = M.meta.R; for (let i = 1; i <= R.length; i++) { const e = i < R.length ? AYI[R[i][0] + ':' + R[i][1]] - 1 : AY.length - 1; if (e >= 0 && AY[e]) RUKE.add(AY[e].s + ':' + AY[e].a); }
-  M.meta.SJ.forEach(x => SAJ.add(x[0] + ':' + x[1]));
+  M.meta.SJ.forEach((x, i) => SAJ.set(x[0] + ':' + x[1], i + 1));
 }
 function rukuInfo(s, a) { /* {n: ruku number inside the para} for the ruku that ends at this ayah */
   const R = M.meta.R, ai = AYI[s + ':' + a], jb = juzOfAi(ai), js = juzStartAi(jb);
@@ -181,7 +206,7 @@ function headerHtml(lines) {
   const s1 = ps[0], s2 = ps[ps.length - 1], f = lines.map(lineParts).find(x => x.a), [fs, fa] = f.a.split(':').map(Number), ai = AYI[fs + ':' + fa];
   const nmo = n => (M.n[n] || '').replace(/^سُورَةُ\s*|^سورة\s*/, '');
   const rng = s1 === s2 ? nmo(s1) + '-' + adx(s1) : nmo(s1) + '-' + adx(s1) + ' ' + nmo(s2) + '-' + adx(s2);
-  return `<span class="hr1">پارہ ${adx(juzOfAi(ai))}</span><span class="hr2">${adx(PG[pi])} / ${adx(PG[PG.length - 1])}</span><span class="hr3">${esc(rng)}</span>`;
+  return `<span class="hr1"><i>پارہ</i> <b>${adx(juzOfAi(ai))}</b></span><span class="hr2">${esc(rng)}</span><span class="hr3"><b>${adx(PG[pi])}</b></span>`;
 }
 function wordHtml(x) {
   const loc = locOf(x.s, x.a, x.w), c = ['wd']; if (isMk(x.t)) c.push('mk');
@@ -215,9 +240,37 @@ function frameSvg(w, h, arch) {
     `<path d="${inner}" fill="none" stroke="currentColor" stroke-width="${Math.max(3, w * .008)}"/><path d="${inner}" fill="none" stroke="var(--pgbg)" stroke-width="${Math.max(1, w * .003)}"/>` +
     (arch ? `<path d="${inner}" transform="translate(${c} ${h / 2}) scale(.975) translate(${-c} ${-h / 2})" fill="none" stroke="currentColor" stroke-width="1" opacity=".7"/>` : '') + orn + `</svg>`;
 }
+/* Royal Ottoman frame images (kit): variant a = 0.70 page, b = taller 0.58 page; geometry in the 740px-wide crop space */
+function frameGeo(v) {
+  const a = v === 'a', S = a ? 1.0608 : 1, E = a ? 0 : 280, H = a ? 1057 : 1276, Y = y => (a ? y * S : (y > 401 ? y + E : y));
+  return { H, xL: 137, xR: 603, yt: Y(222), yb: Y(770), hy: Y(121), hh: Y(181) - Y(121), bpy: Y(834), bph: Y(873) - Y(834) };
+}
+function thinFrame(w, h) {
+  /* fine, thin frame in the app's own colours: hairline double border, concave inner corners, small diamonds, three thin header compartments and a small manzil pill */
+  const o1 = w * .012, o2 = w * .026, c = w * .04, x0 = o2, y0 = o2, x1 = w - o2, y1 = h - o2, f = n => n.toFixed(1);
+  const pl = w * .118, T = w - 2 * pl, g = w * .014, rw = T * .25, cw = T - 2 * rw - 2 * g, hy = w * .05, hh = w * .082, bw = w * .2, bph = w * .058, bpy = h - o2 - w * .014 - bph;
+  const inner = `M${f(x0 + c)} ${f(y0)}H${f(x1 - c)}A${f(c)} ${f(c)} 0 0 0 ${f(x1)} ${f(y0 + c)}V${f(y1 - c)}A${f(c)} ${f(c)} 0 0 0 ${f(x1 - c)} ${f(y1)}H${f(x0 + c)}A${f(c)} ${f(c)} 0 0 0 ${f(x0)} ${f(y1 - c)}V${f(y0 + c)}A${f(c)} ${f(c)} 0 0 0 ${f(x0 + c)} ${f(y0)}Z`;
+  const ln = (sw, op) => `fill="none" stroke="currentColor" stroke-width="${sw}" stroke-opacity="${op}" vector-effect="non-scaling-stroke"`;
+  const dia = (cx, cy, r) => `<path d="M${f(cx)} ${f(cy - r)}L${f(cx + r)} ${f(cy)}L${f(cx)} ${f(cy + r)}L${f(cx - r)} ${f(cy)}Z" fill="var(--pgbg)" ${ln(1, 1)}/><circle cx="${f(cx)}" cy="${f(cy)}" r="${f(r * .28)}" fill="currentColor"/>`;
+  const dr = w * .0085, corner = (cx, cy) => `<circle cx="${f(cx)}" cy="${f(cy)}" r="${f(w * .011)}" ${ln(1, .9)}/><circle cx="${f(cx)}" cy="${f(cy)}" r="${f(w * .0042)}" fill="currentColor"/>`;
+  const box = (x, y, bw2, bh2) => `<rect x="${f(x)}" y="${f(y)}" width="${f(bw2)}" height="${f(bh2)}" rx="${f(bh2 * .34)}" ${ln(1, 1)}/><rect x="${f(x + 2.4)}" y="${f(y + 2.4)}" width="${f(bw2 - 4.8)}" height="${f(bh2 - 4.8)}" rx="${f(Math.max(1, bh2 * .34 - 2.4))}" ${ln(.6, .5)}/>`;
+  const svg = `<svg width="${f(w)}" height="${f(h)}" viewBox="0 0 ${f(w)} ${f(h)}" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" style="display:block!important">` +
+    `<rect x="${f(o1)}" y="${f(o1)}" width="${f(w - 2 * o1)}" height="${f(h - 2 * o1)}" rx="${f(w * .006)}" ${ln(1.2, 1)}/><path d="${inner}" ${ln(.8, .85)}/>` +
+    corner(x0 + w * .004, y0 + w * .004) + corner(x1 - w * .004, y0 + w * .004) + corner(x0 + w * .004, y1 - w * .004) + corner(x1 - w * .004, y1 - w * .004) +
+    dia(w / 2, y0, dr) + dia(w / 2, y1, dr) + dia(x0, h / 2, dr) + dia(x1, h / 2, dr) +
+    box(w - pl - rw, hy, rw, hh) + box(pl + rw + g, hy, cw, hh) + box(pl, hy, rw, hh) + box((w - bw) / 2, bpy, bw, bph) + `</svg>`;
+  return { svg, vars: { '--pt': f(hy + hh + w * .024) + 'px', '--pb': f(h - bpy + w * .012) + 'px', '--pl': f(pl) + 'px', '--pr': f(pl) + 'px', '--hy': f(hy) + 'px', '--hh': f(hh) + 'px', '--bpy': f(bpy) + 'px', '--bph': f(bph) + 'px', '--h1l': f(w - pl - rw) + 'px', '--h1w': f(rw) + 'px', '--h2l': f(pl + rw + g) + 'px', '--h2w': f(cw) + 'px', '--h3l': f(pl) + 'px', '--h3w': f(rw) + 'px' } };
+}
 function drawFrame(w, h) {
   const p = $('#rpage'); if (!p) return; let f = $('#rfr'); if (!f) { f = document.createElement('div'); f.id = 'rfr'; p.insertBefore(f, p.firstChild); }
-  const ar0 = p.classList.contains('arch'), cv = p.classList.contains('cover'), arch = ar0 ? 2 : 0, k = Math.round(w) + 'x' + Math.round(h) + (arch ? 'a' + arch : 'r'); if (f.dataset.k === k) return; f.dataset.k = k; f.innerHTML = frameSvg(w, h, arch);
+  const cv = p.classList.contains('cover'), thin = !cv && !p.classList.contains('arch'); p.classList.toggle('thin', thin);
+  const v = (w / h) < 0.64 ? 'b' : 'a', g = frameGeo(v), k = Math.round(w) + 'x' + Math.round(h) + v + (cv ? 'c' : thin ? 't' : 'm'); if (f.dataset.k === k) return; f.dataset.k = k;
+  const set = (n, val) => p.style.setProperty(n, val);
+  if (thin) { const t = thinFrame(w, h); f.className = 'ft'; f.innerHTML = t.svg; Object.keys(t.vars).forEach(n => set(n, t.vars[n])); return; }
+  f.className = 'v-' + v + (cv ? ' fc' : ' fm'); f.innerHTML = '';
+  const X = x => (x / 740 * w) + 'px', Yp = y => (y / g.H * h) + 'px';
+  set('--pt', Yp(g.yt)); set('--pb', ((g.H - g.yb) / g.H * h) + 'px'); set('--pl', X(g.xL)); set('--pr', X(740 - g.xR));
+  set('--hy', Yp(g.hy)); set('--hh', Yp(g.hh)); set('--bpy', Yp(g.bpy)); set('--bph', Yp(g.bph));
 }
 function coverHtml() {
   const n = lay === '15' ? 15 : 13, nm = { '15': ['حافظی مصحف', 'Hafizi · IndoPak'], '13q': ['قدرت اللہ مصحف', 'Qudratullah'], '13t': ['تاج کمپنی مصحف', 'Taj Company'] }[lay] || ['', ''];
@@ -226,8 +279,8 @@ function coverHtml() {
   const med = `<svg viewBox="0 0 200 200" class="cv-svg" aria-hidden="true">${dots}${lobes}<circle cx="100" cy="100" r="62" fill="var(--pgbg)" stroke="currentColor" stroke-width="3"/><circle cx="100" cy="100" r="56" fill="none" stroke="currentColor" stroke-width="1"/></svg><img class="cv-logo" src="icons/qs-logo.webp" alt="Quranic Science" draggable="false">`;
   const orn = `<svg viewBox="0 0 120 12" class="cv-or" aria-hidden="true"><path d="M0 6H46M74 6H120" stroke="currentColor" stroke-width="1"/><path d="M60 0l6 6-6 6-6-6z" fill="currentColor"/><circle cx="48" cy="6" r="2" fill="currentColor"/><circle cx="72" cy="6" r="2" fill="currentColor"/></svg>`;
   return `<div class="cv"><div class="cv-md"><img class="cv-app" src="icons/icon-512.png" alt="Fahmul Quraan by Quranic Science" draggable="false"></div>` +
-    `<div class="cv-ln"><span class="cv-n">${n}</span><span class="cv-l"><b>LINES</b><i>سطری</i></span></div><div class="cv-sub">${nm[0]} · ${nm[1]}</div>` +
-    `<div class="cv-by">${orn}<b>by Quranic Science</b><span>قرآنک سائنس</span></div></div>`;
+    `<div class="cv-mid"><div class="cv-ln"><span class="cv-n">${n}</span><span class="cv-l"><b>LINES</b><i>سطری</i></span></div><div class="cv-sub">${nm[0]} · ${nm[1]}</div></div>` +
+    `<div class="cv-by">${orn}<img class="cv-q" src="icons/qs-logo.webp" alt="" draggable="false"><b>by Quranic Science</b><span>قرآنک سائنس</span><em>quranicscience.info</em></div></div>`;
 }
 function renderCover() {
   const pg = $('#rpage'); pg.classList.add('arch', 'cover'); pg.classList.remove('mem'); archRows = 0;
@@ -246,7 +299,7 @@ function renderPage(anim) {
     if (k === 'e') { if (!arch) h += '<div class="ml e"></div>'; }
     else if (k === 'b') h += `<div class="ml b">${M.w['1:1'].slice(0, 4).map(esc).join(' ')}</div>`;
     else if (k[0] === 'h') h += bannerHtml(+k.slice(1));
-    else { const ws = rangeLocs(a, b); let rm = '', rb = ''; ws.forEach(x => { if (x.w === 1 && window.FAHM_RUB) { rubSet(); const ri = RUBI[x.s + ':' + x.a]; if (ri !== undefined) rb = rubMark(ri); } if (isMk(x.t)) { ornSets(); if (RUKE.has(x.s + ':' + x.a)) rm = `<span class="rm" title="${adx(rukuInfo(x.s, x.a))}"><b>ع</b></span>`; } }); h += `<div class="ml ${k}">${ws.map(wordHtml).join('')}${rm}${rb}</div>`; }
+    else { const ws = rangeLocs(a, b); let rm = '', rb = '', sj = ''; ws.forEach(x => { if (x.w === 1 && window.FAHM_RUB) { rubSet(); const ri = RUBI[x.s + ':' + x.a]; if (ri !== undefined) rb = rubMark(ri); } if (isMk(x.t)) { ornSets(); const ak = x.s + ':' + x.a; if (RUKE.has(ak)) rm = bdg('rt', 'رکوع', adx(rukuInfo(x.s, x.a))); if (SAJ.has(ak)) sj = bdg('rt sj', 'سجدہ', adx(SAJ.get(ak))); } }); if (sj && rm) sj = sj.replace('rt sj', 'rt sj s2'); h += `<div class="ml ${k}">${ws.map(wordHtml).join('')}${rm}${sj}${rb}</div>`; }
   });
   const pg = $('#rpage'); pg.classList.toggle('mem', hz.on && A.st().hmode === 'mem');
   $('#rin').innerHTML = h; $('#rin').style.setProperty('--rows', rows);
@@ -455,7 +508,37 @@ function clearAyahMarks(ai) {
   const y = AY[ai]; for (let i = y.first; i <= y.last; i++) { const w = SC[i]; okSet.delete(w.loc); const e = q(w.loc); if (e) e.classList.remove('ok', 'bad'); const m = q(locOf(w.s, w.a, w.w + 1)); if (m && m.classList.contains('mk')) { okSet.delete(m.dataset.loc); m.classList.remove('ok'); } }
 }
 /* where the Hafiz stopped last time — mic starts from here again */
-function savePos(ai) { const y = AY[ai]; if (!y) return; const st = A.st(); if (!st.hlast || st.hlast.s !== y.s || st.hlast.a !== y.a) { st.hlast = { s: y.s, a: y.a }; A.save(); } }
+function savePos(ai) { const y = AY[ai]; if (!y) return; const st = A.st(); if (!st.hlast || st.hlast.s !== y.s || st.hlast.a !== y.a) { st.hlast = { s: y.s, a: y.a }; A.save(); } if (hz.on) snapSave(ai); }
+/* ----- Hafiz resume snapshot: survives closing / killing the app; offered again as a one-tap "continue from here" ----- */
+const SNAPK = 'fahm.hzsnap'; let snapT = 0, snapAi = -1;
+function snapSave(ai, force) {
+  try {
+    if (!hz.on || hz.finished || !hz.plan || ai == null || !AY[ai]) return;
+    if (!force && ai === snapAi && Date.now() - snapT < 4000) return; snapAi = ai; snapT = Date.now();
+    localStorage.setItem(SNAPK, JSON.stringify({ plan: hz.plan, ai, daur: hz.daur || 1, t: Date.now(), m: hz.cur ? hz.cur.mist.length : 0 }));
+  } catch (e) { }
+}
+function snapGet() {
+  try {
+    const o = JSON.parse(localStorage.getItem(SNAPK) || 'null'); if (!o || !o.plan || o.ai == null || !AY[o.ai]) return null;
+    if (Date.now() - o.t > 30 * 864e5) return null; const pl = o.plan; if (AYI[pl.fs + ':' + pl.fa] == null || AYI[pl.ts + ':' + pl.ta] == null) return null;
+    if (o.ai < AYI[pl.fs + ':' + pl.fa] || o.ai > AYI[pl.ts + ':' + pl.ta]) return null; return o;
+  } catch (e) { return null; }
+}
+function snapClear() { try { localStorage.removeItem(SNAPK); } catch (e) { } snapAi = -1; resHide(); }
+function resShow() {
+  const o = snapGet(); let b = $('#rres'); if (!o || hz.on || !open) { resHide(); return; }
+  if (!b) { b = document.createElement('div'); b.id = 'rres'; $('#rhz').parentNode.insertBefore(b, $('#rhz')); b.addEventListener('click', e => { const t = e.target.closest('[data-rs]'); if (!t) return; if (t.dataset.rs === 'go') hzResumeSnap(); else snapClear(); }); }
+  const y = AY[o.ai], ur = A.st().ui === 'ur';
+  b.innerHTML = `<span class="rt">${esc(R('resBar'))}<b>${esc(surahName(y.s))} · ${ur ? ad(y.a) : y.a}</b></span><button class="po sm on" data-rs="go">${esc(R('resGo'))}</button><button class="po sm" data-rs="new">${esc(R('resNew'))}</button>`;
+  b.hidden = false; requestAnimationFrame(() => { sizePage(); fit(); });
+}
+function resHide() { const b = $('#rres'); if (b && !b.hidden) { b.hidden = true; if (open) requestAnimationFrame(() => { sizePage(); fit(); }); } }
+function hzResumeSnap() {
+  const o = snapGet(); if (!o) { snapClear(); return; } resHide();
+  const w = SC.find(x => x.ai === o.ai); if (w && LP[w.loc] !== undefined) goPage(LP[w.loc]);
+  hzStart(o.ai, Object.assign({}, o.plan), o.daur || 1);
+}
 const posAi = () => Math.min(hz.tr.p, SC.length - 1);
 function onHeard(idx, text, fin) {
   if (!hz.on || hz.busy || !hz.tr) return;
@@ -472,6 +555,7 @@ function onHeard(idx, text, fin) {
       if (ev.t === 'ok') { setOk(ev.from, ev.to); hz.lastAct = Date.now(); hz.cur.words += ev.to - ev.from; }
       else if (ev.t === 'soft') { const w = SC[ev.idx]; if (w) { hz.cur.soft.push({ ai: w.ai, idx: ev.idx, kind: ev.kind, n: ev.n || 0, heard: ev.heard, t: Date.now() - hz.cur.t0, abs: Date.now() }); if (flowOn() && tickOn()) tick(); } }
       else if (ev.t === 'mistake') { if (!flowOn() || ayahChange(ev)) { hz.proc[idx] = done + used; hzMistake(ev); return; } hzFlowMistake(ev); if (hz.tr.done()) { hz.proc[idx] = done + used; hzDaurEnd(); return; } hard = true; }
+      else if (ev.t === 'back') { for (let i = ev.to; i < ev.from; i++) { const w = SC[i]; if (!w) continue; okSet.delete(w.loc); const e = q(w.loc); if (e) e.classList.remove('ok', 'bad'); } hz.cur.backs = (hz.cur.backs || 0) + 1; hz.lastAct = Date.now(); hzStatus('backF', 'ok'); setTimeout(() => { if (hz.on && !hz.busy) hzStatus('listen'); }, 1400); }
       else if (ev.t === 'end') { hz.proc[idx] = done + used; hzDaurEnd(); return; }
     }
     if (!hard || r.used <= 0) break;
@@ -532,27 +616,47 @@ async function playCorrection(ai, cb) {
   src.buffer = sl.buf; src.connect(ac.destination); src.onended = done; const t0 = ac.currentTime; src.start(0, off, dur);
   clearInterval(tickT); tickT = setInterval(() => { if (!c.dead) hotAt(y, (ac.currentTime - t0) / dur); }, 70);
 }
-/* serious mistake (wrong ayah / jump / skip): the app speaks "Hafiz sahab, stop — you read it wrong" in English, Urdu and Arabic (phone voices), then the correction plays */
-const WARN = { en: ['Hafiz sahab, please stop. You have read it wrong.', 'en-US'], ur: ['حافظ صاحب، رکیے! آپ نے غلط پڑھا۔', 'ur-PK'], ar: ['يا حافظ، قف! لقد أخطأت في القراءة.', 'ar-SA'] };
-function speakWarn(done) {
-  const m = A.st().hwarn || 'all'; let fin = false; const end = () => { if (fin) return; fin = true; clearTimeout(tm); done && done(); };
-  if (m === 'off' || !('speechSynthesis' in window)) { end(); return; }
-  const order = m === 'all' ? ['en', 'ur', 'ar'] : [m]; let tm = setTimeout(end, 14000), i = 0;
+/* serious mistake: three quick beeps, then a FAST spoken warning ("Hafiz sahab, ruk jaiye - aap ne darmiyan ki aayat chhod di"). Native Android TTS first (works without voice packs in the WebView), then the browser voice. */
+function beep3() {
+  unlockAc(); if (!ac) return; const t0 = ac.currentTime, c = ac.createDynamicsCompressor(); c.connect(ac.destination);
+  [0, 0.2, 0.4].forEach(d => { const o = ac.createOscillator(), g = ac.createGain(); o.type = 'square'; o.frequency.value = 940; g.gain.setValueAtTime(0.0001, t0 + d); g.gain.exponentialRampToValueAtTime(1, t0 + d + 0.01); g.gain.setValueAtTime(1, t0 + d + 0.1); g.gain.exponentialRampToValueAtTime(0.0001, t0 + d + 0.14); o.connect(g); g.connect(c); o.start(t0 + d); o.stop(t0 + d + 0.16); });
+  try { if (navigator.vibrate) navigator.vibrate([110, 60, 110, 60, 110]); } catch (e) { }
+}
+const WARN = {
+  ur: { wrong: ['رکیے حافظ صاحب! آپ نے غلط پڑھا۔', 'ur-PK'], skip: ['رکیے حافظ صاحب! آپ نے درمیان کی آیت چھوڑ دی۔', 'ur-PK'], jump: ['رکیے حافظ صاحب! آپ آگے نکل گئے، درمیان کی آیت رہ گئی۔', 'ur-PK'] },
+  hi: { wrong: ['रुकिए हाफ़िज़ साहब! आपने ग़लत पढ़ा।', 'hi-IN'], skip: ['रुकिए हाफ़िज़ साहब! आपने बीच की आयत छोड़ दी।', 'hi-IN'], jump: ['रुकिए हाफ़िज़ साहब! आप आगे निकल गए, बीच की आयत रह गई।', 'hi-IN'] },
+  en: { wrong: ['Hafiz sahab, stop! You read it wrong.', 'en-US'], skip: ['Hafiz sahab, stop! You skipped an ayah in between.', 'en-US'], jump: ['Hafiz sahab, stop! You jumped ahead, an ayah was missed.', 'en-US'] },
+  ar: { wrong: ['قف يا حافظ! أخطأت في القراءة.', 'ar-SA'], skip: ['قف يا حافظ! تركت آية في الوسط.', 'ar-SA'], jump: ['قف يا حافظ! تجاوزت آية في الوسط.', 'ar-SA'] }
+};
+function nativeSay(txt, lang, rate, cb) {
+  try { if (!(window.FahmAndroid && window.FahmAndroid.speak)) return false; window.__fahmSpoke = ok => { window.__fahmSpoke = null; cb(ok !== false); }; const r = window.FahmAndroid.speak(txt, lang, rate); if (r === 'no') { window.__fahmSpoke = null; return false; } return true; } catch (e) { return false; }
+}
+function speakWarn(done, kind) {
+  const m = A.st().hwarn || 'ur', k = kind === 'skip' || kind === 'jump' ? kind : 'wrong'; let fin = false, tm = null; const end = () => { if (fin) return; fin = true; clearTimeout(tm); try { window.__fahmSpoke = null; } catch (e) { } done && done(); };
+  if (m === 'off') { end(); return; }
+  const order = m === 'all' ? ['ur', 'en'] : m === 'ur' ? ['ur'] : [m]; tm = setTimeout(end, 9000); let i = 0, spoke = false;
   const nx = () => {
     if (fin || !hz.on) { end(); return; } if (i >= order.length) { end(); return; }
-    const [txt, lang] = WARN[order[i++]]; let vs = []; try { vs = speechSynthesis.getVoices(); } catch (e) { }
-    const v = vs.find(x => x.lang === lang) || vs.find(x => x.lang.slice(0, 2) === lang.slice(0, 2));
-    if (vs.length && !v) { nx(); return; }
-    try { const u = new SpeechSynthesisUtterance(txt); u.lang = lang; if (v) u.voice = v; u.rate = .92; u.onend = nx; u.onerror = nx; speechSynthesis.speak(u); } catch (e) { nx(); }
+    const lg = order[i++], tries = lg === 'ur' ? [WARN.ur[k], WARN.hi[k], WARN.en[k]] : [WARN[lg][k]]; let j = 0;
+    const one = () => {
+      if (fin) return; if (j >= tries.length) { if (!spoke && i >= order.length) end(); else nx(); return; }
+      const [txt, lang] = tries[j++];
+      if (nativeSay(txt, lang, 1.2, ok => { if (ok) { spoke = true; nx(); } else one(); })) return;
+      let vs = []; try { vs = speechSynthesis.getVoices(); } catch (e) { }
+      const v = vs.find(x => x.lang === lang) || vs.find(x => x.lang.slice(0, 2) === lang.slice(0, 2));
+      if (!('speechSynthesis' in window) || (vs.length && !v)) { one(); return; }
+      try { const u = new SpeechSynthesisUtterance(txt); u.lang = lang; if (v) u.voice = v; u.rate = 1.15; let g = false; const go = ok => { if (g) return; g = true; if (ok) spoke = true; ok ? nx() : one(); }; u.onend = () => go(true); u.onerror = () => go(false); setTimeout(() => go(false), 4500); speechSynthesis.speak(u); } catch (e) { one(); }
+    };
+    one();
   };
   try { speechSynthesis.cancel(); } catch (e) { } nx();
 }
 function hzMistake(ev) {
   busyOn(); recStop(); const w = SC[ev.idx], ai = w.ai, y = AY[ai];
-  hz.cur.mist.push({ ai, idx: ev.idx, kind: ev.kind, n: ev.n || 0, to: ev.to, heard: ev.heard, t: Date.now() - hz.cur.t0, abs: Date.now() });
+  { const L = hz.cur.mist[hz.cur.mist.length - 1]; if (!(L && L.ai === ai && Date.now() - L.abs < 2500)) hz.cur.mist.push({ ai, idx: ev.idx, kind: ev.kind, n: ev.n || 0, to: ev.to, heard: ev.heard, t: Date.now() - hz.cur.t0, abs: Date.now() }); else { L.kind = ev.kind; L.abs = Date.now(); } }
   const e = q(w.loc); if (e) { e.classList.add('bad'); e.classList.remove('ok'); } okSet.delete(w.loc);
-  hzStatus('wrong', 'bad'); beep();
-  setTimeout(() => { if (!hz.on) return; speakWarn(() => { if (hz.on) playCorrection(ai, () => { if (hz.on) hzResume(ai); }); }); }, 650);
+  hzStatus('wrong', 'bad'); beep3();
+  setTimeout(() => { if (!hz.on) return; speakWarn(() => { if (hz.on) playCorrection(ai, () => { if (hz.on) hzResume(ai); }); }, ev.kind); }, 700);
 }
 function hzLukma() {
   if (hz.busy || !hz.tr || hz.tr.done()) return; busyOn(); recStop();
@@ -614,7 +718,7 @@ function popSetup() {
   const am = AMTS.map(([k, v]) => `<button class="po sm ${pl.amt === v && endForAmt(fi, v) === ti ? 'on' : ''}" data-amt="${v}">${esc(R(k))}</button>`).join('');
   $('#rpop').dataset.pk = 's';
   $('#rpop').innerHTML = `<h4>${esc(R('hafiz'))} · ${esc(R('target'))}</h4>` +
-    (last ? `<button class="po" data-hres="1">${esc(R('resume'))}: ${esc(surahName(last.s))} ${ur ? ad(last.a) : last.a}</button>` : '') +
+    (last ? `<button class="po on" data-hres="1">${esc(R('resume'))}: ${esc(surahName(last.s))} ${ur ? ad(last.a) : last.a}</button>` : '') +
     `<div class="sec">${esc(R('from'))}</div><div class="card"><div class="pr"><select id="tfS" class="sel">${sOpt(pl.fs)}</select><select id="tfA" class="sel">${aOpt(pl.fs, pl.fa)}</select></div>` +
     `<div class="pr"><select id="tJ" class="sel"><option value="">${esc(R('fromPara'))}…</option>${Array.from({ length: 30 }, (_, i) => `<option value="${i + 1}">${esc(R('paraW'))} ${ur ? ad(i + 1) : i + 1}</option>`).join('')}</select></div></div>` +
     (() => { const k = rukuState(), nr = k.L.length, ur2 = ur, nn = v => ur2 ? ad(v) : v, ro = (sel) => Array.from({ length: nr }, (_, i) => `<option value="${i + 1}" ${i + 1 === sel ? 'selected' : ''}>${esc(R('rkW'))} ${nn(i + 1)}</option>`).join('');
@@ -645,13 +749,13 @@ function setPlanQuick(k) {
 
 /* ----- start / daur loop ----- */
 function newDaur(n) { return { n, t0: Date.now(), t1: 0, words: 0, busyMs: 0, mist: [], soft: [], stalls: [] }; }
-function hzStart(fromAi, plan) {
+function hzStart(fromAi, plan, daur0) {
   hz.own = !!hz.ownNext; hz.ownNext = false; hz.ownAi = null;
-  stopAudio(); unlockAc(); popClose();
+  stopAudio(); unlockAc(); popClose(); resHide();
   hz.native = nativeOk(); if (!hz.native && !webOk()) { A.toast(R('noRec'), 4500); return; }
   const st = A.st(); if (!st.v3h) { st.v3h = 1; st.hs = 'n'; st.htick = 'off'; st.hflow = 'flow'; A.save(); } if (!st.hs) st.hs = 'n'; if (!st.hsil) st.hsil = 4; if (!st.hmode) st.hmode = 'look';
   const pl = plan || planDefault(); st.hplan = pl; A.save();
-  hz.plan = pl; hz.fi = AYI[pl.fs + ':' + pl.fa]; hz.ti = AYI[pl.ts + ':' + pl.ta]; hz.all = []; hz.daur = 1; hz.startAi = fromAi != null ? Math.max(hz.fi, Math.min(hz.ti, fromAi)) : hz.fi;
+  hz.plan = pl; hz.fi = AYI[pl.fs + ':' + pl.fa]; hz.ti = AYI[pl.ts + ':' + pl.ta]; hz.all = []; hz.daur = daur0 || 1; hz.finished = false; hz.startAi = fromAi != null ? Math.max(hz.fi, Math.min(hz.ti, fromAi)) : hz.fi;
   hz.on = true; hz.want = true; hz.started = Date.now();
   { const S0 = A.st(); if (S0.hzTr !== false && S0.trw) { S0.trwWas = 1; S0.trw = false; A.save(); } try { speechSynthesis.cancel(); } catch (e) { } }
   $('#rrep').hidden = true; $('#rhz').hidden = false; $('#rhHold').hidden = !hz.own; $('#rhHold').textContent = '⏸ ' + R('myHold'); $('#rhMode').textContent = R(st.hmode); $('#rMic').classList.add('on'); $('#rpage').classList.toggle('mem', st.hmode === 'mem');
@@ -660,19 +764,20 @@ function hzStart(fromAi, plan) {
   hzBeginDaur(hz.startAi);
 }
 function hzBeginDaur(ai) {
-  hz.cur = newDaur(hz.daur); hz.tr = new H.Tracker(SC, sensOf(), STARTS); hz.tr.lim = AY[hz.ti].last + 1; hz.tr.setPos(AY[ai].first);
+  hz.finished = false; hz.cur = newDaur(hz.daur); hz.tr = new H.Tracker(SC, sensOf(), STARTS); hz.tr.lim = AY[hz.ti].last + 1; hz.tr.fi = AY[hz.fi].first; hz.tr.setPos(AY[ai].first);
   okSet = new Set(); clearHl(); curAy = null; hz.busy = false; hz.lastAct = Date.now() + 3000; hz.proc = {}; hz.prev = null;
   renderPage(false); ensureLoc(SC[hz.tr.p].loc); markNext(); savePos(ai); hzStatus('listen'); $('#rhDaur').textContent = R('daur') + ' ' + hz.daur + '/' + (hz.plan.reps || 1);
   recStart();
 }
 function hzStop() {
+  if (hz.on && hz.tr && !hz.finished) { try { const w = SC[Math.min(hz.tr.p, SC.length - 1)]; if (w) snapSave(w.ai, true); } catch (e) { } }
   { const S0 = A.st(); if (S0.trwWas) { S0.trw = true; delete S0.trwWas; A.save(); } }
   recEnd(); hz.on = false; hz.want = false; hz.busy = false; recStop(); clearInterval(hz.sil); stopAudio(); $('#rhz').hidden = true; $('#rMic').classList.remove('on');
   $('#rpage').classList.remove('mem'); document.querySelectorAll('#rpage .nx,#rpage .bad,#rpage .ok').forEach(e => e.classList.remove('nx', 'bad', 'ok')); okSet = new Set();
 }
 function hzDaurEnd() {
   if (hz.own) { ownAdvance(hz.ti + 1); recEnd(); }
-  busyOn(); recStop(); const d = hz.cur; d.t1 = Date.now(); hz.all.push(d); hzStatus('done', 'ok'); hz.busyAt = 0; hz.busy = true;
+  busyOn(); recStop(); const d = hz.cur; d.t1 = Date.now(); hz.all.push(d); hz.finished = true; snapClear(); hzStatus('done', 'ok'); hz.busyAt = 0; hz.busy = true;
   A.st().hlast = { s: AY[hz.fi].s, a: AY[hz.fi].a }; A.save();
   setTimeout(() => showDaurReport(d), 700);
 }
@@ -912,11 +1017,11 @@ function openAt(s, a) {
     if (s === 1 && a === 1 && i === 0) i = -1;   /* the very first page of the book is its cover */
     pi = i; open = true; $('#reader').hidden = false; document.body.classList.add('noscroll'); $('#rhz').hidden = true; hz.on = false; applyRot();
     renderPage(false); if (AYI[s + ':' + a] != null) curAy = { s, a };
-    requestAnimationFrame(() => { sizePage(); fit(); });
+    requestAnimationFrame(() => { sizePage(); fit(); resShow(); });
   });
 }
 function applyRot() { sizePage(); }
-function close() { hzStop(); stopAudio(); open = false; $('#reader').hidden = true; popClose(); A.onClose(); }
+function close() { hzStop(); resHide(); stopAudio(); open = false; $('#reader').hidden = true; popClose(); A.onClose(); }
 function relayout(k) {
   const keep = curAy || (SC[0] && { s: SC[0].s, a: SC[0].a }); const was = hz.on; if (was) hzStop(); stopAudio();
   lay = k; A.st().lay = k; A.save(); buildIndex();
@@ -1079,7 +1184,7 @@ function init(api) {
     const md = e.target.closest('[data-md]'); if (md) { mineDel(md); return; }
     if (e.target.closest('[data-gp]')) { const n = parseInt($('#gP').value, 10); if (n >= 1 && n <= PG.length) { goPage(n - 1); popClose(); } return; }
     const hi = e.target.closest('[data-hi]'); if (hi) { let h = []; try { h = JSON.parse(localStorage.getItem('fahm.hist') || '[]'); } catch (x) { } const x = h[+hi.dataset.hi]; if (x) { popClose(); if (x.lay && x.lay !== lay) relayout(x.lay); showFinal(x.all, x.meta, true); } return; }
-    if (e.target.closest('[data-hres]')) { const st = A.st(), la = st.hlast, pl = Object.assign({}, planDefault()); const fi = AYI[la.s + ':' + la.a]; let ti = AYI[pl.ts + ':' + pl.ta]; if (ti < fi) { let j = fi; while (j + 1 < AY.length && AY[j + 1].s === la.s) j++; ti = j; } const y = AY[fi], z = AY[ti]; hzStart(fi, { fs: y.s, fa: y.a, ts: z.s, ta: z.a, reps: pl.reps || 1 }); return; }
+    if (e.target.closest('[data-hres]')) { if (snapGet()) { hzResumeSnap(); return; } const st = A.st(), la = st.hlast, pl = Object.assign({}, planDefault()); const fi = AYI[la.s + ':' + la.a]; let ti = AYI[pl.ts + ':' + pl.ta]; if (ti < fi) { let j = fi; while (j + 1 < AY.length && AY[j + 1].s === la.s) j++; ti = j; } const y = AY[fi], z = AY[ti]; hzStart(fi, { fs: y.s, fa: y.a, ts: z.s, ta: z.a, reps: pl.reps || 1 }); return; }
     if (e.target.closest('[data-hgo]')) { hzStart(null, readPlan2()); return; }
     if (e.target.closest('[data-rgopen]')) { popRange(); return; }
     const rkb = e.target.closest('[data-rk]'); if (rkb) { const st = A.st(), k2 = rkb.dataset.rk, v2 = rkb.dataset.rv; if (k2 === 'rtheme') { const tb = document.getElementById('btnTheme'); if (tb && (v2 === 'light') !== document.body.classList.contains('light')) tb.click(); setTimeout(popLayout, 150); return; } st[k2] = v2; A.save(); if (k2 === 'rhl') applyHl(); if (k2 === 'rbg' && v2 === 'off') bgSync(false); else if (k2 === 'rbg' && playing) bgSync(true); popLayout(); return; }
@@ -1123,6 +1228,7 @@ function init(api) {
   window.addEventListener('resize', () => { if (open) { sizePage(); fit(); } });
   window.addEventListener('orientationchange', () => { if (open) setTimeout(() => { sizePage(); fit(); }, 250); });
   document.addEventListener('visibilitychange', () => { if (document.hidden && hz.on) hzStop(); });
+  window.addEventListener('pagehide', () => { if (hz.on && hz.tr && !hz.finished) { try { const w = SC[Math.min(hz.tr.p, SC.length - 1)]; if (w) snapSave(w.ai, true); } catch (e) { } } });
 }
 window.FahmReader = {
   init, isOpen: () => open,
@@ -1130,6 +1236,6 @@ window.FahmReader = {
   gotoSurah: s => { if (!open) return; stopAudio(); if (hz.on) hzStop(); const w = SC.find(x => x.s === s); if (w) { goPage(LP[w.loc]); } },
   back: () => { if (!$('#rpop').hidden) { popClose(); return true; } close(); return true; },
   /* test hooks */
-  _RS: () => RS, _hz: () => hz, _plan: () => hz.plan, _sc: () => SC, _heard: onHeard, _page: () => pi
+  _RS: () => RS, _hz: () => hz, _plan: () => hz.plan, _sc: () => SC, _heard: onHeard, _page: () => pi, _show: n => { pi = n; renderPage(false); }, _n: () => PG.length
 };
 })();

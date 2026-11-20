@@ -8,6 +8,9 @@ import android.os.Looper;
 import android.speech.RecognitionListener;
 import android.speech.RecognizerIntent;
 import android.speech.SpeechRecognizer;
+import android.speech.tts.TextToSpeech;
+import android.speech.tts.UtteranceProgressListener;
+import java.util.Locale;
 import android.webkit.JavascriptInterface;
 import org.json.JSONObject;
 import java.util.ArrayList;
@@ -78,6 +81,31 @@ public class MainActivity extends Activity {
         i.putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_POSSIBLY_COMPLETE_SILENCE_LENGTH_MILLIS, 3000L);
         sr.startListening(i);
     }
+    private TextToSpeech tts; private boolean ttsReady = false; private int ttsSeq = 0;
+    private void ttsDone(boolean ok) { try { web.evaluateJavascript("window.__fahmSpoke&&window.__fahmSpoke(" + ok + ")", null); } catch (Exception ignored) { } }
+    private void ttsSay(final String txt, final String lang, final float rate) {
+        if (tts == null) {
+            tts = new TextToSpeech(getApplicationContext(), new TextToSpeech.OnInitListener() { @Override public void onInit(int st) {
+                ttsReady = st == TextToSpeech.SUCCESS;
+                if (ttsReady) { tts.setOnUtteranceProgressListener(new UtteranceProgressListener() {
+                    @Override public void onStart(String id) { }
+                    @Override public void onDone(String id) { ui.post(new Runnable() { @Override public void run() { ttsDone(true); } }); }
+                    @Override public void onError(String id) { ui.post(new Runnable() { @Override public void run() { ttsDone(false); } }); }
+                }); }
+                ttsSay(txt, lang, rate);
+            } });
+            return;
+        }
+        if (!ttsReady) { ttsDone(false); return; }
+        try {
+            String[] p = lang.split("-"); Locale loc = p.length > 1 ? new Locale(p[0], p[1]) : new Locale(p[0]);
+            int r = tts.isLanguageAvailable(loc);
+            if (r < TextToSpeech.LANG_AVAILABLE) { ttsDone(false); return; }
+            tts.setLanguage(loc); tts.setSpeechRate(rate > 0 ? rate : 1.2f); tts.setPitch(1.05f);
+            Bundle pa = new Bundle(); pa.putInt(TextToSpeech.Engine.KEY_PARAM_STREAM, android.media.AudioManager.STREAM_MUSIC);
+            tts.speak(txt, TextToSpeech.QUEUE_FLUSH, pa, "w" + (++ttsSeq));
+        } catch (Exception e) { ttsDone(false); }
+    }
     private class Bridge {
         @JavascriptInterface public boolean speechAvailable() { return SpeechRecognizer.isRecognitionAvailable(MainActivity.this); }
         @JavascriptInterface public void startListen(final String lang) {
@@ -102,6 +130,11 @@ public class MainActivity extends Activity {
                 } catch (Exception ignored) { }
             } });
         }
+        /** Fast spoken warning with the phone's own TTS engine (Hafiz mode). Returns "no" if no voice for the language. */
+        @JavascriptInterface public String speak(final String txt, final String lang, final float rate) {
+            ui.post(new Runnable() { @Override public void run() { ttsSay(txt, lang, rate); } });
+            return "ok";
+        }
         @JavascriptInterface public void stopListen() {
             ui.post(new Runnable() { @Override public void run() { if (sr != null) { try { sr.cancel(); sr.destroy(); } catch (Exception ignored) { } sr = null; } } });
         }
@@ -110,7 +143,7 @@ public class MainActivity extends Activity {
         super.onRequestPermissionsResult(code, p, g);
         if (code == 77) js(g.length > 0 && g[0] == PackageManager.PERMISSION_GRANTED ? "permok" : "permno", "");
     }
-    @Override protected void onDestroy() { try { stopService(new Intent(this, PlayService.class)); } catch (Exception ignored) { } if (sr != null) { try { sr.destroy(); } catch (Exception ignored) { } } super.onDestroy(); }
+    @Override protected void onDestroy() { try { if (tts != null) { tts.stop(); tts.shutdown(); } } catch (Exception ignored) { } try { stopService(new Intent(this, PlayService.class)); } catch (Exception ignored) { } if (sr != null) { try { sr.destroy(); } catch (Exception ignored) { } } super.onDestroy(); }
 
     /** Serves files from assets with correct MIME types (woff2, json, webmanifest ...). */
     private class Handler implements WebViewAssetLoader.PathHandler {

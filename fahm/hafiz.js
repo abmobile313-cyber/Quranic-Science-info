@@ -67,6 +67,11 @@ Tracker.prototype.jumpTo = function (b) {
       if (i + 1 < tok.length && eq(h + tok[i + 1], e, sens)) { adv(1); i += 2; continue; }
       if (this.p + 1 < w.length && h.length >= 3 && eq(h, e + w[this.p + 1].n, sens)) { adv(2); i++; continue; }
       if (!can) break;                                     /* wait: the last interim word may still change */
+      /* self-correction: the Hafiz goes back a few words and re-reads them -> follow him back, no mistake */
+      if (i + 1 < tok.length && this.p > 1) {
+        let bj = -1; for (let d = 1; d <= 16 && this.p - d >= 0; d++) { const j = this.p - d; if (j + 1 >= this.p) continue; if (eq(h, w[j].n, sens) && eq(tok[i + 1], w[j + 1].n, sens)) { bj = j; break; } }
+        if (bj >= 0) { const from = this.p; if (this.bad.length) ev.push({ t: 'soft', idx: from, kind: 'wrong', heard: this.bad.slice() }); this.bad = []; this.p = bj + 2; ev.push({ t: 'back', from, to: bj }); ev.push({ t: 'ok', from: bj, to: bj + 2 }); i += 2; continue; }
+      }
       let k = 0; const win = sens === 'h' ? 9 : 3;
       if (h.length >= 3) for (let j = 1; j <= win && this.p + j < this.lim; j++) if (eq(h, w[this.p + j].n, sens)) { k = j; break; }
       if (k) {
@@ -74,7 +79,7 @@ Tracker.prototype.jumpTo = function (b) {
         ev.push({ t: 'soft', idx: this.p, kind: 'skip', n: k, heard: [h] }); this.bad = []; this.p += k; adv(1); i++; continue;   /* 1–2 skipped words: logged, flow not broken */
       }
       this.bad.push(h); i++;
-      if (this.bad.length >= 2 && sens !== 's') { const j = this.jumpTo(this.bad); if (j >= 0) { const idx = this.p, hd = this.bad.slice(); this.bad = []; ev.push({ t: 'mistake', idx, kind: 'jump', to: j, heard: hd }); return { ev, used: i }; } }
+      if (this.bad.length >= 2 && sens !== 's') { const j = this.jumpTo(this.bad); if (j >= 0 && j < this.p && j >= (this.fi || 0)) { const from = this.p; this.bad = []; this.p = j + 2; ev.push({ t: 'back', from, to: j }); ev.push({ t: 'ok', from: j, to: j + 2 }); continue; } if (j >= 0) { const idx = this.p, hd = this.bad.slice(); this.bad = []; ev.push({ t: 'mistake', idx, kind: 'jump', to: j, heard: hd }); return { ev, used: i }; } }
       if (this.bad.length >= need) { const idx = this.p, hd = this.bad.slice(); this.bad = []; ev.push({ t: 'mistake', idx, kind: 'wrong', heard: hd }); return { ev, used: i }; }
     }
     if (this.p >= this.lim) ev.push({ t: 'end' });
