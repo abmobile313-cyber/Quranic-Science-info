@@ -329,3 +329,21 @@ body.light #rpage.mq .kv.rk .re b{color:#3a0a0a;text-shadow:0 0 .1em #fff,0 0 .2
 body.light .hx::after{filter:sepia(1) saturate(1.7) hue-rotate(-12deg) brightness(.55);opacity:.62}
 .hx::after{background-size:auto 52%,auto 52%,auto calc(var(--bh)*.13),auto calc(var(--bh)*.13),calc(var(--bh)*.5) calc(var(--bh)*.5)}
 .hx.bs::after{background-size:0 0,0 0,auto calc(var(--bh)*.12),auto calc(var(--bh)*.12),calc(var(--bh)*.46) calc(var(--bh)*.46);opacity:.5;-webkit-mask-image:radial-gradient(ellipse 46% 40% at 50% 50%,rgba(0,0,0,.12),#000 100%);mask-image:radial-gradient(ellipse 46% 40% at 50% 50%,rgba(0,0,0,.12),#000 100%)}
+
+/* Build 28b: ruku mark back to NORMAL weight — slender, elegant ع (as asked), small tidy numbers */
+#rpage.mq .kv.rk .ra{font-family:'AmiriQ','ArefR',serif!important;font-weight:400!important;-webkit-text-stroke:0!important;color:#d8b05a;text-shadow:none}
+body.light #rpage.mq .kv.rk .ra{color:#7a4a12;text-shadow:none}
+#rpage.mq .kv.rk .re{font-size:2.3em;margin:-.08em 0 .28em}
+#rpage.mq .kv.rk .rt,#rpage.mq .kv.rk .rb2{font-family:'AmiriQ','ArefR',serif!important;font-weight:400!important;-webkit-text-stroke:0!important;font-size:1.08em;line-height:1.05;color:#e6c97a}
+body.light #rpage.mq .kv.rk .rt,body.light #rpage.mq .kv.rk .rb2{color:#5a2a10}
+#rpage.mq .kv.rk .re b,#rpage.mq .kv.rk .re b.l1,#rpage.mq .kv.rk .re b.l2,#rpage.mq .kv.rk .re b.l3{font-family:'AmiriQ','ArefR',serif!important;font-weight:400!important;font-size:.42em;color:#e6c97a;text-shadow:0 0 .1em #000,0 0 .2em #000;left:66%;top:84%}
+body.light #rpage.mq .kv.rk .re b{color:#5a2a10;text-shadow:0 0 .1em #f6e9cc,0 0 .2em #f6e9cc}
+
+/* ===== Build 28: faint Arabic girih / arabesque texture over EVERY screen (home, reader, word stage, menus, sheets) ===== */
+html::after{content:"";position:fixed;inset:0;z-index:99990;pointer-events:none;background:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='96' height='96' viewBox='0 0 96 96'><g fill='none' stroke='%23C9A24A' stroke-width='.9'><path d='M48 6L58 30L82 20L72 44L90 48L72 52L82 76L58 66L48 90L38 66L14 76L24 52L6 48L24 44L14 20L38 30Z'/><circle cx='48' cy='48' r='11'/><circle cx='48' cy='48' r='5'/><path d='M48 37c4-6 4-12 0-18-4 6-4 12 0 18M48 59c4 6 4 12 0 18-4-6-4-12 0-18M37 48c-6 4-12 4-18 0 6-4 12-4 18 0M59 48c6-4 12-4 18 0-6 4-12 4-18 0'/><path d='M0 0C10 10 10 22 0 32M96 0C86 10 86 22 96 32M0 96C10 86 10 74 0 64M96 96C86 86 86 74 96 64' /><path d='M32 0C22 10 10 10 0 0M64 0C74 10 86 10 96 0M32 96C22 86 10 86 0 96M64 96C74 86 86 86 96 96'/></g><g fill='%23C9A24A'><circle cx='0' cy='0' r='2'/><circle cx='96' cy='0' r='2'/><circle cx='0' cy='96' r='2'/><circle cx='96' cy='96' r='2'/></g></svg>") 0 0/96px 96px repeat;opacity:.075;
+  -webkit-mask-image:radial-gradient(ellipse 95% 85% at 50% 45%,rgba(0,0,0,.55),#000 100%);mask-image:radial-gradient(ellipse 95% 85% at 50% 45%,rgba(0,0,0,.55),#000 100%)}
+body.light::after{content:none}
+html:has(body.light)::after{opacity:.1;filter:sepia(1) saturate(1.8) hue-rotate(-14deg) brightness(.5)}
+#rpage.mq .kv.rk .re b,#rpage.mq .kv.rk .re b.l1,#rpage.mq .kv.rk .re b.l2,#rpage.mq .kv.rk .re b.l3{left:74%}
+html::after{opacity:.1}
+html:has(body.light)::after{opacity:.065}

@@ -164,16 +164,70 @@ AR.split = (c, W, H, t, p, P) => {
   const R = rnd(P.seed), cx = W * .5, cy = H * .5, k = ease(p); for (let i = 0; i < 40; i++) { const a = R() * TAU, d = (30 + R() * H * .3) * k, s = 6 + R() * 18; const x = cx + Math.cos(a) * d, y = cy + Math.sin(a) * d + Math.sin(t * 2 + i) * 2; c.strokeStyle = rgba(i % 3 ? GOLD : ROSE, .8 - d / (H * .6)); c.lineWidth = 1.3; c.beginPath(); c.moveTo(x, y); c.lineTo(x + Math.cos(a + 1) * s, y + Math.sin(a + 1) * s); c.lineTo(x + Math.cos(a + 2.2) * s * .8, y + Math.sin(a + 2.2) * s * .8); c.closePath(); c.stroke(); }
   glow(c, cx, cy, H * .1 * (1 - k * .4), GOLD2, p); lab(c, P.l[0], cx, H * .93, 'center', ROSE, P);
 };
+
+AR.flow = (c, W, H, t, p, P) => {   // running / flowing / sailing: streamlines with a travelling orb, right-to-left like the script
+  const n = 9, cy = H * .55;
+  for (let i = 0; i < n; i++) { const k = i / (n - 1), amp = H * (.05 + .06 * k), y0 = cy + (k - .5) * H * .42; c.strokeStyle = rgba(i % 2 ? CY : GOLD2, .28 + .4 * (1 - Math.abs(k - .5) * 2)); c.lineWidth = 1.1; c.beginPath();
+    for (let x = W; x >= 0; x -= 5) { const u = x / W, y = y0 + Math.sin(u * 6 + t * .9 + i) * amp * Math.min(1, p * 1.4); x === W ? c.moveTo(x, y) : c.lineTo(x, y); } c.stroke();
+    for (let q = 0; q < 3; q++) { const u = 1 - (((t * .16 + q / 3 + i * .07) % 1)), x = u * W, y = y0 + Math.sin(u * 6 + t * .9 + i) * amp * Math.min(1, p * 1.4); glow(c, x, y, 9 + 4 * k, i % 2 ? CY : GOLD2, .8 * p); } }
+  const u = 1 - ((t * .12) % 1), ox = u * W, oy = cy + Math.sin(u * 6 + t * .9 + 4) * H * .08; glow(c, ox, oy, H * .1, GOLD2, p); c.fillStyle = rgba('#fff4d0', .95); c.beginPath(); c.arc(ox, oy, 5, 0, TAU); c.fill();
+  lab(c, P.l[0], W * .5, H * .12, 'center', GOLD2, P); lab(c, P.l[1], W * .5, H * .9, 'center', rgba(INK, .85), P);
+};
+AR.measure = (c, W, H, t, p, P) => {   // decree / measure / ordain: a drawn scale with a compass sweeping a fixed arc
+  const cx = W * .5, cy = H * .62, R = Math.min(W * .42, H * .5), e = ease(p);
+  c.strokeStyle = rgba(GOLD, .75); c.lineWidth = 1.4; c.beginPath(); c.arc(cx, cy, R * e, PI, TAU); c.stroke();
+  for (let i = 0; i <= 60; i++) { const a = PI + i / 60 * PI, L = i % 10 === 0 ? 16 : i % 5 === 0 ? 10 : 5; if (i / 60 > e) break; path(c, [[cx + Math.cos(a) * R, cy + Math.sin(a) * R], [cx + Math.cos(a) * (R - L), cy + Math.sin(a) * (R - L)]], i % 10 === 0 ? GOLD2 : GOLD, 1, .85); }
+  const a = PI + (.15 + .7 * ((Math.sin(t * .8) + 1) / 2)) * PI * e; path(c, [[cx, cy], [cx + Math.cos(a) * R, cy + Math.sin(a) * R]], CY, 1.8, .95); glow(c, cx + Math.cos(a) * R, cy + Math.sin(a) * R, 16, CY, p);
+  c.strokeStyle = rgba(ROSE, .7); c.lineWidth = 2; c.beginPath(); c.arc(cx, cy, R * .62 * e, PI, a); c.stroke();
+  glow(c, cx, cy, 10, GOLD2, p); lab(c, P.l[0], W * .5, H * .16, 'center', GOLD2, P); lab(c, P.l[1], W * .5, H * .88, 'center', rgba(INK, .85), P);
+};
 AR.rosette = (c, W, H, t, p, P) => {   // generative Islamic star pattern, unique per word
   const R = rnd(P.seed), n = 5 + (P.seed % 8), cx = W * .5, cy = H * .5, r0 = Math.min(W, H) * .34, k = 2 + (P.seed >> 3) % Math.max(1, Math.floor(n / 2) - 1);
   for (let L = 0; L < 4; L++) { const rr = r0 * (1 - L * .2) * ease(p), rot = t * (L % 2 ? .08 : -.08) + L * .2; c.strokeStyle = rgba(L % 2 ? CY : GOLD, .85 - L * .15); c.lineWidth = 1.2; c.beginPath(); for (let i = 0; i <= n; i++) { const a = rot + (i * k % n) / n * TAU; const x = cx + Math.cos(a) * rr, y = cy + Math.sin(a) * rr; i ? c.lineTo(x, y) : c.moveTo(x, y); } c.stroke(); c.beginPath(); c.arc(cx, cy, rr, 0, TAU); c.strokeStyle = rgba(L % 2 ? CY : GOLD, .2); c.stroke(); }
   for (let i = 0; i < n; i++) { const a = i / n * TAU + t * .15; glow(c, cx + Math.cos(a) * r0 * 1.12, cy + Math.sin(a) * r0 * 1.12, 6, i % 2 ? GOLD2 : CY, p * .7); } glow(c, cx, cy, r0 * .22, GOLD2, p * .8); lab(c, P.l[0], cx, H * .94, 'center', GOLD2, P);
 };
 
+
+/* ---------- Build 28: cinematic backdrop under every word scene (unique per word from its seed) ---------- */
+const PALS = [[GOLD2, CY], [GOLD2, ROSE], ['#9fd8ff', GOLD], ['#ffd48a', '#57e0b4'], ['#f6b8c8', GOLD2], ['#b9a8ff', GOLD2], [CY, '#ffd48a'], ['#ff9f72', GOLD2]];
+function backdrop(c, W, H, t, p, P) {
+  const R = rnd(P.seed), pal = PALS[P.seed % PALS.length], A1 = pal[0], A2 = pal[1];
+  const fold = [8, 10, 12, 6, 16, 9][(P.seed >> 4) % 6], cx = W * (.38 + R() * .24), cy = H * (.4 + R() * .16), RR = Math.min(W, H) * (.5 + R() * .18), ep = ease(p);
+  c.save();
+  /* 1 soft nebula */
+  const g = c.createRadialGradient(cx, cy, 0, cx, cy, RR * 1.5); g.addColorStop(0, rgba(A2, .16 * ep)); g.addColorStop(.5, rgba(A1, .05 * ep)); g.addColorStop(1, 'rgba(0,0,0,0)'); c.fillStyle = g; c.fillRect(0, 0, W, H);
+  /* 2 light rays sweeping from above */
+  const rn = 5 + (P.seed % 4), sx = W * (.2 + R() * .6);
+  for (let i = 0; i < rn; i++) { const a = Math.PI * .5 + (i - (rn - 1) / 2) * .17 + Math.sin(t * .35 + i) * .05, L = H * 1.3, w2 = .045 + .02 * Math.sin(t * .6 + i * 1.7);
+    const x1 = sx + Math.cos(a - w2) * L, y1 = -8 + Math.sin(a - w2) * L, x2 = sx + Math.cos(a + w2) * L, y2 = -8 + Math.sin(a + w2) * L;
+    const lg = c.createLinearGradient(sx, 0, sx + Math.cos(a) * L, Math.sin(a) * L); lg.addColorStop(0, rgba(A1, .13 * ep)); lg.addColorStop(1, 'rgba(0,0,0,0)'); c.fillStyle = lg; c.beginPath(); c.moveTo(sx, -8); c.lineTo(x1, y1); c.lineTo(x2, y2); c.closePath(); c.fill(); }
+  /* 3 rotating khatam mandala, three counter-rotating layers */
+  for (let L = 0; L < 3; L++) {
+    const r = RR * (1 - L * .27) * ep, rot = t * (L % 2 ? -.06 : .05) + L * .3 + (P.seed % 7); c.lineWidth = 1; c.strokeStyle = rgba(L % 2 ? A2 : A1, .2 - L * .04);
+    const k = 2 + (L + (P.seed >> 5)) % Math.max(2, Math.floor(fold / 2) - 1);
+    c.beginPath(); for (let i = 0; i <= fold; i++) { const a = rot + (i * k) / fold * TAU, x = cx + Math.cos(a) * r, y = cy + Math.sin(a) * r; i ? c.lineTo(x, y) : c.moveTo(x, y); } c.stroke();
+    c.beginPath(); for (let i = 0; i < fold; i++) { const a0 = rot + i / fold * TAU, a1 = rot + (i + 1) / fold * TAU, am = (a0 + a1) / 2; const x0 = cx + Math.cos(a0) * r, y0 = cy + Math.sin(a0) * r, x1 = cx + Math.cos(a1) * r, y1 = cy + Math.sin(a1) * r, xm = cx + Math.cos(am) * r * .62, ym = cy + Math.sin(am) * r * .62; c.moveTo(x0, y0); c.quadraticCurveTo(xm, ym, x1, y1); } c.stroke();
+    c.beginPath(); c.arc(cx, cy, r, 0, TAU); c.setLineDash([3, 7]); c.stroke(); c.setLineDash([]);
+  }
+  /* 4 pointed mihrab arch drawing itself in */
+  { const aw = Math.min(W * .86, H * .78) / 2, top = H * .04, bot = H * .98, sh = top + (bot - top) * .3; c.lineWidth = 1.2; c.strokeStyle = rgba(A1, .34 * ep);
+    for (let q = 0; q < 2; q++) { const o = q * 7; c.beginPath(); c.setLineDash([2000]); c.lineDashOffset = 2000 * (1 - ep);
+      c.moveTo(W / 2 - aw + o, bot); c.lineTo(W / 2 - aw + o, sh); c.bezierCurveTo(W / 2 - aw + o, sh - (sh - top) * .5, W / 2 - aw * .25, top + (sh - top) * .22, W / 2, top + o); c.bezierCurveTo(W / 2 + aw * .25, top + (sh - top) * .22, W / 2 + aw - o, sh - (sh - top) * .5, W / 2 + aw - o, sh); c.lineTo(W / 2 + aw - o, bot); c.stroke(); }
+    c.setLineDash([]); }
+  /* 5 rising luminous motes with parallax + twinkle */
+  c.globalCompositeOperation = 'lighter';
+  for (let i = 0; i < 70; i++) { const dep = .3 + R() * .9, x0 = R() * W, y0 = R() * H, sp = (6 + R() * 16) * dep, sw = 8 + R() * 22, ph = R() * TAU;
+    const y = ((y0 - t * sp) % H + H) % H, x = x0 + Math.sin(t * .5 * dep + ph) * sw, tw = .35 + .65 * Math.abs(Math.sin(t * 1.4 * dep + ph)); const rr = (.7 + R() * 2.1) * dep;
+    c.fillStyle = rgba(i % 3 ? A1 : A2, .55 * tw * ep); c.beginPath(); c.arc(x, y, rr, 0, TAU); c.fill(); if (rr > 1.9) glow(c, x, y, rr * 5, i % 3 ? A1 : A2, .25 * tw * ep); }
+  /* 6 shock-ring on entrance */
+  if (p < 1) { const k = ease(p); c.strokeStyle = rgba(A1, (1 - k) * .7); c.lineWidth = 2.2 * (1 - k) + .4; c.beginPath(); c.arc(cx, cy, RR * 1.4 * k, 0, TAU); c.stroke(); }
+  c.restore();
+}
+
 /* ---------- word -> archetype (English gloss / lemma motif / root) ---------- */
 const MOTIF = { prep: 'arrow', pron: 'arrow', rain: 'drops', oneness: 'one', crowd: 'crowd', shatter: 'split', path: 'path', ripple: 'waves', push: 'arrow', descend: 'arrow', converge: 'orbits', caravan: 'path', whisper: 'ear', sphere: 'crescent', scales: 'scales', flames: 'flame', fade: 'timearc', day: 'burst', spiral: 'orbits', show: 'eye', rope: 'rope', river: 'waves', orbit: 'orbits', negate: 'negate', house: 'kaaba', globe: 'orbits', feed: 'seed', envy: 'eye', duo: 'waves', dawn: 'burst', coins: 'scales', beads: 'rope', elephants: 'crowd', link: 'arrow', rings: 'rings' };
 const RULES = [
-  [/\ballah\b|\bgod\b/, 'crescent'], [/\blord\b|\bmaster\b|\bowner\b|\bking\b|sustain|cherish|nurtur|\bcreator\b|\bsovereign/, 'rings'],
+  [/\ballah\b|\bgod\b/, 'crescent'], [/\brun|\bruns|runn|\bflow|\bsail|\bcourse\b|\bfloat|\bswim|\bmov(e|es|ing)\b|\bpass(es|ing)?\b|\btravers/, 'flow'], [/measure|decree|ordain|destin|determin|proportion|\bextent|appoint|\bplan\b|\bpower\b|\bcapab|\bable\b/, 'measure'], [/know|knowledge|knower|wise|wisdom|aware|learn|teach|\bmind\b|understand|intellect|reason|ponder|reflect/, 'lamp'], [/\blord\b|\bmaster\b|\bowner\b|\bking\b|sustain|cherish|nurtur|\bcreator\b|\bsovereign/, 'rings'],
   [/praise|thank|grate|glori|hymn|extol|exalt/, 'waves'], [/mercy|merciful|gracious|compassion|kind|forgiv|pardon|bless/, 'drops'],
   [/worlds?\b|universe|creation|heavens?\b|\bsky|skies|stars?\b|planet|galax|cosmos/, 'star'],
   [/light|bright|shin|illumin|\bsun\b|dawn|morning|daybreak|radian|\bnoor\b/, 'burst'], [/fire|hell|blaz|flame|burn|scorch|blaze|inferno|hot/, 'flame'],
@@ -233,6 +287,9 @@ const NOTES = {   // short meaning note per archetype: ur / ru / en
   rope: ['رسی اور بندھن', 'Rassi aur bandhan', 'A rope and a bond'],
   split: ['بکھرنا اور ٹوٹنا', 'Bikharna aur tootna', 'Shattering apart'],
   arrow: ['ایک لفظ جو دو چیزوں کو جوڑتا ہے', 'Ek lafz jo do cheezon ko jodta hai', 'A small word that links two things'],
+  flow: ['بہنا، چلنا اور رواں رہنا', 'Behna, chalna aur rawan rehna', 'Flowing, running and moving on'],
+  measure: ['اندازہ، مقدار اور تقدیر', 'Andaza, miqdaar aur taqdeer', 'Measure, proportion and decree'],
+  lamp: ['علم اور روشنی', 'Ilm aur roshni', 'Knowledge and light'],
   rosette: ['اس لفظ کی اپنی نشانی', 'Is lafz ki apni nishani', 'This word’s own pattern']
 };
 const UI_I = { ur: 0, ru: 1, en: 2 };
@@ -367,9 +424,10 @@ function frame() {
   const w = cv._w, h = cv._h, d = cv._d; ctx.setTransform(d, 0, 0, d, 0, 0); ctx.clearRect(0, 0, w, h);
   const t = (performance.now() - t0) / 1000;
   if (!drawMeta) { // intro / summary: calm rosette
-    const P = { l: ['', '', ''], seed: 99, rtl: false }; AR.rosette(ctx, w, h, t + 1, ease(t * .7), P); return;
+    const P = { l: ['', '', ''], seed: 99, rtl: false }; try { backdrop(ctx, w, h, t, ease(t * .7), P); } catch (e) { } AR.rosette(ctx, w, h, t + 1, ease(t * .7), P); return;
   }
   const P = { l: drawMeta.labs, seed: drawMeta.seed, rtl: drawMeta.rtl };
+  try { backdrop(ctx, w, h, t, ease(t / 1.4), P); } catch (e) { }
   (AR[drawMeta.m] || AR.rosette)(ctx, w, h, t, ease(t / 1.4), P);
 }
 function open(i) {
