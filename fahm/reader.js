@@ -179,7 +179,7 @@ function placeTabs() {
   const items = { R: [], L: [] };
   rin.querySelectorAll('.ml .tg').forEach(b => {
     const r = b.parentElement.getBoundingClientRect(), cy = ((r.top + r.bottom) / 2 - pr.top) / sc, d = b.dataset, k = d.k;
-    const w = pw * (k === 'rq' ? .104 : .088), h = pw * (k === 'rq' ? .45 : .31);
+    const w = pw * (k === 'rq' ? .074 : .066), h = pw * (k === 'rq' ? .33 : .25);
     let html, cls = k === 'rq' ? 'rk' : k;
     if (k === 'rq') html = `<div class="ar">ع</div><div class="n1">${d.ay}</div><div class="sep"></div><div class="n2">${d.pr}</div><div class="sep"></div><div class="n3">${d.sr}</div>`;
     else if (k === 'sj') { html = `<div>سجدہ</div><div>${d.n}</div>`; cls = 'sj vt'; }
@@ -193,7 +193,7 @@ function placeTabs() {
     { let lim2 = hi; for (let i = a.length - 1; i >= 0; i--) { if (a[i].top + a[i].h > lim2) a[i].top = lim2 - a[i].h; lim2 = a[i].top - gap; } let pv = lo; a.forEach(t => { if (t.top < pv) t.top = pv; pv = t.top + t.h + gap; }); }
     let lim = hi; for (let i = a.length - 1; i >= 0; i--) { if (a[i].top + a[i].h > lim) a[i].top = lim - a[i].h; lim = a[i].top - gap; }
     a.forEach(t => {
-      const padS = sd === 'R' ? pR : pL, x = Math.max(ed, padS - t.w - pw * .006);
+      const x = pw * .006;
       L.insertAdjacentHTML('beforeend', `<div class="kv ${t.cls}" style="--bw:${t.w.toFixed(2)}px;height:${t.h.toFixed(2)}px;top:${t.top.toFixed(2)}px;${sd === 'R' ? 'right' : 'left'}:${x.toFixed(2)}px" title="${esc(t.tip)}"><div class="in">${t.html}</div></div>`);
     });
   });
@@ -214,8 +214,8 @@ function fitKit() {
   /* header: three kit boxes share the row (flex); every text grows up to the biggest size that stays inside its cream area */
   pg.querySelectorAll('#rhd .kb').forEach(k => {
     const z = k.querySelector('.in'), bh = k.clientHeight || parseFloat(getComputedStyle(k).height); z.style.removeProperty('font-size');
-    const maxFs = bh * (k.classList.contains('hg') ? .66 : .6); z.style.setProperty('font-size', maxFs + 'px');
-    const cw = parseFloat(getComputedStyle(k).borderLeftWidth) || 0, room = k.getBoundingClientRect().width - 2 * cw * .86;
+    const maxFs = bh * (k.classList.contains('hg') ? .5 : .46); z.style.setProperty('font-size', maxFs + 'px');
+    const cw = parseFloat(getComputedStyle(k).borderLeftWidth) || 0, room = k.getBoundingClientRect().width - 2 * cw - bh * .5;
     for (let i = 0; i < 14; i++) { const r = document.createRange(); r.selectNodeContents(z); const w = r.getBoundingClientRect().width; if (w <= room) break; z.style.setProperty('font-size', (parseFloat(getComputedStyle(z).fontSize) * Math.max(.7, room / w) * .985) + 'px'); }
   });
   pg.querySelectorAll('.kb.bn .bz').forEach(z => fitZone(z, z.clientWidth * .96, z.clientHeight * .9));
@@ -223,7 +223,7 @@ function fitKit() {
   pg.querySelectorAll('.dua .dt').forEach(z => { z.style.removeProperty('font-size'); const box = z.parentElement, avail = box.clientHeight - (box.querySelector('.dh') ? box.querySelector('.dh').offsetHeight : 0) - 4; let fs = parseFloat(getComputedStyle(z).fontSize); for (let i = 0; i < 20 && z.scrollHeight > avail && fs > 7; i++) { fs *= .95; z.style.setProperty('font-size', fs + 'px'); } });
   document.querySelectorAll('#rtabs .kv>.in').forEach(z => {
     z.style.removeProperty('font-size'); let fs = parseFloat(getComputedStyle(z).fontSize) || 10;
-    if (z.parentElement.classList.contains('vt')) { for (let i = 0; i < 16; i++) { let sw = 0, mh = 0; Array.from(z.children).forEach(c => { const r = c.getBoundingClientRect(); sw += r.width; mh = Math.max(mh, r.height); }); sw += (z.children.length - 1) * fs * .1; const f = Math.min(sw > z.clientWidth * .9 ? z.clientWidth * .9 / sw : 1, mh > z.clientHeight * .92 ? z.clientHeight * .92 / mh : 1); if (f >= .995) break; fs = Math.max(5, fs * f * .985); z.style.setProperty('font-size', fs + 'px'); } }
+    if (z.parentElement.classList.contains('vt')) { for (let i = 0; i < 16; i++) { let sh = 0, mw = 0; Array.from(z.children).forEach(c => { const r = c.getBoundingClientRect(); sh += r.height; mw = Math.max(mw, r.width); }); sh += (z.children.length - 1) * fs * .12; const f = Math.min(sh > z.clientHeight * .92 ? z.clientHeight * .92 / sh : 1, mw > z.clientWidth * .92 ? z.clientWidth * .92 / mw : 1); if (f >= .995) break; fs = Math.max(5, fs * f * .985); z.style.setProperty('font-size', fs + 'px'); } }
     else fitZone(z, z.clientWidth * .98, z.clientHeight * .78);
   });
 }
@@ -326,7 +326,7 @@ function thinFrame(w, h) {
 }
 /* Build 22 frame for the middle pages: clean vector (outer gold hairline, green enamel band with gold lattice + red florets, rosette corners, concave-cornered inner rule). Every length is a fraction of the page width. */
 function frameQ(w, h) {
-  const f = n => n.toFixed(2), u = w, o0 = .010 * u, b0 = .017 * u, b1 = .062 * u, bw = b1 - b0, r0 = .0705 * u, rc = .030 * u;
+  const f = n => n.toFixed(2), u = w, o0 = .007 * u, b0 = .013 * u, b1 = .0415 * u, bw = b1 - b0, r0 = .0475 * u, rc = .02 * u;
   const nh = (Math.round((w - 2 * b1) / bw) | 1), nv = (Math.round((h - 2 * b1) / bw) | 1), ph = (w - 2 * b1) / nh, pv = (h - 2 * b1) / nv;
   const tile = (id, tw, th) => `<pattern id="${id}" width="${f(tw)}" height="${f(th)}" patternUnits="userSpaceOnUse"><path d="M${f(tw / 2)} ${f(th * .16)}L${f(tw * .84)} ${f(th / 2)}L${f(tw / 2)} ${f(th * .84)}L${f(tw * .16)} ${f(th / 2)}Z" fill="none" stroke="var(--gd)" stroke-width="${f(bw * .05)}" stroke-linejoin="round"/><circle cx="${f(tw / 2)}" cy="${f(th / 2)}" r="${f(bw * .105)}" fill="var(--rd)"/><circle cx="${f(tw / 2)}" cy="${f(th / 2)}" r="${f(bw * .105)}" fill="none" stroke="var(--gd2)" stroke-width="${f(bw * .025)}"/><circle cx="0" cy="${f(th / 2)}" r="${f(bw * .045)}" fill="var(--gd)"/><circle cx="${f(tw)}" cy="${f(th / 2)}" r="${f(bw * .045)}" fill="var(--gd)"/><circle cx="${f(tw / 2)}" cy="0" r="${f(bw * .045)}" fill="var(--gd)"/><circle cx="${f(tw / 2)}" cy="${f(th)}" r="${f(bw * .045)}" fill="var(--gd)"/></pattern>`;
   const defs = `<defs>${tile('qh', ph, bw)}${tile('qv', bw, pv)}</defs>`;
@@ -343,11 +343,11 @@ function frameQ(w, h) {
   const x0 = r0, y0 = r0, x1 = w - r0, y1 = h - r0;
   const inner = `M${f(x0 + rc)} ${f(y0)}H${f(x1 - rc)}A${f(rc)} ${f(rc)} 0 0 0 ${f(x1)} ${f(y0 + rc)}V${f(y1 - rc)}A${f(rc)} ${f(rc)} 0 0 0 ${f(x1 - rc)} ${f(y1)}H${f(x0 + rc)}A${f(rc)} ${f(rc)} 0 0 0 ${f(x0)} ${f(y1 - rc)}V${f(y0 + rc)}A${f(rc)} ${f(rc)} 0 0 0 ${f(x0 + rc)} ${f(y0)}Z`;
   const svg = `<svg width="${f(w)}" height="${f(h)}" viewBox="0 0 ${f(w)} ${f(h)}" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" shape-rendering="geometricPrecision">` + defs.replace(/<pattern id="qh"([^>]*)>/, `<pattern id="qh"$1 patternTransform="translate(${f(b1)} ${f(b0)})">`).replace(/<pattern id="qv"([^>]*)>/, `<pattern id="qv"$1 patternTransform="translate(${f(b0)} ${f(b1)})">`) + band +
-    line(o0, o0, w - 2 * o0, h - 2 * o0, .0042 * u) + line(b0, b0, w - 2 * b0, h - 2 * b0, .0036 * u) + line(b1, b1, w - 2 * b1, h - 2 * b1, .0046 * u) +
+    line(o0, o0, w - 2 * o0, h - 2 * o0, .0030 * u) + line(b0, b0, w - 2 * b0, h - 2 * b0, .0036 * u) + line(b1, b1, w - 2 * b1, h - 2 * b1, .0046 * u) +
     `<path d="${inner}" fill="none" stroke="var(--gd)" stroke-width="${f(.0022 * u)}" stroke-linejoin="round"/>` +
     rose(cc, cc) + rose(w - cc, cc) + rose(cc, h - cc) + rose(w - cc, h - cc) + dia(w / 2, cc, 0) + dia(w / 2, h - cc, 0) + dia(cc, h / 2, 1) + dia(w - cc, h / 2, 1) + `</svg>`;
-  const hy = r0 + .013 * u, hh = .082 * u, bph = .056 * u, bpy = h - r0 - .012 * u - bph;
-  return { svg, vars: { '--pt': f(hy + hh + .02 * u) + 'px', '--pb': f(h - bpy + .008 * u) + 'px', '--pl': f(.105 * u) + 'px', '--pr': f(.105 * u) + 'px', '--hy': f(hy) + 'px', '--hh': f(hh) + 'px', '--hl': f(.088 * u) + 'px', '--bpy': f(bpy) + 'px', '--bph': f(bph) + 'px' } };
+  const hy = r0 + .011 * u, hh = .074 * u, bph = .05 * u, bpy = h - r0 - .01 * u - bph;
+  return { svg, vars: { '--pt': f(hy + hh + .018 * u) + 'px', '--pb': f(h - bpy + .006 * u) + 'px', '--pl': f(.088 * u) + 'px', '--pr': f(.088 * u) + 'px', '--hy': f(hy) + 'px', '--hh': f(hh) + 'px', '--hl': f(.064 * u) + 'px', '--bpy': f(bpy) + 'px', '--bph': f(bph) + 'px' } };
 }
 function drawFrame(w, h) {
   const p = $('#rpage'); if (!p) return; let f = $('#rfr'); if (!f) { f = document.createElement('div'); f.id = 'rfr'; p.insertBefore(f, p.firstChild); }
@@ -388,7 +388,7 @@ function renderPage(anim) {
   ln2.forEach(ln => {
     const { k, a, b } = lineParts(ln);
     if (k === 'e') { if (!arch) h += '<div class="ml e"></div>'; }
-    else if (k === 'b') h += `<div class="ml b"><div class="kb bm"><div class="in">${M.w['1:1'].slice(0, 4).map(esc).join(' ')}</div></div></div>`;
+    else if (k === 'b') h += `<div class="ml b"><div class="kb bm"><div class="in"><span class="bsm">﷽</span></div></div></div>`;
     else if (k[0] === 'h') h += bannerHtml(+k.slice(1));
     else { const ws = rangeLocs(a, b); let rm = '', rb = '', sj = ''; ws.forEach(x => { if (x.w === 1 && window.FAHM_RUB) { rubSet(); const ri = RUBI[x.s + ':' + x.a]; if (ri !== undefined) rb = rubMark(ri); } if (isMk(x.t)) { ornSets(); const ak = x.s + ':' + x.a; if (RUKE.has(ak)) { const q = rukuFull(x.s, x.a); rm = `<i class="tg" data-sd="R" data-k="rq" data-ay="${adx(q.ay)}" data-pr="${adx(q.pr)}" data-sr="${adx(q.sr)}" data-tip="ruku · ayat ${q.ay} · para ${q.pr} · surah ${q.sr}"></i>`; } if (SAJ.has(ak)) sj = `<i class="tg" data-sd="R" data-k="sj" data-n="${adx(SAJ.get(ak))}"></i>`; } }); h += `<div class="ml ${k}">${ws.map(wordHtml).join('')}${rm}${sj}${rb}</div>`; }
   });

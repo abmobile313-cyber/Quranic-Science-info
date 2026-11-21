@@ -1,17 +1,21 @@
 /* ===== Build 22: kit boxes (cream cartouche from the user's box-kit) + new page furniture ===== */
 /* horizontal kit box: 3-slice (mirrored caps) so the ornaments are never stretched; --bh = box height, caps = 1.1167 x height */
-.kb{--bh:24px;--cw:calc(var(--bh)*1.1167);box-sizing:border-box;display:inline-flex;align-items:center;justify-content:center;height:var(--bh);min-width:calc(var(--cw)*2 + var(--bh)*.5);border-style:solid;border-color:transparent;border-width:0 var(--cw);border-image:url(frames/box_h.png) 0 268 fill/0 var(--cw) stretch;color:#2b0a14;font-family:'NastaliqU','AmiriQ',serif;font-weight:700;line-height:1;white-space:nowrap;direction:rtl;position:relative;vertical-align:middle;text-shadow:none;-webkit-text-stroke:.018em currentColor}
-.kb>.in{display:flex;align-items:center;justify-content:center;max-width:100%;margin:0 calc(var(--bh)*-.13);font-size:calc(var(--bh)*.5);gap:.3em}
+.kb{--bh:24px;--cw:calc(var(--bh)*.5143);box-sizing:border-box;display:inline-flex;align-items:center;justify-content:center;height:var(--bh);min-width:calc(var(--cw)*2 + var(--bh)*.5);border-style:solid;border-color:transparent;border-width:0 var(--cw);border-image:url(frames/bx_hs_d.png) 0 84 fill/0 var(--cw) stretch;color:#f3dc98;font-family:'NastaliqU','AmiriQ',serif;font-weight:700;line-height:1;white-space:nowrap;direction:rtl;position:relative;vertical-align:middle;text-shadow:none;-webkit-text-stroke:.012em currentColor}
+body.light .kb{border-image-source:url(frames/bx_hs_l.png);color:#4a0e1a}
+.kb>.in{display:flex;align-items:center;justify-content:center;max-width:100%;margin:0;font-size:calc(var(--bh)*.46);gap:.3em}
 /* vertical kit box (ruku / sajda / para-fraction tabs) */
-.kv{--bw:26px;--cv:calc(var(--bw)*1.1417);box-sizing:border-box;position:absolute;width:var(--bw);border-style:solid;border-color:transparent;border-width:var(--cv) 0;border-image:url(frames/box_v.png) 137 0 fill/var(--cv) 0 stretch;color:#2b0a14;font-family:'NastaliqU','AmiriQ',serif;font-weight:700;line-height:1;direction:rtl;pointer-events:auto;-webkit-text-stroke:.018em currentColor}
-.kv>.in{position:absolute;left:calc(var(--bw)*-.04);right:calc(var(--bw)*-.04);top:calc(var(--cv)*-.62);bottom:calc(var(--cv)*-.62);display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:calc(var(--bw)*.44);gap:calc(var(--bw)*.05)}
+.kv{--bw:26px;--cv:calc(var(--bw)*.5143);box-sizing:border-box;position:absolute;width:var(--bw);border-style:solid;border-color:transparent;border-width:var(--cv) 0;border-image:url(frames/bx_v_d.png) 84 0 fill/var(--cv) 0 stretch;color:#f3dc98;font-family:'NastaliqU','AmiriQ',serif;font-weight:700;line-height:1;direction:rtl;pointer-events:auto;-webkit-text-stroke:.012em currentColor}
+body.light .kv{border-image-source:url(frames/bx_v_l.png);color:#4a0e1a}
+.kv.vt>.in{font-size:calc(var(--bw)*.52)}
+.kv>.in{position:absolute;left:calc(var(--bw)*.13);right:calc(var(--bw)*.13);top:calc(var(--bw)*.05);bottom:calc(var(--bw)*.05);display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:calc(var(--bw)*.44);gap:calc(var(--bw)*.05)}
 .kv>.in>div{line-height:1.05;white-space:nowrap}
 .kv.vt>.in{writing-mode:vertical-rl;flex-direction:row;gap:calc(var(--bw)*.12)}
 .kv.vt>.in>div{line-height:1}
-.kv .n1{color:#0b5a46}.kv .n2{color:#2b0a14}.kv .n3{color:#8a2b0e}
-.kv .ar{font-family:'AmiriQ','DKIP',serif;font-size:1.3em;line-height:.9;-webkit-text-stroke:.02em currentColor}
-.kv.sj{color:#0a5b6e}
-.kv.rk .sep{width:56%;height:1px;background:rgba(138,90,28,.55);flex:none}
+.kv .n1{color:#62dbe8}.kv .n2{color:#f3dc98}.kv .n3{color:#ff9f72}
+body.light .kv .n1{color:#0a6a78}body.light .kv .n2{color:#4a0e1a}body.light .kv .n3{color:#8a2b0e}
+.kv .ar{font-family:'AmiriQ','DKIP',serif;font-size:1.25em;line-height:.9;-webkit-text-stroke:.02em currentColor}
+.kv.sj{color:#62dbe8}body.light .kv.sj{color:#0a6a78}
+.kv.rk .sep{width:56%;height:1px;background:rgba(214,170,80,.6);flex:none}
 
 /* ---------- layout of every non-cover page ---------- */
 #rpage.mq .ml{flex:1 1 0!important}
@@ -23,28 +27,38 @@
 #rpage.mq #rhd{position:absolute!important;left:var(--hl)!important;right:var(--hl)!important;top:var(--hy)!important;height:var(--hh)!important;display:flex!important;align-items:center;justify-content:center;direction:rtl;pointer-events:none;z-index:3;padding:0;font:inherit}
 #rpage.mq.arch #rhd{display:flex!important}
 #rpage.mq #rhd .hq{--bh:calc(var(--hh)*.94);width:100%;display:flex;align-items:center;justify-content:center;flex-wrap:nowrap;direction:rtl;white-space:nowrap;max-width:none}
-#rpage.mq #rhd .hq>.kb+.kb{margin-inline-start:calc(var(--bh)*-.3)}
+#rpage.mq #rhd .hq>.kb+.kb{margin-inline-start:calc(var(--bh)*.05)}
 #rpage.mq #rhd .hz.hp{flex:1.1 1 0}#rpage.mq #rhd .hz.hg{flex:.62 1 0}#rpage.mq #rhd .hz.hs{flex:1.7 1 0}
 #rpage.mq #rhd .hz>.in{width:100%;justify-content:center}
-#rpage.mq #rhd .kb>.in{font-size:calc(var(--bh)*.52*var(--hs,1))}
+#rpage.mq #rhd .kb>.in{font-size:calc(var(--bh)*.44*var(--hs,1))}
 #rpage.mq #rhd .t{display:flex;align-items:center;gap:.3em;direction:rtl}
-#rpage.mq #rhd .hz.hg>.in{font-size:calc(var(--bh)*.56*var(--hs,1))}
+#rpage.mq #rhd .hz.hg>.in{font-size:calc(var(--bh)*.48*var(--hs,1))}
 #rpage.mq #rpn{position:absolute!important;left:0!important;right:0!important;bottom:auto!important;top:var(--bpy)!important;height:var(--bph)!important;display:flex!important;align-items:center;justify-content:center;font:inherit!important;color:inherit;z-index:3;pointer-events:none}
 #rpage.mq #rpn .kb{--bh:var(--bph)}
 #rpage.mq #rpn .kb>.in{font-size:calc(var(--bh)*.54)}
 
+/* banner: ONE kit box (big volute caps) */
+.kb.bn{--cw:calc(var(--bh)*1.0727);border-image:url(frames/bx_h_d.png) 0 177 fill/0 var(--cw) stretch}
+body.light .kb.bn{border-image-source:url(frames/bx_h_l.png)}
 /* banner: ONE kit box, three zones (ayat count | number + سورۃ NAME + makki/madani | ruku count) */
 #rpage.mq .kb.bn{--bh:min(calc(var(--rh,30px)*1.62),calc(var(--pw)*.13));width:calc(100% + var(--pw)*.05);margin:0 calc(var(--pw)*-.025);flex:none}
-#rpage.mq .kb.bn>.in{width:100%;height:80%;align-self:center;margin:0 calc(var(--bh)*-.1);justify-content:space-between;gap:0;font-size:calc(var(--bh)*.5)}
+#rpage.mq .kb.bn>.in{width:100%;height:80%;align-self:center;margin:0;justify-content:space-between;gap:0;font-size:calc(var(--bh)*.345)}
 .kb.bn .bz{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;min-width:0;gap:.02em}
 .kb.bn .bzs{flex:0 0 25%}
-.kb.bn .bzc{flex:1 1 0;border-inline:1px solid rgba(138,90,28,.5);margin:0 2%;padding:0 2%}
-.kb.bn .bz div{line-height:1.12;white-space:nowrap;border:0;background:none;padding:0;margin:0}
-.kb.bn .bzl{font-size:.55em;color:#7a3b12}.kb.bn .bzv{font-size:1em;color:#2b0a14}
-.kb.bn .bznm{font-size:1.05em;color:#2b0a14}.kb.bn .bzsb{font-size:.74em;color:#7a3b12}
-/* bismillah */
-#rpage.mq .kb.bm{--bh:min(calc(var(--rh,30px)*1.26),calc(var(--pw)*.105));min-width:62%;flex:none}
-#rpage.mq .kb.bm>.in{font-family:'DKIP','AmiriQ',serif;font-weight:700;font-size:calc(var(--fs,22px)*.94);gap:.28em;-webkit-text-stroke:.03em currentColor;margin:0 calc(var(--bh)*-.05)}
+.kb.bn .bzc{flex:1 1 0;border-inline:1px solid rgba(214,170,80,.5);margin:0 2%;padding:0 2%}
+.kb.bn .bz div{line-height:1.02;white-space:nowrap;border:0;background:none;padding:0;margin:0}
+.kb.bn .bzl{font-size:.6em;color:#d7b56b}.kb.bn .bzv{font-size:1.15em;color:#f6e3a6}
+.kb.bn .bznm{font-size:1.2em;color:#f6e3a6}.kb.bn .bzsb{font-size:.68em;color:#d7b56b}
+body.light .kb.bn .bzl{color:#8a5a1c}body.light .kb.bn .bzv,body.light .kb.bn .bznm{color:#4a0e1a}body.light .kb.bn .bzsb{color:#8a5a1c}body.light .kb.bn .bzc{border-color:rgba(138,90,28,.45)}
+/* bismillah: calligraphic gold glyph (Amiri), thin gold rules on both sides, no box */
+@font-face{font-family:'AmiriB';src:url(fonts/amiri-b.woff2) format('woff2');font-display:swap}
+#rpage.mq .kb.bm{border:0!important;border-image:none!important;--bh:min(calc(var(--rh,30px)*1.26),calc(var(--pw)*.105));min-width:0;width:100%;flex:none;color:inherit;display:flex}
+#rpage.mq .kb.bm>.in{width:100%;margin:0;gap:.5em;font-size:calc(var(--bh)*.5);justify-content:center}
+#rpage.mq .kb.bm>.in::before,#rpage.mq .kb.bm>.in::after{content:"";flex:1 1 0;height:1px;background:linear-gradient(90deg,transparent,#d4a94c 35%,#d4a94c);opacity:.85;min-width:6%}
+#rpage.mq .kb.bm>.in::after{transform:scaleX(-1)}
+body.light #rpage.mq .kb.bm>.in::before,body.light #rpage.mq .kb.bm>.in::after{background:linear-gradient(90deg,transparent,#9a6a1c 35%,#9a6a1c)}
+.bsm{font-family:'AmiriB','AmiriQ',serif;font-weight:700;direction:rtl;font-size:min(calc(var(--bh)*.62),calc(var(--pw)*.069));line-height:1;display:inline-block;padding:.75em .1em .8em;margin:-.75em 0 -.8em;background:linear-gradient(180deg,#f8e2a0,#d2a043 62%,#f2d27e);-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-stroke:0;flex:none}
+body.light .bsm{background:linear-gradient(180deg,#a8761f,#6e450f 60%,#9a6a1c);-webkit-background-clip:text;background-clip:text}
 /* dua-e-khatm-ul-quran (blank rows at the end of the last page) */
 .dua .dh{--bh:calc(var(--rh,30px)*1.12)}
 .dua .dh>.in{font-size:calc(var(--bh)*.56)}
@@ -55,7 +69,8 @@ body.light .dua .dr{color:#8a5a1c}
 
 /* tabs in the page margin */
 #rtabs{position:absolute;inset:0;pointer-events:none;z-index:4}
-.kv.rk>.in{font-size:calc(var(--bw)*.46)}
+.kv.rk>.in{font-size:calc(var(--bw)*.44)}
+.kv>.in{background:var(--pgbg,#4c0108);border-radius:calc(var(--bw)*.12)}
 
 /* ---------- new frame for the middle pages (clean vector) ---------- */
 #rpage.mq:not(.arch){--pgbg:#4c0108;background:radial-gradient(ellipse at 50% 42%,#5d030c 0%,#4d0108 62%,#470006 100%)!important}
@@ -63,3 +78,4 @@ body.light #rpage.mq:not(.arch){--pgbg:#f6e9cc;background:radial-gradient(ellips
 #rfr.fq{position:absolute;inset:0;z-index:0;pointer-events:none;background:none!important;--gd:#d9ae52;--gd2:#f2d58a;--gr:#0d4a39;--rd:#c2262f}
 body.light #rfr.fq{--gd:#b98530;--gd2:#d9b45a;--gr:#14604a;--rd:#b3202a}
 #rfr.fq svg{display:block!important;width:100%;height:100%}
+body.light .kv>.in{background:var(--pgbg,#f6e9cc)}
