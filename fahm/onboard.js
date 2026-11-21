@@ -140,6 +140,8 @@ function steps(i, quiet) {
   ${last ? `<button class="ob-go b3d gold" data-a="yes">${t.done}</button><button class="ob-alt b3d" data-a="yes">${t.look}</button>` : `<button class="ob-go b3d gold" data-a="nx">${t.nx}</button>`}
   <button class="ob-alt b3d" data-a="${si ? 'pv' : 'wuzu'}">${t.back}</button></div>`;
   box.hidden = false; waterScene(box.querySelector('.ob-wv'), { pool: .76, spread: .16, startY: 44 }); if (!quiet) say(spoken().steps[si]);
+  /* real wudu clip (16:9) for this step, if the file is bundled: vo/wudu/w1.mp4 ... w8.mp4 */
+  { const n = si + 1, src = 'vo/wudu/w' + n + '.mp4'; fetch(src, { method: 'HEAD' }).then(r => { if (!r.ok || step !== 'steps' || si !== n - 1) return; const wv = box.querySelector('.ob-wv'); if (!wv) return; wv.innerHTML = '<video class="ob-vid" src="' + src + '" autoplay muted loop playsinline webkit-playsinline></video>'; wv.classList.add('vid'); }).catch(() => { }); }
 }
 
 function shell() { if (!box) { box = D.createElement('div'); box.id = 'onb'; D.body.appendChild(box); box.addEventListener('click', onClick); } return box; }

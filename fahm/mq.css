@@ -61,8 +61,8 @@ body.light #rpage.mq .kb.bm>.in::before,body.light #rpage.mq .kb.bm>.in::after{b
 .bsm{font-family:'AmiriB','AmiriQ',serif;font-weight:700;direction:rtl;font-size:min(calc(var(--bh)*.62),calc(var(--pw)*.069));line-height:1;display:inline-block;padding:.75em .1em .8em;margin:-.75em 0 -.8em;background:linear-gradient(180deg,#f8e2a0,#d2a043 62%,#f2d27e);-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-stroke:0;flex:none}
 body.light .bsm{background:linear-gradient(180deg,#a8761f,#6e450f 60%,#9a6a1c);-webkit-background-clip:text;background-clip:text}
 /* dua-e-khatm-ul-quran (blank rows at the end of the last page) */
-.dua .dh{--bh:calc(var(--rh,30px)*1.12)}
-.dua .dh>.in{font-size:calc(var(--bh)*.56)}
+.dua .dh{--bh:calc(var(--rh,30px)*1.5)}
+.dua .dh>.in{font-size:calc(var(--bh)*.36);line-height:1.9;padding-top:.15em;overflow:visible}
 .dua .dt{font-size:calc(var(--fs,22px)*.8);width:100%;text-align:center;direction:rtl;font-family:'DKIP','AmiriQ',serif;font-weight:700;color:#f5e8c9;line-height:1.62;padding:0 1%;box-sizing:border-box;-webkit-text-stroke:.02em currentColor}
 body.light .dua .dt{color:#3a0b16}
 .dua .dr{font-family:'NooriP','NastaliqU',serif;font-size:.62em;color:#f0ce80;line-height:1.5;margin-top:.1em}
@@ -85,3 +85,68 @@ body.light .kv>.in{background:var(--pgbg,#f6e9cc)}
 /* Build 24: PDF-style Noori Nastaliq for all non-ayat page text (header, banner, manzil, tabs, dua translation) */
 #rpage.mq .kb:not(.bm) *,#rpage.mq #rhd .kb,#rpage.mq #rpn .kb{font-family:'NooriP','NastaliqU','AmiriQ',serif!important}
 #rpage.mq .kb .bsm{font-family:'AmiriB','AmiriQ',serif!important}
+
+/* ===== Build 25: layout modelled on the user's reference mushaf (header outside the frame, pointed cartouches, margin marks) ===== */
+#rpage.mq:not(.arch){--pgbg:#050505;background:radial-gradient(ellipse at 50% 42%,#0e0e0e 0%,#070707 62%,#000 100%)!important}
+#rfr.fq{--gd:#d8b05a}
+body.light #rfr.fq{--gd:#8e5f1c}
+#rpage.mq #rhd{padding:0}
+#rpage.mq #rhd .hq{display:flex;justify-content:space-between;align-items:center;width:100%;direction:rtl;font:700 calc(var(--hh)*.62)/1 'DKIP','AmiriQ',serif;color:#efe3bd;white-space:nowrap;-webkit-text-stroke:.015em currentColor}
+body.light #rpage.mq #rhd .hq{color:#2b1a0e}
+#rpage.mq #rhd .hg i{font-style:normal;font-family:Arial,Helvetica,sans-serif;font-weight:600;font-size:.92em;-webkit-text-stroke:0}
+#rpage.mq #rpn .mzt{font:700 calc(var(--bph)*.62)/1 'DKIP','AmiriQ',serif;color:#efe3bd;-webkit-text-stroke:.015em currentColor}
+body.light #rpage.mq #rpn .mzt{color:#2b1a0e}
+/* pointed hexagon cartouches (banner + bismillah) */
+.bnr{--bh:min(calc(var(--rh,30px)*1.62),calc(var(--pw)*.13));display:flex;align-items:center;justify-content:center;width:100%;height:var(--bh);direction:rtl}
+.hx{--cw:calc(var(--bh)*.5143);box-sizing:border-box;height:var(--bh);flex:none;display:flex;align-items:center;justify-content:center;border-style:solid;border-color:transparent;border-width:0 var(--cw);border-image:url(frames/bx_hs_d.png) 0 84 fill/0 var(--cw) stretch;color:#efe3bd;font-family:'DKIP','AmiriQ',serif;font-weight:700;line-height:1;white-space:nowrap;direction:rtl;-webkit-text-stroke:.012em currentColor}
+body.light .hx{border-image-source:url(frames/bx_hs_l.png);color:#2b1a0e}
+.hx>.in{display:flex;flex-direction:column;align-items:center;justify-content:center;width:100%;height:80%;font-size:calc(var(--bh)*.3);gap:.12em}
+.hx.bs{width:24%;margin-inline:calc(var(--cw)*-.12)}
+.hx.bc{flex:1 1 0;min-width:0;margin-inline:calc(var(--cw)*-.12)}
+.hx.bs .l{font-size:.95em;line-height:1.1}.hx.bs .v{font-size:1.3em;line-height:1}
+.hx.bc>.in{flex-direction:row;justify-content:center;font-size:calc(var(--bh)*.36)}
+#rpage.mq .hx.bw{--bh:min(calc(var(--rh,30px)*1.26),calc(var(--pw)*.105));width:100%;flex:none}
+.hx.bw>.in{flex-direction:row;gap:.5em;font-size:calc(var(--bh)*.44)}
+.hx .ring{width:1.15em;height:1.15em;flex:none;fill:none;stroke:none}
+.hx .ring polygon{fill:rgba(216,176,90,.22);stroke:#d8b05a;stroke-width:2.4}
+.hx .ring text{fill:currentColor;stroke:none;font:700 19px 'DKIP','AmiriQ',serif}
+body.light .hx .ring polygon{fill:rgba(142,95,28,.16);stroke:#8e5f1c}
+/* marks in the outer margin: rotated plain text, no boxes */
+.kv{border:0!important;border-image:none!important;background:none!important;color:#e9d9a6;font-family:'DKIP','AmiriQ',serif;font-weight:700;-webkit-text-stroke:0}
+body.light .kv{color:#3a2210}
+.kv>.in{background:none!important;border-radius:0;writing-mode:vertical-rl;text-orientation:sideways;direction:rtl;display:flex!important;flex-direction:row;align-items:center;justify-content:center;gap:.32em;white-space:nowrap;width:100%;height:100%;margin:0;padding:0;line-height:1}
+.kv .n1,.kv .n2,.kv .n3{color:inherit!important}
+.kv .ar{font-family:'AmiriQ','DKIP',serif!important;font-size:1.15em;line-height:1}
+.kv .sep{display:none}
+#rpage.mq #rhd .hq span{position:static!important;display:inline-block!important;top:auto!important;height:auto!important;overflow:visible!important;font:inherit!important;color:inherit!important;text-shadow:none!important;letter-spacing:0!important;gap:0!important}
+#rpage.mq #rhd .hq i{color:inherit!important}
+#rpage.mq.arch .bnr{--bh:min(calc(var(--rh,30px)*1.15),calc(var(--pw)*.085))}
+#rpage.mq.arch .hx.bs{width:31%}
+/* ruku mark exactly as in the reference: top = surah ruku, ع with the ayat count inside, bottom = para ruku; upright in the margin */
+.kv.rk>.in{writing-mode:horizontal-tb;text-orientation:mixed;flex-direction:column;gap:0;font-size:calc(var(--bw)*.5)}
+.kv.rk .rt,.kv.rk .rb2{font-size:.92em;line-height:1;font-weight:700}
+.kv.rk .re{position:relative;font-size:2.15em;line-height:1;margin:-.06em 0;display:block}
+.kv.rk .ra{font-family:'DKIP','AmiriQ',serif;font-weight:700;display:block;line-height:1}
+.kv.rk .re b{position:absolute;left:50%;top:60%;transform:translate(-50%,-50%);font-size:.3em;font-weight:700;line-height:1}
+/* sajda: small prayer-mat tab with the word rotated inside */
+.kv.sj>.in{background:linear-gradient(180deg,#e2bd6c,#b98a34)!important;color:#1a1204;border-radius:38% 38% 5% 5%/12% 12% 5% 5%;width:78%;margin:0 auto;height:100%;box-shadow:inset 0 0 0 1px rgba(26,18,4,.35)}
+body.light .kv.sj>.in{background:linear-gradient(180deg,#a8761f,#7d5314)!important;color:#fbf2dc}
+.kv.rk .re{margin:-.12em 0 .34em}
+.kv.rk .re b{left:63%;top:63%;font-size:.34em}
+.kv.rk .re b{left:64%;top:84%}
+.kv.rk .re b{left:57%;top:80%;font-size:.46em;letter-spacing:-.05em}
+.kv.rk .re b{left:62%;top:78%;color:#d8b05a;text-shadow:0 0 .06em #050505,0 0 .1em #050505,0 0 .14em #050505,0 0 .2em #050505;-webkit-text-stroke:0}
+body.light .kv.rk .re b{color:#6a2a0e;text-shadow:0 0 .06em #f6e9cc,0 0 .1em #f6e9cc,0 0 .14em #f6e9cc,0 0 .2em #f6e9cc}
+.kv.rk .re b{left:78%;top:76%}
+.kv.rk .re b{left:72%;top:76%;font-size:.4em;letter-spacing:0}
+.kv.rk .re b{left:86%;top:76%;font-size:.36em}
+.kv.rk .re b.l1{font-size:.4em;left:76%}
+.kv.rk .re b.l2{font-size:.3em;left:80%}
+.kv.rk .re b.l3{font-size:.24em;left:80%}
+.kv.rk .re b,.kv.rk .re b.l1,.kv.rk .re b.l2,.kv.rk .re b.l3{left:auto;right:-4%;transform:translateY(-50%);top:76%}
+.kv.rk .re b{width:max-content;white-space:nowrap;direction:ltr;text-align:left}
+.kv.rk .re b,.kv.rk .re b.l1,.kv.rk .re b.l2,.kv.rk .re b.l3{right:auto;left:68%;transform:translateY(-50%)}
+.kv.rk .re b,.kv.rk .re b.l1,.kv.rk .re b.l2,.kv.rk .re b.l3{left:60%;top:84%}
+/* wudu step clip: 16:9 */
+#onb .ob-wv.vid{width:100%;max-width:560px;aspect-ratio:16/9;height:auto;border-radius:16px;overflow:hidden;background:#000}
+#onb .ob-vid{width:100%;height:100%;object-fit:cover;display:block}
