@@ -485,3 +485,57 @@ body.l-ru .top.hdr16 [data-k=btnFind]::after{content:'Talash'}
 #fqb[data-slot="ws"] span{flex-direction:row;gap:6px;align-items:baseline}
 #fqb[data-slot="ws"] b{font-size:8.6px;letter-spacing:.12em}
 #fqb[data-slot="ws"] small{font-size:7px;letter-spacing:.04em}
+/* Build 31: Makharij lab — full medical 3D head (canvas + label overlay fill the square stage, like the original lab) */
+#mkh .mk-stage{position:relative;aspect-ratio:1/1;width:min(100%,46vh);max-height:none;margin:0 auto}
+#mkh .mk-stage .ml3{position:relative;width:100%;height:100%;aspect-ratio:1/1;overflow:hidden;border-radius:18px;background:#0a0f16}
+#mkh .ml3c,#mkh .ml3o{position:absolute;inset:0;width:100%;height:100%;display:block;transform-origin:0 0;transition:transform .9s cubic-bezier(.4,0,.2,1)}
+#mkh .ml3o [data-part]{cursor:pointer}
+#mkh .mk-promo{margin:18px 2px 28px}
+#mkh .mkp-in{position:relative;overflow:hidden;border-radius:20px;padding:18px 18px 16px;background:linear-gradient(135deg,rgba(122,26,44,.55),rgba(10,20,30,.55) 60%,rgba(51,203,224,.12));border:1px solid rgba(220,171,64,.55);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);box-shadow:0 12px 30px rgba(0,0,0,.4),inset 0 1px 0 rgba(255,255,255,.08)}
+#mkh .mkp-in::after{content:"";position:absolute;inset:-40% -10% auto auto;width:60%;height:120%;background:radial-gradient(closest-side,rgba(243,217,139,.18),transparent);pointer-events:none}
+#mkh .mkp-k{font:600 11px/1 ui-monospace,Menlo,monospace;letter-spacing:2px;text-transform:uppercase;color:#33cbe0}
+#mkh .mkp-ar{position:absolute;inset-inline-end:14px;top:8px;font-size:40px;color:rgba(243,217,139,.22)}
+#mkh .mkp-h{display:block;margin:10px 0 6px;font-size:19px;line-height:1.35;color:#f3d98b}
+#mkh .mkp-p{margin:0 0 14px;font-size:14.5px;line-height:1.65;color:#eadfca}
+#mkh .mkp-b{display:inline-flex;align-items:center;gap:8px;padding:11px 18px;border-radius:999px;background:#dcab40;color:#2a0d14;font-weight:700;text-decoration:none;font-size:15px}
+#mkh .mkp-b:active{transform:scale(.97)}
+#mkh .mkp-w{display:block;margin-top:10px;font-size:11px;color:rgba(234,223,202,.6)}
+body.light #mkh .mkp-in{background:linear-gradient(135deg,rgba(122,26,44,.12),rgba(255,248,232,.9));}
+body.light #mkh .mkp-h{color:#7a1a2c}body.light #mkh .mkp-p{color:#3b2a20}
+#rpage .ml.h[data-sn]{cursor:pointer}#rpage .ml.h[data-sn]:active .bnr{filter:brightness(1.25)}
+/* Build 31: translation-Quran view (ayah + one translation line under it) */
+#rpage.trv{overflow:hidden}
+#rpage.trv #rin{overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;height:100%;display:block!important}
+#rpage.trv .tvw{padding:6px 10px 40px}
+#rpage.trv .tva{padding:10px 4px 12px;border-bottom:1px solid rgba(220,171,64,.18)}
+#rpage.trv .tvx{direction:rtl;display:flex;flex-wrap:wrap;justify-content:flex-start;align-items:baseline;gap:.12em .22em;font:400 var(--fs)/2 'DKIP','AmiriQ',serif;color:var(--ink,#f1ead8)}
+#rpage.trv .tvx .wd{position:relative;display:inline-block;padding:0 .04em;border-radius:6px}
+#rpage.trv .tvt{margin-top:6px;padding:8px 12px;border-radius:12px;background:rgba(51,203,224,.07);border-inline-start:3px solid rgba(220,171,64,.7);font:400 15px/1.7 system-ui,'Segoe UI',sans-serif;color:#e7dcc6}
+#rpage.trv .tvt[dir=rtl]{font:400 18px/2 'NastaliqU','Noto Nastaliq Urdu',serif}
+#rpage.trv .tvc{margin-top:4px;font-size:12px;color:rgba(231,220,198,.5);text-align:center}
+#rpage.trv .ml.h,#rpage.trv .ml.b{height:auto;min-height:46px;margin:8px 0}
+#rpage.trv ~ #rtrk,#rstage:has(#rpage.trv) #rtrk{display:none!important}
+body.light #rpage.trv .tvx{color:#1b1710}body.light #rpage.trv .tvt{color:#2b2018;background:rgba(122,26,44,.06)}
+/* press-and-hold: one ayah full screen */
+#rfs{position:fixed;inset:0;z-index:9000;display:grid;place-items:center;background:rgba(4,6,14,.72);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);opacity:0;transition:opacity .22s}
+#rfs.on{opacity:1}
+#rfs .fs-in{width:min(94vw,720px);max-height:92vh;overflow:auto;border-radius:24px;padding:16px 18px 20px;background:linear-gradient(160deg,rgba(122,26,44,.55),rgba(8,14,28,.85));border:1px solid rgba(220,171,64,.6);box-shadow:0 20px 60px rgba(0,0,0,.6)}
+#rfs .fs-top{display:flex;justify-content:space-between;align-items:center;color:#f3d98b;font-size:16px;margin-bottom:8px}
+#rfs .fs-top .ib{width:38px;height:38px;border-radius:50%;border:1px solid rgba(220,171,64,.5);background:transparent;color:#f3d98b;font-size:18px}
+#rfs .fs-ar{font:400 clamp(30px,8vw,46px)/2.1 'DKIP','AmiriQ',serif;color:#fff4dc;text-align:center;padding:6px 0 10px}
+#rfs .fs-tr{font:400 17px/1.8 system-ui,sans-serif;color:#eadfca;padding:12px 14px;border-radius:14px;background:rgba(51,203,224,.08);border-inline-start:3px solid #dcab40}
+#rfs .fs-tr[dir=rtl]{font:400 21px/2.1 'NastaliqU',serif}
+#rfs .fs-by{display:block;margin:8px 2px 12px;color:rgba(234,223,202,.6);font-size:12px}
+#rfs .fs-play{width:100%;padding:12px;border-radius:999px;border:0;background:#dcab40;color:#2a0d14;font-weight:700;font-size:16px}
+/* Build 31: Lafz ka ejaz card (every word) */
+.sh-ej{margin:12px 0;padding:12px 14px 10px;border-radius:16px;background:linear-gradient(160deg,rgba(122,26,44,.32),rgba(12,18,34,.35) 70%,rgba(220,171,64,.12));border:1px solid rgba(220,171,64,.45);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+.sh-ej .ej-h{display:flex;align-items:center;gap:8px;color:#f3d98b;font-size:15px;margin-bottom:6px}
+.sh-ej .ej-g{width:18px;height:18px;transform:rotate(45deg);border:1.5px solid #dcab40;box-shadow:0 0 10px rgba(220,171,64,.6)}
+.sh-ej .ej-l{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.sh-ej .ej-l li{display:grid;grid-template-columns:22px 1fr;gap:8px;font-size:14px;line-height:1.6;color:#eadfca}
+.sh-ej .ej-l.u li{font-size:16px;line-height:2}
+.sh-ej .ej-l em{font-style:normal;color:#33cbe0;text-align:center}
+.sh-ej .ej-bal{margin-top:10px;padding:10px 12px;border-radius:12px;background:rgba(51,203,224,.08);border:1px dashed rgba(51,203,224,.45);display:grid;gap:4px;font-size:14px;color:#eadfca}
+.sh-ej .ej-bal b{color:#33cbe0;font-size:12px}.sh-ej .ej-bal small{color:rgba(234,223,202,.6);font-size:11.5px}
+.sh-ej .ej-n{display:block;margin-top:8px;color:rgba(234,223,202,.55);font-size:11.5px}
+body.light .sh-ej{background:linear-gradient(160deg,rgba(122,26,44,.08),rgba(255,255,255,.6));}body.light .sh-ej .ej-l li,body.light .sh-ej .ej-bal{color:#2b2018}

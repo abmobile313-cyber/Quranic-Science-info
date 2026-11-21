@@ -103,7 +103,8 @@ class Story {
     this.stars.visible = P.stars > 0; this.stars.material.opacity = P.stars; this.stars.material.userData.base = P.stars;
     if (this.spec.moon) { this.moon.visible = true; this.moon.position.set(X(this.spec.moon[0]) * 4, Y(this.spec.moon[1]) * 4 + 8, -30); this.moon.scale.set(14, 14, 1); } else this.moon.visible = false;
     this.zoom = 0; this.items = items;
-    items.forEach(it => {
+    const holo = !!(B.wholo && window.FahmWS && FahmWS.curWords && FahmWS.renderWord);
+    (holo ? items.filter(it => !it.fill).concat([{ a: 'wholo', w: 0 }]) : items).forEach(it => {
       const bld = B[it.a]; let a = null;
       if (bld) { CUR = []; try { a = bld(it, this); } catch (e) { console.warn('3d actor', it.a, e); } a = a && a.g ? a : null; if (a) { a.mats = CUR; a.born = null; a.it = it; a.g.visible = false; this.world.add(a.g); this.acts.push(a); } CUR = null; }
       else if (it) this.acts.push({ g: new T.Group(), mats: [], born: null, it, dead: true });

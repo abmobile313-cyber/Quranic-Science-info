@@ -231,9 +231,9 @@ function compose(S, A) {
   for (let k = 0; k < nW; k++) {
     if (covered.has(k)) continue;
     const xx = nW > 1 ? Math.round(340 - k * (280 / (nW - 1))) : 200, P = W[k].pos, h2 = hs(S.n * 7 + k, A.v);
-    if (P === 'V') items.push({ a: 'beam', w: k, x: xx, y: 214, col: h2 < 0.5 ? '#e8b84a' : '#35d0e6' });
-    else if (P === 'N' || P === 'PN' || P === 'ADJ') items.push({ a: 'bloom', w: k, x: xx, y: UY.sky, r: 34 + Math.round(h2 * 14), col: h2 < 0.5 ? '#9be3c4' : '#f3d98b' });
-    else items.push({ a: 'pulse', w: k, x: xx, y: UY.sky + 10, r: 46 + Math.round(h2 * 20), col: h2 < 0.5 ? '#35d0e6' : '#e8b84a' });
+    if (P === 'V') items.push({ fill: 1, a: 'beam', w: k, x: xx, y: 214, col: h2 < 0.5 ? '#e8b84a' : '#35d0e6' });
+    else if (P === 'N' || P === 'PN' || P === 'ADJ') items.push({ fill: 1, a: 'bloom', w: k, x: xx, y: UY.sky, r: 34 + Math.round(h2 * 14), col: h2 < 0.5 ? '#9be3c4' : '#f3d98b' });
+    else items.push({ fill: 1, a: 'pulse', w: k, x: xx, y: UY.sky + 10, r: 46 + Math.round(h2 * 20), col: h2 < 0.5 ? '#35d0e6' : '#e8b84a' });
   }
   let gr = need ? (sky === 'day' || sky === 'holy' ? 'flat' : (r0 < 0.6 ? 'dunes' : 'flat')) : 'none';
   if (pick.some(h => ['kaaba', 'camel', 'prayer', 'journey', 'elephant'].includes(h.t.id))) gr = 'dunes';

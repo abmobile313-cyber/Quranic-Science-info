@@ -312,3 +312,30 @@ B.straw = (p) => {
   return { g, u: (t, A, G) => { for (let i = 0; i < 18; i++) { const u = fr(G * .1 + hs(i, 8)); pos[i * 3] = (hs(i, 9) - .5) * 11 + u * 1.2; pos[i * 3 + 1] = .3 + u * 1.8; pos[i * 3 + 2] = (hs(i) - .5) * 3; } P.geometry.attributes.position.needsUpdate = true; } };
 };
 })();
+
+/* Build 31: word hologram — every recited word shows its own unique meaning-scene + signature, on a floating glass panel */
+(function () {
+  const FS = window.FahmStory; if (!FS || !window.FAHM3D) return; const H = FS.helpers, T = H.T, B = window.FAHM3D;
+  B.wholo = (p, S) => {
+    const cw = 640, ch = 400, cv = document.createElement('canvas'); cv.width = cw; cv.height = ch; const cx = cv.getContext('2d');
+    const tex = new T.CanvasTexture(cv); tex.colorSpace = T.SRGBColorSpace;
+    const w = 2.9, h = w * ch / cw, g = new T.Group(), by = H.Y(p.y ?? 104); g.position.set(H.X(p.x ?? 262), by, 1.2);
+    const back = new T.Mesh(new T.PlaneGeometry(w * 1.05, h * 1.08), H.reg(new T.MeshBasicMaterial({ color: '#070b1c', transparent: true, depthWrite: false, fog: false }), .5)); back.position.z = -.02; g.add(back);
+    const face = new T.Mesh(new T.PlaneGeometry(w, h), H.G_('#ffffff', { map: tex, opacity: 1 })); g.add(face);
+    const edge = new T.LineSegments(new T.EdgesGeometry(new T.PlaneGeometry(w * 1.05, h * 1.08)), H.reg(new T.LineBasicMaterial({ color: '#dcab40', transparent: true, depthWrite: false, fog: false }), .8)); g.add(edge);
+    const halo = H.sprite('#33cbe0', w * 1.5, .18); halo.position.z = -.05; g.add(halo);
+    let last = -2, t0 = 0, lastDraw = 0;
+    return { g, u: (t, A, G, now) => {
+      g.position.y = by + Math.sin(G * .9) * .05; g.rotation.y = Math.sin(G * .23) * .06;
+      if (now - lastDraw < 1 / 30) return; lastDraw = now;
+      const words = FahmWS.curWords(); if (!words || !words.length) return;
+      let i = -1; const sw = document.querySelector('#sw .ar'), tx = sw && sw.textContent.trim();
+      if (tx) { for (let k = Math.max(0, last); k < words.length && i < 0; k++) if (words[k].ar === tx) i = k; for (let k = 0; k < words.length && i < 0; k++) if (words[k].ar === tx) i = k; }
+      if (i < 0) { i = S.reveal; if (i < 0) i = 0; if (i >= words.length) i = Math.floor(G / 2.8) % words.length; }
+      if (i !== last) { last = i; t0 = now; }
+      cx.setTransform(1, 0, 0, 1, 0, 0); cx.clearRect(0, 0, cw, ch); cx.setTransform(2, 0, 0, 2, 0, 0);
+      try { FahmWS.renderWord(cx, cw / 2, ch / 2, now - t0, words[i], i, words); } catch (e) { }
+      tex.needsUpdate = true;
+    } };
+  };
+})();

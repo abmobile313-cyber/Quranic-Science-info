@@ -14,8 +14,10 @@ const rgba = (hex, a) => { const n = parseInt(hex.slice(1), 16); return `rgba(${
 /* ---------- drawing helpers ---------- */
 function glow(c, x, y, r, col, a = 1) { const g = c.createRadialGradient(x, y, 0, x, y, r); g.addColorStop(0, rgba(col, .95 * a)); g.addColorStop(.25, rgba(col, .45 * a)); g.addColorStop(1, rgba(col, 0)); c.fillStyle = g; c.beginPath(); c.arc(x, y, r, 0, TAU); c.fill(); c.fillStyle = rgba('#ffffff', .9 * a); c.beginPath(); c.arc(x, y, Math.max(2, r * .09), 0, TAU); c.fill(); }
 function path(c, pts, col, w = 1, a = 1) { c.strokeStyle = rgba(col, a); c.lineWidth = w; c.beginPath(); pts.forEach((p, i) => i ? c.lineTo(p[0], p[1]) : c.moveTo(p[0], p[1])); c.stroke(); }
+let MIR = 0;
 function lab(c, txt, x, y, al, col, P, sz = 11) {
   if (!txt) return; c.save(); c.fillStyle = col || rgba(INK, .85); c.textAlign = al || 'left'; c.textBaseline = 'middle';
+  if (MIR) { c.translate(x, y); c.scale(-1, 1); x = 0; y = 0; c.textAlign = al === 'left' || !al ? 'right' : al === 'right' ? 'left' : al; }
   if (P && P.rtl) { c.font = `${sz + 3}px NastaliqU, AmiriQ, serif`; c.fillText(txt, x, y); } else { c.font = `600 ${sz}px ui-monospace,Menlo,Consolas,monospace`; if ('letterSpacing' in c) c.letterSpacing = '2px'; c.fillText(String(txt).toUpperCase(), x, y); }
   c.restore();
 }
@@ -245,10 +247,15 @@ const RULES = [
   [/split|break|shatter|scatter|destroy|ruin|perish|\btorn|cleave|burst|\bend\b|\bcollaps|\bdestruct/, 'split'],
   [/^\W*(and|but|so|then|for|from|in|on|with|by|of|upon|to|towards|that|if|indeed|surely|verily|what|which|it|he|she|you|i|his|her|their|your|my|our|this|these|those|such|as|at|into|out|over|under|between|against|about|than|or|so that|because)\b/, 'arrow']
 ];
+const CROWD_STRONG = /people|\bmen\b|mankind|nation|folk|believer|disbeliev|communit|\bparty\b|humans?\b|humanity|those who/;
+function glossOf(W) { return String(W.en || '').toLowerCase().replace(/\([^)]*\)/g, ' ').replace(/\[[^\]]*\]/g, ' ').replace(/[^a-z' -]+/g, ' ').replace(/\s+/g, ' ').trim(); }
 function motifFor(W, lem) {
-  if (lem && lem.m && MOTIF[lem.m]) return MOTIF[lem.m];
-  const g = String(W.en || '').toLowerCase().replace(/\([^)]*\)/g, ' ').replace(/[^a-z' ]+/g, ' ').replace(/\s+/g, ' ').trim();
-  for (const [re, m] of RULES) if (re.test(g)) return m;
+  const SG = window.FahmSig;
+  if (lem && lem.m && MOTIF[lem.m] && !(SG && MOTIF[lem.m] === 'arrow')) return MOTIF[lem.m];
+  const g = glossOf(W);
+  if (SG) { try { const m = SG.pre(W, g); if (m && AR[m]) return m; } catch (e) { } }
+  for (const [re, m] of RULES) { if (!re.test(g)) continue; if (SG && m === 'arrow') continue; if (SG && m === 'crowd' && !CROWD_STRONG.test(g)) continue; return m; }
+  if (SG) { try { const m = SG.post(W, g); if (m && AR[m]) return m; } catch (e) { } }
   return 'rosette';
 }
 
@@ -326,7 +333,8 @@ function dataFor(i) {
   if (m === 'rings') labs = u === 'ur' ? ['مالک', 'پرورش', 'سہارا'] : u === 'ru' ? ['Maalik', 'Parvarish', 'Sahaara'] : ['owns', 'nurtures', 'sustains'];
   if (m === 'orbits') labs = [(u === 'ur' ? 'نشانی' : u === 'ru' ? 'nishani' : 'a sign'), '', ''];
   if (m === 'crescent') labs = [rtl ? W.ar : tl, mm, ''];
-  return { W, m, mm, mc, rtl, tl, note, gram, labs, seed: hash(W.ar + (W.root || '')) };
+  let alt = 0; if (i > 0) { try { const W0 = A.words[i - 1]; if (motifFor(W0, specFor(W0, S_, A, i - 1)) === m) alt = 1; } catch (e) { } }
+  return { W, m, mm, mc, rtl, tl, note, gram, labs, alt, seed: hash(W.ar + (W.root || '')) };
 }
 
 function buildDom() {
@@ -408,7 +416,7 @@ function fillSheet() {
   const sameH = same.length ? `<div class="sh-sec">${esc(T.same)}</div><div class="sh-same">${same.map(o => `<button class="ar" data-pick="${o.k}">${esc(o.w2.ar)}</button>`).join('')}</div>` : '';
   const chips = `<div class="sh-chips">${gram ? `<span>${esc(gram)}</span>` : ''}<span>${esc(T.pos2)} ${nu(idx + 1)} ${esc(T.of)} ${nu(n)}</span><span>${esc(API.sName(S_)[0])} ${nu(S_.n)}:${nu(A.v)}</span></div>`;
   const note = d.note ? `<div class="sh-note ${d.rtl ? 'u' : ''}" ${d.rtl ? 'dir="rtl"' : ''}><em>${esc(T.note)}</em> ${esc(d.note)}</div>` : '';
-  let ij = ''; try { ij = window.FahmIjaz ? FahmIjaz.html(S_.n, A.v, W.ar, u, esc) : ''; } catch (er) { } try { if (window.FahmMiracle) ij += FahmMiracle.html(S_.n, A.v, W.ar, u, esc, W.root); } catch (er) { } try { if (window.FahmTajweed) ij += FahmTajweed.html(A.words, idx, u, esc); } catch (er) { }
+  let ij = ''; try { ij = window.FahmIjaz ? FahmIjaz.html(S_.n, A.v, W.ar, u, esc) : ''; } catch (er) { } try { if (window.FahmMiracle) ij += FahmMiracle.html(S_.n, A.v, W.ar, u, esc, W.root); } catch (er) { } try { if (window.FahmEjaz) ij += FahmEjaz.html(S_.n, A.v, W, u, esc); } catch (er) { } try { if (window.FahmTajweed) ij += FahmTajweed.html(A.words, idx, u, esc); } catch (er) { }
   const e = sheetEl();
   e.innerHTML = `<div class="sh-grab" data-ws="sx"></div><button class="sh-x" data-ws="sx" aria-label="Close"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
   <div class="sh-head"><div class="sh-ar ar">${esc(W.ar)}</div><div class="sh-tl">${rtlSafe(tl, u)}</div><div class="sh-mm ${d.rtl ? 'u' : ''}" ${d.rtl ? 'dir="rtl"' : ''}>${esc(d.mm)}</div></div>
@@ -426,9 +434,26 @@ function frame() {
   if (!drawMeta) { // intro / summary: calm rosette
     const P = { l: ['', '', ''], seed: 99, rtl: false }; try { backdrop(ctx, w, h, t, ease(t * .7), P); } catch (e) { } AR.rosette(ctx, w, h, t + 1, ease(t * .7), P); return;
   }
-  const P = { l: drawMeta.labs, seed: drawMeta.seed, rtl: drawMeta.rtl };
+  const P = { l: drawMeta.labs, seed: drawMeta.seed, rtl: drawMeta.rtl, W: drawMeta.W, g: glossOf(drawMeta.W) };
   try { backdrop(ctx, w, h, t, ease(t / 1.4), P); } catch (e) { }
-  (AR[drawMeta.m] || AR.rosette)(ctx, w, h, t, ease(t / 1.4), P);
+  drawWord(ctx, w, h, t, drawMeta, P, false);
+}
+function drawWord(c, w, h, t, d, P, small) {
+  const SG = window.FahmSig;
+  if (SG && SG.under) { try { SG.under(c, w, h, t, ease(t / 1.4), d, small); } catch (e) { } }
+  c.save(); if (d.alt) { c.translate(w, 0); c.scale(-1, 1); MIR = 1; }
+  try { (AR[d.m] || AR.rosette)(c, w, h, t, ease(t / 1.4), P); } catch (e) { try { AR.rosette(c, w, h, t, ease(t / 1.4), P); } catch (e2) { } }
+  MIR = 0; c.restore();
+  if (SG && SG.over) { try { SG.over(c, w, h, t, ease(t / 1.4), d, small); } catch (e) { } }
+}
+/* story / external: draw a word's unique visual into any canvas (no backdrop) */
+function renderWord(c, w, h, t, W, i, words) {
+  const st = API.st(), u = st.ui, lem = (window.FAHM_LEM || {})[API.lemKey(W.ar)] || null, m = motifFor(W, lem), mm = API.wordMeaning(W)[0], rtl = u === 'ur', tl = String(W.tl || '').replace(/'/g, '’');
+  let alt = 0; if (words && i > 0) { const W0 = words[i - 1]; if (motifFor(W0, (window.FAHM_LEM || {})[API.lemKey(W0.ar)] || null) === m) alt = 1; }
+  const d = { W, m, mm, rtl, tl, alt, seed: hash(W.ar + (W.root || '')) };
+  const P = { l: [rtl ? W.ar : tl, mm, ''], seed: d.seed, rtl, W, g: glossOf(W) };
+  drawWord(c, w, h, t, d, P, true);
+  return m;
 }
 function open(i) {
   buildDom(); isOpen = true; el.hidden = false; document.documentElement.classList.add('ws-on'); buildAyah(); sizeCv(); set(i == null ? -1 : i);
@@ -441,12 +466,13 @@ function updPlay() { if (!el) return; const p = API.isPlaying(); Q('#wsIcoP').st
 function miniInit(canvas) { try { const bx = canvas.parentElement; if (bx && !bx._tap) { bx._tap = 1; bx.addEventListener('click', e => { if (e.target.closest('button')) return; const f = document.getElementById('btnFull'); if (f) f.click(); setTimeout(() => { if (isOpen) showSheet(); }, 350); }); } } catch (er) { } mini = { cv: canvas, ctx: canvas.getContext('2d'), t0: performance.now(), d: null, raf: 0 }; }
 function miniSet(i) {
   if (!mini || !API) return; const { A } = API.cur(); if (i < 0 || i >= A.words.length) return; mini.d = dataFor(i); mini.t0 = performance.now();
-  if (!mini.raf) { const f = () => { mini.raf = requestAnimationFrame(f); const c = mini.cv; if (!c.offsetParent) return; const r = c.getBoundingClientRect(), dd = Math.min(2, devicePixelRatio || 1), w = Math.round(r.width * dd), h = Math.round(r.height * dd); if (c.width !== w || c.height !== h) { c.width = w; c.height = h; } const x = mini.ctx; x.setTransform(dd, 0, 0, dd, 0, 0); x.clearRect(0, 0, r.width, r.height); const t = (performance.now() - mini.t0) / 1000, d = mini.d; if (!d) return; (AR[d.m] || AR.rosette)(x, r.width, r.height, t, ease(t / 1.4), { l: ['', '', ''], seed: d.seed, rtl: d.rtl });}; mini.raf = requestAnimationFrame(f); }
+  if (!mini.raf) { const f = () => { mini.raf = requestAnimationFrame(f); const c = mini.cv; if (!c.offsetParent) return; const r = c.getBoundingClientRect(), dd = Math.min(2, devicePixelRatio || 1), w = Math.round(r.width * dd), h = Math.round(r.height * dd); if (c.width !== w || c.height !== h) { c.width = w; c.height = h; } const x = mini.ctx; x.setTransform(dd, 0, 0, dd, 0, 0); x.clearRect(0, 0, r.width, r.height); const t = (performance.now() - mini.t0) / 1000, d = mini.d; if (!d) return; drawWord(x, r.width, r.height, t, d, { l: ['', '', ''], seed: d.seed, rtl: d.rtl, W: d.W, g: glossOf(d.W) }, true);}; mini.raf = requestAnimationFrame(f); }
 }
 function miniInfo(i) { const d = dataFor(i); return { m: d.m, note: d.note || d.gram, meaning: d.mm, rtl: d.rtl }; }
 
 window.FahmWS = {
   init(api) { API = api; }, open, close, set(i, fromAudio) { if (isOpen) set(i); }, isOpen: () => isOpen, refresh(i) { if (isOpen) { buildAyah(); set(i == null ? -1 : i); } }, updPlay,
-  miniInit, miniSet, miniInfo, showSheet, hideSheet, archetypes: AR, motifFor
+  miniInit, miniSet, miniInfo, showSheet, hideSheet, archetypes: AR, motifFor, renderWord, glossOf, curWords() { try { return API.cur().A.words; } catch (e) { return null; } },
+  helpers: { glow, path, lab, leader, rgba, ease, lerp, rnd, hash, clamp, dotsArc }
 };
 })();

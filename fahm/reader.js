@@ -58,6 +58,9 @@ Object.assign(RS.en, { amt: 'How much', aq: '¼ Juz', ah: '½ Juz', at: '¾ Juz'
 Object.assign(RS.ur, { weak: 'کمزور آیات', weakNote: 'جن آیات میں غلطی یا اٹکن ہوئی وہ یہاں جمع ہوتی ہیں۔ تین بار صاف پڑھنے پر خود ہٹ جاتی ہیں۔', weakEmpty: 'ابھی کوئی کمزور آیت نہیں — ماشاءاللہ!', weakGo: 'یہاں سے شروع', weakOk: 'یاد ہو گئی', weakAll: 'سب کمزور آیات دہرائیں', weakN: 'بار', weakClr: 'فہرست صاف', weakPage: 'صفحہ کھولیں' });
 Object.assign(RS.ru, { weak: 'Kamzor ayaat', weakNote: 'Jin ayaat mein ghalti ya atkan hui woh yahan jama hoti hain. Teen baar saaf parhne par khud hat jati hain.', weakEmpty: 'Abhi koi kamzor ayat nahin — MashaAllah!', weakGo: 'Yahan se shuru', weakOk: 'Yaad ho gayi', weakAll: 'Sab kamzor ayaat dohrayein', weakN: 'baar', weakClr: 'Fehrist saaf', weakPage: 'Safha kholein' });
 Object.assign(RS.en, { weak: 'Weak verses', weakNote: 'Verses where you slipped or stalled collect here. Three clean recitations remove them automatically.', weakEmpty: 'No weak verses yet — MashaAllah!', weakGo: 'Start here', weakOk: 'Mastered', weakAll: 'Revise all weak verses', weakN: 'times', weakClr: 'Clear list', weakPage: 'Open page' });
+Object.assign(RS.ru, { trW: 'Kis alim ka tarjuma', trN: 'On karne par har ayat ke neeche uska tarjuma aata hai. Kisi ayat ko 1 second daba kar rakhein to woh ayat tarjume ke saath poori screen par khulegi.', fsPlay: 'Yeh ayat sunein' });
+Object.assign(RS.en, { trW: 'Whose translation', trN: 'When on, every ayah shows its translation underneath. Press and hold an ayah for a second to open it full screen with its translation.', fsPlay: 'Listen to this ayah' });
+Object.assign(RS.ur, { trW: 'کس عالم کا ترجمہ', trN: 'آن کرنے پر ہر آیت کے نیچے اس کا ترجمہ آتا ہے۔ کسی آیت کو ایک سیکنڈ دبا کر رکھیں تو وہ آیت ترجمے کے ساتھ پوری اسکرین پر کھلے گی۔', fsPlay: 'یہ آیت سنیں' });
 const R = k => (RS[A.st().ui] || RS.en)[k];
 let rau = new Audio(); rau.preload = 'auto';
 const rec = () => A.st().rec;
@@ -157,7 +160,7 @@ function sizePage() {
 }
 function fitHdr() { fitKit(); }
 function fit() {
-  const inner = $('#rin'); if (!inner || pi < 0) return; const rows = rowsOf();
+  const inner = $('#rin'); if (!inner || pi < 0) return; if ($('#rpage').classList.contains('trv')) { trvSize(); return; } const rows = rowsOf();
   const W = inner.clientWidth, Hh = inner.clientHeight, rowH = Hh / rows;
   let fs = rowH * 0.78; $('#rpage').style.setProperty('--fs', fs + 'px');
   for (let it = 0; it < 3; it++) {
@@ -290,7 +293,7 @@ const snU = sn => ((window.FAHM_SN && FAHM_SN.u[sn - 1]) || (M.n[sn] || '').repl
 /* surah banner: ONE kit box, three zones — ayat count | number + سورۃ NAME + makki/madani | ruku count */
 function bannerHtml(sn) {
   const S = M.meta.S[sn] || [0, 0, 1, 0], nm = (M.n[sn] || '').replace(/^\s*سُورَةُ\s*/, 'سُورَةُ ');
-  return `<div class="ml h"><div class="bnr"><div class="hx bs"><div class="in"><div class="l">آیاتھا</div><div class="v">${adx(S[0])}</div></div></div><div class="hx bc"><div class="in"><bdi class="pn" dir="ltr">(${adx(sn)})</bdi><span class="nm">${esc(nm)}</span><span class="mk2">${S[2] ? 'مَکِّیَّۃٌ' : 'مَدَنِیَّۃٌ'}</span><bdi class="pn" dir="ltr">(${adx(S[3])})</bdi></div></div><div class="hx bs"><div class="in"><div class="l">${S[1] > 1 ? 'رُکُوعَاتُھَا' : 'رُکُوعُھَا'}</div><div class="v">${adx(S[1])}</div></div></div></div></div>`;
+  return `<div class="ml h" data-sn="${sn}" role="button"><div class="bnr"><div class="hx bs"><div class="in"><div class="l">آیاتھا</div><div class="v">${adx(S[0])}</div></div></div><div class="hx bc"><div class="in"><bdi class="pn" dir="ltr">(${adx(sn)})</bdi><span class="nm">${esc(nm)}</span><span class="mk2">${S[2] ? 'مَکِّیَّۃٌ' : 'مَدَنِیَّۃٌ'}</span><bdi class="pn" dir="ltr">(${adx(S[3])})</bdi></div></div><div class="hx bs"><div class="in"><div class="l">${S[1] > 1 ? 'رُکُوعَاتُھَا' : 'رُکُوعُھَا'}</div><div class="v">${adx(S[1])}</div></div></div></div></div>`;
 }
 /* flourish beside the Bismillah: thin line that grows + small scroll with leaves + diamond (drawn here, original) */
 const FLO = '<span class="flo"><i class="ln"></i><svg viewBox="0 0 64 24" class="sc" aria-hidden="true"><path d="M0 12H20" /><path d="M20 12C28 12 30 5 37 5C44 5 45 12 40 14C36 16 33 12 36 10" /><path d="M20 12C27 12 29 19 36 19" /><path d="M36 19C42 19 46 16 50 12" /><path d="M32 8.5C30 5 27 4 24 5" /><path d="M32 15.5C30 19 27 20 24 19" /><path class="f" d="M54 12L58 8L62 12L58 16Z" /><circle class="f" cx="51" cy="12" r="1.3" /></svg></span>';
@@ -405,7 +408,7 @@ function renderCover() {
   bmUpd(); $('#rTitle').textContent = 'Fahmul Quraan'; $('#rPg').textContent = (ur ? ad(0) + ' / ' + ad(PG.length) : '0 / ' + PG.length);
 }
 /* ---------- Build 27: two-page spread for square / foldable screens (open Mushaf: odd page right, even page left) ---------- */
-function wantSpread() { const st = $('#rstage'); if (!st) return false; const m = A && A.st().rsp || 'auto', w = st.clientWidth, h = st.clientHeight || 1; if (m === 'off') return false; if (m === 'on') return w >= 420; return w >= 600 && w / h >= 0.78 && w / h <= 1.75; }
+function wantSpread() { const st = $('#rstage'); if (!st) return false; if (trvOn()) return false; const m = A && A.st().rsp || 'auto', w = st.clientWidth, h = st.clientHeight || 1; if (m === 'off') return false; if (m === 'on') return w >= 420; return w >= 600 && w / h >= 0.78 && w / h <= 1.75; }
 function syncSpread() { const was = spread; spread = wantSpread(); if (spread && pi > 0) pi -= pi % 2; return was !== spread; }
 function spDom(on) {
   const st = $('#rstage'); st.classList.toggle('sp', on); let c = st.querySelector('.spw2');
@@ -433,6 +436,7 @@ function renderPage0(anim) {
 }
 function renderOne() {
   const L = M.L[lay], lines = L.pages[PG[pi]];
+  $('#rpage').classList.toggle('trv', trvOn()); if (trvOn()) { renderTrv(lines); return; }
   const arch = +PG[pi] <= 2; let nE = lines.filter(ln => lineParts(ln).k !== 'e').length; archRows = arch ? nE : 0;
   let ln2 = lines.slice(), duaN = 0; if (!arch) { let t = ln2.length; while (t > 0 && lineParts(ln2[t - 1]).k === 'e') t--; if (ln2.length - t >= 2) { duaN = ln2.length - t; ln2 = ln2.slice(0, t); } }
   rowX = lines.reduce((q, ln) => { const k = lineParts(ln).k; return q + (k[0] === 'h' && k.length > 1 ? .75 : k === 'b' ? .32 : 0); }, 0); const rows = rowsOf();
@@ -464,7 +468,7 @@ const AD = '٠١٢٣٤٥٦٧٨٩', ad = n => String(n).replace(/\d/g, d => AD[d]
 const adx = n => String(n).replace(/\d/g, d => '۰۱۲۳۴۵۶۷۸۹'[d]);
 function paintState() {
   if (curAy && (playing || hz.on)) qa(curAy.s, curAy.a).forEach(e => e.classList.add('cur'));
-  if (hot) { const e = q(hot); if (e) { e.classList.add('hot'); if (!hz.on) trk(e); } }
+  if (hot) { const e = q(hot); if (e) { e.classList.add('hot'); if (!hz.on) { trk(e); trvScroll(e); } } }
   if (hz.on && hz.tr) markNext(); else if (!hot) trk(null);
 }
 /* ---------- real page turn: old page lifts around the spine (3D) + paper sound ---------- */
@@ -537,6 +541,8 @@ function ayWords(s, a) { const ai = AYI[s + ':' + a]; return ai === undefined ? 
 function startTick() {
   clearInterval(tickT);
   tickT = setInterval(() => {
+    if (seqOn && rau.duration && !rau.paused && rau._sil && !rau._fired) { const sl = rau._sil, endS = sl.dur - sl.trail; if (endS > .5 && rau.currentTime >= endS + .12) { rau._fired = 1; const f = rau.onended; if (f) f(); return; } }
+    if (inBism) return;
     if (!curAy || !rau.duration || rau.paused) return;
     const ws = ayWords(curAy.s, curAy.a); if (!ws.length) return;
     const tot = ws.reduce((x, y) => x + y.wt, 0), lead = Math.min(.18, rau.duration * .04), tail = Math.min(.3, rau.duration * .05), t = Math.max(0, Math.min(1, (rau.currentTime - lead) / Math.max(.5, rau.duration - lead - tail))) * tot;
@@ -546,30 +552,61 @@ function startTick() {
   }, 50);
 }
 function setPlaying(p) { playing = p; if (p) wakeOn(); else if (!hz.on) wakeOff(); $('#rIcoP').style.display = p ? 'none' : ''; $('#rIcoS').style.display = p ? '' : 'none'; bgSync(p); if (p) mediaSess(); try { trSync(); } catch (e) { } }
-function stopAudio() { stopMine(); stopCorr(); try { stopWordAu(); } catch (e) { } try { speechSynthesis.cancel(); } catch (e) { } seqOn = false; rau.onended = null; rau.onerror = null; try { rau.pause(); } catch (e) { } clearInterval(tickT); setPlaying(false); clearHl(); document.querySelectorAll('#rpage .rev').forEach(e => e.classList.remove('rev')); hot = null; }
+function stopAudio() { inBism = false; stopMine(); stopCorr(); try { stopWordAu(); } catch (e) { } try { speechSynthesis.cancel(); } catch (e) { } seqOn = false; rau.onended = null; rau.onerror = null; try { rau.pause(); } catch (e) { } clearInterval(tickT); setPlaying(false); clearHl(); document.querySelectorAll('#rpage .rev').forEach(e => e.classList.remove('rev')); hot = null; }
 let seqEnd = -1, seqFrom = 0, seqLeft = 1;
 function playRange(fi, ti, reps) { stopAudio(); seqEnd = ti; seqFrom = fi; seqLeft = Math.max(1, reps || 1); playSeq(fi, true); }
 /* Build 30: pause keeps the exact spot. Resume within 60 s continues from that second; after a longer break the ayah starts again from its beginning */
 let pausedSt = null; const RESUME_MS = 60000;
 function pausePlay() { if (!seqOn || !curAy || !rau.src) { stopAudio(); return; } const ai = AYI[curAy.s + ':' + curAy.a]; pausedSt = ai == null ? null : { ai, t: rau.currentTime || 0, at: Date.now(), end: seqEnd, from: seqFrom, left: seqLeft }; stopAudio(); }
 function takeResume(ai) { const p = pausedSt; pausedSt = null; if (!p || p.ai !== ai) return 0; if (Date.now() - p.at > RESUME_MS) return 0; seqEnd = p.end; seqFrom = p.from; seqLeft = p.left; return p.t > .3 ? Math.max(0, p.t - .15) : 0; }
-function playSeq(ai, keep, resumeT) {
+/* Build 31: one unbroken flow like the original recording — each ayah's silent tail is measured (decoded once) and the next,
+   already-downloaded ayah starts the moment the voice ends, keeping only a natural breath. A new surah begins with Bismillah. */
+const SIL = {}; let inBism = false;
+function ayaSil(url) {
+  if (SIL[url]) return SIL[url];
+  const Ctx = window.OfflineAudioContext || window.webkitOfflineAudioContext; if (!Ctx || !window.fetch) return Promise.resolve(null);
+  SIL[url] = fetch(url).then(r => r.ok ? r.arrayBuffer() : null).then(ab => ab ? new Ctx(1, 1, 22050).decodeAudioData(ab) : null).then(b => {
+    if (!b) return null; const d = b.getChannelData(0), sr = b.sampleRate, win = Math.floor(sr * .02), th = .012;
+    const rms = st => { let m = 0, n = 0; for (let k = st; k < st + win && k < d.length; k++) { m += d[k] * d[k]; n++; } return Math.sqrt(m / Math.max(1, n)); };
+    let i0 = 0, i1 = d.length; for (let st = 0; st < d.length; st += win) if (rms(st) > th) { i0 = st; break; }
+    for (let st = d.length - win; st > 0; st -= win) if (rms(st) > th) { i1 = st + win; break; }
+    return { lead: i0 / sr, trail: Math.max(0, (d.length - i1) / sr), dur: d.length / sr };
+  }).catch(() => null);
+  const ks = Object.keys(SIL); if (ks.length > 40) delete SIL[ks[0]];
+  return SIL[url];
+}
+const BISM_URL = () => auUrl(1, 1);
+const needBism = y => y && y.a === 1 && y.s !== 1 && y.s !== 9;
+function attachSil(el, url) { el._sil = null; el._fired = 0; ayaSil(url).then(sl => { if (sl && el.src && el.src.indexOf(url.split('/').pop()) >= 0) el._sil = sl; }); }
+function playSeq(ai, keep, resumeT, noBism) {
   if (!resumeT) pausedSt = null; if (!keep) seqEnd = -1;
   if (seqEnd >= 0 && ai > seqEnd) { if (seqLeft > 1) { seqLeft--; ai = seqFrom; } else { seqEnd = -1; stopAudio(); return; } }
   if (ai >= AY.length) { stopAudio(); return; }
   seqOn = true; const y = AY[ai]; setCur(y.s, y.a); setPlaying(true);
+  if (needBism(y) && !noBism && !(resumeT > 0)) { playBism(ai); return; }
+  inBism = false;
   /* Build 30: gapless — the NEXT ayah is already downloaded in a second audio element; at the end of an ayah we just switch to it, so the recitation never breaks off or stutters between ayahs */
   const url = auUrl(y.s, y.a), swap = preEl && preUrl === url && !(resumeT > 0);
   if (swap) { const old = rau; old.onended = null; old.onerror = null; try { old.pause(); } catch (e) { } rau = preEl; preEl = null; preUrl = ''; }
   rau.onerror = () => { stopAudio(); A.toast(R('audioErr')); };
-  rau.onended = () => { if (seqOn) playSeq(ai + 1, true); };
-  if (!swap) rau.src = url; setRate(rau, 1);
+  rau.onended = () => { if (!seqOn) return; rau.onended = null; playSeq(ai + 1, true); };
+  if (!swap) rau.src = url; setRate(rau, 1); attachSil(rau, url);
+  if (swap && !(resumeT > 0)) { const sl = SIL[url]; if (sl && sl.then) sl.then(v => { if (v && rau.currentTime < .05 && v.lead > .25) try { rau.currentTime = v.lead - .2; } catch (e) { } }); }
   if (resumeT > 0) { let tr = 0; const seekTo = () => { if (Math.abs(rau.currentTime - resumeT) > .4 && tr++ < 6) { try { rau.currentTime = Math.min(resumeT, Math.max(0, (rau.duration || resumeT + 1) - .2)); } catch (e) { } } }; ['loadedmetadata', 'loadeddata', 'canplay', 'playing', 'progress'].forEach(ev => rau.addEventListener(ev, seekTo, { once: true })); }
   const pr = rau.play(); if (pr && pr.catch) pr.catch(() => { stopAudio(); A.toast(R('audioErr')); });
   startTick(); preloadNext(ai);
 }
 let preEl = null, preUrl = '';
-function preloadNext(ai) { try { const n = AY[ai + 1]; if (!n) return; const u = auUrl(n.s, n.a); if (preUrl === u) return; preEl = new Audio(); preEl.preload = 'auto'; preEl.src = u; preUrl = u; preEl.load(); } catch (e) { preEl = null; preUrl = ''; } }
+function preloadNext(ai) { try { const n = AY[ai + 1]; if (!n) return; const u = needBism(n) ? BISM_URL() : auUrl(n.s, n.a); ayaSil(u); if (preUrl === u) return; preEl = new Audio(); preEl.preload = 'auto'; preEl.src = u; preUrl = u; preEl.load(); } catch (e) { preEl = null; preUrl = ''; } }
+function playBism(ai) {
+  const url = BISM_URL(), swap = preEl && preUrl === url; inBism = true; clearHl();
+  if (swap) { const old = rau; old.onended = null; old.onerror = null; try { old.pause(); } catch (e) { } rau = preEl; preEl = null; preUrl = ''; }
+  rau.onerror = () => { inBism = false; if (seqOn) playSeq(ai, true, 0, true); };
+  rau.onended = () => { if (!seqOn) return; rau.onended = null; inBism = false; playSeq(ai, true, 0, true); };
+  if (!swap) rau.src = url; setRate(rau, 1); attachSil(rau, url);
+  const pr = rau.play(); if (pr && pr.catch) pr.catch(() => { inBism = false; stopAudio(); A.toast(R('audioErr')); });
+  startTick(); try { const y = AY[ai], u2 = auUrl(y.s, y.a); ayaSil(u2); if (preUrl !== u2) { preEl = new Audio(); preEl.preload = 'auto'; preEl.src = u2; preUrl = u2; preEl.load(); } } catch (e) { }
+}
 /* play one ayah, then call cb (used by Hafiz mode) */
 function playOnce(s, a, reveal, cb) {
   seqOn = false; rev = reveal; setCur(s, a); if (reveal) qa(s, a).forEach(x => x.classList.add('rev'));
@@ -660,7 +697,56 @@ function wMean(w) {
 }
 /* Build 30: translation strip under the page (reading mode). Follows the playing / tapped ayah, else the first ayah on the page. */
 const _trC = {};
-function trCode() { const tl = (A.st().tl || []).filter(c => c !== 'ar'); return tl[0] || (A.st().ui === 'en' ? 'en' : 'ur'); }
+/* ---------- Build 31: translation-Quran view — every ayah with its own one-line translation underneath (reader's choice of scholar) ---------- */
+const TRC = ['ur', 'urj', 'urm', 'urh', 'urk', 'urq', 'urg', 'urn', 'urz', 'rur', 'en', 'hi', 'bn', 'fa', 'id', 'ms', 'tr', 'fr', 'de', 'es', 'ru', 'ta', 'so', 'sw'];
+let LNG = null; fetch('q/langs.json').then(r => r.json()).then(j => { LNG = {}; j.forEach(o => LNG[o.c] = o.label || o.n); }).catch(() => { });
+function trOpts() { const cur = trCode(); return TRC.map(c => `<option value="${c}" ${c === cur ? 'selected' : ''}>${esc((LNG && LNG[c]) || c)}</option>`).join(''); }
+function trvOn() { try { return A.st().rtr === 'on' && !hz.on && pi >= 0; } catch (e) { return false; } }
+function trvSize() { const p = $('#rpage'), st = $('#rstage'); if (!p || !st) return; p.style.height = Math.max(240, st.clientHeight - 16) + 'px'; const w = p.clientWidth || 360; p.style.setProperty('--fs', Math.max(24, Math.min(36, w / 12)).toFixed(1) + 'px'); p.style.setProperty('--rh', '46px'); p.style.setProperty('--hb', '42px'); }
+function trvScroll(e) { if (!e || !$('#rpage').classList.contains('trv')) return; const g = e.closest('.tva'); if (!g) return; const box = $('#rin'), r = g.getBoundingClientRect(), b = box.getBoundingClientRect(); if (r.top < b.top + 8 || r.bottom > b.bottom - 8) { try { g.scrollIntoView({ block: 'center', behavior: 'smooth' }); } catch (er) { } } }
+function renderTrv(lines) {
+  const p0 = $('#rpage'); p0.classList.remove('cover', 'arch'); archRows = 0; rowX = 0;
+  let h = '', grp = [], gs = null; const code = trCode(), rtl = code.startsWith('ur') || code === 'fa';
+  const close = fin => { if (!grp.length) return; h += `<div class="tva" data-ay="${gs}"><div class="tvx">${grp.join('')}</div>${fin ? `<div class="tvt" data-tr="${gs}" dir="${rtl ? 'rtl' : 'ltr'}"><span></span></div>` : `<div class="tvc">…</div>`}</div>`; grp = []; gs = null; };
+  lines.forEach(ln => {
+    const { k, a, b } = lineParts(ln);
+    if (k === 'e') return;
+    if (k === 'b') { close(false); h += `<div class="ml b tvb"><div class="hx bw"><div class="in"><span class="bt">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</span></div></div></div>`; return; }
+    if (k[0] === 'h') { close(false); h += bannerHtml(+k.slice(1)); return; }
+    rangeLocs(a, b).forEach(x => { const key = x.s + ':' + x.a; if (gs && gs !== key) close(false); gs = key; grp.push(wordHtml(x)); if (isMk(x.t)) close(true); });
+  });
+  close(false);
+  $('#rin').innerHTML = `<div class="tvw">${h}</div>`; $('#rin').scrollTop = 0;
+  { ornSets(); const f0 = lines.map(lineParts).find(x => x.a); const mz = f0 ? manzilOfAi(AYI[f0.a.split(':').slice(0, 2).join(':')]) : 0; $('#rpn').innerHTML = mz ? `<div class="mzt">منزل ${adx(mz)}</div>` : ''; $('#rhd').innerHTML = headerHtml(lines); }
+  sizePage(); trvSize(); bmUpd(); applyHl();
+  const ur = A.st().ui === 'ur';
+  $('#rin').querySelectorAll('.tvt[data-tr]').forEach(el => { const [s1, a1] = el.dataset.tr.split(':').map(Number); trGet(s1, a1, code).then(t => { const sp = el.querySelector('span'); if (sp) sp.textContent = t || ''; }); });
+}
+/* touch & hold an ayah (about one second) → that ayah full screen with its translation */
+function ayWordsText(s, a) {
+  const ai = AYI[s + ':' + a]; if (ai == null) return ''; const y = AY[ai], p0 = LP[SC[y.first].loc], p1 = LP[SC[y.last].loc], out = [];
+  for (let i = p0; i <= p1; i++) M.L[lay].pages[PG[i]].forEach(ln => { const { k, a: x0, b: x1 } = lineParts(ln); if (k === 't' || k === 'c' || /^[0-9a-zA-Z]$/.test(k)) { try { rangeLocs(x0, x1).forEach(x => { if (x.s === s && x.a === a) out.push(x.t); }); } catch (e) { } } });
+  return out.join(' ');
+}
+let lpT = 0, lpFired = false, lpXY = null;
+function ayFull(s, a) {
+  let o = $('#rfs'); if (!o) { o = document.createElement('div'); o.id = 'rfs'; document.body.appendChild(o); o.addEventListener('click', e => { if (e.target.closest('[data-fsx]') || e.target === o) { o.classList.remove('on'); setTimeout(() => { o.hidden = true; }, 220); } else if (e.target.closest('[data-fsp]')) { const ai = AYI[o.dataset.ay]; o.classList.remove('on'); o.hidden = true; if (ai != null) { stopAudio(); playRange(ai, ai, 1); } } }); }
+  const code = trCode(), rtl = code.startsWith('ur') || code === 'fa', ur = A.st().ui === 'ur';
+  o.dataset.ay = s + ':' + a; o.hidden = false;
+  o.innerHTML = `<div class="fs-in"><div class="fs-top"><b>${esc(surahName(s))} · ${ur ? ad(a) : a}</b><button class="ib" data-fsx="1" aria-label="close">✕</button></div><div class="fs-ar" dir="rtl">${esc(ayWordsText(s, a))}</div><div class="fs-tr" dir="${rtl ? 'rtl' : 'ltr'}"></div><small class="fs-by">${esc((LNG && LNG[code]) || '')}</small><button class="fs-play" data-fsp="1">▶ ${esc(R('fsPlay'))}</button></div>`;
+  trGet(s, a, code).then(t => { const e = o.querySelector('.fs-tr'); if (e && o.dataset.ay === s + ':' + a) e.textContent = t || ''; });
+  requestAnimationFrame(() => o.classList.add('on'));
+}
+function lpInit() {
+  const st = $('#rstage'); if (!st || st._lp) return; st._lp = 1;
+  const cancel = () => { clearTimeout(lpT); lpT = 0; };
+  st.addEventListener('pointerdown', e => { if (hz.on) return; const w = e.target.closest('.wd'); if (!w || !w.dataset.loc) return; lpXY = [e.clientX, e.clientY]; cancel(); lpT = setTimeout(() => { lpT = 0; lpFired = true; const [s1, a1] = w.dataset.loc.split(':').map(Number); try { navigator.vibrate && navigator.vibrate(18); } catch (er) { } ayFull(s1, a1); }, 850); });
+  st.addEventListener('pointermove', e => { if (lpT && lpXY && Math.hypot(e.clientX - lpXY[0], e.clientY - lpXY[1]) > 12) cancel(); });
+  ['pointerup', 'pointercancel', 'pointerleave'].forEach(ev => st.addEventListener(ev, cancel));
+  st.addEventListener('click', e => { if (lpFired) { lpFired = false; e.stopImmediatePropagation(); e.preventDefault(); } }, true);
+  st.addEventListener('contextmenu', e => { if (e.target.closest('.wd')) e.preventDefault(); });
+}
+function trCode() { if (A.st().rtrc) return A.st().rtrc; const tl = (A.st().tl || []).filter(c => c !== 'ar'); return tl[0] || (A.st().ui === 'en' ? 'en' : 'ur'); }
 function trGet(sn, a, code) {
   const k = code + sn;
   if (!_trC[k]) _trC[k] = fetch('q/t/' + code + '/' + String(sn).padStart(3, '0') + '.json').then(r => r.json()).catch(() => { delete _trC[k]; return null; });
@@ -668,7 +754,7 @@ function trGet(sn, a, code) {
 }
 function trReflow() { setTimeout(() => { try { if (open) { if (wantSpread() !== spread) renderPage(false); else reflow(); } } catch (e) { } }, 30); }
 function trSync(force) {
-  const rd = $('#reader'); if (!rd) return; let el = $('#rtrn'); const want = A.st().rtr === 'on' && !hz.on;
+  const rd = $('#reader'); if (!rd) return; let el = $('#rtrn'); const want = false;
   if (!want) { if (el && !el.hidden) { el.hidden = true; trReflow(); } return; }
   if (!el) { el = document.createElement('div'); el.id = 'rtrn'; el.innerHTML = '<b class="tr-ref"></b><p class="tr-tx"></p>'; const stg = $('#rstage'); stg.parentNode.insertBefore(el, stg.nextSibling); }
   let ay = null;
@@ -1354,7 +1440,7 @@ function popLayout() {
   const recs = (window.FAHM_RECS || []).map(r => `<option value="${esc(r[0])}" ${r[0] === rec() ? 'selected' : ''}>${esc(st.ui === 'ur' ? r[2] : r[1])}</option>`).join('');
   $('#rpop').innerHTML = `<h4>${esc(R('layout'))}</h4>` + ['15', '13q', '13t'].map(k => row(k, R('lay' + k), lay === k)).join('') +
     `<div class="pr"><span>${esc(R('spL'))}</span>${sw('rsp', 'auto', R('spA'), !st.rsp || st.rsp === 'auto')}${sw('rsp', 'on', R('spOn'), st.rsp === 'on')}${sw('rsp', 'off', R('spOff'), st.rsp === 'off')}</div>` +
-    `<div class="pr"><span>${esc(R('trL'))}</span>${sw('rtr', 'on', R('on'), st.rtr === 'on')}${sw('rtr', 'off', R('off'), st.rtr !== 'on')}</div><div class="pr"><small>${esc(R('trN'))}</small></div>` +
+    `<div class="pr"><span>${esc(R('trL'))}</span>${sw('rtr', 'on', R('on'), st.rtr === 'on')}${sw('rtr', 'off', R('off'), st.rtr !== 'on')}</div>` + (st.rtr === 'on' ? `<div class="pr"><span>${esc(R('trW'))}</span><select id="rTrc" class="sel">${trOpts()}</select></div>` : '') + `<div class="pr"><small>${esc(R('trN'))}</small></div>` +
     `<div class="pr"><span>${esc(R('dmL'))}</span>${sw('rflip', 'curl', R('dmC'), (st.rflip || 'curl') === 'curl')}${sw('rflip', 'slide', R('dmS'), st.rflip === 'slide')}${sw('rflip', 'off', R('dmI'), st.rflip === 'off')}</div>` +
     `<div class="pr"><span>${esc(R('thL'))}</span>${sw('rtheme', 'dark', R('thD'), !light)}${sw('rtheme', 'light', R('thLt'), light)}</div>` +
     `<div class="pr"><span>${esc(R('qrL'))}</span><select id="rQ" class="sel">${recs}</select></div>` +
@@ -1583,7 +1669,7 @@ function init(api) {
     if (e.target.closest('[data-hres]')) { if (snapGet()) { hzResumeSnap(); return; } const st = A.st(), la = st.hlast, pl = Object.assign({}, planDefault()); const fi = AYI[la.s + ':' + la.a]; let ti = AYI[pl.ts + ':' + pl.ta]; if (ti < fi) { let j = fi; while (j + 1 < AY.length && AY[j + 1].s === la.s) j++; ti = j; } const y = AY[fi], z = AY[ti]; hzStart(fi, { fs: y.s, fa: y.a, ts: z.s, ta: z.a, reps: pl.reps || 1 }); return; }
     if (e.target.closest('[data-hgo]')) { hzStart(null, readPlan2()); return; }
     if (e.target.closest('[data-rgopen]')) { popRange(); return; }
-    const rkb = e.target.closest('[data-rk]'); if (rkb) { const st = A.st(), k2 = rkb.dataset.rk, v2 = rkb.dataset.rv; if (k2 === 'rtheme') { const tb = document.getElementById('btnTheme'); if (tb && (v2 === 'light') !== document.body.classList.contains('light')) tb.click(); setTimeout(popLayout, 150); return; } st[k2] = v2; A.save(); if (k2 === 'rhl') applyHl(); if (k2 === 'rsp') { renderPage(false); } if (k2 === 'rtr') trSync(true); if (k2 === 'rbg' && v2 === 'off') bgSync(false); else if (k2 === 'rbg' && playing) bgSync(true); popLayout(); return; }
+    const rkb = e.target.closest('[data-rk]'); if (rkb) { const st = A.st(), k2 = rkb.dataset.rk, v2 = rkb.dataset.rv; if (k2 === 'rtheme') { const tb = document.getElementById('btnTheme'); if (tb && (v2 === 'light') !== document.body.classList.contains('light')) tb.click(); setTimeout(popLayout, 150); return; } st[k2] = v2; A.save(); if (k2 === 'rhl') applyHl(); if (k2 === 'rsp') { renderPage(false); } if (k2 === 'rtr') { renderPage(false); popLayout(); } if (k2 === 'rbg' && v2 === 'off') bgSync(false); else if (k2 === 'rbg' && playing) bgSync(true); popLayout(); return; }
     if (e.target.closest('[data-bmadd]')) { let L = bmLoad(); if (bmHere().length) L = L.filter(b => bmPage(b) !== pi); else { const y = bmFirstAy(); if (y) L.push({ s: y.s, a: y.a, t: Date.now() }); } bmSave(L); bmUpd(); popBm(); return; }
     const bg = e.target.closest('[data-bmgo]'); if (bg) { const b = bmLoad()[+bg.dataset.bmgo]; if (b) { popClose(); goPage(bmPage(b)); } return; }
     const bx = e.target.closest('[data-bmx]'); if (bx) { const L = bmLoad(); L.splice(+bx.dataset.bmx, 1); bmSave(L); bmUpd(); popBm(); return; }
@@ -1597,6 +1683,7 @@ function init(api) {
   $('#rpop').addEventListener('change', e => {
     const id0 = e.target.id;
     if (id0 === 'rQ') { A.st().rec = $('#rQ').value; A.save(); A.toast(recName(A.st().rec)); return; }
+    if (id0 === 'rTrc') { A.st().rtrc = $('#rTrc').value; A.save(); renderPage(false); return; }
     if (id0 === 'rkJ' || id0 === 'rkF' || id0 === 'rkT') { const j = +$('#rkJ').value, n = rukuList(j).length; let f = id0 === 'rkJ' ? 1 : +$('#rkF').value, t = id0 === 'rkJ' ? n : +$('#rkT').value; if (id0 === 'rkF' && t < f) t = f; if (id0 === 'rkT' && t < f) f = t; applyRuku(j, f, t); popSetup(); return; }
     if (id0 === 'tJ') { if (e.target.value) { const j = +e.target.value, pl = Object.assign({}, planDefault()), a = juzStartAi(j); pl.fs = AY[a].s; pl.fa = AY[a].a; const z = AY[pl.amt ? endForAmt(a, pl.amt) : juzRange(j)[1]]; pl.ts = z.s; pl.ta = z.a; A.st().hplan = pl; A.save(); popSetup(); } return; }
     if (id0 === 'rgS1' || id0 === 'rgS2') { const s0 = +e.target.value, sel = $(id0 === 'rgS1' ? '#rgA1' : '#rgA2'); sel.innerHTML = AY.filter(y => y.s === s0).map(y => `<option value="${y.a}">${A.st().ui === 'ur' ? ad(y.a) : y.a}</option>`).join(''); if (id0 === 'rgS2') sel.selectedIndex = sel.options.length - 1; return; }
@@ -1610,9 +1697,11 @@ function init(api) {
     if (id === 'ttS' || id === 'ttA') pl.amt = 0;
     A.st().hplan = pl; A.save(); if (id === 'ttS' || id === 'ttA') popSetup();
   });
+  lpInit();
   $('#rstage').addEventListener('click', e => {
     if (!e.target.closest('#rin')) return;
     const rbx = e.target.closest('.rb'); if (rbx) { const [lb, no] = rbx.dataset.rb.split('|'), ur = A.st().ui === 'ur', nm = { 'جزء': ['پارے کا آغاز', 'Para ka aaghaz', 'Start of a Juz'], 'حزب': ['حزب کا آغاز', 'Hizb ka aaghaz', 'Start of a Hizb'], 'ربع': ['ربع الحزب (چوتھائی)', 'Rub-ul-Hizb (chauthaai)', 'Quarter of the Hizb'], 'نصف': ['نصف الحزب (آدھا)', 'Nisf-ul-Hizb (aadha)', 'Half of the Hizb'], 'ثلثة': ['ثلاثة أرباع الحزب (تین چوتھائی)', 'Salaasatu arbaa (teen chauthaai)', 'Three quarters of the Hizb'] }[lb], ix = ur ? 0 : (A.st().ui === 'ru' ? 1 : 2), q = +no - 1, hz2 = Math.floor(q / 4) + 1, jz2 = Math.floor(q / 8) + 1; A.toast(nm[ix] + ' · ' + (ix === 0 ? 'حزب ' : ix === 1 ? 'Hizb ' : 'Hizb ') + (ur ? ad(hz2) : hz2) + ' · ' + (ix === 0 ? 'پارہ ' : 'Juz ') + (ur ? ad(jz2) : jz2), 4200); return; }
+    { const bn = e.target.closest('.ml.h[data-sn]'); if (bn && !hz.on) { popClose(); const ai0 = AYI[bn.dataset.sn + ':1']; if (ai0 != null) { stopAudio(); playSeq(ai0); } return; } }
     popClose(); const w = e.target.closest('.wd'); if (!w) return; const [s, a] = w.dataset.loc.split(':').map(Number); const ai = AYI[s + ':' + a]; if (ai == null) return;
     if (hz.on) { if (!hz.busy && ai >= hz.fi && ai <= hz.ti) { hz.tr.setPos(AY[ai].first); clearAyahMarks(ai); markNext(); savePos(ai); hz.lastAct = Date.now() + 1500; hzStatus('listen'); } return; }
     stopAudio(); playSeq(ai);

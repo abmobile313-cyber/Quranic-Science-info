@@ -109,8 +109,18 @@
     try { lab.to(ch, z, 700, 'a'); } catch (e) { } say(ch);
   }
 
+  /* Build 31: Quranic Science Tajweed course promo under the lab */
+  const PROMO = {
+    ur: { k: 'کورس · Quranic Science', h: 'صرف دیکھنا کافی نہیں — اُستاد کے ساتھ سیکھیں', p: 'ہمارے تجوید + عربی کمبو کورس میں ہر حرف کی صحیح ادائیگی لائیو کلاس میں سیکھیں، اور ساتھ میں قرآن کی عربی سمجھنا بھی۔ دونوں کورس ایک ساتھ، خاص قیمت پر۔', b: 'تجوید + عربی کمبو دیکھیں', sfx: '-ur' },
+    ru: { k: 'Course · Quranic Science', h: 'Sirf dekhna kaafi nahin — ustad ke saath seekhein', p: 'Hamare Tajweed + Arabic Combo course mein har harf ki sahi adaigi live class mein seekhein, aur saath mein Quran ki Arabi samajhna bhi. Dono course ek saath, khaas qeemat par.', b: 'Tajweed + Arabic Combo dekhein', sfx: '-ur' },
+    en: { k: 'Course · Quranic Science', h: 'Seeing is not enough — learn it with a teacher', p: 'In our Tajweed + Arabic Combo you practise the exact sound of every letter in live classes, and learn to understand the Arabic of the Quran too. Both courses together at a special price.', b: 'See the Tajweed + Arabic Combo', sfx: '' }
+  };
+  function promo() {
+    const box = root.querySelector('.mk-promo'); if (!box) return; const L = lang(), P = PROMO[L] || PROMO.ru, rtl = L === 'ur';
+    box.innerHTML = `<div class="mkp-in" ${rtl ? 'dir="rtl"' : ''}><div class="mkp-k">${P.k}</div><div class="mkp-ar ar">تَجْوِيد</div><b class="mkp-h">${P.h}</b><p class="mkp-p">${P.p}</p><a class="mkp-b" href="https://quranicscience.info/course-tajweed-arabic-combo${P.sfx}.html" target="_blank" rel="noopener">${P.b} <span aria-hidden="true">${rtl ? '←' : '→'}</span></a><small class="mkp-w">quranicscience.info</small></div>`;
+  }
   function render() {
-    const T = tx(), L = lang(), a = AREAS[cur];
+    const T = tx(), L = lang(), a = AREAS[cur]; promo();
     root.querySelector('.mk-t').textContent = T.t; root.querySelector('.mk-sub').textContent = T.sub;
     root.querySelector('.mk-bk').setAttribute('aria-label', T.back);
     const tabs = root.querySelector('.mk-tabs'); tabs.innerHTML = '';
@@ -135,7 +145,7 @@
   function build() {
     if (built) return; built = true;
     root = el('div'); root.id = 'mkh'; root.hidden = true;
-    root.innerHTML = '<div class="mk-top"><button class="mk-bk ib" aria-label="Back"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button><div class="mk-hd"><b class="mk-t"></b><small class="mk-sub"></small></div></div><div class="mk-tabs"></div><div class="mk-body"><div class="mk-dg"></div><h4 class="mk-an"></h4><div class="mk-list"></div></div>';
+    root.innerHTML = '<div class="mk-top"><button class="mk-bk ib" aria-label="Back"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button><div class="mk-hd"><b class="mk-t"></b><small class="mk-sub"></small></div></div><div class="mk-tabs"></div><div class="mk-body"><div class="mk-dg"></div><h4 class="mk-an"></h4><div class="mk-list"></div><div class="mk-promo"></div></div>';
     document.body.appendChild(root);
     root.querySelector('.mk-bk').onclick = close;
   }
