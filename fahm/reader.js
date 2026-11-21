@@ -141,31 +141,25 @@ function popGoto() {
 /* ---------- rendering ---------- */
 function ratio() { const st = $('#rstage'); const r = (st.clientWidth - 16) / Math.max(1, st.clientHeight - 16); return r > 1.1 ? 0.66 : Math.max(0.56, Math.min(0.7, r)); }
 let archRows = 0;
-function rowsOf() { return archRows || (lay === '15' ? 15 : 13); }
+let rowX = 0;
+function rowsOf() { return (archRows || (lay === '15' ? 15 : 13)) + rowX; }
 function sizePage() {
   const st = $('#rstage'), z = A.st().rz || 1, sw = st.clientWidth - 16, sh = st.clientHeight - 16, r = ratio();
   const w = sw > sh * 1.1 ? Math.max(200, Math.min(sw, 640)) * z : Math.max(200, Math.min(sw, sh * r)) * z;   /* landscape: full-width page, scroll down */ const p = $('#rpage'); p.style.width = w + 'px'; p.style.height = (w / r) + 'px'; p.style.setProperty('--pw', w + 'px'); drawFrame(w, w / r); fitHdr();
 }
-/* header text always sits fully inside its compartment (long double-surah names shrink to fit) */
-function fitHdr() {
-  document.querySelectorAll('#rhd span').forEach(e => {
-    e.style.removeProperty('font-size'); const cw = e.clientWidth; if (!cw) return;
-    const nat = () => { const r = document.createRange(); r.selectNodeContents(e); return r.getBoundingClientRect().width; };
-    const pad = Math.max(3, cw * .1); for (let i = 0; i < 8 && nat() > cw - pad; i++) { const fs = parseFloat(getComputedStyle(e).fontSize) || 14; e.style.setProperty('font-size', Math.max(5, fs * Math.min(.97, (cw - pad - 1) / nat())) + 'px', 'important'); }
-  });
-}
+function fitHdr() { fitKit(); }
 function fit() {
   const inner = $('#rin'); if (!inner || pi < 0) return; const rows = rowsOf();
   const W = inner.clientWidth, Hh = inner.clientHeight, rowH = Hh / rows;
   let fs = rowH * 0.78; $('#rpage').style.setProperty('--fs', fs + 'px');
   for (let it = 0; it < 3; it++) {
     let need = 0;
-    inner.querySelectorAll('.ml:not(.e):not(.h)').forEach(l => {
+    inner.querySelectorAll('.ml:not(.e):not(.h):not(.b):not(.dua)').forEach(l => {
       let s = 0; const ch = l.children; for (let i = 0; i < ch.length; i++) s += ch[i].offsetWidth; const gp = parseFloat(getComputedStyle(l).columnGap); s += Math.max(0, ch.length - 1) * (isNaN(gp) ? fs * 0.1 : gp); if (s > need) need = s;
     });
     if (!need) break; const f = fs * Math.min(1, (W * 0.972) / need); if (Math.abs(f - fs) < 0.3 && it) break; fs = f; $('#rpage').style.setProperty('--fs', fs + 'px');
   }
-  $('#rpage').style.setProperty('--fs', Math.min(fs, rowH * 0.78) + 'px'); $('#rpage').style.setProperty('--hb', (rowH * .92).toFixed(1) + 'px'); placeTabs(); if (!$('#rpage').classList.contains('sf')) clampBadges();
+  $('#rpage').style.setProperty('--fs', Math.min(fs, rowH * 0.78) + 'px'); $('#rpage').style.setProperty('--hb', (rowH * .92).toFixed(1) + 'px'); $('#rpage').style.setProperty('--rh', rowH.toFixed(2) + 'px'); placeTabs(); fitKit();
 }
 /* side badges of the Ottoman (arch) pages that would stick out above / below the text area are nudged back inside */
 function clampBadges() {
@@ -176,23 +170,61 @@ function clampBadges() {
     let dy = 0; if (t < rr.top) dy = rr.top - t; else if (b > rr.bottom) dy = rr.bottom - b; if (Math.abs(dy) > .5) ml.style.setProperty('--bdy', dy.toFixed(1) + 'px');
   });
 }
-/* border tabs (like the printed mushaf): ruku + sajda on the right edge, para-fraction on the left edge; each sits in the frame at the height of its line, never overlapping each other */
+/* Build 22 tabs: kit vertical boxes in the page margin, at the height of their line. right edge = ruku (ع + 3 numbers) / sajda, left edge = para fractions */
 function placeTabs() {
   const pg = $('#rpage'), rin = $('#rin'); if (!pg || !rin) return; let L = $('#rtabs'); if (!L) { L = document.createElement('div'); L.id = 'rtabs'; pg.appendChild(L); } L.innerHTML = '';
-  if (!pg.classList.contains('sf')) return;
-  const pr = pg.getBoundingClientRect(), sc = pr.height / Math.max(1, pg.offsetHeight), s = parseFloat(pg.style.getPropertyValue('--s')) || pg.offsetWidth / 878, H = pg.offsetHeight;
-  L.insertAdjacentHTML('beforeend', '<i class="dm l"></i><i class="dm r"></i>');
+  if (pg.classList.contains('cover') || pi < 0) return;
+  const pr = pg.getBoundingClientRect(), sc = pr.height / Math.max(1, pg.offsetHeight), pw = pg.offsetWidth, H = pg.offsetHeight;
+  const cs = getComputedStyle(pg), pL = parseFloat(cs.paddingLeft) || pw * .1, pR = parseFloat(cs.paddingRight) || pw * .1, pT = parseFloat(cs.paddingTop) || 0, pB = parseFloat(cs.paddingBottom) || 0;
   const items = { R: [], L: [] };
-  rin.querySelectorAll('.ml .bg').forEach(b => {
-    const r = b.parentElement.getBoundingClientRect(), cy = ((r.top + r.bottom) / 2 - pr.top) / sc, side = b.classList.contains('lf') ? 'L' : 'R', sj = b.classList.contains('sj');
-    items[side].push({ cy, h: (sj || side === 'L' ? 150 : 124) * s, html: b.innerHTML, cls: (side === 'L' ? 'lf ' : sj ? 'sj ' : 'rt ') + (b.classList.contains('jz') ? 'jz ' : '') + (((b.querySelector('b') || {}).textContent || '').length > 1 ? 'n2' : ''), tip: b.title });
+  rin.querySelectorAll('.ml .tg').forEach(b => {
+    const r = b.parentElement.getBoundingClientRect(), cy = ((r.top + r.bottom) / 2 - pr.top) / sc, d = b.dataset, k = d.k;
+    const w = pw * (k === 'rq' ? .104 : .088), h = pw * (k === 'rq' ? .45 : .31);
+    let html, cls = k === 'rq' ? 'rk' : k;
+    if (k === 'rq') html = `<div class="ar">ع</div><div class="n1">${d.ay}</div><div class="sep"></div><div class="n2">${d.pr}</div><div class="sep"></div><div class="n3">${d.sr}</div>`;
+    else if (k === 'sj') { html = `<div>سجدہ</div><div>${d.n}</div>`; cls = 'sj vt'; }
+    else { html = `<div>${d.lab}</div>${d.n ? `<div>${d.n}</div>` : ''}`; cls = 'rb vt'; }
+    items[d.sd].push({ cy, w, h, html, cls, tip: d.tip || '' });
   });
-  const lo = 76 * s, hi = H - 76 * s, gap = 4 * s;
+  const lo = pT * .8, hi = H - pB * .8, gap = pw * .008, ed = pw * .012;
   Object.keys(items).forEach(sd => {
-    const a = items[sd].sort((x, y) => x.cy - y.cy); let prev = lo;
+    const a = items[sd].sort((x, y) => x.cy - y.cy); let prev = lo; { const sum = a.reduce((q, t) => q + t.h, 0), avail = hi - lo - gap * Math.max(0, a.length - 1); if (sum > avail && sum > 0) { const f = avail / sum; a.forEach(t => { t.h *= f; }); } }
     a.forEach(t => { t.top = Math.max(prev, t.cy - t.h / 2); prev = t.top + t.h + gap; });
+    { let lim2 = hi; for (let i = a.length - 1; i >= 0; i--) { if (a[i].top + a[i].h > lim2) a[i].top = lim2 - a[i].h; lim2 = a[i].top - gap; } let pv = lo; a.forEach(t => { if (t.top < pv) t.top = pv; pv = t.top + t.h + gap; }); }
     let lim = hi; for (let i = a.length - 1; i >= 0; i--) { if (a[i].top + a[i].h > lim) a[i].top = lim - a[i].h; lim = a[i].top - gap; }
-    a.forEach(t => { L.insertAdjacentHTML('beforeend', `<div class="tb ${sd === 'L' ? 'tbl' : 'tbr'} ${t.cls}" style="top:${t.top.toFixed(1)}px;height:${t.h.toFixed(1)}px" title="${esc(t.tip || '')}"><span>${t.html}</span></div>`); });
+    a.forEach(t => {
+      const padS = sd === 'R' ? pR : pL, x = Math.max(ed, padS - t.w - pw * .006);
+      L.insertAdjacentHTML('beforeend', `<div class="kv ${t.cls}" style="--bw:${t.w.toFixed(2)}px;height:${t.h.toFixed(2)}px;top:${t.top.toFixed(2)}px;${sd === 'R' ? 'right' : 'left'}:${x.toFixed(2)}px" title="${esc(t.tip)}"><div class="in">${t.html}</div></div>`);
+    });
+  });
+}
+/* shrink the text of every kit box until it sits inside the cream area (never touches the ornaments / never leaves the box) */
+function fitZone(z, wMax, hMax) {
+  z.style.removeProperty('font-size'); let fs = parseFloat(getComputedStyle(z).fontSize) || 12;
+  for (let i = 0; i < 14; i++) {
+    let w = 0, h = 0; const ch = z.children;
+    for (let k = 0; k < ch.length; k++) { const r = ch[k].getBoundingClientRect(); w = Math.max(w, r.width); h += r.height; }
+    if (!ch.length) { const r = document.createRange(); r.selectNodeContents(z); const b = r.getBoundingClientRect(); w = b.width; h = b.height; }
+    const f = Math.min(w > wMax ? wMax / w : 1, h > hMax ? hMax / h : 1); if (f >= .995) break; fs = Math.max(5, fs * f * .985); z.style.setProperty('font-size', fs.toFixed(2) + 'px');
+  }
+}
+function fitKit() {
+  const pg = $('#rpage'); if (!pg || pg.classList.contains('cover') || pi < 0) return;
+  /* header row: shrink the font of all three boxes together, then the box height, until the row fits between the frame bands */
+  /* header: three kit boxes share the row (flex); every text grows up to the biggest size that stays inside its cream area */
+  pg.querySelectorAll('#rhd .kb').forEach(k => {
+    const z = k.querySelector('.in'), bh = k.clientHeight || parseFloat(getComputedStyle(k).height); z.style.removeProperty('font-size');
+    const maxFs = bh * (k.classList.contains('hg') ? .66 : .6); z.style.setProperty('font-size', maxFs + 'px');
+    const cw = parseFloat(getComputedStyle(k).borderLeftWidth) || 0, room = k.getBoundingClientRect().width - 2 * cw * .86;
+    for (let i = 0; i < 14; i++) { const r = document.createRange(); r.selectNodeContents(z); const w = r.getBoundingClientRect().width; if (w <= room) break; z.style.setProperty('font-size', (parseFloat(getComputedStyle(z).fontSize) * Math.max(.7, room / w) * .985) + 'px'); }
+  });
+  pg.querySelectorAll('.kb.bn .bz').forEach(z => fitZone(z, z.clientWidth * .96, z.clientHeight * .9));
+  pg.querySelectorAll('.kb.bm>.in').forEach(z => { z.style.removeProperty('font-size'); const k = z.parentElement, room = k.clientWidth + (parseFloat(getComputedStyle(k).borderLeftWidth) || 0) * .55; for (let i = 0; i < 10 && z.scrollWidth > room; i++) z.style.setProperty('font-size', (parseFloat(getComputedStyle(z).fontSize) * .94) + 'px'); });
+  pg.querySelectorAll('.dua .dt').forEach(z => { z.style.removeProperty('font-size'); const box = z.parentElement, avail = box.clientHeight - (box.querySelector('.dh') ? box.querySelector('.dh').offsetHeight : 0) - 4; let fs = parseFloat(getComputedStyle(z).fontSize); for (let i = 0; i < 20 && z.scrollHeight > avail && fs > 7; i++) { fs *= .95; z.style.setProperty('font-size', fs + 'px'); } });
+  document.querySelectorAll('#rtabs .kv>.in').forEach(z => {
+    z.style.removeProperty('font-size'); let fs = parseFloat(getComputedStyle(z).fontSize) || 10;
+    if (z.parentElement.classList.contains('vt')) { for (let i = 0; i < 16; i++) { let sw = 0, mh = 0; Array.from(z.children).forEach(c => { const r = c.getBoundingClientRect(); sw += r.width; mh = Math.max(mh, r.height); }); sw += (z.children.length - 1) * fs * .1; const f = Math.min(sw > z.clientWidth * .9 ? z.clientWidth * .9 / sw : 1, mh > z.clientHeight * .92 ? z.clientHeight * .92 / mh : 1); if (f >= .995) break; fs = Math.max(5, fs * f * .985); z.style.setProperty('font-size', fs + 'px'); } }
+    else fitZone(z, z.clientWidth * .98, z.clientHeight * .78);
   });
 }
 /* ---------- mushaf ornaments (header, surah banner, ruku/sajda marks, manzil) ---------- */
@@ -201,8 +233,8 @@ function rubSet() { if (RUBI) return; RUBI = {}; FAHM_RUB.forEach((x, i) => RUBI
 /* Royal Ottoman side badge: pointed shield, small label on top, number below (ruku / sajda / hizb / juz / quarter marks) */
 function bdg(cls, lab, num, tip) { return `<span class="bg ${cls}" title="${esc(tip || lab + ' ' + num)}"><i>${esc(lab)}</i><b>${num}</b></span>`; }
 function rubMark(i) {
-  const k = i % 4, jz = i % 8 === 0, hz = Math.floor(i / 4) + 1, lab = jz ? 'پارہ' : ['حزب', 'ربع', 'نصف', 'ثلثہ'][k], num = jz ? adx(i / 8 + 1) : adx(hz);
-  return bdg('lf k' + k + (jz ? ' jz' : ''), lab, num, lab + ' ' + num);
+  const k = i % 4, jz = i % 8 === 0, hz = Math.floor(i / 4) + 1, lab = jz ? 'پارہ' : ['حزب', 'الربع', 'النصف', 'ثلاثۃ ارباع'][k], num = jz ? adx(i / 8 + 1) : (k === 0 ? adx(hz) : '');
+  return `<i class="tg" data-sd="L" data-k="rb" data-lab="${lab}" data-n="${num}" data-tip="${lab} ${num}"></i>`;
 }
 let RUKE = null, SAJ = null;
 function ornSets() {
@@ -216,23 +248,29 @@ function rukuInfo(s, a) { /* {n: ruku number inside the para} for the ruku that 
   return n;
 }
 function manzilOfAi(ai) { let m = 1; M.meta.M.forEach((x, i) => { const k = AYI[x[0] + ':' + x[1]]; if (k !== undefined && k <= ai) m = i + 1; }); return m; }
+function rukuFull(s, a) { /* ayat in this ruku, ruku number inside the para, ruku number inside the surah */
+  const R = M.meta.R, ai = AYI[s + ':' + a]; let i = 0; for (let k = 0; k < R.length; k++) { const st = AYI[R[k][0] + ':' + R[k][1]]; if (st <= ai) i = k; else break; }
+  const st0 = AYI[R[i][0] + ':' + R[i][1]]; let sr = 0; for (let k = 0; k <= i; k++) if (+R[k][0] === +s) sr++;
+  return { ay: ai - st0 + 1, pr: rukuInfo(s, a), sr };
+}
+const PARA_N = ['الم', 'سیقول', 'تلک الرسل', 'لن تنالوا', 'والمحصنات', 'لا یحب اللہ', 'واذا سمعوا', 'ولو اننا', 'قال الملأ', 'واعلموا', 'یعتذرون', 'و ما من دابۃ', 'و ما ابرئ', 'ربما', 'سبحان الذی', 'قال الم', 'اقترب', 'قد افلح', 'و قال الذین', 'امن خلق', 'اتل ما اوحی', 'و من یقنت', 'و مالی', 'فمن اظلم', 'الیہ یرد', 'حم', 'قال فما خطبکم', 'قد سمع اللہ', 'تبارک الذی', 'عم'];
+const snU = sn => ((window.FAHM_SN && FAHM_SN.u[sn - 1]) || (M.n[sn] || '').replace(/[ً-ْٰ]/g, '')).replace(/^\s*سورۃ\s*|^\s*سورة\s*/, '');
+/* surah banner: ONE kit box, three zones — ayat count | number + سورۃ NAME + makki/madani | ruku count */
 function bannerHtml(sn) {
-  const S = M.meta.S[sn] || [0, 0, 1, 0], nm = (window.FAHM_SN && FAHM_SN.u[sn - 1]) || M.n[sn] || '';
-  return `<div class="ml h"><div class="sbx"><span class="sbs"><i>آیاتھا</i><b>${adx(S[0])}</b></span><span class="sbc"><em>${esc(nm)}</em><small>${adx(sn)} · ${S[2] ? 'مکی' : 'مدنی'}</small></span><span class="sbs"><i>رکوعھا</i><b>${adx(S[1])}</b></span></div></div>`;
+  const S = M.meta.S[sn] || [0, 0, 1, 0];
+  return `<div class="ml h"><div class="kb bn"><div class="in"><div class="bz bzs"><div class="bzl">آیاتھا</div><div class="bzv">${adx(S[0])}</div></div><div class="bz bzc"><div class="bznm">سورۃ ${esc(snU(sn))}</div><div class="bzsb">${adx(sn)} · ${S[2] ? 'مکیۃ' : 'مدنیۃ'}</div></div><div class="bz bzs"><div class="bzl">رکوعھا</div><div class="bzv">${adx(S[1])}</div></div></div></div></div>`;
 }
-function headerHtmlOld(lines) {
-  const ps = lines.map(lineParts).filter(x => x.a).map(x => +x.a.split(':')[0]); if (!ps.length) return '';
-  const s1 = ps[0], s2 = ps[ps.length - 1], f = lines.map(lineParts).find(x => x.a), [fs, fa] = f.a.split(':').map(Number), ai = AYI[fs + ':' + fa];
-  const nmo = n => (M.n[n] || '').replace(/^سُورَةُ\s*|^سورة\s*/, '');
-  const rng = s1 === s2 ? nmo(s1) + '-' + adx(s1) : nmo(s1) + '-' + adx(s1) + ' ' + nmo(s2) + '-' + adx(s2);
-  return `<span class="hr1"><i>پارہ</i> <b>${adx(juzOfAi(ai))}</b></span><span class="hr2">${esc(rng)}</span><span class="hr3"><b>${adx(PG[pi])}</b></span>`;
-}
+const DUA = 'اَللّٰهُمَّ اٰنِسْ وَحْشَتِيْ فِيْ قَبْرِيْ، اَللّٰهُمَّ ارْحَمْنِيْ بِالْقُرْاٰنِ الْعَظِيْمِ وَاجْعَلْهُ لِيْ اِمَامًا وَّنُوْرًا وَّهُدًى وَّرَحْمَةً، اَللّٰهُمَّ ذَكِّرْنِيْ مِنْهُ مَا نَسِيْتُ وَعَلِّمْنِيْ مِنْهُ مَا جَهِلْتُ وَارْزُقْنِيْ تِلَاوَتَهُ اٰنَاءَ اللَّيْلِ وَاٰنَاءَ النَّهَارِ وَاجْعَلْهُ لِيْ حُجَّةً يَا رَبَّ الْعَالَمِيْنَ';
+function duaHtml(n) { return `<div class="ml dua" style="flex-grow:${n}!important"><div class="kb dh"><div class="in">دعاءِ ختمِ القرآن</div></div><div class="dt">${DUA}</div></div>`; }
+/* running header: para name + number | page number | every surah on the page — three kit boxes */
 function headerHtml(lines) {
-  const ps = lines.map(lineParts).filter(x => x.a).map(x => +x.a.split(':')[0]); if (!ps.length) return '';
-  const s1 = ps[0], f = lines.map(lineParts).find(x => x.a), [fs, fa] = f.a.split(':').map(Number), ai = AYI[fs + ':' + fa];
-  const nmu = (window.FAHM_SN && FAHM_SN.u[s1 - 1]) || (M.n[s1] || '').replace(/[\u064B-\u0652\u0670]/g, '');
-  return `<span class="hr1"><i>پارہ</i> <b>${adx(juzOfAi(ai))}</b></span><span class="hr2">${esc('سورۃ ' + nmu.replace(/^سورۃ\s*/, ''))}</span><span class="hr3"><b>${adx(PG[pi])}</b></span>`;
+  const sns = []; lines.map(lineParts).forEach(x => { let n = 0; if (x.k[0] === 'h' && x.k.length > 1) n = +x.k.slice(1); else if (x.a) n = +x.a.split(':')[0]; if (n && sns.indexOf(n) < 0) sns.push(n); });
+  const f = lines.map(lineParts).find(x => x.a); if (!sns.length || !f) return '';
+  const [fs, fa] = f.a.split(':').map(Number), j = juzOfAi(AYI[fs + ':' + fa]);
+  const sTxt = sns.length === 1 ? 'سورۃ ' + snU(sns[0]) : sns.map(snU).join(' · ');
+  return `<div class="hq"><div class="kb hz hp"><div class="in"><div class="t"><div>${esc(PARA_N[j - 1])}</div><div>${adx(j)}</div></div></div></div><div class="kb hz hg"><div class="in">${adx(PG[pi])}</div></div><div class="kb hz hs"><div class="in">${esc(sTxt)}</div></div></div>`;
 }
+const headerHtmlOld = headerHtml;
 function wordHtml(x) {
   const loc = locOf(x.s, x.a, x.w), c = ['wd']; if (isMk(x.t)) c.push('mk');
   if (okSet.has(loc)) c.push('ok');
@@ -286,20 +324,42 @@ function thinFrame(w, h) {
     box(w - pl - rw, hy, rw, hh) + box(pl + rw + g, hy, cw, hh) + box(pl, hy, rw, hh) + box((w - bw) / 2, bpy, bw, bph) + `</svg>`;
   return { svg, vars: { '--pt': f(hy + hh + w * .024) + 'px', '--pb': f(h - bpy + w * .012) + 'px', '--pl': f(pl) + 'px', '--pr': f(pl) + 'px', '--hy': f(hy) + 'px', '--hh': f(hh) + 'px', '--bpy': f(bpy) + 'px', '--bph': f(bph) + 'px', '--h1l': f(w - pl - rw) + 'px', '--h1w': f(rw) + 'px', '--h2l': f(pl + rw + g) + 'px', '--h2w': f(cw) + 'px', '--h3l': f(pl) + 'px', '--h3w': f(rw) + 'px' } };
 }
+/* Build 22 frame for the middle pages: clean vector (outer gold hairline, green enamel band with gold lattice + red florets, rosette corners, concave-cornered inner rule). Every length is a fraction of the page width. */
+function frameQ(w, h) {
+  const f = n => n.toFixed(2), u = w, o0 = .010 * u, b0 = .017 * u, b1 = .062 * u, bw = b1 - b0, r0 = .0705 * u, rc = .030 * u;
+  const nh = (Math.round((w - 2 * b1) / bw) | 1), nv = (Math.round((h - 2 * b1) / bw) | 1), ph = (w - 2 * b1) / nh, pv = (h - 2 * b1) / nv;
+  const tile = (id, tw, th) => `<pattern id="${id}" width="${f(tw)}" height="${f(th)}" patternUnits="userSpaceOnUse"><path d="M${f(tw / 2)} ${f(th * .16)}L${f(tw * .84)} ${f(th / 2)}L${f(tw / 2)} ${f(th * .84)}L${f(tw * .16)} ${f(th / 2)}Z" fill="none" stroke="var(--gd)" stroke-width="${f(bw * .05)}" stroke-linejoin="round"/><circle cx="${f(tw / 2)}" cy="${f(th / 2)}" r="${f(bw * .105)}" fill="var(--rd)"/><circle cx="${f(tw / 2)}" cy="${f(th / 2)}" r="${f(bw * .105)}" fill="none" stroke="var(--gd2)" stroke-width="${f(bw * .025)}"/><circle cx="0" cy="${f(th / 2)}" r="${f(bw * .045)}" fill="var(--gd)"/><circle cx="${f(tw)}" cy="${f(th / 2)}" r="${f(bw * .045)}" fill="var(--gd)"/><circle cx="${f(tw / 2)}" cy="0" r="${f(bw * .045)}" fill="var(--gd)"/><circle cx="${f(tw / 2)}" cy="${f(th)}" r="${f(bw * .045)}" fill="var(--gd)"/></pattern>`;
+  const defs = `<defs>${tile('qh', ph, bw)}${tile('qv', bw, pv)}</defs>`;
+  const R = (x, y, ww, hh, fill) => `<rect x="${f(x)}" y="${f(y)}" width="${f(ww)}" height="${f(hh)}" fill="${fill}"/>`;
+  /* bands (pattern origin shifted so tiles start exactly at the corner squares) */
+  const band = `<path fill="var(--gr)" fill-rule="evenodd" d="M${f(b0)} ${f(b0)}H${f(w - b0)}V${f(h - b0)}H${f(b0)}ZM${f(b1)} ${f(b1)}V${f(h - b1)}H${f(w - b1)}V${f(b1)}Z"/>` +
+    `<g><rect x="${f(b1)}" y="${f(b0)}" width="${f(w - 2 * b1)}" height="${f(bw)}" fill="url(#qh)"/><rect x="${f(b1)}" y="${f(h - b1)}" width="${f(w - 2 * b1)}" height="${f(bw)}" fill="url(#qh)"/></g>` +
+    `<g><rect x="${f(b0)}" y="${f(b1)}" width="${f(bw)}" height="${f(h - 2 * b1)}" fill="url(#qv)" transform="translate(0 0)"/><rect x="${f(w - b1)}" y="${f(b1)}" width="${f(bw)}" height="${f(h - 2 * b1)}" fill="url(#qv)"/></g>`;
+  /* patterns are anchored at the svg origin; align them to the band start with pattern transforms */
+  const line = (x, y, ww, hh, sw, op) => `<rect x="${f(x)}" y="${f(y)}" width="${f(ww)}" height="${f(hh)}" fill="none" stroke="var(--gd)" stroke-width="${f(sw)}" stroke-opacity="${op || 1}"/>`;
+  const rose = (cx, cy) => { const R1 = bw * .46; let g = `<g transform="translate(${f(cx)} ${f(cy)})"><circle r="${f(bw * .47)}" fill="var(--gr)"/>`; for (let k = 0; k < 8; k++) g += `<ellipse cx="0" cy="${f(-R1 * .58)}" rx="${f(R1 * .26)}" ry="${f(R1 * .44)}" fill="var(--gd)" stroke="var(--gd2)" stroke-width="${f(bw * .018)}" transform="rotate(${k * 45})"/>`; return g + `<circle r="${f(R1 * .32)}" fill="var(--rd)" stroke="var(--gd2)" stroke-width="${f(bw * .03)}"/><circle r="${f(R1 * .1)}" fill="var(--gd2)"/></g>`; };
+  const cc = (b0 + b1) / 2;
+  const dia = (cx, cy, vert) => { const L1 = bw * .74, S1 = bw * .5; return `<g transform="translate(${f(cx)} ${f(cy)}) rotate(${vert ? 90 : 0})"><path d="M${f(-L1)} 0L0 ${f(-S1)}L${f(L1)} 0L0 ${f(S1)}Z" fill="var(--gr)" stroke="var(--gd)" stroke-width="${f(bw * .07)}" stroke-linejoin="round"/><path d="M${f(-L1 * .62)} 0L0 ${f(-S1 * .62)}L${f(L1 * .62)} 0L0 ${f(S1 * .62)}Z" fill="none" stroke="var(--gd2)" stroke-width="${f(bw * .03)}"/><circle r="${f(bw * .15)}" fill="var(--rd)" stroke="var(--gd2)" stroke-width="${f(bw * .03)}"/></g>`; };
+  const x0 = r0, y0 = r0, x1 = w - r0, y1 = h - r0;
+  const inner = `M${f(x0 + rc)} ${f(y0)}H${f(x1 - rc)}A${f(rc)} ${f(rc)} 0 0 0 ${f(x1)} ${f(y0 + rc)}V${f(y1 - rc)}A${f(rc)} ${f(rc)} 0 0 0 ${f(x1 - rc)} ${f(y1)}H${f(x0 + rc)}A${f(rc)} ${f(rc)} 0 0 0 ${f(x0)} ${f(y1 - rc)}V${f(y0 + rc)}A${f(rc)} ${f(rc)} 0 0 0 ${f(x0 + rc)} ${f(y0)}Z`;
+  const svg = `<svg width="${f(w)}" height="${f(h)}" viewBox="0 0 ${f(w)} ${f(h)}" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" shape-rendering="geometricPrecision">` + defs.replace(/<pattern id="qh"([^>]*)>/, `<pattern id="qh"$1 patternTransform="translate(${f(b1)} ${f(b0)})">`).replace(/<pattern id="qv"([^>]*)>/, `<pattern id="qv"$1 patternTransform="translate(${f(b0)} ${f(b1)})">`) + band +
+    line(o0, o0, w - 2 * o0, h - 2 * o0, .0042 * u) + line(b0, b0, w - 2 * b0, h - 2 * b0, .0036 * u) + line(b1, b1, w - 2 * b1, h - 2 * b1, .0046 * u) +
+    `<path d="${inner}" fill="none" stroke="var(--gd)" stroke-width="${f(.0022 * u)}" stroke-linejoin="round"/>` +
+    rose(cc, cc) + rose(w - cc, cc) + rose(cc, h - cc) + rose(w - cc, h - cc) + dia(w / 2, cc, 0) + dia(w / 2, h - cc, 0) + dia(cc, h / 2, 1) + dia(w - cc, h / 2, 1) + `</svg>`;
+  const hy = r0 + .013 * u, hh = .082 * u, bph = .056 * u, bpy = h - r0 - .012 * u - bph;
+  return { svg, vars: { '--pt': f(hy + hh + .02 * u) + 'px', '--pb': f(h - bpy + .008 * u) + 'px', '--pl': f(.105 * u) + 'px', '--pr': f(.105 * u) + 'px', '--hy': f(hy) + 'px', '--hh': f(hh) + 'px', '--hl': f(.088 * u) + 'px', '--bpy': f(bpy) + 'px', '--bph': f(bph) + 'px' } };
+}
 function drawFrame(w, h) {
   const p = $('#rpage'); if (!p) return; let f = $('#rfr'); if (!f) { f = document.createElement('div'); f.id = 'rfr'; p.insertBefore(f, p.firstChild); }
-  const cv = p.classList.contains('cover'), arch = p.classList.contains('arch'), sf = !cv && !arch; p.classList.toggle('sf', sf); p.classList.toggle('sbq', !cv); p.classList.remove('thin');
-  const v = (w / h) < 0.64 ? 'b' : 'a', g = frameGeo(v), k = Math.round(w) + 'x' + Math.round(h) + v + (cv ? 'c' : sf ? 's' : 'm'); if (f.dataset.k === k) return; f.dataset.k = k;
+  const cv = p.classList.contains('cover'), arch = p.classList.contains('arch'), mid = !cv && !arch; p.classList.toggle('sf', false); p.classList.toggle('sbq', false); p.classList.toggle('mq', !cv); p.classList.remove('thin');
+  const v = (w / h) < 0.64 ? 'b' : 'a', g = frameGeo(v), k = Math.round(w) + 'x' + Math.round(h) + v + (cv ? 'c' : mid ? 's' : 'm'); if (f.dataset.k === k) return; f.dataset.k = k;
   const set = (n, val) => p.style.setProperty(n, val);
-  if (sf) { /* sample-based illuminated frame (9-slice border-image); all sizes derive from --s = page width / 878 */
-    ['--pt', '--pb', '--pl', '--pr', '--hy', '--hh', '--bpy', '--bph'].forEach(n => p.style.removeProperty(n));
-    set('--s', (w / 878).toFixed(5)); f.className = 'fs'; f.innerHTML = ''; return;
-  }
+  if (mid) { const q = frameQ(w, h); f.className = 'fq'; f.innerHTML = q.svg; Object.keys(q.vars).forEach(n => set(n, q.vars[n])); p.style.removeProperty('--s'); return; }
   /* cover and the first two (arch) pages keep the Ottoman frame unchanged */
   f.className = 'v-' + v + (cv ? ' fc' : ' fm'); f.innerHTML = ''; p.style.removeProperty('--s');
   const X = x => (x / 740 * w) + 'px', Yp = y => (y / g.H * h) + 'px';
   set('--pt', Yp(g.yt)); set('--pb', ((g.H - g.yb) / g.H * h) + 'px'); set('--pl', X(g.xL)); set('--pr', X(740 - g.xR));
-  set('--hy', Yp(g.hy)); set('--hh', Yp(g.hh)); set('--bpy', Yp(g.bpy)); set('--bph', Yp(g.bph));
+  set('--hy', Yp(g.hy)); set('--hh', Yp(g.hh)); set('--bpy', Yp(g.bpy)); set('--bph', Yp(g.bph)); set('--hl', (w * .15) + 'px');
 }
 function coverHtml() {
   const n = lay === '15' ? 15 : 13, nm = { '15': ['حافظی مصحف', 'Hafizi · IndoPak'], '13q': ['قدرت اللہ مصحف', 'Qudratullah'], '13t': ['تاج کمپنی مصحف', 'Taj Company'] }[lay] || ['', ''];
@@ -320,19 +380,22 @@ function renderCover() {
 function renderPage(anim) {
   if (pi < 0) { renderCover(); return; }
   const L = M.L[lay], lines = L.pages[PG[pi]];
-  const arch = +PG[pi] <= 2; let nE = lines.filter(ln => lineParts(ln).k !== 'e').length; archRows = arch ? Math.max(10, nE + 1) : 0; const rows = rowsOf();
+  const arch = +PG[pi] <= 2; let nE = lines.filter(ln => lineParts(ln).k !== 'e').length; archRows = arch ? nE : 0;
+  let ln2 = lines.slice(), duaN = 0; if (!arch) { let t = ln2.length; while (t > 0 && lineParts(ln2[t - 1]).k === 'e') t--; if (ln2.length - t >= 2) { duaN = ln2.length - t; ln2 = ln2.slice(0, t); } }
+  rowX = lines.reduce((q, ln) => { const k = lineParts(ln).k; return q + (k[0] === 'h' && k.length > 1 ? .75 : k === 'b' ? .32 : 0); }, 0); const rows = rowsOf();
   { const p0 = $('#rpage'); p0.classList.remove('cover'); p0.classList.toggle('arch', arch); }
   let h = '';
-  lines.forEach(ln => {
+  ln2.forEach(ln => {
     const { k, a, b } = lineParts(ln);
     if (k === 'e') { if (!arch) h += '<div class="ml e"></div>'; }
-    else if (k === 'b') h += `<div class="ml b">${M.w['1:1'].slice(0, 4).map(esc).join(' ')}</div>`;
+    else if (k === 'b') h += `<div class="ml b"><div class="kb bm"><div class="in">${M.w['1:1'].slice(0, 4).map(esc).join(' ')}</div></div></div>`;
     else if (k[0] === 'h') h += bannerHtml(+k.slice(1));
-    else { const ws = rangeLocs(a, b); let rm = '', rb = '', sj = ''; ws.forEach(x => { if (x.w === 1 && window.FAHM_RUB) { rubSet(); const ri = RUBI[x.s + ':' + x.a]; if (ri !== undefined) rb = rubMark(ri); } if (isMk(x.t)) { ornSets(); const ak = x.s + ':' + x.a; if (RUKE.has(ak)) rm = bdg('rt', 'رکوع', adx(rukuInfo(x.s, x.a))); if (SAJ.has(ak)) sj = bdg('rt sj', 'سجدہ', adx(SAJ.get(ak))); } }); if (sj && rm) sj = sj.replace('rt sj', 'rt sj s2'); h += `<div class="ml ${k}">${ws.map(wordHtml).join('')}${rm}${sj}${rb}</div>`; }
+    else { const ws = rangeLocs(a, b); let rm = '', rb = '', sj = ''; ws.forEach(x => { if (x.w === 1 && window.FAHM_RUB) { rubSet(); const ri = RUBI[x.s + ':' + x.a]; if (ri !== undefined) rb = rubMark(ri); } if (isMk(x.t)) { ornSets(); const ak = x.s + ':' + x.a; if (RUKE.has(ak)) { const q = rukuFull(x.s, x.a); rm = `<i class="tg" data-sd="R" data-k="rq" data-ay="${adx(q.ay)}" data-pr="${adx(q.pr)}" data-sr="${adx(q.sr)}" data-tip="ruku · ayat ${q.ay} · para ${q.pr} · surah ${q.sr}"></i>`; } if (SAJ.has(ak)) sj = `<i class="tg" data-sd="R" data-k="sj" data-n="${adx(SAJ.get(ak))}"></i>`; } }); h += `<div class="ml ${k}">${ws.map(wordHtml).join('')}${rm}${sj}${rb}</div>`; }
   });
+  if (duaN) h += duaHtml(duaN);
   const pg = $('#rpage'); pg.classList.toggle('mem', hz.on && A.st().hmode === 'mem');
   $('#rin').innerHTML = h; $('#rin').style.setProperty('--rows', rows);
-  { ornSets(); const f0 = lines.map(lineParts).find(x => x.a); const mz = f0 ? manzilOfAi(AYI[f0.a.split(':').slice(0, 2).join(':')]) : 0; $('#rpn').textContent = mz ? 'منزل ' + adx(mz) : ''; $('#rhd').innerHTML = arch ? headerHtmlOld(lines) : headerHtml(lines); }
+  { ornSets(); const f0 = lines.map(lineParts).find(x => x.a); const mz = f0 ? manzilOfAi(AYI[f0.a.split(':').slice(0, 2).join(':')]) : 0; $('#rpn').innerHTML = mz ? `<div class="kb mz"><div class="in">منزل ${adx(mz)}</div></div>` : ''; $('#rhd').innerHTML = headerHtml(lines); }
   sizePage(); fit(); bmUpd(); applyHl();
   warm(pageSurah(pi));
   $('#rTitle').textContent = surahName(pageSurah(pi)) + ' · ' + R('pg') + ' ' + (A.st().ui === 'ur' ? ad(PG[pi]) : PG[pi]);
