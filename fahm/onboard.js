@@ -24,7 +24,7 @@ const A = () => window.__fahmApp, ST = () => A().st(), lg = () => L[ST().ui] || 
 /* ---------- voice (free: phone's own speech engine). Urdu text is spoken for both Urdu and Roman-Urdu users. ---------- */
 const voiceOn = () => ST().onv !== 0;
 /* Build 27: no phone / Google voice any more. Only recorded ElevenLabs clips play (vo/ob/<key>.mp3 listed in OBV); anything without a clip stays silent. */
-const OBV = {};
+const OBV = {}; (() => { [['ur', 'hu'], ['en', 'en']].forEach(([k, l]) => { L[k].steps.forEach((t, i) => { OBV[t] = `vo/ob/s${i + 1}_${l}.mp3`; }); OBV[L[k].hello] = `vo/ob/hello_${l}.mp3`; }); })();
 function say(text, done) {
   stopV();
   const f = OBV[text];
