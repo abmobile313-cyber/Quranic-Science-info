@@ -351,7 +351,7 @@ function fillSheet() {
   const sameH = same.length ? `<div class="sh-sec">${esc(T.same)}</div><div class="sh-same">${same.map(o => `<button class="ar" data-pick="${o.k}">${esc(o.w2.ar)}</button>`).join('')}</div>` : '';
   const chips = `<div class="sh-chips">${gram ? `<span>${esc(gram)}</span>` : ''}<span>${esc(T.pos2)} ${nu(idx + 1)} ${esc(T.of)} ${nu(n)}</span><span>${esc(API.sName(S_)[0])} ${nu(S_.n)}:${nu(A.v)}</span></div>`;
   const note = d.note ? `<div class="sh-note ${d.rtl ? 'u' : ''}" ${d.rtl ? 'dir="rtl"' : ''}><em>${esc(T.note)}</em> ${esc(d.note)}</div>` : '';
-  let ij = ''; try { ij = window.FahmIjaz ? FahmIjaz.html(S_.n, A.v, W.ar, u, esc) : ''; } catch (er) { }
+  let ij = ''; try { ij = window.FahmIjaz ? FahmIjaz.html(S_.n, A.v, W.ar, u, esc) : ''; } catch (er) { } try { if (window.FahmMiracle) ij += FahmMiracle.html(S_.n, A.v, W.ar, u, esc, W.root); } catch (er) { } try { if (window.FahmTajweed) ij += FahmTajweed.html(A.words, idx, u, esc); } catch (er) { }
   const e = sheetEl();
   e.innerHTML = `<div class="sh-grab" data-ws="sx"></div><button class="sh-x" data-ws="sx" aria-label="Close"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
   <div class="sh-head"><div class="sh-ar ar">${esc(W.ar)}</div><div class="sh-tl">${rtlSafe(tl, u)}</div><div class="sh-mm ${d.rtl ? 'u' : ''}" ${d.rtl ? 'dir="rtl"' : ''}>${esc(d.mm)}</div></div>

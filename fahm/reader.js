@@ -2,7 +2,9 @@
    Text + font: DigitalKhatt IndoPak (OFL). Line layouts: Qudratullah 15 & 13 line, Taj 13 line. */
 (function () {
 'use strict';
-const $ = s => document.querySelector(s);
+let ROOT = null, spread = false, twoUp = false;
+const PGID = /^#(rpage|rin|rhd|rpn|rtabs|rfr|rbmk)$/;
+const $ = s => (ROOT && PGID.test(s)) ? ROOT.querySelector(s) : document.querySelector(s);
 const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 const pad = n => String(n).padStart(3, '0');
 const H = window.FahmHafiz;
@@ -139,13 +141,13 @@ function popGoto() {
 }
 
 /* ---------- rendering ---------- */
-function ratio() { const st = $('#rstage'); const r = (st.clientWidth - 16) / Math.max(1, st.clientHeight - 16); return r > 1.1 ? 0.66 : Math.max(0.56, Math.min(0.7, r)); }
+function ratio() { const st = $('#rstage'); if (twoUp) return Math.max(0.56, Math.min(0.7, ((st.clientWidth - 16) / 2) / Math.max(1, st.clientHeight - 16))); const r = (st.clientWidth - 16) / Math.max(1, st.clientHeight - 16); return r > 1.1 ? 0.66 : Math.max(0.56, Math.min(0.7, r)); }
 let archRows = 0;
 let rowX = 0;
 function rowsOf() { return (archRows || (lay === '15' ? 15 : 13)) + rowX; }
 function sizePage() {
   const st = $('#rstage'), z = A.st().rz || 1, sw = st.clientWidth - 16, sh = st.clientHeight - 16, r = ratio();
-  const w = sw > sh * 1.1 ? Math.max(200, Math.min(sw, 640)) * z : Math.max(200, Math.min(sw, sh * r)) * z;   /* landscape: full-width page, scroll down */ const p = $('#rpage'); p.style.width = w + 'px'; p.style.height = (w / r) + 'px'; p.style.setProperty('--pw', w + 'px'); drawFrame(w, w / r); fitHdr();
+  const w = twoUp ? Math.max(200, Math.min(sw * 0.955 / 2, sh * r * 0.94)) * z : sw > sh * 1.1 ? Math.max(200, Math.min(sw, 640)) * z : Math.max(200, Math.min(sw, sh * r)) * z;   /* landscape: full-width page, scroll down */ const p = $('#rpage'); p.style.width = w + 'px'; p.style.height = (w / r) + 'px'; p.style.setProperty('--pw', w + 'px'); drawFrame(w, w / r); fitHdr();
 }
 function fitHdr() { fitKit(); }
 function fit() {
@@ -269,8 +271,11 @@ const snU = sn => ((window.FAHM_SN && FAHM_SN.u[sn - 1]) || (M.n[sn] || '').repl
 /* surah banner: ONE kit box, three zones — ayat count | number + سورۃ NAME + makki/madani | ruku count */
 function bannerHtml(sn) {
   const S = M.meta.S[sn] || [0, 0, 1, 0], nm = (M.n[sn] || '').replace(/^\s*سُورَةُ\s*/, 'سُورَةُ ');
-  return `<div class="ml h"><div class="bnr"><div class="hx bs"><div class="in"><div class="l">آیاتھا</div><div class="v">${adx(S[0])}</div></div></div><div class="hx bc"><div class="in">(${adx(sn)}) ${esc(nm)} ${S[2] ? 'مَکِّیَّۃٌ' : 'مَدَنِیَّۃٌ'} (${adx(S[3])})</div></div><div class="hx bs"><div class="in"><div class="l">${S[1] > 1 ? 'رُکُوعَاتُھَا' : 'رُکُوعُھَا'}</div><div class="v">${adx(S[1])}</div></div></div></div></div>`;
+  return `<div class="ml h"><div class="bnr"><div class="hx bs"><div class="in"><div class="l">آیاتھا</div><div class="v">${adx(S[0])}</div></div></div><div class="hx bc"><div class="in"><bdi class="pn" dir="ltr">(${adx(sn)})</bdi><span class="nm">${esc(nm)}</span><span class="mk2">${S[2] ? 'مَکِّیَّۃٌ' : 'مَدَنِیَّۃٌ'}</span><bdi class="pn" dir="ltr">(${adx(S[3])})</bdi></div></div><div class="hx bs"><div class="in"><div class="l">${S[1] > 1 ? 'رُکُوعَاتُھَا' : 'رُکُوعُھَا'}</div><div class="v">${adx(S[1])}</div></div></div></div></div>`;
 }
+/* flourish beside the Bismillah: thin line that grows + small scroll with leaves + diamond (drawn here, original) */
+const FLO = '<span class="flo"><i class="ln"></i><svg viewBox="0 0 64 24" class="sc" aria-hidden="true"><path d="M0 12H20" /><path d="M20 12C28 12 30 5 37 5C44 5 45 12 40 14C36 16 33 12 36 10" /><path d="M20 12C27 12 29 19 36 19" /><path d="M36 19C42 19 46 16 50 12" /><path d="M32 8.5C30 5 27 4 24 5" /><path d="M32 15.5C30 19 27 20 24 19" /><path class="f" d="M54 12L58 8L62 12L58 16Z" /><circle class="f" cx="51" cy="12" r="1.3" /></svg></span>';
+const EORN = i => { const k = i % 3, g = k === 0 ? '<path d="M0 10H78M122 10H200"/><path class="f" d="M100 3L106 10L100 17L94 10Z"/><circle cx="86" cy="10" r="2.2"/><circle cx="114" cy="10" r="2.2"/>' : k === 1 ? '<path d="M0 10H64M136 10H200"/><path d="M72 10C78 2 90 2 100 10C110 18 122 18 128 10"/><circle class="f" cx="100" cy="10" r="2.6"/><circle class="f" cx="68" cy="10" r="1.8"/><circle class="f" cx="132" cy="10" r="1.8"/>' : '<path d="M0 10H60M140 10H200"/><path d="M66 10C74 3 82 3 88 10C94 17 106 17 112 10C118 3 126 3 134 10"/><path class="f" d="M100 6L104 10L100 14L96 10Z"/>'; return `<svg class="eo" viewBox="0 0 200 20" preserveAspectRatio="xMidYMid meet" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="1" vector-effect="non-scaling-stroke">${g}</g></svg>`; };
 const RING = n => `<svg class="ring" viewBox="0 0 40 40" aria-hidden="true"><polygon points="20,2 31,6 38,15 38,26 31,35 20,38 9,35 2,26 2,15 9,6" /><text x="20" y="25.5" text-anchor="middle">${n}</text></svg>`;
 const DUA = 'اَللّٰهُمَّ اٰنِسْ وَحْشَتِيْ فِيْ قَبْرِيْ، اَللّٰهُمَّ ارْحَمْنِيْ بِالْقُرْاٰنِ الْعَظِيْمِ وَاجْعَلْهُ لِيْ اِمَامًا وَّنُوْرًا وَّهُدًى وَّرَحْمَةً، اَللّٰهُمَّ ذَكِّرْنِيْ مِنْهُ مَا نَسِيْتُ وَعَلِّمْنِيْ مِنْهُ مَا جَهِلْتُ وَارْزُقْنِيْ تِلَاوَتَهُ اٰنَاءَ اللَّيْلِ وَاٰنَاءَ النَّهَارِ وَاجْعَلْهُ لِيْ حُجَّةً يَا رَبَّ الْعَالَمِيْنَ';
 function duaHtml(n) { return `<div class="ml dua" style="flex-grow:${n}!important"><div class="kb dh"><div class="in">دعاءِ ختمِ القرآن</div></div><div class="dt">${DUA}</div></div>`; }
@@ -280,7 +285,7 @@ function headerHtml(lines) {
   const f = lines.map(lineParts).find(x => x.a); if (!sns.length || !f) return '';
   const [fs, fa] = f.a.split(':').map(Number), j = juzOfAi(AYI[fs + ':' + fa]);
   const sTxt = sns.map(n => snH(n) + ' ' + adx(n)).join(' · ');
-  return `<div class="hq"><span class="hp">${esc(PARA_H[j - 1])} ${adx(j)}</span><span class="hg"><i>${PG[pi]}</i> / ${adx(PG[pi])}</span><span class="hs">${esc(sTxt)}</span></div>`;
+  return `<div class="hq"><span class="hp">${esc(PARA_H[j - 1])} ${adx(j)}</span><span class="hg">${adx(PG[pi])}</span><span class="hs">${esc(sTxt)}</span></div>`;
 }
 const headerHtmlOld = headerHtml;
 function wordHtml(x) {
@@ -380,30 +385,58 @@ function renderCover() {
   sizePage(); const ur = A.st().ui === 'ur';
   bmUpd(); $('#rTitle').textContent = 'Fahmul Quraan'; $('#rPg').textContent = (ur ? ad(0) + ' / ' + ad(PG.length) : '0 / ' + PG.length);
 }
+/* ---------- Build 27: two-page spread for square / foldable screens (open Mushaf: odd page right, even page left) ---------- */
+function wantSpread() { const st = $('#rstage'); if (!st) return false; const m = A && A.st().rsp || 'auto', w = st.clientWidth, h = st.clientHeight || 1; if (m === 'off') return false; if (m === 'on') return w >= 420; return w >= 600 && w / h >= 0.78 && w / h <= 1.75; }
+function syncSpread() { const was = spread; spread = wantSpread(); if (spread && pi > 0) pi -= pi % 2; return was !== spread; }
+function spDom(on) {
+  const st = $('#rstage'); st.classList.toggle('sp', on); let c = st.querySelector('.spw2');
+  if (on && !c) { c = document.createElement('div'); c.className = 'spw2'; c.innerHTML = '<div id="rpage"><div id="rhd"></div><div id="rin"></div><div id="rpn"></div></div>'; st.appendChild(c); const bk = document.createElement('div'); bk.id = 'rboard'; st.insertBefore(bk, st.firstChild); const sp = document.createElement('div'); sp.id = 'rspine'; st.appendChild(sp); }
+  if (c) c.hidden = !on || pi + 1 >= PG.length; const b = st.querySelector('#rboard'), sp2 = st.querySelector('#rspine'); if (b) b.hidden = !on; if (sp2) sp2.hidden = !on;
+}
+function withComp(fn) { const c = $('#rstage').querySelector('.spw2'); if (!c || c.hidden) return; const sp = pi, sr = ROOT; ROOT = c; pi = sp + 1; try { fn(); } finally { pi = sp; ROOT = sr; } }
+function layoutSpread() {
+  const st = $('#rstage'), c = st.querySelector('.spw2'), m = st.querySelector(':scope > #rpage'), b = st.querySelector('#rboard'), sp = st.querySelector('#rspine'); if (!c || !m || !b) return;
+  const cp = c.querySelector('#rpage'), one = c.hidden, L = one ? m.offsetLeft : cp.offsetLeft, W = m.offsetLeft + m.offsetWidth - L, T = m.offsetTop, H = m.offsetHeight, pad = Math.max(6, W * .018);
+  Object.assign(b.style, { left: (L - pad) + 'px', top: (T - pad) + 'px', width: (W + pad * 2) + 'px', height: (H + pad * 1.6) + 'px', '--pp': pad + 'px' });
+  const sw2 = Math.max(24, m.offsetWidth * .09);
+  Object.assign(sp.style, { left: (one ? m.offsetLeft + m.offsetWidth - sw2 / 2 : m.offsetLeft - sw2 / 2) + 'px', top: T + 'px', width: sw2 + 'px', height: H + 'px' });
+}
+function stepPage(d) { if (!spread) { goPage(pi + d); return; } if (pi < 0) { if (d > 0) goPage(0); return; } if (pi === 0 && d < 0) { goPage(-1); return; } goPage(pi + 2 * d); }
+function relayout() { if (!open || pi < 0) { if (open) sizePage(); return; } sizePage(); fit(); if (twoUp) { withComp(() => { sizePage(); fit(); }); layoutSpread(); } if (trkEl) trk(trkEl); }
 function renderPage(anim) {
-  if (pi < 0) { renderCover(); return; }
+  syncSpread();
+  if (pi < 0) { twoUp = false; spDom(false); renderCover(); return; }
+  twoUp = spread; spDom(twoUp);
+  renderOne();
+  if (twoUp) { withComp(renderOne); layoutSpread(); }
+  renderTail(anim);
+}
+function renderOne() {
   const L = M.L[lay], lines = L.pages[PG[pi]];
   const arch = +PG[pi] <= 2; let nE = lines.filter(ln => lineParts(ln).k !== 'e').length; archRows = arch ? nE : 0;
   let ln2 = lines.slice(), duaN = 0; if (!arch) { let t = ln2.length; while (t > 0 && lineParts(ln2[t - 1]).k === 'e') t--; if (ln2.length - t >= 2) { duaN = ln2.length - t; ln2 = ln2.slice(0, t); } }
   rowX = lines.reduce((q, ln) => { const k = lineParts(ln).k; return q + (k[0] === 'h' && k.length > 1 ? .75 : k === 'b' ? .32 : 0); }, 0); const rows = rowsOf();
   { const p0 = $('#rpage'); p0.classList.remove('cover'); p0.classList.toggle('arch', arch); }
-  let h = '';
+  let h = '', eIdx = (PG[pi] * 7) % 3;
   ln2.forEach(ln => {
     const { k, a, b } = lineParts(ln);
-    if (k === 'e') { if (!arch) h += '<div class="ml e"></div>'; }
-    else if (k === 'b') h += `<div class="ml b"><div class="hx bw"><div class="in"><span class="bt">بِسۡمِ اللّٰهِ الرَّحۡمٰنِ الرَّحِيۡمِ</span>${RING('۱')}</div></div></div>`;
+    if (k === 'e') { if (!arch) h += `<div class="ml e">${EORN(eIdx++)}</div>`; }
+    else if (k === 'b') h += `<div class="ml b"><div class="hx bw"><div class="in">${FLO}<span class="bt">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</span>${FLO}</div></div></div>`;
     else if (k[0] === 'h') h += bannerHtml(+k.slice(1));
     else { const ws = rangeLocs(a, b); let rm = '', rb = '', sj = ''; ws.forEach(x => { if (x.w === 1 && window.FAHM_RUB) { rubSet(); const ri = RUBI[x.s + ':' + x.a]; if (ri !== undefined) rb = rubMark(ri); } if (isMk(x.t)) { ornSets(); const ak = x.s + ':' + x.a; if (RUKE.has(ak)) { const q = rukuFull(x.s, x.a); rm = `<i class="tg" data-sd="R" data-k="rq" data-ay="${adx(q.ay)}" data-pr="${adx(q.pr)}" data-sr="${adx(q.sr)}" data-tip="ruku · ayat ${q.ay} · para ${q.pr} · surah ${q.sr}"></i>`; } if (SAJ.has(ak)) sj = `<i class="tg" data-sd="R" data-k="sj" data-n="${adx(SAJ.get(ak))}"></i>`; } }); h += `<div class="ml ${k}">${ws.map(wordHtml).join('')}${rm}${sj}${rb}</div>`; }
   });
   if (duaN) h += duaHtml(duaN);
-  const pg = $('#rpage'); pg.classList.toggle('mem', hz.on && A.st().hmode === 'mem');
+  { const pg0 = $('#rpage'); pg0.classList.toggle('mem', hz.on && A.st().hmode === 'mem'); }
   $('#rin').innerHTML = h; $('#rin').style.setProperty('--rows', rows);
   { ornSets(); const f0 = lines.map(lineParts).find(x => x.a); const mz = f0 ? manzilOfAi(AYI[f0.a.split(':').slice(0, 2).join(':')]) : 0; $('#rpn').innerHTML = mz ? `<div class="mzt">منزل ${adx(mz)}</div>` : ''; $('#rhd').innerHTML = headerHtml(lines); }
   sizePage(); fit(); bmUpd(); applyHl();
+}
+function renderTail(anim) {
+  const pg = $('#rpage'), lines = M.L[lay].pages[PG[pi]];
   warm(pageSurah(pi));
   $('#rTitle').textContent = surahName(pageSurah(pi)) + ' · ' + R('pg') + ' ' + (A.st().ui === 'ur' ? ad(PG[pi]) : PG[pi]);
-  $('#rPg').textContent = (A.st().ui === 'ur' ? ad(pi + 1) + ' / ' + ad(PG.length) : (pi + 1) + ' / ' + PG.length);
-  if (anim) { pg.classList.remove('flip'); void pg.offsetWidth; pg.classList.add('flip'); }
+  $('#rPg').textContent = (A.st().ui === 'ur' ? ad(pi + 1) + (twoUp && pi + 1 < PG.length ? '–' + ad(pi + 2) : '') + ' / ' + ad(PG.length) : (pi + 1) + (twoUp && pi + 1 < PG.length ? '–' + (pi + 2) : '') + ' / ' + PG.length);
+  if (anim && !twoUp) { pg.classList.remove('flip'); void pg.offsetWidth; pg.classList.add('flip'); }
   { const fl = lines.map(lineParts).find(x => x.a); if (fl) { const [s1, a1] = fl.a.split(':').map(Number); A.st().rlast = { s: s1, a: a1 }; A.save(); } }
   paintState();
 }
@@ -411,8 +444,8 @@ const AD = '٠١٢٣٤٥٦٧٨٩', ad = n => String(n).replace(/\d/g, d => AD[d]
 const adx = n => String(n).replace(/\d/g, d => '۰۱۲۳۴۵۶۷۸۹'[d]);
 function paintState() {
   if (curAy && (playing || hz.on)) qa(curAy.s, curAy.a).forEach(e => e.classList.add('cur'));
-  if (hot) { const e = q(hot); if (e) e.classList.add('hot'); }
-  if (hz.on && hz.tr) markNext();
+  if (hot) { const e = q(hot); if (e) { e.classList.add('hot'); if (!hz.on) trk(e); } }
+  if (hz.on && hz.tr) markNext(); else if (!hot) trk(null);
 }
 /* ---------- real page turn: old page lifts around the spine (3D) + paper sound ---------- */
 function pageSound() {
@@ -470,11 +503,11 @@ function flipFx(dir, run) {
   }
   draw(fwd ? 0 : 1); requestAnimationFrame(step);
 }
-function goPage(i, anim) { i = Math.max(-1, Math.min(PG.length - 1, i)); if (i === pi && $('#rin').children.length) return; const dir = i > pi ? 'next' : 'prev'; pi = i; if (anim !== false && open) { const fm = A.st().rflip || 'curl'; if (fm === 'curl') flipFx(dir, () => renderPage(false)); else renderPage(fm === 'slide'); } else renderPage(anim !== false); }
-function ensureLoc(loc) { const i = LP[loc]; if (i !== undefined && i !== pi) goPage(i); }
+function goPage(i, anim) { i = Math.max(-1, Math.min(PG.length - 1, i)); if (open) syncSpread(); if (spread && i > 0) i -= i % 2; if (i === pi && $('#rin').children.length) return; const dir = i > pi ? 'next' : 'prev'; pi = i; if (spread && i >= 0 && anim !== false && open) { pageSound(); renderPage(false); const st = $('#rstage'); st.classList.remove('sfl'); void st.offsetWidth; st.classList.add('sfl'); setTimeout(() => st.classList.remove('sfl'), 520); return; } if (anim !== false && open) { const fm = A.st().rflip || 'curl'; if (fm === 'curl') flipFx(dir, () => renderPage(false)); else renderPage(fm === 'slide'); } else renderPage(anim !== false); }
+function ensureLoc(loc) { const i = LP[loc]; if (i !== undefined && (spread && i > 0 ? i - i % 2 : i) !== pi) goPage(i); }
 
 /* ---------- ayah audio + live word highlight ---------- */
-function clearHl() { document.querySelectorAll('#rpage .cur,#rpage .hot').forEach(e => e.classList.remove('cur', 'hot')); }
+function clearHl() { document.querySelectorAll('#rpage .cur,#rpage .hot').forEach(e => e.classList.remove('cur', 'hot')); if (!hz.on) trk(null); }
 function setCur(s, a) {
   clearHl(); hot = null; curAy = { s, a }; mediaSess(); const key = s + ':' + a, ai = AYI[key];
   if (ai !== undefined) { const f = SC[AY[ai].first]; ensureLoc(f.loc); }
@@ -489,7 +522,7 @@ function startTick() {
     const tot = ws.reduce((x, y) => x + y.wt, 0), lead = Math.min(.18, rau.duration * .04), tail = Math.min(.3, rau.duration * .05), t = Math.max(0, Math.min(1, (rau.currentTime - lead) / Math.max(.5, rau.duration - lead - tail))) * tot;
     let acc = 0, pick = ws[ws.length - 1];
     for (const w of ws) { acc += w.wt; if (t <= acc) { pick = w; break; } }
-    if (hot !== pick.loc) { const o = hot && q(hot); if (o) o.classList.remove('hot'); hot = pick.loc; ensureLoc(pick.loc); const e = q(pick.loc); if (e) e.classList.add('hot', 'cur'); if (rev) { qa(curAy.s, curAy.a).forEach(x => x.classList.add('rev')); } }
+    if (hot !== pick.loc) { const o = hot && q(hot); if (o) o.classList.remove('hot'); hot = pick.loc; ensureLoc(pick.loc); const e = q(pick.loc); if (e) { e.classList.add('hot', 'cur'); if (!hz.on) trk(e); } if (rev) { qa(curAy.s, curAy.a).forEach(x => x.classList.add('rev')); } }
   }, 50);
 }
 function setPlaying(p) { playing = p; $('#rIcoP').style.display = p ? 'none' : ''; $('#rIcoS').style.display = p ? '' : 'none'; bgSync(p); if (p) mediaSess(); }
@@ -589,9 +622,21 @@ function ayTr(s, a) {
 }
 const ayRef = ai => { const y = AY[ai]; return surahName(y.s) + ' ' + (A.st().ui === 'ur' ? ad(y.a) : y.a); };
 function hzStatus(k, cls) { const e = $('#rhSt'); e.textContent = R(k); e.className = cls || ''; }
+/* glass tracking box: follows the word being recited (Hafiz) or played (audio) */
+let trkEl = null;
+function trk(e) {
+  const st = $('#rstage'); let t = document.getElementById('rtrk');
+  if (!e || !e.isConnected) { trkEl = null; if (t) t.classList.remove('on'); return; }
+  trkEl = e; if (!t) { t = document.createElement('div'); t.id = 'rtrk'; t.innerHTML = '<i class="tk-s"></i><i class="tk-a"></i>'; st.appendChild(t); }
+  const sr = st.getBoundingClientRect(), r = e.getBoundingClientRect(), px = Math.max(3, r.width * .08), py = Math.max(2, r.height * .04);
+  t.style.fontSize = Math.max(10, r.height * .5) + 'px'; t.style.width = (r.width + px * 2) + 'px'; t.style.height = (r.height + py * 2) + 'px';
+  t.style.transform = `translate(${(r.left - sr.left + st.scrollLeft - px).toFixed(1)}px,${(r.top - sr.top + st.scrollTop - py).toFixed(1)}px)`;
+  t.classList.toggle('hz', !!hz.on); t.classList.add('on');
+}
+window.__trk = trk;
 function markNext() {
   document.querySelectorAll('#rpage .nx').forEach(e => e.classList.remove('nx')); const w = SC[hz.tr.p];
-  if (w) { const e = q(w.loc); if (e) { e.classList.add('nx'); const st = $('#rstage'); if (st.scrollHeight > st.clientHeight + 4) e.scrollIntoView({ block: 'center', behavior: 'smooth' }); } }
+  if (w) { const e = q(w.loc); if (e) { e.classList.add('nx'); trk(e); const st = $('#rstage'); if (st.scrollHeight > st.clientHeight + 4) e.scrollIntoView({ block: 'center', behavior: 'smooth' }); } }
 }
 function setOk(i0, i1) {
   for (let i = i0; i < i1; i++) {
@@ -777,6 +822,13 @@ const WARN = {
 function nativeSay(txt, lang, rate, cb) {
   try { if (!(window.FahmAndroid && window.FahmAndroid.speak)) return false; window.__fahmSpoke = ok => { window.__fahmSpoke = null; cb(ok !== false); }; const r = window.FahmAndroid.speak(txt, lang, rate); if (r === 'no') { window.__fahmSpoke = null; return false; } return true; } catch (e) { return false; }
 }
+let wAuW = null;
+function warnClip(lg, kind, cb) {
+  try {
+    if (wAuW) { try { wAuW.pause(); } catch (e) { } } const u = new Audio('vo/warn/w_' + kind + '_' + lg + '.mp3'); wAuW = u; let g = false; const go = ok => { if (g) return; g = true; cb(ok); };
+    u.onended = () => go(true); u.onerror = () => go(false); const pr = u.play(); if (pr && pr.catch) pr.catch(() => go(false)); return true;
+  } catch (e) { return false; }
+}
 function speakWarn(done, kind) {
   const m0 = A.st().hwarn || 'ur', m = (A.st().xl && m0 === 'ur') ? 'en' : m0, k = kind === 'skip' || kind === 'jump' ? kind : 'wrong'; let fin = false, tm = null; const end = () => { if (fin) return; fin = true; clearTimeout(tm); try { window.__fahmSpoke = null; } catch (e) { } done && done(); };
   if (m === 'off') { end(); return; }
@@ -787,6 +839,8 @@ function speakWarn(done, kind) {
     const one = () => {
       if (fin) return; if (j >= tries.length) { if (!spoke && i >= order.length) end(); else nx(); return; }
       const [txt, lang] = tries[j++];
+      /* Build 27: ElevenLabs recorded voice first (ur / en / ar); the phone voice is only a fallback for other languages */
+      { const lc = lang.slice(0, 2), cl = lc === 'hi' ? 'ur' : lc; if ((cl === 'ur' || cl === 'en' || cl === 'ar') && (lc !== 'hi' || tries[0] === WARN.ur[k])) { if (warnClip(cl, k, ok => { if (ok) { spoke = true; nx(); } else one(); })) return; } }
       if (nativeSay(txt, lang, 1.2, ok => { if (ok) { spoke = true; nx(); } else one(); })) return;
       let vs = []; try { vs = speechSynthesis.getVoices(); } catch (e) { }
       const v = vs.find(x => x.lang === lang) || vs.find(x => x.lang.slice(0, 2) === lang.slice(0, 2));
@@ -924,6 +978,7 @@ function hzBeginDaur(ai) {
   recStart();
 }
 function hzStop() {
+  trk(null);
   if (hz.on && hz.tr && !hz.finished) { try { const w = SC[Math.min(hz.tr.p, SC.length - 1)]; if (w) snapSave(w.ai, true); } catch (e) { } }
   { const S0 = A.st(); if (S0.trwWas) { S0.trw = true; delete S0.trwWas; A.save(); } }
   recEnd(); hz.on = false; hz.want = false; hz.busy = false; recStop(); clearInterval(hz.sil); stopAudio(); $('#rhz').hidden = true; $('#rMic').classList.remove('on');
@@ -1351,7 +1406,7 @@ function stopMine() { if (!mine) return; mine.tok = -1; try { mine.src.onended =
 function hotAt(y, frac) {
   const ws = ayWords(y.s, y.a); if (!ws.length) return; const tot = ws.reduce((x, w) => x + w.n.length + 1, 0), t = Math.max(0, Math.min(1, frac)) * tot; let acc = 0, pick = ws[ws.length - 1];
   for (const w of ws) { acc += w.n.length + 1; if (t <= acc) { pick = w; break; } }
-  if (hot !== pick.loc) { const o = hot && q(hot); if (o) o.classList.remove('hot'); hot = pick.loc; ensureLoc(pick.loc); const e = q(pick.loc); if (e) e.classList.add('hot', 'cur'); }
+  if (hot !== pick.loc) { const o = hot && q(hot); if (o) o.classList.remove('hot'); hot = pick.loc; ensureLoc(pick.loc); const e = q(pick.loc); if (e) { e.classList.add('hot', 'cur'); if (!hz.on) trk(e); } }
 }
 async function minePlay(id) {
   stopAudio(); stopCmp(); popClose(); unlockAc(); if (!ac) return;
@@ -1376,7 +1431,7 @@ function init(api) {
   $('#rBm').onclick = () => { if (!$('#rpop').hidden && $('#rpop').dataset.pk === 'b') popClose(); else popBm(); };
   $('#rLay').onclick = () => { if ($('#rpop').hidden || !$('#rpop').dataset.pk || $('#rpop').dataset.pk !== 'l') { $('#rpop').dataset.pk = 'l'; popLayout(); } else popClose(); };
   $('#rMinus').onclick = () => applyZoom(-0.15); $('#rPlus').onclick = () => applyZoom(0.15);
-  $('#rPrev').onclick = () => goPage(pi - 1); $('#rNext').onclick = () => goPage(pi + 1);
+  $('#rPrev').onclick = () => stepPage(-1); $('#rNext').onclick = () => stepPage(1);
   $('#rPlay').onclick = () => {
     if (hz.on) { hzStop(); return; }
     if (playing) { stopAudio(); return; }
@@ -1456,7 +1511,8 @@ function init(api) {
     if (id === 'ttS' || id === 'ttA') pl.amt = 0;
     A.st().hplan = pl; A.save(); if (id === 'ttS' || id === 'ttA') popSetup();
   });
-  $('#rin').addEventListener('click', e => {
+  $('#rstage').addEventListener('click', e => {
+    if (!e.target.closest('#rin')) return;
     const rbx = e.target.closest('.rb'); if (rbx) { const [lb, no] = rbx.dataset.rb.split('|'), ur = A.st().ui === 'ur', nm = { 'جزء': ['پارے کا آغاز', 'Para ka aaghaz', 'Start of a Juz'], 'حزب': ['حزب کا آغاز', 'Hizb ka aaghaz', 'Start of a Hizb'], 'ربع': ['ربع الحزب (چوتھائی)', 'Rub-ul-Hizb (chauthaai)', 'Quarter of the Hizb'], 'نصف': ['نصف الحزب (آدھا)', 'Nisf-ul-Hizb (aadha)', 'Half of the Hizb'], 'ثلثة': ['ثلاثة أرباع الحزب (تین چوتھائی)', 'Salaasatu arbaa (teen chauthaai)', 'Three quarters of the Hizb'] }[lb], ix = ur ? 0 : (A.st().ui === 'ru' ? 1 : 2), q = +no - 1, hz2 = Math.floor(q / 4) + 1, jz2 = Math.floor(q / 8) + 1; A.toast(nm[ix] + ' · ' + (ix === 0 ? 'حزب ' : ix === 1 ? 'Hizb ' : 'Hizb ') + (ur ? ad(hz2) : hz2) + ' · ' + (ix === 0 ? 'پارہ ' : 'Juz ') + (ur ? ad(jz2) : jz2), 4200); return; }
     popClose(); const w = e.target.closest('.wd'); if (!w) return; const [s, a] = w.dataset.loc.split(':').map(Number); const ai = AYI[s + ':' + a]; if (ai == null) return;
     if (hz.on) { if (!hz.busy && ai >= hz.fi && ai <= hz.ti) { hz.tr.setPos(AY[ai].first); clearAyahMarks(ai); markNext(); savePos(ai); hz.lastAct = Date.now() + 1500; hzStatus('listen'); } return; }
@@ -1465,10 +1521,10 @@ function init(api) {
   /* swipe + keys: RTL book — finger moving right = next page */
   let sx = null, sy = 0; const stg = $('#rstage');
   stg.addEventListener('touchstart', e => { if (e.touches.length === 1) { sx = e.touches[0].clientX; sy = e.touches[0].clientY; } else sx = null; }, { passive: true });
-  stg.addEventListener('touchend', e => { if (sx == null) return; const t = e.changedTouches[0], dx = t.clientX - sx, dy = t.clientY - sy; sx = null; if (Math.abs(dx) > 70 && Math.abs(dx) > Math.abs(dy) * 1.8 && (A.st().rz || 1) <= 1.01) goPage(pi + (dx > 0 ? 1 : -1)); }, { passive: true });
-  document.addEventListener('keydown', e => { if (!open) return; if (e.key === 'ArrowLeft') goPage(pi + 1); else if (e.key === 'ArrowRight') goPage(pi - 1); else if (e.key === 'Escape') close(); });
-  window.addEventListener('resize', () => { if (open) { sizePage(); fit(); } });
-  window.addEventListener('orientationchange', () => { if (open) setTimeout(() => { sizePage(); fit(); }, 250); });
+  stg.addEventListener('touchend', e => { if (sx == null) return; const t = e.changedTouches[0], dx = t.clientX - sx, dy = t.clientY - sy; sx = null; if (Math.abs(dx) > 70 && Math.abs(dx) > Math.abs(dy) * 1.8 && (A.st().rz || 1) <= 1.01) stepPage(dx > 0 ? 1 : -1); }, { passive: true });
+  document.addEventListener('keydown', e => { if (!open) return; if (e.key === 'ArrowLeft') stepPage(1); else if (e.key === 'ArrowRight') stepPage(-1); else if (e.key === 'Escape') close(); });
+  window.addEventListener('resize', () => { if (open) { if (wantSpread() !== spread) renderPage(false); else relayout(); } });
+  window.addEventListener('orientationchange', () => { if (open) setTimeout(() => { if (wantSpread() !== spread) renderPage(false); else relayout(); }, 250); });
   document.addEventListener('visibilitychange', () => { if (document.hidden && hz.on) hzStop(); });
   window.addEventListener('pagehide', () => { if (hz.on && hz.tr && !hz.finished) { try { const w = SC[Math.min(hz.tr.p, SC.length - 1)]; if (w) snapSave(w.ai, true); } catch (e) { } } });
 }

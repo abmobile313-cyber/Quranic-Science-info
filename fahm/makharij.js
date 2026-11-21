@@ -102,7 +102,8 @@
   function killLab() { try { lab && lab.destroy && lab.destroy(); } catch (e) { } lab = null; if (labHost) { const st = labHost.querySelector('.mk-stage'); if (st) st.innerHTML = ''; } }
   let sel = 0;
   function say(ch) {
-    try { speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(ch + '\u064E'); u.lang = 'ar-SA'; u.rate = .6; const v = speechSynthesis.getVoices().find(x => /^ar/i.test(x.lang)); if (v) u.voice = v; speechSynthesis.speak(u); } catch (e) { }
+    /* Build 27: no phone voice — plays a recorded clip vo/mk/<codepoint>.mp3 when one exists, otherwise stays silent */
+    try { if (window.__mkAu) { window.__mkAu.pause(); } const a = new Audio('vo/mk/' + ch.codePointAt(0).toString(16) + '.mp3'); window.__mkAu = a; const p = a.play(); if (p && p.catch) p.catch(() => { }); } catch (e) { }
   }
   function labTo(i) {
     sel = i; if (!lab) return; const a = AREAS[cur], z = (ZONE[a.id] || [])[i]; if (!z) return; const ch = a.pts[i].L.split(' ')[0];
