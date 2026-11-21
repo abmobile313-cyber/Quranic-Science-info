@@ -83,19 +83,18 @@
 
   /* ---- the Ustad's own face (X-ray) / photo-real 3D head, same engines as the Quranic Science AI lab ---- */
   const ZONE = { jawf: ['jawf'], halq: ['h1', 'h2', 'h3'], lisan: ['l1', 'l2', 'l3', 'l4', 'l5', 'l5', 'l5', 'l6', 'l7', 'l8'], shaf: ['s1', 's2'], khay: ['kh'] };
-  let lab = null, labMode = 'xray', labHost = null, labLang = '';
+  let lab = null, labMode = '3d', labHost = null, labLang = '';
   const gl3 = () => { try { return !!(window.MLab3 && MLab3.ok()); } catch (e) { return false; } };
   function mountLab(dg) {
     if (labHost !== dg) { labHost = dg; lab = null; dg.innerHTML = ''; }
     if (!dg.querySelector('.mk-modes')) {
-      dg.innerHTML = '<div class="mk-stage"></div><div class="mk-modes"><button data-m="xray"></button><button data-m="3d"></button></div>';
-      dg.querySelector('.mk-modes').onclick = e => { const b = e.target.closest('button'); if (!b) return; labMode = b.dataset.m; killLab(); mountLab(dg); labTo(sel); };
+      dg.innerHTML = '<div class="mk-stage"></div><div class="mk-modes" hidden></div>';
     }
-    const T = tx(); dg.querySelectorAll('.mk-modes button').forEach(b => { b.textContent = b.dataset.m === 'xray' ? T.mx : T.m3; b.classList.toggle('on', b.dataset.m === labMode); b.hidden = b.dataset.m === '3d' && !gl3(); });
+    
     if (lab && labLang === lang()) return; killLab();
     const st = dg.querySelector('.mk-stage'); st.innerHTML = ''; const svg = document.createElementNS(NS, 'svg'); st.appendChild(svg); labLang = lang();
     try {
-      const Eng = labMode === '3d' && gl3() ? window.MLab3 : (window.MLabXray && MLabXray.ok() ? window.MLabXray : window.MLab);
+      const Eng = gl3() ? window.MLab3 : window.MLab;
       lab = Eng.Lab(svg, labLang === 'ur' ? 'ur' : labLang === 'en' ? 'en' : 'ur'); lab.labels && lab.labels(true, labLang === 'en' ? 'en' : 'ur');
     } catch (e) { lab = null; st.innerHTML = '<p class="mk-err">3D lab unavailable on this device.</p>'; }
   }

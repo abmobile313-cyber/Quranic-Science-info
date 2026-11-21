@@ -24,6 +24,7 @@ const CUES = {
 const MAP = { bloom: 'chime', beam: 'chime', core: 'chime', pulse: 'chime', crown: 'chime', orbits: 'chime', beads: 'chime', sun: 'chime', shield: 'chime', scales: 'chime', rain: 'sparkle', frost: 'sparkle', coins: 'sparkle', flames: 'crackle', firewood: 'crackle', hand: 'crackle', stones: 'whoosh', birds: 'whoosh', elephants: 'rumble', camels: 'rumble', river: 'water', gate: 'swell', dark: 'drone', smoke: 'drone', haze: 'drone', kaaba: 'tone', dome: 'tone', split: 'swell', dawnsplit: 'swell', path: 'whoosh' };
 const F = window.FahmSfx = {
   setLevel(l) { level = l; if (master) master.gain.setTargetAtTime(LV[l], ac.currentTime, .1); if (!l) F.stop(); },
+  level() { return level; },
   unlock() { if (init() && ac.state === 'suspended') ac.resume(); },
   cue(kind) { if (!level || !init()) return; const c = CUES[MAP[kind]], now = performance.now(); if (!c || now - last < 260) return; last = now; try { c(); } catch (e) { } },
   start(sky) { if (!level || !init()) return; F.stop(); const t = ac.currentTime, s = noise(true), f = ac.createBiquadFilter(), g = ac.createGain(), l = ac.createOscillator(), lg = ac.createGain();

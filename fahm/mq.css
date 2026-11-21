@@ -347,3 +347,141 @@ html:has(body.light)::after{opacity:.1;filter:sepia(1) saturate(1.8) hue-rotate(
 #rpage.mq .kv.rk .re b,#rpage.mq .kv.rk .re b.l1,#rpage.mq .kv.rk .re b.l2,#rpage.mq .kv.rk .re b.l3{left:74%}
 html::after{opacity:.1}
 html:has(body.light)::after{opacity:.065}
+
+/* ===== Build 30: ruku mark rebuilt on ONE centre axis — top number / ع (ink-centred) / ayat-count ring / bottom number; every part centred, equal gaps ===== */
+#rpage.mq .kv.rk>.in{display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:space-between!important;gap:0!important;padding:calc(var(--bw)*.04) 0!important;font-size:calc(var(--bw)*.5)!important;writing-mode:horizontal-tb!important;direction:ltr!important;text-orientation:mixed!important}
+#rpage.mq .kv.rk .rt,#rpage.mq .kv.rk .rb2{display:flex!important;align-items:center;justify-content:center;width:100%;height:1.35em;line-height:1!important;font-size:1.22em!important;font-family:'AmiriQ','ArefR',serif!important;font-weight:400!important;-webkit-text-stroke:0!important;letter-spacing:0;margin:0!important;text-align:center;color:#e6c97a}
+body.light #rpage.mq .kv.rk .rt,body.light #rpage.mq .kv.rk .rb2{color:#5a2a10}
+#rpage.mq .kv.rk .re{position:relative!important;display:block!important;width:100%;height:2.5em;margin:0!important;font-size:1em!important;line-height:1!important}
+#rpage.mq .kv.rk .ra{position:absolute!important;left:50%;top:50%;width:1em;height:1em;display:flex!important;align-items:center;justify-content:center;font-size:2.5em!important;line-height:1!important;font-family:'AmiriQ','ArefR',serif!important;font-weight:400!important;-webkit-text-stroke:0!important;color:#d8b05a;text-shadow:none;transform:translate(calc(-50% + var(--ox,0em)),calc(-50% + var(--oy,0em)))!important}
+body.light #rpage.mq .kv.rk .ra{color:#7a4a12}
+#rpage.mq .kv.rk .rc{display:flex!important;align-items:center;justify-content:center;box-sizing:border-box;min-width:1.7em;height:1.7em;padding:0 .2em;margin:0!important;border:1px solid rgba(98,219,232,.85);border-radius:999px;font-family:'AmiriQ','ArefR',serif!important;font-weight:400!important;font-size:.84em!important;line-height:1!important;letter-spacing:0;color:#8fe9f2;background:rgba(98,219,232,.1);-webkit-text-stroke:0!important;text-shadow:none!important;position:static!important;transform:none!important}
+#rpage.mq .kv.rk .rc.l3{font-size:.66em!important}
+body.light #rpage.mq .kv.rk .rc{color:#0a5e6b;border-color:#0a6a78;background:rgba(10,106,120,.1)}
+#rpage.mq .kv.rk .rc{min-width:1.5em;height:1.5em;font-size:1.02em!important;border-width:1px;padding:0 .12em}
+#rpage.mq .kv.rk .rc.l3{font-size:.78em!important;min-width:1.9em}
+#rpage.mq .kv.rk .re{height:2.3em}
+#rpage.mq .kv.rk .ra{font-size:2.3em!important}
+#rpage.mq .kv.rk .rc{padding:0 .12em .3em!important;min-width:1.4em;height:1.4em;font-size:1.1em!important}
+#rpage.mq .kv.rk .rt,#rpage.mq .kv.rk .rb2{padding-bottom:.12em}
+
+/* ===== Build 30: Hafiz extras — quiet gold dot over mutashabih ("fork") words ===== */
+#rpage .wd.fk{position:relative}
+#rpage .wd.fk::before{content:"";position:absolute;left:50%;top:-.16em;width:.2em;height:.2em;margin-left:-.1em;border-radius:50%;background:radial-gradient(circle at 35% 30%,#fff6d0,#e2b24a 55%,#a9741f);box-shadow:0 0 .35em rgba(226,178,74,.75);pointer-events:none;z-index:2}
+body.light #rpage .wd.fk::before{background:radial-gradient(circle at 35% 30%,#ffe9b0,#b9771d 60%,#7a4a0e);box-shadow:0 0 .3em rgba(138,90,28,.6)}
+
+/* ===== Build 30: ONE 3D transparent-glass language for panels, sheets, cards and the whole Hafiz report (buttons stay flat) ===== */
+:root{
+  --g3-bg:radial-gradient(130% 70% at 12% 0%,rgba(255,255,255,.3),rgba(255,255,255,0) 58%),linear-gradient(158deg,rgba(255,255,255,.17) 0,rgba(255,255,255,.055) 40%,rgba(255,255,255,.025) 64%,rgba(255,255,255,.12) 100%);
+  --g3-bd:rgba(255,255,255,.2);--g3-bt:rgba(255,255,255,.6);
+  --g3-sh:inset 0 1.5px 0 rgba(255,255,255,.55),inset 1px 0 0 rgba(255,255,255,.16),inset 0 -1px 0 rgba(255,255,255,.1),inset 0 -16px 22px -18px rgba(0,0,0,.6),0 18px 30px -18px rgba(0,0,0,.85),0 3px 7px -3px rgba(0,0,0,.5);
+  --g3-blur:blur(16px) saturate(1.5)}
+body.light{--g3-bg:radial-gradient(130% 70% at 12% 0%,rgba(255,255,255,.85),rgba(255,255,255,0) 58%),linear-gradient(158deg,rgba(255,255,255,.62) 0,rgba(255,255,255,.28) 42%,rgba(255,250,235,.2) 66%,rgba(255,255,255,.45) 100%);
+  --g3-bd:rgba(110,72,20,.28);--g3-bt:rgba(255,255,255,.95);
+  --g3-sh:inset 0 1.5px 0 rgba(255,255,255,.95),inset 1px 0 0 rgba(255,255,255,.6),inset 0 -1px 0 rgba(110,72,20,.14),inset 0 -14px 20px -16px rgba(110,72,20,.35),0 16px 26px -16px rgba(80,50,10,.5),0 3px 6px -3px rgba(80,50,10,.35)}
+#rpop,#wsSheet,.xlb,.glass,.brand,.sh-mz,.sh-tj,
+#rrep .rhero,#rrep .rch,#rrep .rs,#rrep details.rd,#rrep .hsbars,#rrep .ri.rrow,#rrep .rnav{
+  background:var(--g3-bg)!important;border:1px solid var(--g3-bd)!important;border-top-color:var(--g3-bt)!important;box-shadow:var(--g3-sh)!important;
+  -webkit-backdrop-filter:var(--g3-blur)!important;backdrop-filter:var(--g3-blur)!important}
+#rrep .rch.bad{box-shadow:var(--g3-sh),inset 0 0 18px rgba(229,88,76,.35)!important}
+#rrep .rch.warn{box-shadow:var(--g3-sh),inset 0 0 18px rgba(240,180,74,.32)!important}
+#rrep .rch.ok{box-shadow:var(--g3-sh),inset 0 0 18px rgba(74,196,138,.3)!important}
+#rrep .rs{margin:8px 0}
+#rrep .ri{border-bottom:0!important;padding:8px 10px;margin:6px 0;border-radius:14px;background:linear-gradient(158deg,rgba(255,255,255,.1),rgba(255,255,255,.025))!important;border:1px solid rgba(255,255,255,.12)!important;border-top-color:rgba(255,255,255,.34)!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.3),0 8px 14px -10px rgba(0,0,0,.7)}
+body.light #rrep .ri{background:linear-gradient(158deg,rgba(255,255,255,.7),rgba(255,255,255,.3))!important;border-color:rgba(110,72,20,.2)!important;border-top-color:rgba(255,255,255,.95)!important;box-shadow:inset 0 1px 0 #fff,0 8px 14px -10px rgba(80,50,10,.4)}
+/* report backdrop: deep maroon / teal / gold light-pools so the glass has something to refract */
+#rrep{background:radial-gradient(60% 38% at 14% 6%,rgba(165,38,58,.55),transparent 70%),radial-gradient(55% 34% at 92% 30%,rgba(24,150,168,.42),transparent 72%),radial-gradient(70% 40% at 20% 78%,rgba(214,164,60,.3),transparent 70%),radial-gradient(60% 36% at 88% 96%,rgba(120,26,48,.5),transparent 70%),#130a10!important}
+body.light #rrep{background:radial-gradient(60% 38% at 14% 6%,rgba(214,120,110,.4),transparent 70%),radial-gradient(55% 34% at 92% 30%,rgba(90,190,200,.3),transparent 72%),radial-gradient(70% 40% at 20% 78%,rgba(226,184,90,.4),transparent 70%),#fbf3dc!important}
+#rrep .rring{background:conic-gradient(#f0c35a calc(var(--p)*1%),rgba(255,255,255,.16) 0);box-shadow:0 0 18px rgba(240,195,90,.35),inset 0 2px 3px rgba(255,255,255,.5)}
+#rrep .rring::before{background:radial-gradient(circle at 32% 24%,rgba(255,255,255,.28),rgba(30,14,22,.86) 62%)!important;box-shadow:inset 0 2px 4px rgba(255,255,255,.35),inset 0 -6px 10px rgba(0,0,0,.45)}
+body.light #rrep .rring::before{background:radial-gradient(circle at 32% 24%,#fff,#f1e2b8 70%)!important}
+#rrep .rk{background:linear-gradient(160deg,rgba(255,255,255,.22),rgba(255,255,255,.06));border:1px solid rgba(255,255,255,.22);border-top-color:rgba(255,255,255,.5);box-shadow:inset 0 1px 0 rgba(255,255,255,.4)}
+#rrep h4,#rrep h5,#rrep h6{text-shadow:0 1px 8px rgba(0,0,0,.45)}
+body.light #rrep h4,body.light #rrep h5,body.light #rrep h6{text-shadow:none}
+
+/* ===== Build 30: branding pill in empty areas (full-screen scenes) ===== */
+#fqb{position:fixed;left:50%;transform:translateX(-50%);z-index:95;pointer-events:none;display:none;align-items:center;gap:7px;padding:4px 13px 4px 6px;border-radius:999px;max-width:78vw;white-space:nowrap;
+  background:var(--g3-bg);border:1px solid var(--g3-bd);border-top-color:var(--g3-bt);box-shadow:var(--g3-sh);-webkit-backdrop-filter:var(--g3-blur);backdrop-filter:var(--g3-blur);color:#f0d98c;font-family:'ArefR','Inter',serif}
+#fqb img{width:24px;height:24px;border-radius:7px;flex:none;box-shadow:0 1px 4px rgba(0,0,0,.5)}
+#fqb span{display:flex;flex-direction:column;line-height:1.12;text-align:left}
+#fqb b{font-size:11.5px;letter-spacing:.16em;font-weight:700;background:linear-gradient(180deg,#fff0bd,#e2b24a 65%,#c18d2e);-webkit-background-clip:text;background-clip:text;color:transparent}
+#fqb small{font-size:9px;letter-spacing:.06em;opacity:.92;color:#ead9a2}
+#fqb[data-slot="ws"],#fqb[data-slot="st"]{display:flex;top:calc(env(safe-area-inset-top,0px) + 58px)}
+#fqb[data-slot="ws"]{top:calc(env(safe-area-inset-top,0px) + 14px)}
+#fqb[data-slot="rd"]{display:flex;top:auto;bottom:calc(env(safe-area-inset-bottom,0px) + 3px);padding:2px 10px 2px 4px;z-index:75;background:none;border:0;box-shadow:none;-webkit-backdrop-filter:none;backdrop-filter:none;opacity:.8}
+#fqb[data-slot="rd"] img{width:16px;height:16px;border-radius:5px}
+#fqb[data-slot="rd"] b{font-size:8.5px}#fqb[data-slot="rd"] small{font-size:7px}
+body.light #fqb small{color:#6a4a14}
+#fqb small{font-size:8.2px;letter-spacing:.1em}
+#fqb small.u{letter-spacing:.04em;color:#7fe0ec;font-size:8.4px}
+body.light #fqb small.u{color:#0a6a78}
+#fqb[data-slot="ws"],#fqb[data-slot="st"]{top:calc(env(safe-area-inset-top,0px) + 12px)}
+#fqb[data-slot="rd"] span{flex-direction:row;gap:6px;align-items:baseline}
+#fqb[data-slot="rd"] small.u{color:inherit}
+
+/* ===== Build 30: Quran search overlay (3D glass) ===== */
+#sr{position:fixed;inset:0;z-index:120;display:flex;flex-direction:column;padding:calc(env(safe-area-inset-top,0px) + 10px) 12px 12px;
+  background:radial-gradient(60% 34% at 12% 4%,rgba(165,38,58,.55),transparent 70%),radial-gradient(55% 30% at 92% 24%,rgba(24,150,168,.4),transparent 72%),radial-gradient(70% 36% at 20% 84%,rgba(214,164,60,.28),transparent 70%),#130a10;color:#efe7d2;overflow:hidden}
+#sr[hidden]{display:none}
+body.light #sr{background:radial-gradient(60% 34% at 12% 4%,rgba(214,120,110,.4),transparent 70%),radial-gradient(55% 30% at 92% 24%,rgba(90,190,200,.3),transparent 72%),radial-gradient(70% 36% at 20% 84%,rgba(226,184,90,.4),transparent 70%),#fbf3dc;color:#2b1a0e}
+#sr .srh{display:flex;gap:10px;align-items:center;margin-bottom:8px}
+#sr .srx{flex:none;width:42px;height:42px;border-radius:50%;display:grid;place-items:center;background:var(--g3-bg);border:1px solid var(--g3-bd);border-top-color:var(--g3-bt);box-shadow:var(--g3-sh);color:inherit}
+#sr .srx svg,#sr .srm{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round}
+#sr .srb{flex:1;position:relative;display:flex;align-items:center;border-radius:999px;background:var(--g3-bg);border:1px solid var(--g3-bd);border-top-color:var(--g3-bt);box-shadow:var(--g3-sh);-webkit-backdrop-filter:var(--g3-blur);backdrop-filter:var(--g3-blur)}
+#sr .srm{position:absolute;left:14px;opacity:.75;color:#e2b24a}
+#sr #srq{flex:1;min-width:0;height:44px;border:0;outline:0;background:none;color:inherit;font-size:16px;padding:0 14px 0 42px;border-radius:999px}
+#sr #srq::placeholder{color:inherit;opacity:.5;font-size:13.5px}
+#sr .srt{font-size:12.5px;opacity:.9;margin:2px 6px 6px;min-height:16px}#sr .srt i{font-style:normal;color:#e2b24a}
+#sr .srp{overflow:auto}#sr .srpt{font-size:12px;letter-spacing:.08em;text-transform:uppercase;opacity:.75;margin:10px 4px 8px}
+#sr .srcs{display:flex;flex-wrap:wrap;gap:8px}#sr .srtip{opacity:.7;font-size:12.5px;margin:14px 4px}
+#sr .srl{flex:1;overflow:auto;-webkit-overflow-scrolling:touch;padding-bottom:20px}
+#sr .sri{margin:9px 0;padding:11px 13px;border-radius:18px;background:var(--g3-bg);border:1px solid var(--g3-bd);border-top-color:var(--g3-bt);box-shadow:var(--g3-sh);-webkit-backdrop-filter:var(--g3-blur);backdrop-filter:var(--g3-blur)}
+#sr .srr{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}#sr .srr b{color:#e2b24a;font-size:13px}#sr .srr span{display:flex;gap:6px}
+#sr .sra{font-size:23px;line-height:1.9;direction:rtl;text-align:right;margin:4px 0 2px;font-family:'DKIP','AmiriQ',serif}
+#sr .srtx{margin:2px 0 0;font-size:13.5px;line-height:1.65;opacity:.95}#sr .srtx.ur{direction:rtl;text-align:right;font-size:16px;line-height:2;font-family:'DKIP','NooriP','AmiriQ',serif}
+#sr mark{background:rgba(226,178,74,.3);color:inherit;border-radius:4px;padding:0 2px;box-shadow:0 0 0 1px rgba(226,178,74,.45)}
+#sr .srmore{display:block;margin:12px auto}
+#btnFind svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round}
+/* Build 30: search button joins the header grid (7th column) */
+.top.hdr16{grid-template-columns:38px 1fr 38px 38px 38px 38px 38px;grid-template-areas:"brand brand brand brand brand brand brand" "m t f l th r s"}
+.top.hdr16 #btnFind{grid-area:f}
+.top.hdr16 [data-k=btnFind]::after{content:'Search'}
+body.l-ur .top.hdr16 [data-k=btnFind]::after{content:'تلاش'}
+body.l-ru .top.hdr16 [data-k=btnFind]::after{content:'Talash'}
+@media (max-width:360px){.top.hdr16{grid-template-columns:32px 1fr 32px 32px 32px 32px 32px}}
+/* Build 30: translation strip under the reading page */
+#rtrn{flex:none;margin:0 10px 4px;padding:8px 14px 10px;border-radius:16px;max-height:24vh;overflow:auto;text-align:start;
+ background:var(--g3-bg);border:1px solid var(--g3-bd);box-shadow:var(--g3-sh);-webkit-backdrop-filter:var(--g3-blur);backdrop-filter:var(--g3-blur);color:inherit}
+#rtrn .tr-ref{display:block;font:700 10px/1 system-ui,sans-serif;letter-spacing:.14em;text-transform:uppercase;color:#d8a84a;margin-bottom:5px}
+#rtrn .tr-tx{margin:0;font:400 14.5px/1.6 system-ui,sans-serif}
+#rtrn[dir=rtl] .tr-tx{font:400 17px/2 NastaliqU,'Noto Nastaliq Urdu',serif}
+#rtrn[hidden]{display:none}
+/* reader: dedicated strip under the buttons for the branding line */
+#reader #rbar{padding-bottom:calc(20px + var(--sa))!important}
+/* Build 30: cinematic overlay on story animation */
+.story-box{position:relative}
+.cinfx{position:absolute;inset:0;pointer-events:none;overflow:hidden;z-index:2;border-radius:inherit}
+.cinfx i{position:absolute;inset:0;display:block}
+.cinfx .m1,.cinfx .m2,.cinfx .m3{background-repeat:repeat;opacity:.55;mix-blend-mode:screen}
+.cinfx .m1{background-image:radial-gradient(circle,#ffe9a8 0 1.4px,transparent 2.4px),radial-gradient(circle,#fff5d6 0 1px,transparent 2px);background-size:90px 110px,140px 170px;background-position:0 0,40px 60px;animation:cfx1 26s linear infinite}
+.cinfx .m2{background-image:radial-gradient(circle,#9fe8f2 0 1.2px,transparent 2.2px);background-size:130px 150px;background-position:20px 30px;opacity:.38;animation:cfx2 38s linear infinite}
+.cinfx .m3{background-image:radial-gradient(circle,#ffd37a 0 2px,transparent 3.5px);background-size:220px 260px;opacity:.3;filter:blur(1px);animation:cfx3 55s linear infinite}
+.cinfx .sw{background:linear-gradient(105deg,transparent 35%,rgba(255,236,180,.10) 48%,rgba(255,255,255,.16) 50%,rgba(255,236,180,.10) 52%,transparent 65%);background-size:250% 100%;mix-blend-mode:screen;animation:cfx4 9s ease-in-out infinite}
+.cinfx .vg{background:radial-gradient(ellipse at 50% 46%,transparent 52%,rgba(0,0,0,.42) 100%)}
+.cinfx .fr{box-shadow:inset 0 0 0 1px rgba(226,178,74,.30),inset 0 0 38px rgba(226,178,74,.10)}
+@keyframes cfx1{to{background-position:-90px -330px,-100px -280px}}
+@keyframes cfx2{to{background-position:150px -270px}}
+@keyframes cfx3{to{background-position:-220px -520px}}
+@keyframes cfx4{0%,100%{background-position:130% 0}50%{background-position:-30% 0}}
+@media (prefers-reduced-motion:reduce){.cinfx i{animation:none!important}}
+/* story full-screen: keep the brand pill clear of the Ayat counter */
+#fqb[data-slot="st"]{max-width:60vw;padding:3px 10px 3px 5px;gap:6px}
+#fqb[data-slot="st"] img{width:20px;height:20px}
+#fqb[data-slot="st"] b{font-size:10px;letter-spacing:.13em}
+#fqb[data-slot="st"] small{font-size:7.2px;letter-spacing:.05em}
+/* word stage: slim one-line pill above the "Lafz x mein se y" counter (never covers it) */
+#fqb[data-slot="ws"]{top:calc(env(safe-area-inset-top,0px) + 3px);padding:1px 10px 1px 3px;gap:5px;max-width:92vw}
+#fqb[data-slot="ws"] img{width:15px;height:15px;border-radius:4px}
+#fqb[data-slot="ws"] span{flex-direction:row;gap:6px;align-items:baseline}
+#fqb[data-slot="ws"] b{font-size:8.6px;letter-spacing:.12em}
+#fqb[data-slot="ws"] small{font-size:7px;letter-spacing:.04em}

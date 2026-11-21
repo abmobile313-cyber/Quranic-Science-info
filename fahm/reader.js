@@ -31,6 +31,9 @@ Object.assign(RS.ur, { wrL: 'سخت غلطی پر آواز', wrAll: 'تینوں 
 Object.assign(RS.ru, { rsT: 'Reader settings', rsLay: 'Mushaf', dmL: 'Page palatne ka andaaz', dmC: 'Kagaz palatna', dmS: 'Slide', dmI: 'Seedha', qrL: 'Qari (tilawat ka qari)', hlL: 'Tilawat ke saath ayat highlight', bgL: 'Background playback (screen band ho tab bhi)', bgN: 'APK mein screen band hone ya app chhupane par bhi awaaz chalti rahegi.', thL: 'Theme', thD: 'Dark', thLt: 'Light' });
 Object.assign(RS.en, { rsT: 'Reader settings', rsLay: 'Mushaf', dmL: 'Page-turn style', dmC: 'Page curl', dmS: 'Slide', dmI: 'Instant', qrL: 'Reciter (Qari)', hlL: 'Highlight the ayah while reciting', bgL: 'Background playback (screen off)', bgN: 'In the Android app audio keeps playing with the screen off or the app minimised.', thL: 'Theme', thD: 'Dark', thLt: 'Light' });
 Object.assign(RS.ur, { rsT: 'ریڈر ترتیبات', rsLay: 'مصحف', dmL: 'صفحہ پلٹنے کا انداز', dmC: 'کاغذ پلٹنا', dmS: 'سلائیڈ', dmI: 'سیدھا', qrL: 'قاری (تلاوت کا قاری)', hlL: 'تلاوت کے ساتھ آیت ہائی لائٹ', bgL: 'بیک گراؤنڈ پلے بیک (اسکرین بند ہو تب بھی)', bgN: 'اینڈرائیڈ ایپ میں اسکرین بند ہونے یا ایپ چھپانے پر بھی آواز چلتی رہے گی۔', thL: 'تھیم', thD: 'ڈارک', thLt: 'لائٹ' });
+Object.assign(RS.ru, { spL: 'Wide screen (do safhe)', spA: 'Auto', spOn: 'On', spOff: 'Off', trL: 'Ayat ke neeche tarjuma', trN: 'Reading mein ayat ke neeche tarjuma ki patti dikhegi (jo tarjuma Settings mein chuna hai).' });
+Object.assign(RS.en, { spL: 'Wide screen (two pages)', spA: 'Auto', spOn: 'On', spOff: 'Off', trL: 'Translation under the ayah', trN: 'Shows a translation strip below the page (the translation you picked in Settings).' });
+Object.assign(RS.ur, { spL: 'وائڈ اسکرین (دو صفحے)', spA: 'آٹو', spOn: 'آن', spOff: 'آف', trL: 'آیت کے نیچے ترجمہ', trN: 'ریڈنگ میں صفحے کے نیچے ترجمے کی پٹی دکھے گی (جو ترجمہ سیٹنگ میں چنا ہے)۔' });
 Object.assign(RS.ru, { bmT: 'Bookmark', bmAdd: 'Is page par bookmark lagao', bmDel: 'Is page ka bookmark hatao', bmNone: 'Abhi koi bookmark nahin', bmP: 'Safha' });
 Object.assign(RS.en, { bmT: 'Bookmarks', bmAdd: 'Bookmark this page', bmDel: 'Remove bookmark from this page', bmNone: 'No bookmarks yet', bmP: 'Page' });
 Object.assign(RS.ur, { bmT: 'بک مارک', bmAdd: 'اس صفحے پر بک مارک لگائیں', bmDel: 'اس صفحے کا بک مارک ہٹائیں', bmNone: 'ابھی کوئی بک مارک نہیں', bmP: 'صفحہ' });
@@ -46,6 +49,9 @@ Object.assign(RS.ur, { backF: 'پیچھے سے دوبارہ پڑھ رہے ہیں
 Object.assign(RS.ru, { wrongF: 'Galti note ho gayi — padhte rahein', flowL: 'Rawani', flowOn: 'Bina roke (beep + note)', flowOff: 'Ustad (ruk kar sunaye)', tickL: 'Chhoti galti par tik', on: 'On', off: 'Off', recL: 'Meri awaaz record (taqabul ke liye, tajurba)', cQari: 'Qari', cMine: 'Meri awaaz', noRecYet: 'Is jagah ki recording nahin mili (record On karke naya daur shuru karein).', secHk: 'Harkaat ki jaanch-list (mushaf se khud tasdeeq karein)', hkNote: 'Mic harkat nahin sunta. In lafzon par zabar/zer/pesh/shadda badalne se maani badal jate hain. ⚠ = is ayat mein aaj shak/galti bhi thi. Qari button se sahi tilawat sunkar milayein.' });
 Object.assign(RS.en, { wrongF: 'Mistake noted — keep going', flowL: 'Flow', flowOn: 'No stopping (beep + note)', flowOff: 'Ustad (stops and recites)', tickL: 'Tick on small slips', on: 'On', off: 'Off', recL: 'Record my voice (to compare, experimental)', cQari: 'Qari', cMine: 'My voice', noRecYet: 'No recording for this spot (turn recording On and start a new round).', secHk: 'Harakat check-list (verify against the mushaf)', hkNote: 'The mic cannot hear harakat. For these words a wrong fatha/kasra/damma/shadda changes the meaning. ⚠ = this ayah also had a doubt/mistake today. Play the qari and compare.' });
 Object.assign(RS.ur, { wrongF: 'غلطی نوٹ ہو گئی — پڑھتے رہیں', flowL: 'روانی', flowOn: 'بغیر روکے (بیپ + نوٹ)', flowOff: 'استاد (رک کر سنائے)', tickL: 'چھوٹی غلطی پر ٹِک', on: 'آن', off: 'آف', recL: 'میری آواز ریکارڈ (موازنے کے لیے، تجرباتی)', cQari: 'قاری', cMine: 'میری آواز', noRecYet: 'اس جگہ کی ریکارڈنگ نہیں ملی۔', secHk: 'حرکات کی جانچ فہرست (مصحف سے خود تصدیق کریں)', hkNote: 'مائیک حرکات نہیں سنتا۔ ان الفاظ پر زبر/زیر/پیش/شدّ بدلنے سے معنی بدل جاتے ہیں۔ ⚠ = اس آیت میں آج شک/غلطی بھی تھی۔ قاری سے سن کر ملائیں۔' });
+Object.assign(RS.ur, { rakat: 'رکعت', forkL: 'متشابہات کی نشانی', forkOn: 'سنہری نقطہ', forkN: 'جن لفظوں پر دوسری آیت سے ملتے جلتے الفاظ ہیں (لقمہ کی جگہ) وہاں چھوٹا سنہری نقطہ آتا ہے — کوئی آواز نہیں۔' });
+Object.assign(RS.ru, { rakat: 'Rakat', forkL: 'Mutashabihat ki nishani', forkOn: 'Sunehri nuqta', forkN: 'Jin lafzon par doosri ayat se milte-julte alfaz hain (lukme ki jagah) wahan chhota sunehri nuqta aata hai — koi awaaz nahin.' });
+Object.assign(RS.en, { rakat: 'Rakat', forkL: 'Similar-verse markers', forkOn: 'Gold dot', forkN: 'A small gold dot sits on words where another ayah has near-identical text (the usual place to slip) — no sound.' });
 Object.assign(RS.ur, { amt: 'کتنا حصہ', aq: 'چوتھائی پارہ', ah: 'آدھا پارہ', at: 'پون پارہ', a1: 'ایک پارہ', as: 'سوا پارہ', ad: 'ڈیڑھ پارہ', a2: 'دو پارے', fromPara: 'پارے کے آغاز سے', ayW: 'آیات', paraW: 'پارہ', fastL: 'غلطی بتانے والا تیز قاری', fastNote: 'غلطی یا لقمے پر یہ قاری تیز آواز میں آیت سناتا ہے تاکہ آپ کی روانی نہ ٹوٹے۔', rateL: 'قاری کی رفتار', myBtn: 'اپنی آواز میں ریکارڈ کریں', myList: 'میری ریکارڈنگز', myTitle: 'میری تلاوت (اپنی آواز میں)', myInfo: 'پورا قرآن اپنی آواز اور اپنی رفتار سے ریکارڈ کریں۔ جب چاہیں روکیں (ہولڈ) اور اگلی بار وہیں سے جاری رکھیں۔ ریکارڈنگ ایپ میں محفوظ رہتی ہے اور انٹرنیٹ کے بغیر دَور کے لیے چلتی ہے۔ ریکارڈنگ کے دوران غلطیاں بھی پکڑی جاتی ہیں۔', myProg: 'اب تک ریکارڈ ہوا', myNone: 'ابھی کچھ ریکارڈ نہیں ہوا', myCont: 'جہاں چھوڑا وہیں سے', myNew: 'ریکارڈنگ شروع کریں', myHold: 'روکیں (ہولڈ)', mySaved: 'محفوظ ہو گیا', myDelAsk: 'پکا؟ دوبارہ دبائیں', myEmpty: 'ابھی کوئی ریکارڈنگ نہیں', myDaur: 'سنیں / دَور', myNoMic: 'اس ڈیوائس پر ریکارڈنگ نہیں ہو سکتی', myMicBusy: 'ریکارڈنگ شروع نہ ہو سکی (مائیک مصروف یا اجازت نہیں)', myNothing: 'کچھ ریکارڈ نہیں ہوا', myNoAudio: 'ریکارڈنگ نہیں ملی', myReps: 'دَور کتنے', myMin: 'منٹ', myRec: 'ریکارڈ ہو رہا ہے' });
 Object.assign(RS.ru, { amt: 'Kitna hissa', aq: 'Pav para', ah: 'Aadha para', at: 'Poona para', a1: '1 para', as: 'Sava para', ad: 'Dedh para', a2: '2 para', fromPara: 'Para ke aaghaz se', ayW: 'ayat', paraW: 'para', fastL: 'Galti batane wala tez qari', fastNote: 'Galti ya lukme par yeh qari tez awaaz mein ayat sunata hai taake aapki rawani na tootay.', rateL: 'Qari ki raftaar', myBtn: 'Apni awaaz mein record karein', myList: 'Meri recordings', myTitle: 'Meri tilawat (apni awaaz mein)', myInfo: 'Poora Quran apni awaaz aur apni raftaar se record karein. Jab chahein rokein (hold) aur agli baar wahin se jaari rakhein. Recording app mein mehfooz rehti hai aur internet ke baghair daur ke liye chalti hai. Recording ke dauran galtiyan bhi pakdi jaati hain.', myProg: 'Ab tak record hua', myNone: 'Abhi kuch record nahin hua', myCont: 'Jahan chhoda wahin se', myNew: 'Record shuru karein', myHold: 'Rokein (hold)', mySaved: 'Mehfooz ho gaya', myDelAsk: 'Pakka? Dobara dabayein', myEmpty: 'Abhi koi recording nahin', myDaur: 'Sunein / daur', myNoMic: 'Is device par recording nahin ho sakti', myMicBusy: 'Recording shuru na ho saki (mic masroof ya ijazat nahin)', myNothing: 'Kuch record nahin hua', myNoAudio: 'Recording nahin mili', myReps: 'Daur kitne', myMin: 'min', myRec: 'Record ho raha hai' });
 Object.assign(RS.en, { amt: 'How much', aq: '¼ Juz', ah: '½ Juz', at: '¾ Juz', a1: '1 Juz', as: '1¼ Juz', ad: '1½ Juz', a2: '2 Juz', fromPara: 'From start of Juz', ayW: 'ayat', paraW: 'Juz', fastL: 'Fast reciter for mistakes', fastNote: 'On a mistake or a stall this reciter plays the ayah quickly so your rhythm is not broken.', rateL: 'Reciter speed', myBtn: 'Record in my own voice', myList: 'My recordings', myTitle: 'My recitation (own voice)', myInfo: 'Record the whole Quran in your own voice and pace. Hold whenever you like and continue from the same place next time. Recordings stay inside the app and play offline for revision. Mistakes are caught while you record.', myProg: 'Recorded so far', myNone: 'Nothing recorded yet', myCont: 'Continue where I stopped', myNew: 'Start recording', myHold: 'Hold', mySaved: 'Saved', myDelAsk: 'Sure? Tap again', myEmpty: 'No recordings yet', myDaur: 'Listen / revise', myNoMic: 'Recording is not possible on this device', myMicBusy: 'Could not start recording (mic busy or not allowed)', myNothing: 'Nothing was recorded', myNoAudio: 'Recording not found', myReps: 'Rounds', myMin: 'min', myRec: 'Recording' });
@@ -53,7 +59,7 @@ Object.assign(RS.ur, { weak: 'کمزور آیات', weakNote: 'جن آیات م�
 Object.assign(RS.ru, { weak: 'Kamzor ayaat', weakNote: 'Jin ayaat mein ghalti ya atkan hui woh yahan jama hoti hain. Teen baar saaf parhne par khud hat jati hain.', weakEmpty: 'Abhi koi kamzor ayat nahin — MashaAllah!', weakGo: 'Yahan se shuru', weakOk: 'Yaad ho gayi', weakAll: 'Sab kamzor ayaat dohrayein', weakN: 'baar', weakClr: 'Fehrist saaf', weakPage: 'Safha kholein' });
 Object.assign(RS.en, { weak: 'Weak verses', weakNote: 'Verses where you slipped or stalled collect here. Three clean recitations remove them automatically.', weakEmpty: 'No weak verses yet — MashaAllah!', weakGo: 'Start here', weakOk: 'Mastered', weakAll: 'Revise all weak verses', weakN: 'times', weakClr: 'Clear list', weakPage: 'Open page' });
 const R = k => (RS[A.st().ui] || RS.en)[k];
-const rau = new Audio(); rau.preload = 'auto';
+let rau = new Audio(); rau.preload = 'auto';
 const rec = () => A.st().rec;
 const FASTQ = ['Muhammad_Ayyoub_128kbps', 'Ibrahim_Akhdar_64kbps', 'Yasser_Ad-Dussary_128kbps', 'MaherAlMuaiqly128kbps'];
 const fastOn = () => (A.st().hfast || 'on') === 'on';
@@ -172,6 +178,18 @@ function clampBadges() {
     let dy = 0; if (t < rr.top) dy = rr.top - t; else if (b > rr.bottom) dy = rr.bottom - b; if (Math.abs(dy) > .5) ml.style.setProperty('--bdy', dy.toFixed(1) + 'px');
   });
 }
+
+/* Build 30: measure where the ink of ع really sits inside its line box, so every ruku mark is optically centred (x and y), whatever the font metrics */
+let __inkC = null;
+function inkOff() {
+  if (__inkC) return __inkC; try {
+    const c = document.createElement('canvas').getContext('2d'); c.font = "400 200px AmiriQ, ArefR, serif"; c.textBaseline = 'alphabetic';
+    const m = c.measureText('ع'), fa = m.fontBoundingBoxAscent || 200 * .9, fd = m.fontBoundingBoxDescent || 200 * .4;
+    const ox = (m.width / 2 - (m.actualBoundingBoxRight - m.actualBoundingBoxLeft) / 2) / 200;
+    const base = (200 - (fa + fd)) / 2 + fa, cy = base - (m.actualBoundingBoxAscent - m.actualBoundingBoxDescent) / 2, oy = (100 - cy) / 200;
+    if (isFinite(ox) && isFinite(oy)) __inkC = { ox: +ox.toFixed(4), oy: +oy.toFixed(4) };
+  } catch (e) { } return __inkC || { ox: 0, oy: 0 };
+}
 /* Build 22 tabs: kit vertical boxes in the page margin, at the height of their line. right edge = ruku (ع + 3 numbers) / sajda, left edge = para fractions */
 function placeTabs() {
   const pg = $('#rpage'), rin = $('#rin'); if (!pg || !rin) return; let L = $('#rtabs'); if (!L) { L = document.createElement('div'); L.id = 'rtabs'; pg.appendChild(L); } L.innerHTML = '';
@@ -181,9 +199,9 @@ function placeTabs() {
   const items = { R: [], L: [] };
   rin.querySelectorAll('.ml .tg').forEach(b => {
     const r = b.parentElement.getBoundingClientRect(), cy = ((r.top + r.bottom) / 2 - pr.top) / sc, d = b.dataset, k = d.k;
-    const w = pw * .06, h = pw * (k === 'rq' ? .18 : k === 'sj' ? .17 : .2);
+    const w = pw * .06, h = pw * (k === 'rq' ? .225 : k === 'sj' ? .17 : .2);
     let html, cls = k === 'rq' ? 'rk' : k;
-    if (k === 'rq') html = `<span class="rt">${d.sr}</span><span class="re"><span class="ra">ع</span><b class="l${String(d.ay).length}">${d.ay}</b></span><span class="rb2">${d.pr}</span>`;
+    if (k === 'rq') html = `<span class="rt">${d.sr}</span><span class="re"><span class="ra">ع</span></span><b class="rc l${String(d.ay).length}">${d.ay}</b><span class="rb2">${d.pr}</span>`;
     else if (k === 'sj') { html = `<span>السجدة</span>`; cls = 'sj vt'; }
     else { html = `<span>${d.lab}</span>${d.n ? `<span>${d.n}</span>` : ''}`; cls = 'rb vt'; }
     items[d.sd].push({ cy, w, h, html, cls, tip: d.tip || '' });
@@ -197,6 +215,7 @@ function placeTabs() {
     a.forEach(t => {
       const sm = parseFloat(cs.getPropertyValue('--sm')) || pw * .058, x = Math.max(0, (sm - t.w) / 2);
       L.insertAdjacentHTML('beforeend', `<div class="kv ${t.cls}" style="--bw:${t.w.toFixed(2)}px;height:${t.h.toFixed(2)}px;top:${t.top.toFixed(2)}px;${sd === 'R' ? 'right' : 'left'}:${x.toFixed(2)}px" title="${esc(t.tip)}"><div class="in">${t.html}</div></div>`);
+      if (t.cls === 'rk') { const kk = L.lastElementChild, io = inkOff(); kk.style.setProperty('--ox', io.ox + 'em'); kk.style.setProperty('--oy', io.oy + 'em'); }
     });
   });
 }
@@ -402,8 +421,9 @@ function layoutSpread() {
   Object.assign(sp.style, { left: (one ? m.offsetLeft + m.offsetWidth - sw2 / 2 : m.offsetLeft - sw2 / 2) + 'px', top: T + 'px', width: sw2 + 'px', height: H + 'px' });
 }
 function stepPage(d) { if (!spread) { goPage(pi + d); return; } if (pi < 0) { if (d > 0) goPage(0); return; } if (pi === 0 && d < 0) { goPage(-1); return; } goPage(pi + 2 * d); }
-function relayout() { if (!open || pi < 0) { if (open) sizePage(); return; } sizePage(); fit(); if (twoUp) { withComp(() => { sizePage(); fit(); }); layoutSpread(); } if (trkEl) trk(trkEl); }
-function renderPage(anim) {
+function reflow() { if (!open || pi < 0) { if (open) sizePage(); return; } sizePage(); fit(); if (twoUp) { withComp(() => { sizePage(); fit(); }); layoutSpread(); } if (trkEl) trk(trkEl); }
+function renderPage(anim) { renderPage0(anim); if (hz.on) forkMark(); try { trSync(); setTimeout(trSync, 650); } catch (e) { } }
+function renderPage0(anim) {
   syncSpread();
   if (pi < 0) { twoUp = false; spDom(false); renderCover(); return; }
   twoUp = spread; spDom(twoUp);
@@ -511,7 +531,7 @@ function clearHl() { document.querySelectorAll('#rpage .cur,#rpage .hot').forEac
 function setCur(s, a) {
   clearHl(); hot = null; curAy = { s, a }; mediaSess(); const key = s + ':' + a, ai = AYI[key];
   if (ai !== undefined) { const f = SC[AY[ai].first]; ensureLoc(f.loc); }
-  qa(s, a).forEach(e => e.classList.add('cur'));
+  qa(s, a).forEach(e => e.classList.add('cur')); try { trSync(); } catch (e) { }
 }
 function ayWords(s, a) { const ai = AYI[s + ':' + a]; return ai === undefined ? [] : SC.slice(AY[ai].first, AY[ai].last + 1); }
 function startTick() {
@@ -525,20 +545,31 @@ function startTick() {
     if (hot !== pick.loc) { const o = hot && q(hot); if (o) o.classList.remove('hot'); hot = pick.loc; ensureLoc(pick.loc); const e = q(pick.loc); if (e) { e.classList.add('hot', 'cur'); if (!hz.on) trk(e); } if (rev) { qa(curAy.s, curAy.a).forEach(x => x.classList.add('rev')); } }
   }, 50);
 }
-function setPlaying(p) { playing = p; $('#rIcoP').style.display = p ? 'none' : ''; $('#rIcoS').style.display = p ? '' : 'none'; bgSync(p); if (p) mediaSess(); }
+function setPlaying(p) { playing = p; if (p) wakeOn(); else if (!hz.on) wakeOff(); $('#rIcoP').style.display = p ? 'none' : ''; $('#rIcoS').style.display = p ? '' : 'none'; bgSync(p); if (p) mediaSess(); try { trSync(); } catch (e) { } }
 function stopAudio() { stopMine(); stopCorr(); try { stopWordAu(); } catch (e) { } try { speechSynthesis.cancel(); } catch (e) { } seqOn = false; rau.onended = null; rau.onerror = null; try { rau.pause(); } catch (e) { } clearInterval(tickT); setPlaying(false); clearHl(); document.querySelectorAll('#rpage .rev').forEach(e => e.classList.remove('rev')); hot = null; }
 let seqEnd = -1, seqFrom = 0, seqLeft = 1;
 function playRange(fi, ti, reps) { stopAudio(); seqEnd = ti; seqFrom = fi; seqLeft = Math.max(1, reps || 1); playSeq(fi, true); }
-function playSeq(ai, keep) {
-  if (!keep) seqEnd = -1;
+/* Build 30: pause keeps the exact spot. Resume within 60 s continues from that second; after a longer break the ayah starts again from its beginning */
+let pausedSt = null; const RESUME_MS = 60000;
+function pausePlay() { if (!seqOn || !curAy || !rau.src) { stopAudio(); return; } const ai = AYI[curAy.s + ':' + curAy.a]; pausedSt = ai == null ? null : { ai, t: rau.currentTime || 0, at: Date.now(), end: seqEnd, from: seqFrom, left: seqLeft }; stopAudio(); }
+function takeResume(ai) { const p = pausedSt; pausedSt = null; if (!p || p.ai !== ai) return 0; if (Date.now() - p.at > RESUME_MS) return 0; seqEnd = p.end; seqFrom = p.from; seqLeft = p.left; return p.t > .3 ? Math.max(0, p.t - .15) : 0; }
+function playSeq(ai, keep, resumeT) {
+  if (!resumeT) pausedSt = null; if (!keep) seqEnd = -1;
   if (seqEnd >= 0 && ai > seqEnd) { if (seqLeft > 1) { seqLeft--; ai = seqFrom; } else { seqEnd = -1; stopAudio(); return; } }
   if (ai >= AY.length) { stopAudio(); return; }
   seqOn = true; const y = AY[ai]; setCur(y.s, y.a); setPlaying(true);
+  /* Build 30: gapless — the NEXT ayah is already downloaded in a second audio element; at the end of an ayah we just switch to it, so the recitation never breaks off or stutters between ayahs */
+  const url = auUrl(y.s, y.a), swap = preEl && preUrl === url && !(resumeT > 0);
+  if (swap) { const old = rau; old.onended = null; old.onerror = null; try { old.pause(); } catch (e) { } rau = preEl; preEl = null; preUrl = ''; }
   rau.onerror = () => { stopAudio(); A.toast(R('audioErr')); };
   rau.onended = () => { if (seqOn) playSeq(ai + 1, true); };
-  rau.src = auUrl(y.s, y.a); setRate(rau, 1); const pr = rau.play(); if (pr && pr.catch) pr.catch(() => { stopAudio(); A.toast(R('audioErr')); });
-  startTick();
+  if (!swap) rau.src = url; setRate(rau, 1);
+  if (resumeT > 0) { let tr = 0; const seekTo = () => { if (Math.abs(rau.currentTime - resumeT) > .4 && tr++ < 6) { try { rau.currentTime = Math.min(resumeT, Math.max(0, (rau.duration || resumeT + 1) - .2)); } catch (e) { } } }; ['loadedmetadata', 'loadeddata', 'canplay', 'playing', 'progress'].forEach(ev => rau.addEventListener(ev, seekTo, { once: true })); }
+  const pr = rau.play(); if (pr && pr.catch) pr.catch(() => { stopAudio(); A.toast(R('audioErr')); });
+  startTick(); preloadNext(ai);
 }
+let preEl = null, preUrl = '';
+function preloadNext(ai) { try { const n = AY[ai + 1]; if (!n) return; const u = auUrl(n.s, n.a); if (preUrl === u) return; preEl = new Audio(); preEl.preload = 'auto'; preEl.src = u; preUrl = u; preEl.load(); } catch (e) { preEl = null; preUrl = ''; } }
 /* play one ayah, then call cb (used by Hafiz mode) */
 function playOnce(s, a, reveal, cb) {
   seqOn = false; rev = reveal; setCur(s, a); if (reveal) qa(s, a).forEach(x => x.classList.add('rev'));
@@ -567,6 +598,17 @@ function tick() {    /* small slip: one soft short tick */
   unlockAc(); if (!ac) return; const t = ac.currentTime, o = ac.createOscillator(), g = ac.createGain(); o.type = 'sine'; o.frequency.value = 1400; g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.5, t + 0.008); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.09); o.connect(g); g.connect(ac.destination); o.start(t); o.stop(t + 0.1);
   try { if (navigator.vibrate) navigator.vibrate(40); } catch (e) { }
 }
+/* Build 30: a light slip = ONE soft, round beep (not the loud double beep) — enough to notice, never a jolt in the middle of a rakat */
+function chime() {
+  unlockAc(); if (!ac) return; const t = ac.currentTime, c = ac.createDynamicsCompressor(); c.connect(ac.destination);
+  [[740, 0, .9], [1480, 0, .18]].forEach(([f, d, v]) => { const o = ac.createOscillator(), g = ac.createGain(); o.type = 'sine'; o.frequency.value = f; g.gain.setValueAtTime(.0001, t + d); g.gain.exponentialRampToValueAtTime(.5 * v, t + d + .02); g.gain.setValueAtTime(.5 * v, t + d + .2); g.gain.exponentialRampToValueAtTime(.0001, t + d + .42); o.connect(g); g.connect(c); o.start(t + d); o.stop(t + d + .45); });
+  try { if (navigator.vibrate) navigator.vibrate(70); } catch (e) { }
+}
+/* keep the screen awake while the Hafiz recites (a whole taraweeh): standard Wake Lock, plus the app shell's keep-awake hook when it exists */
+let wLock = null;
+async function wakeOn() { try { if (navigator.wakeLock && !wLock) { wLock = await navigator.wakeLock.request('screen'); wLock.addEventListener('release', () => { wLock = null; }); } } catch (e) { wLock = null; } try { window.FahmAndroid && window.FahmAndroid.keepAwake && window.FahmAndroid.keepAwake(true); } catch (e) { } }
+function wakeOff() { try { wLock && wLock.release(); } catch (e) { } wLock = null; try { window.FahmAndroid && window.FahmAndroid.keepAwake && window.FahmAndroid.keepAwake(false); } catch (e) { } }
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible' && (hz.on || playing)) wakeOn(); });
 const flowOn = () => (A.st().hflow || 'flow') === 'flow';
 const tickOn = () => (A.st().htick || 'off') === 'on';
 
@@ -616,6 +658,30 @@ function wMean(w) {
   if (W && H.norm(W.ar) === w.n) return mk3(W);
   if (!DICT) dictBuild(); return mk3(DICT[w.n]);
 }
+/* Build 30: translation strip under the page (reading mode). Follows the playing / tapped ayah, else the first ayah on the page. */
+const _trC = {};
+function trCode() { const tl = (A.st().tl || []).filter(c => c !== 'ar'); return tl[0] || (A.st().ui === 'en' ? 'en' : 'ur'); }
+function trGet(sn, a, code) {
+  const k = code + sn;
+  if (!_trC[k]) _trC[k] = fetch('q/t/' + code + '/' + String(sn).padStart(3, '0') + '.json').then(r => r.json()).catch(() => { delete _trC[k]; return null; });
+  return _trC[k].then(arr => arr && arr[a - 1] || '');
+}
+function trReflow() { setTimeout(() => { try { if (open) { if (wantSpread() !== spread) renderPage(false); else reflow(); } } catch (e) { } }, 30); }
+function trSync(force) {
+  const rd = $('#reader'); if (!rd) return; let el = $('#rtrn'); const want = A.st().rtr === 'on' && !hz.on;
+  if (!want) { if (el && !el.hidden) { el.hidden = true; trReflow(); } return; }
+  if (!el) { el = document.createElement('div'); el.id = 'rtrn'; el.innerHTML = '<b class="tr-ref"></b><p class="tr-tx"></p>'; const stg = $('#rstage'); stg.parentNode.insertBefore(el, stg.nextSibling); }
+  let ay = null;
+  if (curAy && playing && qa(curAy.s, curAy.a).length) ay = curAy;
+  else { const w = $('#rpage .wd[data-loc]'); if (w) { const [s2, a2] = w.dataset.loc.split(':').map(Number); ay = { s: s2, a: a2 }; } }
+  if (!ay) { el.hidden = true; return; }
+  const key = ay.s + ':' + ay.a + ':' + trCode(); if (!force && el.dataset.k === key && !el.hidden) return; el.dataset.k = key;
+  const wasHidden = el.hidden; el.hidden = false;
+  const ur = A.st().ui === 'ur'; el.dir = (trCode().startsWith('ur') || trCode() === 'fa') ? 'rtl' : 'ltr';
+  el.querySelector('.tr-ref').textContent = surahName(ay.s) + ' · ' + (ur ? ad(ay.a) : ay.a);
+  trGet(ay.s, ay.a, trCode()).then(t => { if (el.dataset.k === key) el.querySelector('.tr-tx').textContent = t || ''; });
+  if (wasHidden) trReflow();
+}
 function ayTr(s, a) {
   const S = A.D().surahs.find(x => x.n === s); const Ay = S && S.ayat.find(x => x.v === a); if (!Ay) return '';
   const tl = A.st().tl || []; for (const c of tl) if (Ay.tr && Ay.tr[c]) return Ay.tr[c]; return (Ay.tr && (Ay.tr.ur || Ay.tr.en)) || '';
@@ -628,9 +694,13 @@ function trk(e) {
   const st = $('#rstage'); let t = document.getElementById('rtrk');
   if (!e || !e.isConnected) { trkEl = null; if (t) t.classList.remove('on'); return; }
   trkEl = e; if (!t) { t = document.createElement('div'); t.id = 'rtrk'; t.innerHTML = '<i class="tk-s"></i><i class="tk-a"></i>'; st.appendChild(t); }
-  const sr = st.getBoundingClientRect(), r = e.getBoundingClientRect(), px = Math.max(3, r.width * .08), py = Math.max(2, r.height * .04);
-  t.style.fontSize = Math.max(10, r.height * .5) + 'px'; t.style.width = (r.width + px * 2) + 'px'; t.style.height = (r.height + py * 2) + 'px';
-  t.style.transform = `translate(${(r.left - sr.left + st.scrollLeft - px).toFixed(1)}px,${(r.top - sr.top + st.scrollTop - py).toFixed(1)}px)`;
+  /* Build 30: the box now spans the WHOLE line height (so zabar / zer / pesh / shadda above & below the letters are inside it), with a small even gap to the lines above and below */
+  const sr = st.getBoundingClientRect(), r = e.getBoundingClientRect(), px = Math.max(4, r.width * .1), ml = e.closest && e.closest('.ml'), lr = ml ? ml.getBoundingClientRect() : null;
+  let top = r.top, hgt = r.height;
+  if (lr && lr.height > r.height * .9) { const gp = Math.max(1.5, lr.height * .05); top = Math.min(r.top - r.height * .06, lr.top + gp); const bot = Math.max(r.bottom + r.height * .06, lr.bottom - gp); hgt = bot - top; }
+  else { top = r.top - Math.max(3, r.height * .12); hgt = r.height + Math.max(6, r.height * .24); }
+  t.style.fontSize = Math.max(10, r.height * .5) + 'px'; t.style.width = (r.width + px * 2) + 'px'; t.style.height = hgt.toFixed(1) + 'px';
+  t.style.transform = `translate(${(r.left - sr.left + st.scrollLeft - px).toFixed(1)}px,${(top - sr.top + st.scrollTop).toFixed(1)}px)`;
   t.classList.toggle('hz', !!hz.on); t.classList.add('on');
 }
 window.__trk = trk;
@@ -692,11 +762,11 @@ function onHeard(idx, text, fin) {
   while (rest.length) {
     const r = hz.tr.feed(rest, fin); used += r.used; let hard = false;
     for (const ev of r.ev) {
-      if (ev.t === 'ok') { setOk(ev.from, ev.to); hz.lastAct = Date.now(); hz.cur.words += ev.to - ev.from; if (hz.retry) for (const k in hz.retry) if (+k >= ev.from && +k < ev.to) delete hz.retry[k]; }
+      if (ev.t === 'ok') { setOk(ev.from, ev.to); rakatTick(ev.from, ev.to); hz.lastAct = Date.now(); hz.cur.words += ev.to - ev.from; if (hz.retry) for (const k in hz.retry) if (+k >= ev.from && +k < ev.to) delete hz.retry[k]; }
       else if (ev.t === 'soft') { const w = SC[ev.idx]; if (w) {
         /* substitution: a wrong word was said and the very next words were right again */
         if (ev.kind === 'skip' && ev.sub && ev.sub.length && (ev.n || 1) === 1) {
-          if (realDiffer(ev.sub, w)) { hz.proc[idx] = done + used; hzMistake({ t: 'mistake', idx: ev.idx, kind: 'wrong', heard: ev.sub.slice() }); return; }
+          if (realDiffer(ev.sub, w)) { const e2 = { t: 'mistake', idx: ev.idx, kind: 'wrong', heard: ev.sub.slice() }; if (classifyMist(e2) === 'alarm') { hz.proc[idx] = done + used; hzMistake(e2); return; } hzFlowMistake(e2, true); continue; }
           hz.cur.soft.push({ ai: w.ai, idx: ev.idx, kind: 'wrong', n: 0, heard: ev.sub.slice(), t: Date.now() - hz.cur.t0, abs: Date.now(), mic: 1 }); if (flowOn() && tickOn()) tick(); continue;
         }
         hz.cur.soft.push({ ai: w.ai, idx: ev.idx, kind: ev.kind, n: ev.n || 0, heard: ev.heard, letters: ev.letters, t: Date.now() - hz.cur.t0, abs: Date.now() }); if (flowOn() && tickOn()) tick(); }  }
@@ -720,6 +790,27 @@ function onHeard(idx, text, fin) {
   hz.proc[idx] = fin ? toks.length : done + used;
   if (hz.tr.p !== p0) { const w = SC[posAi()]; if (w) ensureLoc(w.loc); markNext(); savePos(w.ai); if (hz.own && w) ownAdvance(w.ai); }
 }
+
+/* Build 30: MUTASHABIHAT hint. A word is a "fork" when the 4 words before it also occur somewhere else in the Quran but are followed by a DIFFERENT word. Such places are where a Hafiz slips into the wrong ayah — they get a small gold dot above the word (quiet, no sound). */
+let FORK = null; const SCI = { src: null, m: null };
+function forkBuild() {
+  if (FORK && FORK.src === SC) return FORK;  FORK = new Set(); FORK.src = SC; const nx = new Map(), N = SC.length;
+  for (let i = 4; i < N; i++) { const k = SC[i - 4].n + ' ' + SC[i - 3].n + ' ' + SC[i - 2].n + ' ' + SC[i - 1].n; let m = nx.get(k); if (!m) { m = new Set(); nx.set(k, m); } m.add(SC[i].n); }
+  for (let i = 4; i < N; i++) { const k = SC[i - 4].n + ' ' + SC[i - 3].n + ' ' + SC[i - 2].n + ' ' + SC[i - 1].n, m = nx.get(k); if (m && m.size > 1 && SC[i].ai === SC[i - 1].ai) FORK.add(i); }
+  return FORK;
+}
+function forkMark() {
+  try {
+    document.querySelectorAll('#rpage .fk').forEach(e => e.classList.remove('fk'));
+    if (!hz.on || (A.st().hfork || 'on') !== 'on') return; const F = forkBuild(), a = AY[hz.fi].first, b = AY[hz.ti].last;
+    if (SCI.src !== SC) { SCI.src = SC; SCI.m = new Map(); SC.forEach((w, i) => SCI.m.set(w.loc, i)); }
+    document.querySelectorAll('#rpage .wd').forEach(e => { const i = SCI.m.get(e.dataset.loc); if (i !== undefined && i >= a && i <= b && F.has(i)) e.classList.add('fk'); });
+  } catch (e) { }
+}
+function rakatTick(from, to) {
+  try { ornSets(); for (let i = from; i < to; i++) { const w = SC[i]; if (w && AY[w.ai].last === i && RUKE.has(w.s + ':' + w.a)) { hz.rakat = (hz.rakat || 0) + 1; rakatShow(); } } } catch (e) { }
+}
+function rakatShow() { const e = $('#rhDaur'); if (e && hz.plan) e.textContent = R('daur') + ' ' + hz.daur + '/' + (hz.plan.reps || 1) + (hz.rakat ? ' · ' + R('rakat') + ' ' + hz.rakat : ''); }
 function busyOn() { hz.busy = true; hz.busyAt = Date.now(); }
 function busyOff() { hz.busy = false; if (hz.busyAt) { hz.cur.busyMs += Date.now() - hz.busyAt; hz.busyAt = 0; } }
 function hzResume(ai, idx) {
@@ -756,7 +847,11 @@ const realDiffer = (heard, w) => (heard || []).some(t => t.length >= 3 && isQWor
 function classifyMist(ev) {
   if (ayahChange(ev)) return 'alarm';
   if (ev.kind === 'wrong') {
-    const w = SC[ev.idx]; return realDiffer(ev.heard, w) ? 'alarm' : 'doubt';
+    /* Build 30: ONE odd word that happens to be a real Quran word is usually the phone mic / recogniser — it only becomes a serious alarm when TWO real different words were heard together, or the same spot is flagged twice within 12 s. Otherwise: one soft beep, no stopping. */
+    const w = SC[ev.idx]; const real = (ev.heard || []).filter(t => t.length >= 3 && isQWord(t) && !H.eq(t, w.n, 'n'));
+    if (!real.length) return 'doubt';
+    const now = Date.now(), again = hz.sus2 && hz.sus2.idx === ev.idx && now - hz.sus2.t < 12000; hz.sus2 = { idx: ev.idx, t: now };
+    return (real.length >= 2 || again) ? 'alarm' : 'flow';
   }
   if (ev.kind === 'skip') return (ev.n || 1) >= 3 ? 'alarm' : 'flow';
   return 'flow';
@@ -768,7 +863,7 @@ function hzFlowDoubt(ev) {
   const c = hz.cur; if (!c.micWarned && c.soft.length >= 5 && c.soft.length * 5 > c.words) { c.micWarned = true; A.toast(R('micWeak'), 5000); }
 }
 /* flow mode: hard mistake = two beeps + note, but the recitation is never interrupted */
-function hzFlowMistake(ev) {
+function hzFlowMistake(ev, keepPos) {
   const w = SC[ev.idx]; if (!w) return;
   const now = Date.now(), dup = hz.lastHard && now - hz.lastHard < 2000; hz.lastHard = now;
   let np = hz.tr.p, a = ev.idx, b = ev.idx + 1;
@@ -778,9 +873,9 @@ function hzFlowMistake(ev) {
   if (!dup) {
     hz.cur.mist.push({ ai: w.ai, idx: ev.idx, kind: ev.kind, n: ev.n || 0, to: ev.to, heard: ev.heard, t: now - hz.cur.t0, abs: now });
     for (let i = a; i < Math.min(b, SC.length); i++) { const e = q(SC[i].loc); if (e) { e.classList.add('bad'); e.classList.remove('ok'); } okSet.delete(SC[i].loc); }
-    beep2(); hzStatus('wrongF', 'bad'); setTimeout(() => { if (hz.on && !hz.busy) hzStatus('listen'); }, 1200);
+    chime(); hzStatus('wrongF', 'bad'); setTimeout(() => { if (hz.on && !hz.busy) hzStatus('listen'); }, 1200);
   }
-  hz.tr.setPos(Math.min(np, hz.tr.lim)); hz.lastAct = now;
+  if (!keepPos) hz.tr.setPos(Math.min(np, hz.tr.lim)); hz.lastAct = now;
 }
 /* who announces the correct ayah after a mistake: the Qari (default) or the Hafiz's own saved voice (falls back to the Qari if that ayah was never saved) */
 let corr = null, corrBuf = {};
@@ -963,7 +1058,7 @@ function hzStart(fromAi, plan, daur0) {
   const st = A.st(); if (!st.v3h) { st.v3h = 1; st.hs = 'n'; st.htick = 'off'; st.hflow = 'flow'; A.save(); } if (!st.hs) st.hs = 'n'; if (!st.hsil) st.hsil = 4; if (!st.hmode) st.hmode = 'look';
   const pl = plan || planDefault(); st.hplan = pl; A.save();
   hz.plan = pl; hz.fi = AYI[pl.fs + ':' + pl.fa]; hz.ti = AYI[pl.ts + ':' + pl.ta]; hz.all = []; hz.daur = daur0 || 1; hz.finished = false; hz.startAi = fromAi != null ? Math.max(hz.fi, Math.min(hz.ti, fromAi)) : hz.fi;
-  hz.on = true; hz.want = true; hz.started = Date.now();
+  hz.on = true; hz.want = true; hz.started = Date.now(); wakeOn(); hz.rakat = 0;
   { const S0 = A.st(); if (S0.hzTr !== false && S0.trw) { S0.trwWas = 1; S0.trw = false; A.save(); } try { speechSynthesis.cancel(); } catch (e) { } }
   $('#rrep').hidden = true; $('#rhz').hidden = false; $('#rhHold').hidden = !hz.own; $('#rhHold').textContent = '⏸ ' + R('myHold'); $('#rhMode').textContent = R(st.hmode); $('#rMic').classList.add('on'); $('#rpage').classList.toggle('mem', st.hmode === 'mem');
   clearInterval(hz.sil); hz.sil = setInterval(() => { if (hz.on && !hz.busy && Date.now() - hz.lastAct > silOf() * 1000 && Date.now() - (hz.lastRes || 0) > 1800) hzLukma(); }, 250);
@@ -974,14 +1069,14 @@ function hzBeginDaur(ai) {
   try { for (let i = hz.fi; i <= hz.ti; i++) { const sn = AY[i].s; if (!hz._w || !hz._w[sn]) { (hz._w = hz._w || {})[sn] = 1; warm(sn); } } } catch (e) { }
   hz.finished = false; hz.cur = newDaur(hz.daur); hz.tr = new H.Tracker(SC, sensOf(), STARTS); hz.tr.lim = AY[hz.ti].last + 1; hz.tr.fi = AY[hz.fi].first; hz.tr.setPos(AY[ai].first);
   okSet = new Set(); clearHl(); curAy = null; hz.busy = false; hz.lastAct = Date.now() + 3000; hz.proc = {}; hz.prev = null;
-  renderPage(false); ensureLoc(SC[hz.tr.p].loc); markNext(); savePos(ai); hzStatus('listen'); $('#rhDaur').textContent = R('daur') + ' ' + hz.daur + '/' + (hz.plan.reps || 1);
+  renderPage(false); ensureLoc(SC[hz.tr.p].loc); markNext(); savePos(ai); hzStatus('listen'); rakatShow(); forkMark();
   recStart();
 }
 function hzStop() {
   trk(null);
   if (hz.on && hz.tr && !hz.finished) { try { const w = SC[Math.min(hz.tr.p, SC.length - 1)]; if (w) snapSave(w.ai, true); } catch (e) { } }
   { const S0 = A.st(); if (S0.trwWas) { S0.trw = true; delete S0.trwWas; A.save(); } }
-  recEnd(); hz.on = false; hz.want = false; hz.busy = false; recStop(); clearInterval(hz.sil); stopAudio(); $('#rhz').hidden = true; $('#rMic').classList.remove('on');
+  recEnd(); hz.on = false; hz.want = false; hz.busy = false; recStop(); clearInterval(hz.sil); stopAudio(); wakeOff(); $('#rhz').hidden = true; $('#rMic').classList.remove('on');
   $('#rpage').classList.remove('mem'); document.querySelectorAll('#rpage .nx,#rpage .bad,#rpage .ok').forEach(e => e.classList.remove('nx', 'bad', 'ok')); okSet = new Set();
 }
 function hzDaurEnd() {
@@ -1258,11 +1353,13 @@ function popLayout() {
   const sw = (k, v, t, on) => `<button class="po sm ${on ? 'on' : ''}" data-rk="${k}" data-rv="${v}">${esc(t)}</button>`;
   const recs = (window.FAHM_RECS || []).map(r => `<option value="${esc(r[0])}" ${r[0] === rec() ? 'selected' : ''}>${esc(st.ui === 'ur' ? r[2] : r[1])}</option>`).join('');
   $('#rpop').innerHTML = `<h4>${esc(R('layout'))}</h4>` + ['15', '13q', '13t'].map(k => row(k, R('lay' + k), lay === k)).join('') +
+    `<div class="pr"><span>${esc(R('spL'))}</span>${sw('rsp', 'auto', R('spA'), !st.rsp || st.rsp === 'auto')}${sw('rsp', 'on', R('spOn'), st.rsp === 'on')}${sw('rsp', 'off', R('spOff'), st.rsp === 'off')}</div>` +
+    `<div class="pr"><span>${esc(R('trL'))}</span>${sw('rtr', 'on', R('on'), st.rtr === 'on')}${sw('rtr', 'off', R('off'), st.rtr !== 'on')}</div><div class="pr"><small>${esc(R('trN'))}</small></div>` +
     `<div class="pr"><span>${esc(R('dmL'))}</span>${sw('rflip', 'curl', R('dmC'), (st.rflip || 'curl') === 'curl')}${sw('rflip', 'slide', R('dmS'), st.rflip === 'slide')}${sw('rflip', 'off', R('dmI'), st.rflip === 'off')}</div>` +
     `<div class="pr"><span>${esc(R('thL'))}</span>${sw('rtheme', 'dark', R('thD'), !light)}${sw('rtheme', 'light', R('thLt'), light)}</div>` +
     `<div class="pr"><span>${esc(R('qrL'))}</span><select id="rQ" class="sel">${recs}</select></div>` +
     `<div class="pr"><span>${esc(R('hlL'))}</span>${sw('rhl', 'on', R('on'), (st.rhl || 'on') === 'on')}${sw('rhl', 'off', R('off'), st.rhl === 'off')}</div>` +
-    `<div class="pr"><span>${esc(R('bgL'))}</span>${sw('rbg', 'on', R('on'), (st.rbg || 'on') === 'on')}${sw('rbg', 'off', R('off'), st.rbg === 'off')}</div><div class="pr"><small>${esc(R('bgN'))}</small></div>` +
+        `<div class="pr"><span>${esc(R('bgL'))}</span>${sw('rbg', 'on', R('on'), (st.rbg || 'on') === 'on')}${sw('rbg', 'off', R('off'), st.rbg === 'off')}</div><div class="pr"><small>${esc(R('bgN'))}</small></div>` +
     `<button class="po" data-rgopen="1">▶ ${esc(R('rgT'))}</button>`;
   $('#rpop').hidden = false;
 }
@@ -1272,7 +1369,7 @@ function mediaSess() {
   try {
     if (!('mediaSession' in navigator) || typeof MediaMetadata === 'undefined') return; const y = curAy;
     navigator.mediaSession.metadata = new MediaMetadata({ title: y ? surahName(y.s) + ' · ' + y.a : 'Fahmul Quraan', artist: recName(rec()), album: 'Fahmul Quraan by Quranic Science', artwork: [{ src: 'icons/icon-512.png', sizes: '512x512', type: 'image/png' }] });
-    navigator.mediaSession.setActionHandler('pause', () => stopAudio()); navigator.mediaSession.setActionHandler('play', () => { const b = $('#rPlay'); if (b) b.click(); });
+    navigator.mediaSession.setActionHandler('pause', () => pausePlay()); navigator.mediaSession.setActionHandler('play', () => { const b = $('#rPlay'); if (b) b.click(); });
   } catch (e) { }
 }
 function popRange() {
@@ -1295,6 +1392,7 @@ function popHafiz() {
     `<div class="pr"><span>${esc(R('sil'))}</span>${[3.5, 4, 5].map(v => sw('hsil', v, v + ' ' + R('sec'), (st.hsil || 4) === v)).join('')}</div>` +
     `<div class="pr"><span></span>${sw('hmode', 'look', R('look'), (st.hmode || 'look') === 'look')}${sw('hmode', 'mem', R('mem'), st.hmode === 'mem')}</div>` +
     `<div class="pr"><span>${esc(R('flowL'))}</span>${sw('hflow', 'flow', R('flowOn'), (st.hflow || 'flow') === 'flow')}${sw('hflow', 'ustad', R('flowOff'), st.hflow === 'ustad')}</div>` +
+    `<div class="pr"><span>${esc(R('forkL'))}</span>${sw('hfork', 'on', R('forkOn'), (st.hfork || 'on') === 'on')}${sw('hfork', 'off', R('off'), st.hfork === 'off')}</div>` +
     `<div class="pr"><span>${esc(R('tickL'))}</span>${sw('htick', 'on', R('on'), st.htick === 'on')}${sw('htick', 'off', R('off'), (st.htick || 'off') === 'off')}</div>` +
     `<div class="pr"><span>${esc(R('recL'))}</span>${sw('hrec', 'on', R('on'), st.hrec === 'on')}${sw('hrec', 'off', R('off'), (st.hrec || 'off') === 'off')}</div><div class="pr"><span>${esc(R('corL'))}</span>${sw('hcor', 'qari', R('corQ'), (st.hcor || 'qari') === 'qari')}${sw('hcor', 'mine', R('corM'), st.hcor === 'mine')}</div><p class="pn">${esc(R('corN'))}</p><div class="pr"><span>${esc(R('wrL'))}</span>${[['all', 'wrAll'], ['ur', 'wrUr'], ['en', 'wrEn'], ['ar', 'wrAr'], ['off', 'wrOff']].map(([v, k]) => sw('hwarn', v, R(k), (st.hwarn || 'all') === v)).join('')}</div><div class="sec">${esc(R('fastL'))}</div><div class="chips">${sw('hfast', 'on', R('on'), fastOn())}${sw('hfast', 'off', R('off'), !fastOn())}</div>` +
     (fastOn() ? `<div class="chips">${FASTQ.map(f => sw('hfq', f, recName(f), (st.hfq || FASTQ[0]) === f)).join('')}</div><div class="pr"><span>${esc(R('rateL'))}</span>${[1, 1.25, 1.5].map(v => sw('hrate', v, v + '×', fastRate() === v)).join('')}</div><p class="pn">${esc(R('fastNote'))}</p>` : '') +
@@ -1434,9 +1532,10 @@ function init(api) {
   $('#rPrev').onclick = () => stepPage(-1); $('#rNext').onclick = () => stepPage(1);
   $('#rPlay').onclick = () => {
     if (hz.on) { hzStop(); return; }
-    if (playing) { stopAudio(); return; }
+    if (playing) { pausePlay(); return; }
     const st = curAy ? AYI[curAy.s + ':' + curAy.a] : null; let ai = st != null ? st : 0;
-    if (st == null) { const w = SC.find(x => LP[x.loc] === pi); if (w) ai = w.ai; } playSeq(ai);
+    if (st == null) { const w = SC.find(x => LP[x.loc] === pi); if (w) ai = w.ai; }
+    const rt = takeResume(ai); playSeq(ai, rt > 0, rt);
   };
   $('#rMic').onclick = () => { if (hz.on) { hzStopAsk(); return; } if ($('#rpop').dataset.pk === 's' && !$('#rpop').hidden) popClose(); else popSetup(); };
   $('#rhHold').onclick = () => { hzStop(); };
@@ -1461,7 +1560,7 @@ function init(api) {
     const hk = e.target.closest('[data-hk]');
     if (hk && hk.dataset.hk === 'mreps') { A.st().mreps = +hk.dataset.hv; A.save(); popMyList(); return; }
     if (hk && hk.dataset.hk === 'reps') { const pl = Object.assign({}, planDefault()); pl.reps = +hk.dataset.hv; A.st().hplan = pl; A.save(); popSetup(); return; }
-    if (hk) { const st = A.st(), k = hk.dataset.hk; st[k] = (k === 'hsil' || k === 'hrate') ? +hk.dataset.hv : hk.dataset.hv; A.save(); if (hz.tr && k === 'hs') hz.tr.sens = st.hs; if (k === 'hmode') $('#rpage').classList.toggle('mem', st.hmode === 'mem'); popHafiz(); if (hz.on) $('#rhMode').textContent = R(st.hmode || 'look'); return; }
+    if (hk) { const st = A.st(), k = hk.dataset.hk; st[k] = (k === 'hsil' || k === 'hrate') ? +hk.dataset.hv : hk.dataset.hv; A.save(); if (hz.tr && k === 'hs') hz.tr.sens = st.hs; if (k === 'hfork') forkMark(); if (k === 'hmode') $('#rpage').classList.toggle('mem', st.hmode === 'mem'); popHafiz(); if (hz.on) $('#rhMode').textContent = R(st.hmode || 'look'); return; }
     if (e.target.closest('[data-hset]')) { $('#rpop').dataset.pk = 'h'; popHafiz(); return; }
     if (e.target.closest('[data-hist]')) { popHist(); return; }
     if (e.target.closest('[data-weak]')) { popWeak(); return; }
@@ -1484,7 +1583,7 @@ function init(api) {
     if (e.target.closest('[data-hres]')) { if (snapGet()) { hzResumeSnap(); return; } const st = A.st(), la = st.hlast, pl = Object.assign({}, planDefault()); const fi = AYI[la.s + ':' + la.a]; let ti = AYI[pl.ts + ':' + pl.ta]; if (ti < fi) { let j = fi; while (j + 1 < AY.length && AY[j + 1].s === la.s) j++; ti = j; } const y = AY[fi], z = AY[ti]; hzStart(fi, { fs: y.s, fa: y.a, ts: z.s, ta: z.a, reps: pl.reps || 1 }); return; }
     if (e.target.closest('[data-hgo]')) { hzStart(null, readPlan2()); return; }
     if (e.target.closest('[data-rgopen]')) { popRange(); return; }
-    const rkb = e.target.closest('[data-rk]'); if (rkb) { const st = A.st(), k2 = rkb.dataset.rk, v2 = rkb.dataset.rv; if (k2 === 'rtheme') { const tb = document.getElementById('btnTheme'); if (tb && (v2 === 'light') !== document.body.classList.contains('light')) tb.click(); setTimeout(popLayout, 150); return; } st[k2] = v2; A.save(); if (k2 === 'rhl') applyHl(); if (k2 === 'rbg' && v2 === 'off') bgSync(false); else if (k2 === 'rbg' && playing) bgSync(true); popLayout(); return; }
+    const rkb = e.target.closest('[data-rk]'); if (rkb) { const st = A.st(), k2 = rkb.dataset.rk, v2 = rkb.dataset.rv; if (k2 === 'rtheme') { const tb = document.getElementById('btnTheme'); if (tb && (v2 === 'light') !== document.body.classList.contains('light')) tb.click(); setTimeout(popLayout, 150); return; } st[k2] = v2; A.save(); if (k2 === 'rhl') applyHl(); if (k2 === 'rsp') { renderPage(false); } if (k2 === 'rtr') trSync(true); if (k2 === 'rbg' && v2 === 'off') bgSync(false); else if (k2 === 'rbg' && playing) bgSync(true); popLayout(); return; }
     if (e.target.closest('[data-bmadd]')) { let L = bmLoad(); if (bmHere().length) L = L.filter(b => bmPage(b) !== pi); else { const y = bmFirstAy(); if (y) L.push({ s: y.s, a: y.a, t: Date.now() }); } bmSave(L); bmUpd(); popBm(); return; }
     const bg = e.target.closest('[data-bmgo]'); if (bg) { const b = bmLoad()[+bg.dataset.bmgo]; if (b) { popClose(); goPage(bmPage(b)); } return; }
     const bx = e.target.closest('[data-bmx]'); if (bx) { const L = bmLoad(); L.splice(+bx.dataset.bmx, 1); bmSave(L); bmUpd(); popBm(); return; }
@@ -1524,7 +1623,7 @@ function init(api) {
   stg.addEventListener('touchend', e => { if (sx == null) return; const t = e.changedTouches[0], dx = t.clientX - sx, dy = t.clientY - sy; sx = null; if (Math.abs(dx) > 70 && Math.abs(dx) > Math.abs(dy) * 1.8 && (A.st().rz || 1) <= 1.01) stepPage(dx > 0 ? 1 : -1); }, { passive: true });
   document.addEventListener('keydown', e => { if (!open) return; if (e.key === 'ArrowLeft') stepPage(1); else if (e.key === 'ArrowRight') stepPage(-1); else if (e.key === 'Escape') close(); });
   window.addEventListener('resize', () => { if (open) { if (wantSpread() !== spread) renderPage(false); else relayout(); } });
-  window.addEventListener('orientationchange', () => { if (open) setTimeout(() => { if (wantSpread() !== spread) renderPage(false); else relayout(); }, 250); });
+  window.addEventListener('orientationchange', () => { if (open) setTimeout(() => { if (wantSpread() !== spread) renderPage(false); else reflow(); }, 250); });
   document.addEventListener('visibilitychange', () => { if (document.hidden && hz.on) hzStop(); });
   window.addEventListener('pagehide', () => { if (hz.on && hz.tr && !hz.finished) { try { const w = SC[Math.min(hz.tr.p, SC.length - 1)]; if (w) snapSave(w.ai, true); } catch (e) { } } });
 }
@@ -1534,7 +1633,7 @@ window.FahmReader = {
   gotoSurah: s => { if (!open) return; stopAudio(); if (hz.on) hzStop(); const w = SC.find(x => x.s === s); if (w) { goPage(LP[w.loc]); } },
   back: () => { if (!$('#rpop').hidden) { popClose(); return true; } close(); return true; },
   /* test hooks */
-  _RS: () => RS, _hz: () => hz, _plan: () => hz.plan, _sc: () => SC, _heard: onHeard, _page: () => pi, _show: n => { pi = n; renderPage(false); }, _n: () => PG.length
+  _RS: () => RS, _rep: d => showDaurReport(d || hz.cur), _hz: () => hz, _plan: () => hz.plan, _sc: () => SC, _heard: onHeard, _page: () => pi, _show: n => { pi = n; renderPage(false); }, _n: () => PG.length
 };
 })();
 
