@@ -324,30 +324,19 @@ function thinFrame(w, h) {
     box(w - pl - rw, hy, rw, hh) + box(pl + rw + g, hy, cw, hh) + box(pl, hy, rw, hh) + box((w - bw) / 2, bpy, bw, bph) + `</svg>`;
   return { svg, vars: { '--pt': f(hy + hh + w * .024) + 'px', '--pb': f(h - bpy + w * .012) + 'px', '--pl': f(pl) + 'px', '--pr': f(pl) + 'px', '--hy': f(hy) + 'px', '--hh': f(hh) + 'px', '--bpy': f(bpy) + 'px', '--bph': f(bph) + 'px', '--h1l': f(w - pl - rw) + 'px', '--h1w': f(rw) + 'px', '--h2l': f(pl + rw + g) + 'px', '--h2w': f(cw) + 'px', '--h3l': f(pl) + 'px', '--h3w': f(rw) + 'px' } };
 }
-/* Build 22 frame for the middle pages: clean vector (outer gold hairline, green enamel band with gold lattice + red florets, rosette corners, concave-cornered inner rule). Every length is a fraction of the page width. */
+/* Build 24 frame for the middle pages: thin gold double rule + real Pinterest filigree corner ornaments (frames/corner_d|l.png). Every length is a fraction of the page width. */
 function frameQ(w, h) {
-  const f = n => n.toFixed(2), u = w, o0 = .007 * u, b0 = .013 * u, b1 = .0415 * u, bw = b1 - b0, r0 = .0475 * u, rc = .02 * u;
-  const nh = (Math.round((w - 2 * b1) / bw) | 1), nv = (Math.round((h - 2 * b1) / bw) | 1), ph = (w - 2 * b1) / nh, pv = (h - 2 * b1) / nv;
-  const tile = (id, tw, th) => `<pattern id="${id}" width="${f(tw)}" height="${f(th)}" patternUnits="userSpaceOnUse"><path d="M${f(tw / 2)} ${f(th * .16)}L${f(tw * .84)} ${f(th / 2)}L${f(tw / 2)} ${f(th * .84)}L${f(tw * .16)} ${f(th / 2)}Z" fill="none" stroke="var(--gd)" stroke-width="${f(bw * .05)}" stroke-linejoin="round"/><circle cx="${f(tw / 2)}" cy="${f(th / 2)}" r="${f(bw * .105)}" fill="var(--rd)"/><circle cx="${f(tw / 2)}" cy="${f(th / 2)}" r="${f(bw * .105)}" fill="none" stroke="var(--gd2)" stroke-width="${f(bw * .025)}"/><circle cx="0" cy="${f(th / 2)}" r="${f(bw * .045)}" fill="var(--gd)"/><circle cx="${f(tw)}" cy="${f(th / 2)}" r="${f(bw * .045)}" fill="var(--gd)"/><circle cx="${f(tw / 2)}" cy="0" r="${f(bw * .045)}" fill="var(--gd)"/><circle cx="${f(tw / 2)}" cy="${f(th)}" r="${f(bw * .045)}" fill="var(--gd)"/></pattern>`;
-  const defs = `<defs>${tile('qh', ph, bw)}${tile('qv', bw, pv)}</defs>`;
-  const R = (x, y, ww, hh, fill) => `<rect x="${f(x)}" y="${f(y)}" width="${f(ww)}" height="${f(hh)}" fill="${fill}"/>`;
-  /* bands (pattern origin shifted so tiles start exactly at the corner squares) */
-  const band = `<path fill="var(--gr)" fill-rule="evenodd" d="M${f(b0)} ${f(b0)}H${f(w - b0)}V${f(h - b0)}H${f(b0)}ZM${f(b1)} ${f(b1)}V${f(h - b1)}H${f(w - b1)}V${f(b1)}Z"/>` +
-    `<g><rect x="${f(b1)}" y="${f(b0)}" width="${f(w - 2 * b1)}" height="${f(bw)}" fill="url(#qh)"/><rect x="${f(b1)}" y="${f(h - b1)}" width="${f(w - 2 * b1)}" height="${f(bw)}" fill="url(#qh)"/></g>` +
-    `<g><rect x="${f(b0)}" y="${f(b1)}" width="${f(bw)}" height="${f(h - 2 * b1)}" fill="url(#qv)" transform="translate(0 0)"/><rect x="${f(w - b1)}" y="${f(b1)}" width="${f(bw)}" height="${f(h - 2 * b1)}" fill="url(#qv)"/></g>`;
-  /* patterns are anchored at the svg origin; align them to the band start with pattern transforms */
-  const line = (x, y, ww, hh, sw, op) => `<rect x="${f(x)}" y="${f(y)}" width="${f(ww)}" height="${f(hh)}" fill="none" stroke="var(--gd)" stroke-width="${f(sw)}" stroke-opacity="${op || 1}"/>`;
-  const rose = (cx, cy) => { const R1 = bw * .46; let g = `<g transform="translate(${f(cx)} ${f(cy)})"><circle r="${f(bw * .47)}" fill="var(--gr)"/>`; for (let k = 0; k < 8; k++) g += `<ellipse cx="0" cy="${f(-R1 * .58)}" rx="${f(R1 * .26)}" ry="${f(R1 * .44)}" fill="var(--gd)" stroke="var(--gd2)" stroke-width="${f(bw * .018)}" transform="rotate(${k * 45})"/>`; return g + `<circle r="${f(R1 * .32)}" fill="var(--rd)" stroke="var(--gd2)" stroke-width="${f(bw * .03)}"/><circle r="${f(R1 * .1)}" fill="var(--gd2)"/></g>`; };
-  const cc = (b0 + b1) / 2;
-  const dia = (cx, cy, vert) => { const L1 = bw * .74, S1 = bw * .5; return `<g transform="translate(${f(cx)} ${f(cy)}) rotate(${vert ? 90 : 0})"><path d="M${f(-L1)} 0L0 ${f(-S1)}L${f(L1)} 0L0 ${f(S1)}Z" fill="var(--gr)" stroke="var(--gd)" stroke-width="${f(bw * .07)}" stroke-linejoin="round"/><path d="M${f(-L1 * .62)} 0L0 ${f(-S1 * .62)}L${f(L1 * .62)} 0L0 ${f(S1 * .62)}Z" fill="none" stroke="var(--gd2)" stroke-width="${f(bw * .03)}"/><circle r="${f(bw * .15)}" fill="var(--rd)" stroke="var(--gd2)" stroke-width="${f(bw * .03)}"/></g>`; };
+  const f = n => n.toFixed(2), u = w, o0 = .008 * u, r0 = .019 * u, rc = .016 * u, cs = .105 * u;
   const x0 = r0, y0 = r0, x1 = w - r0, y1 = h - r0;
   const inner = `M${f(x0 + rc)} ${f(y0)}H${f(x1 - rc)}A${f(rc)} ${f(rc)} 0 0 0 ${f(x1)} ${f(y0 + rc)}V${f(y1 - rc)}A${f(rc)} ${f(rc)} 0 0 0 ${f(x1 - rc)} ${f(y1)}H${f(x0 + rc)}A${f(rc)} ${f(rc)} 0 0 0 ${f(x0)} ${f(y1 - rc)}V${f(y0 + rc)}A${f(rc)} ${f(rc)} 0 0 0 ${f(x0 + rc)} ${f(y0)}Z`;
-  const svg = `<svg width="${f(w)}" height="${f(h)}" viewBox="0 0 ${f(w)} ${f(h)}" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" shape-rendering="geometricPrecision">` + defs.replace(/<pattern id="qh"([^>]*)>/, `<pattern id="qh"$1 patternTransform="translate(${f(b1)} ${f(b0)})">`).replace(/<pattern id="qv"([^>]*)>/, `<pattern id="qv"$1 patternTransform="translate(${f(b0)} ${f(b1)})">`) + band +
-    line(o0, o0, w - 2 * o0, h - 2 * o0, .0030 * u) + line(b0, b0, w - 2 * b0, h - 2 * b0, .0036 * u) + line(b1, b1, w - 2 * b1, h - 2 * b1, .0046 * u) +
-    `<path d="${inner}" fill="none" stroke="var(--gd)" stroke-width="${f(.0022 * u)}" stroke-linejoin="round"/>` +
-    rose(cc, cc) + rose(w - cc, cc) + rose(cc, h - cc) + rose(w - cc, h - cc) + dia(w / 2, cc, 0) + dia(w / 2, h - cc, 0) + dia(cc, h / 2, 1) + dia(w - cc, h / 2, 1) + `</svg>`;
-  const hy = r0 + .011 * u, hh = .074 * u, bph = .05 * u, bpy = h - r0 - .01 * u - bph;
-  return { svg, vars: { '--pt': f(hy + hh + .018 * u) + 'px', '--pb': f(h - bpy + .006 * u) + 'px', '--pl': f(.088 * u) + 'px', '--pr': f(.088 * u) + 'px', '--hy': f(hy) + 'px', '--hh': f(hh) + 'px', '--hl': f(.064 * u) + 'px', '--bpy': f(bpy) + 'px', '--bph': f(bph) + 'px' } };
+  const im = (x, y, sx, sy) => `<g transform="translate(${f(x)} ${f(y)}) scale(${sx} ${sy})"><image class="cd" href="frames/corner_d.png" x="0" y="0" width="${f(cs)}" height="${f(cs)}"/><image class="cl" href="frames/corner_l.png" x="0" y="0" width="${f(cs)}" height="${f(cs)}"/></g>`;
+  const e = .004 * u;
+  const svg = `<svg width="${f(w)}" height="${f(h)}" viewBox="0 0 ${f(w)} ${f(h)}" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" shape-rendering="geometricPrecision">` +
+    `<rect x="${f(o0)}" y="${f(o0)}" width="${f(w - 2 * o0)}" height="${f(h - 2 * o0)}" fill="none" stroke="var(--gd)" stroke-width="${f(.0034 * u)}"/>` +
+    `<path d="${inner}" fill="none" stroke="var(--gd)" stroke-width="${f(.0018 * u)}" stroke-linejoin="round"/>` +
+    im(e, e, 1, 1) + im(w - e, e, -1, 1) + im(e, h - e, 1, -1) + im(w - e, h - e, -1, -1) + `</svg>`;
+  const hy = r0 + .012 * u, hh = .074 * u, bph = .05 * u, bpy = h - r0 - .012 * u - bph;
+  return { svg, vars: { '--pt': f(hy + hh + .018 * u) + 'px', '--pb': f(h - bpy + .006 * u) + 'px', '--pl': f(.066 * u) + 'px', '--pr': f(.066 * u) + 'px', '--hy': f(hy) + 'px', '--hh': f(hh) + 'px', '--hl': f(.1 * u) + 'px', '--bpy': f(bpy) + 'px', '--bph': f(bph) + 'px' } };
 }
 function drawFrame(w, h) {
   const p = $('#rpage'); if (!p) return; let f = $('#rfr'); if (!f) { f = document.createElement('div'); f.id = 'rfr'; p.insertBefore(f, p.firstChild); }
