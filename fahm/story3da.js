@@ -6,7 +6,7 @@ const H = FahmStory.helpers, T = H.T, { K, X, Y, Z, TAU, clamp, ease, mix, fr, h
 const V2 = (a, b) => new T.Vector2(a, b), V3 = (a, b, c) => new T.Vector3(a, b, c);
 const GOLD = '#e8b84a', CYAN = '#35d0e6', EMBER = '#ff7a2a';
 const B = {}; window.FAHM3D = B;
-B.onGround = new Set(['figures', 'camels', 'elephants', 'kaaba', 'tree', 'gate', 'child', 'food', 'chest', 'humans', 'firewood', 'flames', 'lost', 'dome', 'straw', 'stones', 'river']);
+B.onGround = new Set(['cast', 'figures', 'camels', 'elephants', 'kaaba', 'tree', 'gate', 'child', 'food', 'chest', 'humans', 'firewood', 'flames', 'lost', 'dome', 'straw', 'stones', 'river']);
 const grp = (...c) => { const g = new T.Group(); c.forEach(x => g.add(x)); return g; };
 const at = (o, x, y, z) => { o.position.set(x, y, z); return o; };
 const lt = (L, A) => { L.intensity = L.userData.base * A; };
@@ -311,6 +311,50 @@ B.straw = (p) => {
   const P = pts(18, '#d9c9a0', .6, .15), pos = P.userData.pos; g.add(P);
   return { g, u: (t, A, G) => { for (let i = 0; i < 18; i++) { const u = fr(G * .1 + hs(i, 8)); pos[i * 3] = (hs(i, 9) - .5) * 11 + u * 1.2; pos[i * 3 + 1] = .3 + u * 1.8; pos[i * 3 + 2] = (hs(i) - .5) * 3; } P.geometry.attributes.position.needsUpdate = true; } };
 };
+/* Build 32: the CAST — faceless people who act the ayah out, word by word.
+   p.tl = [[wordIndex, group 'a'|'b'|'*', state], ...]; group a = those addressed / believers (warm robes, left),
+   group b = deniers / wrongdoers (dark robes, right). States: stand, listen, pray, dua, give, walk, turn, fear, joy, fall, look, gather, hide. */
+B.cast = (p, S) => {
+  const g = new T.Group(), groups = {}, s = 1.35, z = Z(p.y ?? 214);
+  const mk = (key, n, x, robes, aura) => { const L = []; for (let i = 0; i < n; i++) { const pr = person({ robe: robes[i % robes.length], turban: key === 'b' ? '#3a3440' : undefined }); pr.scale.setScalar(.01); const bx = X(x) + (i - (n - 1) / 2) * 40 * K * (key === 'b' ? -1 : 1), bz = z + (i % 2) * .35; pr.position.set(bx, 0, bz); pr.rotation.y = key === 'b' ? -.35 : .35; g.add(pr); const au = sprite(aura, s * 1.7, .2); au.position.set(bx, .6, bz); g.add(au); L.push({ pr, au, bx, bz, i }); } groups[key] = { L, st: p.a0 && key === 'a' ? p.a0 : 'stand', t0: 0, prev: 'stand' }; };
+  if (p.na) mk('a', p.na, p.xa ?? 135, ['#e8dfc6', '#cfd8c8', '#d8c9a8', '#c8cfdc', '#e2d4b4'], GOLD);
+  if (p.nb) mk('b', p.nb, p.xb ?? 295, ['#4a3a46', '#3c3a4a', '#523a3a', '#3a4040'], '#c4302b');
+  const coin = sprite(GOLD, .5, 0); g.add(coin);
+  const tl = (p.tl || []).slice().sort((a, b) => a[0] - b[0]);
+  let lastIdx = -9, born = -1;
+  const stateAt = (key, w) => { let st = key === 'a' && p.a0 ? p.a0 : 'stand'; for (const [ww, gk, s2] of tl) { if (ww > w) break; if (gk === key || gk === '*') st = s2; } return st; };
+  return { g, u: (t, A, G, now) => {
+    let w = S && typeof S.reveal === 'number' ? S.reveal : 99; if (w >= 99) { const mx = tl.length ? tl[tl.length - 1][0] + 3 : 3; w = Math.floor(G / 1.4) % (mx + 2); }  /* idle: the little story keeps replaying */
+    if (w !== lastIdx) { lastIdx = w; Object.keys(groups).forEach(k => { const gr = groups[k], ns = stateAt(k, w); if (ns !== gr.st) { gr.prev = gr.st; gr.st = ns; gr.t0 = G; } }); }
+    if (born < 0) born = G;
+    Object.keys(groups).forEach(k => {
+      const gr = groups[k], e = ease((G - gr.t0) / .8), st = gr.st;
+      gr.L.forEach(({ pr, au, bx, bz, i }) => {
+        const ap = ease((G - born - i * .15) / .7), u = pr.userData; let sc = s * ap, px = bx, py = 0, ry = k === 'b' ? -.35 : .35, tx = 0, tz = 0, aO = .2, pose = 0, armX = 0, armZ = 0;
+        const sway = Math.sin(G * 1.1 + i) * .02;
+        if (st === 'listen') { tx = -.12 * e; ry = (k === 'b' ? -1 : 1) * .15; aO = .45; }
+        else if (st === 'pray') { const cyc = ((G - gr.t0) * .3 + i * .05) % 1; pose = cyc < .3 ? 0 : cyc < .45 ? ease((cyc - .3) / .15) : cyc < .6 ? 1 : cyc < .75 ? 1 + ease((cyc - .6) / .15) : cyc < .9 ? 2 : 2 * (1 - ease((cyc - .9) / .1)); ry = Math.PI; aO = .5; }
+        else if (st === 'dua') { armX = -2.3 * e; armZ = .25 * e; aO = .55; }
+        else if (st === 'give') { if (i === 0) { armX = -1.2 * e; } aO = .4; }
+        else if (st === 'walk') { px = bx + (k === 'b' ? -1 : 1) * Math.min(1.6, (G - gr.t0) * .45); py = Math.abs(Math.sin(G * 6 + i)) * .04; ry = (k === 'b' ? -1 : 1) * 1.45; }
+        else if (st === 'turn') { ry = (k === 'b' ? 1 : -1) * (Math.PI * .85) * e; aO = .08; sc *= 1 - .08 * e; }
+        else if (st === 'fear') { tx = .18 * e; px = bx + Math.sin(G * 30 + i) * .025 * e; aO = .1; }
+        else if (st === 'joy') { py = Math.abs(Math.sin(G * 5 + i)) * .12 * e; armX = -2.6 * e; armZ = .5 * e; aO = .7; }
+        else if (st === 'fall') { tx = -1.35 * e; sc *= 1 - .35 * e; aO = .02; }
+        else if (st === 'look') { tx = .3 * e; aO = .4; }
+        else if (st === 'gather') { px = bx + (200 - (k === 'b' ? 295 : 135)) * K * .35 * e; aO = .35; }
+        else if (st === 'hide') { sc *= Math.max(.01, 1 - e); }
+        pr.scale.setScalar(Math.max(.01, sc)); pr.position.set(px, py, bz); pr.rotation.y += (ry - pr.rotation.y) * .12;
+        if (st === 'pray') u.setPose(pose); else { u.setPose(0); u.torso.rotation.x = tx; u.torso.rotation.z = sway; }
+        u.arms.forEach((a, j) => { if (st === 'pray') return; a.rotation.x += (armX - a.rotation.x) * .15; a.rotation.z += (((j ? -1 : 1) * (.08 + armZ)) - a.rotation.z) * .15; });
+        au.position.set(px, .6 * sc, bz); au.material.opacity = aO * ap * A;
+        if (st === 'give' && i === 0 && k === 'a') { const q = ((G - gr.t0) * .45) % 1; coin.position.set(px + q * 2.2, .9 + Math.sin(q * Math.PI) * .9, bz); coin.material.opacity = (1 - q) * A; coin.scale.setScalar(.35 + .1 * Math.sin(G * 6)); }
+      });
+    });
+    if (!groups.a || groups.a.st !== 'give') coin.material.opacity = 0;
+  } };
+};
+
 })();
 
 /* Build 31: word hologram — every recited word shows its own unique meaning-scene + signature, on a floating glass panel */

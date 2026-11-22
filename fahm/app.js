@@ -78,7 +78,7 @@ function setWord(i, fromAudio, silent) {
 function renderWordCard() {
   const { W, S, A } = cur(), [m, c] = wordMeaning(W);
   const roots = W.root ? [...W.root] : [];
-  const rootHtml = roots.length ? `<div class="root"><span class="lbl">${T('root')}</span>${roots.map((l, k) => `<span class="lt" style="animation-delay:${k * 0.12}s">${l}</span>${k < roots.length - 1 ? '<span class="sep">–</span>' : ''}`).join('')}</div>` : '';
+  const rootHtml = roots.length ? `<div class="root"><span class="lbl">${T('root')}</span>${roots.map((l, k) => `<span class="lt" style="animation-delay:${k * 0.12}s">${l}</span>${k < roots.length - 1 ? '<span class="sep">–</span>' : ''}`).join('')}<button class="rmb" data-rmap="${esc(W.root)}">🌳 ${({ ur: 'روٹ میپ', ru: 'Root map', en: 'Root map' })[st.ui] || 'Root map'}</button></div>` : '';
   let same = '';
   if (W.root && rootIdx[W.root]) {
     const seen = new Set([stripD(W.ar)]), items = [];
@@ -231,6 +231,10 @@ function setFull(id, on) {
   const el = $(id); el.classList.toggle('big', on); document.body.classList.toggle('noscroll', anyFull());
   setTimeout(() => { if (window.FahmLab) FahmLab.resize(); scene.resize(); }, 40);
 }
+/* Build 32: "came from" stack — closing a screen opened from another screen (search -> reader, etc.) returns to that screen */
+window.FahmNav = window.FahmNav || { st: [], push(fn) { this.st.push(fn); if (this.st.length > 12) this.st.shift(); }, clear() { this.st = []; } };
+window.FahmOverlays = window.FahmOverlays || [];
+function navPop() { const fn = window.FahmNav.st.pop(); if (fn) { try { fn(); } catch (e) { } } }
 /* returns true when the app used the back press itself */
 window.__fahmBack = function () {
   if (window.__fahmOnbOpen && window.__fahmOnbOpen()) return false;
@@ -238,7 +242,9 @@ window.__fahmBack = function () {
   const sup = document.getElementById('sup'); if (sup && !sup.hidden) { sup.hidden = true; return true; }
   const mk = document.getElementById('mkh'); if (mk && !mk.hidden) { mk.hidden = true; return true; }
   if (window.FahmWS && FahmWS.isOpen()) { FahmWS.close(); return true; }
-  if (FahmReader.isOpen()) { FahmReader.back(); return true; }
+  { const ovs = window.FahmOverlays || []; for (let i = ovs.length - 1; i >= 0; i--) { try { if (ovs[i].isOpen()) { ovs[i].close(); return true; } } catch (e) { } } }
+  if (FahmReader.isOpen()) { FahmReader.back(); if (!FahmReader.isOpen()) navPop(); return true; }
+  { const sr = document.getElementById('sr'); if (sr && !sr.hidden) { sr.hidden = true; navPop(); return true; } }
   for (const id of ['#pick', '#settings', '#menu']) if (!$(id).hidden) { $(id).hidden = true; return true; }
   if ($('#stage').classList.contains('big')) { setFull('#stage', false); return true; }
   if ($('#story').classList.contains('big')) { setFull('#story', false); return true; }
@@ -282,7 +288,9 @@ function computeBounds() {
   wts.forEach(x => { acc += x / tot; bounds.push(acc); });
 }
 function idxAt(frac) { for (let i = 0; i < bounds.length; i++) if (frac <= bounds[i]) return i; return bounds.length - 1; }
-function ayahUrl() { const { S, A } = cur(); return `https://everyayah.com/data/${st.rec}/${pad(S.n)}${pad(A.v)}.mp3`; }
+function ayahUrl() { const { S, A } = cur(); if (window.FahmWT) { FahmWT.load(st.rec, S.n); return FahmWT.url(st.rec, S.n, A.v); } return `https://everyayah.com/data/${st.rec}/${pad(S.n)}${pad(A.v)}.mp3`; }
+/* Build 32: real word timings when the qari has them (16 qaris), otherwise the old estimate */
+function wtIdx() { if (!window.FahmWT) return -1; const { S, A } = cur(), t = FahmWT.get(st.rec, S.n, A.v); if (!Array.isArray(t) || t.length < 2) return -1; const ms = au.currentTime * 1000 + 30, n = t.length - 1; let k = 0; for (let i = 0; i < n; i++) if (t[i] <= ms) k = i; return Math.min(A.words.length - 1, n === A.words.length ? k : Math.floor(k * A.words.length / n)); }
 function playAyah() {
   stopAll(); FahmSfx.unlock(); FahmSfx.setLevel(st.sfx); setPlaying(true); { const v = $('#sv'); if (v.getAttribute('src')) { v.currentTime = 0; const p = v.play(); if (p && p.catch) p.catch(() => { }); } } scene.set(scene.spec); setWord(0, true, true); if (st.sfx) FahmSfx.start(scene.spec.sky);
   const { A } = cur(); let failed = false;
@@ -291,7 +299,7 @@ function playAyah() {
     timer = setInterval(() => { i++; if (i >= A.words.length) { clearInterval(timer); timer = null; onEnded(); } else setWord(i, true, true); }, per);
   };
   au.onerror = fallback; au.onended = onEnded;
-  const sync = () => { if (!au.duration || failed || au.paused) return; const lead = Math.min(0.18, au.duration * 0.04), tail = Math.min(0.3, au.duration * 0.05), f = Math.max(0, Math.min(1, (au.currentTime - lead) / Math.max(0.1, au.duration - lead - tail))); const i = idxAt(f); if (i !== st.w) setWord(i, true, true); };
+  const sync = () => { if (!au.duration || failed || au.paused) return; { const k = wtIdx(); if (k >= 0) { if (k !== st.w) setWord(k, true, true); return; } } const lead = Math.min(0.18, au.duration * 0.04), tail = Math.min(0.3, au.duration * 0.05), f = Math.max(0, Math.min(1, (au.currentTime - lead) / Math.max(0.1, au.duration - lead - tail))); const i = idxAt(f); if (i !== st.w) setWord(i, true, true); };
   au.ontimeupdate = sync; clearInterval(timer); timer = setInterval(sync, 50);
   au.src = ayahUrl(); const pr = au.play(); if (pr && pr.catch) pr.catch(() => fallback());
 }
@@ -352,6 +360,7 @@ function openSettings() {
   $('#setT').textContent = T('settings');
   const seg = (items, cur, key) => `<div class="seg">${items.map(([v, l]) => `<button data-k="${key}" data-v="${v}" class="${cur === v ? 'on' : ''}">${esc(l)}</button>`).join('')}</div>`;
   $('#setBody').innerHTML =
+    `<div class="set-g"><button class="gd-open" data-guide="1">🧭 ${({ ur: 'گائیڈ — ایپ کیسے چلائیں', ru: 'Guide — app kaise chalayein', en: 'Guide — how to use the app' })[st.ui] || 'Guide'}</button></div>` +
     `<div class="set-g"><h5>${T('ui')}</h5>${seg(I.ui, st.ui, 'ui')}</div>` +
     `<div class="set-g"><h5>${T('theme')}</h5>${seg([['dark', T('dark')], ['light', T('light')]], st.theme, 'theme')}</div>` +
     `<div class="set-g"><h5>${T('sfx')}</h5>${seg([['0', T('sfxOff')], ['1', T('sfxLow')], ['2', T('sfxMid')]], String(st.sfx), 'sfx')}</div>` +
@@ -442,7 +451,7 @@ async function init() {
   try { await ensureS(st.s); } catch (e) { }
   if (st.a >= D.surahs[st.s].ayat.length) st.a = 0;
   FahmSfx.setLevel(st.sfx); scene.onBorn = it => { if (playing && st.sfx) FahmSfx.cue(it.a); };
-  FahmReader.init({ D: () => D, st: () => st, save, toast, openMenu, onClose: () => document.body.classList.toggle('noscroll', anyFull()) });
+  FahmReader.init({ D: () => D, st: () => st, save, toast, openMenu, onClose: () => { document.body.classList.toggle('noscroll', anyFull()); const l = st.rcur; if (l && D && D.surahs[l.s - 1] && (l.s - 1 !== st.s || l.a - 1 !== st.a)) goTo(l.s - 1, l.a - 1, 0, false, true); } });
   FahmWS.init({
     st: () => st, cur, wordMeaning, lemKey, strip: stripD, sName,
     pickWord: i => { stopAll(); setWord(i); try { playWord(); } catch (e) { } FahmWS.set(i); },

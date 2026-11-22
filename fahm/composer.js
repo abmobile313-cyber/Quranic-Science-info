@@ -199,6 +199,35 @@ const cache = new Map();
 
 function words(A) { return A.words.map(w => ({ pos: w.pos || '', en: (w.en || '').toLowerCase(), tl: (w.tl || '').toLowerCase(), root: (w.root || '').replace(/[^ء-ي]/g, '') })); }
 
+const RX = {
+  deny: /disbeliev|\bdeny|\bdenied|\breject|turn(ed|s)? away|turn(ed)? (their )?backs?|\barrogan|\bmock|ridicul|hypocrit|\bwrongdo|transgress|\bsinners?\b|criminal|polythe|associate[ds]? partners|\bdefian|\bboast|\bplot/,
+  human: /believ|\bpeople|mankind|\bmen\b|\bwomen\b|servants?\b|those who|\byou\b|\byour\b|\bthey\b|\bthem\b|\bwe\b|righteous|\bpious|\bpatient|worship|\bpray|\bspend|\bguided|orphan|\bpoor\b|travell|children|parents|family|messenger|\bprophet|\bhe\b|\bhim\b|\bsoul/,
+  pray: /\bpray|prostrat|\bbow(ed|ing)?\b|worship|\bsalah|\bkneel/, listen: /believ|\bfaith|\btrust|\bhear|\blisten|\brecit|remember|remind|\bheed|\bobey|submit|\bthank|grateful/,
+  give: /\bspend|\bgive|\bgave|charit|\bzakah|\bfeed|\balms|\bpaid|\bpay/, dua: /\bask|\bcall(ed)? (up)?on|invok|supplicat|\bour lord\b|forgive us|\bseek (refuge|help|forgiveness)|\brepent/,
+  walk: /\bwalk|\bgo\b|\bwent\b|\bcame\b|\bcome\b|travel|journey|migrat|\bmarch|\benter|\bdepart|\bleave|\bfollow/, look: /\bsee\b|\bsaw\b|\blook|observe|consider|reflect|ponder|\bsigns?\b|\bthink|understand/,
+  joy: /rejoic|\bglad|\bhapp|\breward|garden|paradise|succe(ed|ss)|\bwin\b|\bbliss|\bdelight/, fear: /\bfear|\bterror|\bafraid|\bdread|\btremble|\bpanic/,
+  fall: /\bdie[sd]?\b|\bperish|destroy|\bseiz|\bdrown|punish|torment|\bfire\b|\bruin|\bkilled|\bslain|\bdead\b/, gather: /\bgather|assembl|together|\bunite|\bwith (each|one) another/
+};
+function director(W, S, A) {
+  const all = W.map(w => w.en).join(' '); const hasB = RX.deny.test(all), hasA = RX.human.test(all) || /\b(believ|pray|spend|worship)/.test(all);
+  if (!hasA && !hasB) return null;
+  const tl = [];
+  W.forEach((w, k) => { const g = w.en;
+    if (RX.deny.test(g)) tl.push([k, 'b', 'turn']);
+    else if (RX.fall.test(g)) tl.push([k, hasB ? 'b' : 'a', hasB ? 'fall' : 'fear']);
+    else if (RX.fear.test(g)) tl.push([k, hasB && !/your lord|allah|him\b/.test(all) ? 'b' : 'a', hasB ? 'fear' : 'listen']);
+    else if (RX.pray.test(g)) tl.push([k, 'a', 'pray']);
+    else if (RX.give.test(g)) tl.push([k, 'a', 'give']);
+    else if (RX.dua.test(g)) tl.push([k, 'a', 'dua']);
+    else if (RX.joy.test(g)) tl.push([k, 'a', 'joy']);
+    else if (RX.walk.test(g)) tl.push([k, hasB && !hasA ? 'b' : 'a', 'walk']);
+    else if (RX.look.test(g)) tl.push([k, 'a', 'look']);
+    else if (RX.gather.test(g)) tl.push([k, '*', 'gather']);
+    else if (RX.listen.test(g)) tl.push([k, 'a', 'listen']);
+  });
+  const h = hs(S.n * 3, A.v);
+  return { a: 'cast', w: 0, na: hasA || !hasB ? 3 + Math.round(h * 2) : 0, nb: hasB ? 3 + Math.round(h * 1) : 0, xa: hasB ? 125 : 185, xb: 290, y: 238, tl };
+}
 function compose(S, A) {
   const key = S.n + ':' + A.v; if (cache.has(key)) return cache.get(key);
   const W = words(A), nW = W.length, hit = [];
@@ -209,7 +238,7 @@ function compose(S, A) {
   });
   hit.sort((a, b) => b.t.pr - a.t.pr || a.wi - b.wi);
   const pick = [], seenSky = new Set(); let nItems = 0;
-  for (const h of hit) { if (pick.length >= 3) break; const its = h.t.it(); if (nItems + its.length > 5 && pick.length) continue; pick.push(h); nItems += its.length; }
+  for (const h of hit) { if (pick.length >= 4) break; const its = h.t.it(); if (nItems + its.length > 6 && pick.length) continue; pick.push(h); nItems += its.length; }
   const r0 = hs(S.n, A.v);
   /* sky: strongest sky-bearing theme, else varied by place + hash */
   let sky = pick.length ? pick[0].t.sky : null, moon = null;
@@ -226,15 +255,11 @@ function compose(S, A) {
       items.push(Object.assign({ a, w: Math.min(nW - 1, h.wi) }, p));
     });
   });
-  /* 100% sync: every word of the ayah gets its own item that fires exactly when that word is recited */
-  const covered = new Set(items.map(it => it.w));
-  for (let k = 0; k < nW; k++) {
-    if (covered.has(k)) continue;
-    const xx = nW > 1 ? Math.round(340 - k * (280 / (nW - 1))) : 200, P = W[k].pos, h2 = hs(S.n * 7 + k, A.v);
-    if (P === 'V') items.push({ fill: 1, a: 'beam', w: k, x: xx, y: 214, col: h2 < 0.5 ? '#e8b84a' : '#35d0e6' });
-    else if (P === 'N' || P === 'PN' || P === 'ADJ') items.push({ fill: 1, a: 'bloom', w: k, x: xx, y: UY.sky, r: 34 + Math.round(h2 * 14), col: h2 < 0.5 ? '#9be3c4' : '#f3d98b' });
-    else items.push({ fill: 1, a: 'pulse', w: k, x: xx, y: UY.sky + 10, r: 46 + Math.round(h2 * 20), col: h2 < 0.5 ? '#35d0e6' : '#e8b84a' });
-  }
+  /* Build 32: a STORY instead of symbols — faceless people act the ayah out word by word (pray, give, ask, walk, turn away, fall...),
+     and divine light comes only as light from above. Theme items above set the place; the cast carries the action. */
+  const cast = director(W, S, A);
+  if (cast) { for (let i = items.length - 1; i >= 0; i--) if (items[i].a === 'figures' || items[i].a === 'humans' || items[i].a === 'lost' || items[i].a === 'chest') items.splice(i, 1); items.push(cast); need = true;
+    W.forEach((w, k) => { if (/\ballah\b|\blord\b|\bgod\b/.test(w.en) && !items.some(it => it.a === 'beam' && Math.abs(it.w - k) < 2)) items.push({ a: 'beam', w: k, x: cast.na ? 135 : 295, y: 214, col: '#f3d98b' }); }); }
   let gr = need ? (sky === 'day' || sky === 'holy' ? 'flat' : (r0 < 0.6 ? 'dunes' : 'flat')) : 'none';
   if (pick.some(h => ['kaaba', 'camel', 'prayer', 'journey', 'elephant'].includes(h.t.id))) gr = 'dunes';
   const cx = pick.length ? { uru: pick.slice(0, 2).map(h => h.t.caps[0]).join(' '), ur: pick.slice(0, 2).map(h => h.t.caps[1]).join(' '), en: pick.slice(0, 2).map(h => h.t.caps[2]).join(' ') } : { uru: 'آیت کے الفاظ کے ساتھ روشنی ابھرتی ہے۔', ur: 'Ayat ke alfaaz ke saath roshni ubharti hai.', en: 'Light rises with the words of the ayah.' };

@@ -71,7 +71,23 @@
     en: { t: 'Search the Quran', ph: 'Type a topic, word or ayah… (e.g. hajj, marriage, 2:255)', pop: 'Popular topics', none: 'Nothing found. Try another word.', load: 'Getting ready…', more: 'Show more', read: 'Read', wbw: 'Word by word', found: 'ayat found', rel: 'Topic', tip: 'Short words work: hajj, nikah, patience, zakat…' }
   };
   const ui = () => { try { const f = window.__fahm; const st = typeof f.st === 'function' ? f.st() : f.st; return (st && st.ui) || 'ru'; } catch (e) { return 'ru'; } };
+  Object.assign(TT.ru, { qir: 'Qirat sunein', trs: 'Tarjuma sunein', taf: 'Tafseer', stop: 'Rokein', tafL: 'Tafseer load ho rahi hai…', tafE: 'Tafseer ke liye internet zaroori hai', noTr: 'Is zubaan ki tarjuma aawaz maujood nahin' });
+  Object.assign(TT.ur, { qir: 'قراءت سنیں', trs: 'ترجمہ سنیں', taf: 'تفسیر', stop: 'روکیں', tafL: 'تفسیر لوڈ ہو رہی ہے…', tafE: 'تفسیر کے لیے انٹرنیٹ درکار ہے', noTr: 'اس زبان کے ترجمے کی آواز موجود نہیں' });
+  Object.assign(TT.en, { qir: 'Listen to qirat', trs: 'Listen to translation', taf: 'Tafseer', stop: 'Stop', tafL: 'Loading tafseer…', tafE: 'Tafseer needs internet', noTr: 'No translation audio for this language' });
   const T = () => TT[ui()] || TT.ru;
+  /* Build 32: listen + tafseer inside search */
+  let sau = null, sbtn = null;
+  function sStop() { try { if (sau) { sau.onended = null; sau.pause(); } } catch (e) { } sau = null; if (sbtn) { sbtn.classList.remove('on'); sbtn.textContent = sbtn.dataset.lbl; } sbtn = null; }
+  function sPlay(btn, url) { const same = sbtn === btn; sStop(); if (same || !url) { if (!url) toastS(T().noTr); return; } try { window.__fahmApp && __fahmApp.stopAll(); } catch (e) { } sau = new Audio(url); sbtn = btn; btn.dataset.lbl = btn.dataset.lbl || btn.textContent; btn.classList.add('on'); btn.textContent = '■ ' + T().stop; sau.onended = sStop; sau.onerror = sStop; const pr = sau.play(); if (pr && pr.catch) pr.catch(sStop); }
+  function toastS(m) { try { window.__fahmApp.toast(m); } catch (e) { } }
+  const TAFC = {};
+  function sTaf(box, s, a) {
+    if (box.dataset.open === '1') { box.dataset.open = '0'; box.innerHTML = ''; return; } box.dataset.open = '1';
+    const u = ui(), id = u === 'en' ? 169 : 160, key = id + ':' + s + ':' + a, t = T(); box.innerHTML = `<p class="dim">${esc(t.tafL)}</p>`;
+    (TAFC[key] ? Promise.resolve(TAFC[key]) : fetch(`https://api.quran.com/api/v4/tafsirs/${id}/by_ayah/${s}:${a}`).then(r => { if (!r.ok) throw 0; return r.json(); }).then(j => (TAFC[key] = { t: String(j.tafsir.text || '').replace(/<(?!\/?(p|br|b|i)\b)[^>]*>/gi, ''), n: j.tafsir.resource_name || '' })))
+      .then(async v => { let tx = v.t; if (u === 'ru' && window.FahmConv) { try { await FahmConv.load(); tx = FahmConv.roman(tx); } catch (e) { } } box.innerHTML = `<div class="srtaf"${u === 'ur' ? ' dir="rtl"' : ''}>${tx}</div><small>${esc(v.n)} · Quran.com</small>`; })
+      .catch(() => { box.innerHTML = `<p class="dim">${esc(t.tafE)}</p>`; });
+  }
   const D = () => { try { const f = window.__fahm; return typeof f.D === 'function' ? f.D() : f.D; } catch (e) { return null; } };
   const nrm = s => String(s || '').toLowerCase().replace(/[’‘`´]/g, "'").replace(/[ˈ˹˺]/g, '').trim();
   const arn = s => (window.FahmHafiz ? window.FahmHafiz.norm(s) : s);
@@ -139,8 +155,11 @@
     ov.addEventListener('click', e => {
       const ch = e.target.closest('[data-q]'); if (ch) { inp.value = ch.dataset.q; go(ch.dataset.q); return; }
       const mo = e.target.closest('[data-more]'); if (mo) { render(true); return; }
-      const rd = e.target.closest('[data-read]'); if (rd) { const [s, a] = rd.dataset.read.split(':').map(Number); close(); try { window.FahmReader.open(s, a); } catch (er) { } return; }
-      const wb = e.target.closest('[data-wbw]'); if (wb) { const [s, a] = wb.dataset.wbw.split(':').map(Number); close(); try { window.__fahm.goTo(s, a, 0); } catch (er) { } }
+      const rd = e.target.closest('[data-read]'); if (rd) { const [s, a] = rd.dataset.read.split(':').map(Number); sStop(); hideKeep(); try { window.__fahm.goTo(s - 1, a - 1, 0, false, true); } catch (er) { } try { window.FahmReader.openHl(s, a); } catch (er) { } return; }
+      const wb = e.target.closest('[data-wbw]'); if (wb) { const [s, a] = wb.dataset.wbw.split(':').map(Number); sStop(); hideKeep(); try { window.__fahm.goTo(s - 1, a - 1, 0); } catch (er) { } return; }
+      const qb = e.target.closest('[data-qir]'); if (qb) { const [s, a] = qb.dataset.qir.split(':').map(Number); const st = (window.__fahmApp && __fahmApp.st()) || {}; sPlay(qb, window.FahmWT ? FahmWT.url(st.rec || 'Alafasy_128kbps', s, a) : `https://everyayah.com/data/Alafasy_128kbps/${String(s).padStart(3, '0')}${String(a).padStart(3, '0')}.mp3`); return; }
+      const tb = e.target.closest('[data-trs]'); if (tb) { const [s, a] = tb.dataset.trs.split(':').map(Number); sPlay(tb, window.FahmWT && FahmWT.trUrl ? FahmWT.trUrl(s, a, ui()) : null); return; }
+      const fb = e.target.closest('[data-taf]'); if (fb) { const [s, a] = fb.dataset.taf.split(':').map(Number); sTaf(fb.closest('.sri').querySelector('.srtb'), s, a); return; }
     });
     return ov;
   }
@@ -162,7 +181,7 @@
     const end = Math.min(cur.list.length, shown + 40), parts = [];
     for (let i = shown; i < end; i++) {
       const { x } = cur.list[i]; const tr = x.raw[key] || x.raw.en;
-      parts.push(`<article class="sri"><div class="srr"><b>${esc(surahName(x.s))} ${x.s}:${x.a}</b><span><button class="po sm" data-read="${x.s}:${x.a}">${esc(t.read)}</button><button class="po sm" data-wbw="${x.s}:${x.a}">${esc(t.wbw)}</button></span></div><div class="sra ar">${esc(x.ar)}</div><p class="srtx${key === 'ur' ? ' ur' : ''}">${hl(tr, cur.terms)}</p></article>`);
+      parts.push(`<article class="sri"><div class="srr"><b>${esc(surahName(x.s))} ${x.s}:${x.a}</b><span><button class="po sm" data-read="${x.s}:${x.a}">${esc(t.read)}</button><button class="po sm" data-wbw="${x.s}:${x.a}">${esc(t.wbw)}</button></span></div><div class="sra ar">${esc(x.ar)}</div><p class="srtx${key === 'ur' ? ' ur' : ''}">${hl(tr, cur.terms)}</p><div class="srac"><button class="po sm" data-qir="${x.s}:${x.a}">▶ ${esc(t.qir)}</button><button class="po sm" data-trs="${x.s}:${x.a}">▶ ${esc(t.trs)}</button><button class="po sm" data-taf="${x.s}:${x.a}">📖 ${esc(t.taf)}</button></div><div class="srtb"></div></article>`);
     }
     L.insertAdjacentHTML('beforeend', parts.join('')); shown = end;
     if (shown < cur.list.length) L.insertAdjacentHTML('beforeend', `<button class="po on srmore" data-more="1">${esc(t.more)} (${cur.list.length - shown})</button>`);
@@ -173,7 +192,9 @@
     load(); setTimeout(() => { try { ov.querySelector('#srq').focus(); } catch (e) { } }, 200);
     try { window.__sfx && window.__sfx.tap && window.__sfx.tap(); } catch (e) { }
   }
-  function close() { if (ov) ov.hidden = true; }
+  function close() { sStop(); if (ov) ov.hidden = true; }
+  /* hide but keep the results, so Back from the reader / main screen returns to this exact search */
+  function hideKeep() { if (!ov) return; ov.hidden = true; try { window.FahmNav && FahmNav.push(() => { ov.hidden = false; }); } catch (e) { } }
   /* header button, placed just before the language button */
   function mount() {
     const top = document.querySelector('header.top'); if (!top || document.getElementById('btnFind')) return;

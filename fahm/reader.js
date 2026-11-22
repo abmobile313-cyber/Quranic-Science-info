@@ -58,9 +58,9 @@ Object.assign(RS.en, { amt: 'How much', aq: '¼ Juz', ah: '½ Juz', at: '¾ Juz'
 Object.assign(RS.ur, { weak: 'کمزور آیات', weakNote: 'جن آیات میں غلطی یا اٹکن ہوئی وہ یہاں جمع ہوتی ہیں۔ تین بار صاف پڑھنے پر خود ہٹ جاتی ہیں۔', weakEmpty: 'ابھی کوئی کمزور آیت نہیں — ماشاءاللہ!', weakGo: 'یہاں سے شروع', weakOk: 'یاد ہو گئی', weakAll: 'سب کمزور آیات دہرائیں', weakN: 'بار', weakClr: 'فہرست صاف', weakPage: 'صفحہ کھولیں' });
 Object.assign(RS.ru, { weak: 'Kamzor ayaat', weakNote: 'Jin ayaat mein ghalti ya atkan hui woh yahan jama hoti hain. Teen baar saaf parhne par khud hat jati hain.', weakEmpty: 'Abhi koi kamzor ayat nahin — MashaAllah!', weakGo: 'Yahan se shuru', weakOk: 'Yaad ho gayi', weakAll: 'Sab kamzor ayaat dohrayein', weakN: 'baar', weakClr: 'Fehrist saaf', weakPage: 'Safha kholein' });
 Object.assign(RS.en, { weak: 'Weak verses', weakNote: 'Verses where you slipped or stalled collect here. Three clean recitations remove them automatically.', weakEmpty: 'No weak verses yet — MashaAllah!', weakGo: 'Start here', weakOk: 'Mastered', weakAll: 'Revise all weak verses', weakN: 'times', weakClr: 'Clear list', weakPage: 'Open page' });
-Object.assign(RS.ru, { trW: 'Kis alim ka tarjuma', trN: 'On karne par har ayat ke neeche uska tarjuma aata hai. Kisi ayat ko 1 second daba kar rakhein to woh ayat tarjume ke saath poori screen par khulegi.', fsPlay: 'Yeh ayat sunein' });
-Object.assign(RS.en, { trW: 'Whose translation', trN: 'When on, every ayah shows its translation underneath. Press and hold an ayah for a second to open it full screen with its translation.', fsPlay: 'Listen to this ayah' });
-Object.assign(RS.ur, { trW: 'کس عالم کا ترجمہ', trN: 'آن کرنے پر ہر آیت کے نیچے اس کا ترجمہ آتا ہے۔ کسی آیت کو ایک سیکنڈ دبا کر رکھیں تو وہ آیت ترجمے کے ساتھ پوری اسکرین پر کھلے گی۔', fsPlay: 'یہ آیت سنیں' });
+Object.assign(RS.ru, { trV: 'Har ayat ke baad tarjume ki aawaz', trW: 'Kis alim ka tarjuma', trN: 'On karne par har ayat ke neeche uska tarjuma aata hai. Kisi ayat ko 1 second daba kar rakhein to woh ayat tarjume ke saath poori screen par khulegi.', fsPlay: 'Yeh ayat sunein' });
+Object.assign(RS.en, { trV: 'Translation voice after each ayah', trW: 'Whose translation', trN: 'When on, every ayah shows its translation underneath. Press and hold an ayah for a second to open it full screen with its translation.', fsPlay: 'Listen to this ayah' });
+Object.assign(RS.ur, { trV: 'ہر آیت کے بعد ترجمے کی آواز', trW: 'کس عالم کا ترجمہ', trN: 'آن کرنے پر ہر آیت کے نیچے اس کا ترجمہ آتا ہے۔ کسی آیت کو ایک سیکنڈ دبا کر رکھیں تو وہ آیت ترجمے کے ساتھ پوری اسکرین پر کھلے گی۔', fsPlay: 'یہ آیت سنیں' });
 const R = k => (RS[A.st().ui] || RS.en)[k];
 let rau = new Audio(); rau.preload = 'auto';
 const rec = () => A.st().rec;
@@ -70,7 +70,14 @@ const fastRate = () => fastOn() ? (A.st().hrate || 1.25) : 1;
 const errUrl = (s, a) => fastOn() ? `https://everyayah.com/data/${A.st().hfq || FASTQ[0]}/${pad(s)}${pad(a)}.mp3` : auUrl(s, a);
 const setRate = (au, r) => { try { au.defaultPlaybackRate = r; au.playbackRate = r; } catch (e) { } };
 const recName = f => { const r = (window.FAHM_RECS || []).find(x => x[0] === f); return r ? (A.st().ui === 'ur' ? r[2] : r[1]) : f; };
-const auUrl = (s, a) => `https://everyayah.com/data/${rec()}/${pad(s)}${pad(a)}.mp3`;
+/* Build 32: real word timings (CC-BY quran-align / QUL data) for 16 qaris; their audio is played from the exact files the timings were made on */
+const TIMED = { Alafasy_128kbps: 'https://audio-cdn.tarteel.ai/quran/alafasy/', Husary_128kbps: 'https://audio-cdn.tarteel.ai/quran/husary/', Husary_128kbps_Mujawwad: 'https://audio-cdn.tarteel.ai/quran/husaryMujawwad/', Husary_Muallim_128kbps: 'https://audio-cdn.tarteel.ai/quran/husaryMuallim/', 'Abdurrahmaan_As-Sudais_192kbps': 'https://audio-cdn.tarteel.ai/quran/abdulrahmanAlSudais/', 'Saood_ash-Shuraym_128kbps': 'https://audio-cdn.tarteel.ai/quran/saudAlShuraim/', Minshawy_Murattal_128kbps: 'https://audio-cdn.tarteel.ai/quran/minshawyMurattal/', Abdul_Basit_Murattal_192kbps: 'https://audio-cdn.tarteel.ai/quran/abdulBasitMurattal/', Abdul_Basit_Mujawwad_128kbps: 'https://audio-cdn.tarteel.ai/quran/abdulBasitMujawwad/', Mohammad_al_Tablaway_128kbps: 'https://everyayah.com/data/Mohammad_al_Tablaway_128kbps/', Ghamadi_40kbps: 'https://audio-cdn.tarteel.ai/quran/ghamadi/', 'Abu_Bakr_Ash-Shaatree_128kbps': 'https://audio-cdn.tarteel.ai/quran/abuBakrAlShatri/', Hani_Rifai_192kbps: 'https://audio.qurancdn.com/Rifai/mp3/', khalefa_al_tunaiji_64kbps: 'https://audio-cdn.tarteel.ai/quran/khalifaAlTunaiji/', MaherAlMuaiqly128kbps: 'https://audio-cdn.tarteel.ai/quran/maherAlMuaiqly/', 'Yasser_Ad-Dussary_128kbps': 'https://audio-cdn.tarteel.ai/quran/yasserAlDosari/' };
+const auUrlFor = (r, s, a) => (TIMED[r] || `https://everyayah.com/data/${r}/`) + `${pad(s)}${pad(a)}.mp3`;
+const auUrl = (s, a) => auUrlFor(rec(), s, a);
+const WT = {}, WTP = {};
+function wtLoad(r, s) { const k = r + '/' + s; if (!TIMED[r]) return Promise.resolve(null); if (WT[k]) return Promise.resolve(WT[k]); if (WTP[k]) return WTP[k]; WTP[k] = fetch(`q/wt/${r}/${pad(s)}.json`).then(x => x.ok ? x.json() : null).then(j => { WT[k] = j; return j; }).catch(() => null); return WTP[k]; }
+function wtGet(s, a) { const j = WT[rec() + '/' + s]; const t = j && j[a - 1]; return Array.isArray(t) && t.length > 1 ? t : null; }
+window.FahmWT = { trUrl: (s, a, u) => { const k = u === 'en' ? 'en' : 'ur'; return `https://everyayah.com/data/${({ ur: 'translations/urdu_shamshad_ali_khan_46kbps', en: 'English/Sahih_Intnl_Ibrahim_Walk_192kbps' })[k]}/${String(s).padStart(3, '0')}${String(a).padStart(3, '0')}.mp3`; }, load: wtLoad, get: (r, s, a) => { const j = WT[r + '/' + s]; return j && j[a - 1]; }, url: auUrlFor, timed: r => !!TIMED[r] };
 const locOf = (s, a, w) => `${s}:${a}:${w}`;
 const q = loc => document.querySelector(`#rpage [data-loc="${loc}"]`);
 const qa = (s, a) => document.querySelectorAll(`#rpage [data-loc^="${s}:${a}:"]`);
@@ -160,7 +167,7 @@ function sizePage() {
 }
 function fitHdr() { fitKit(); }
 function fit() {
-  const inner = $('#rin'); if (!inner || pi < 0) return; if ($('#rpage').classList.contains('trv')) { trvSize(); return; } const rows = rowsOf();
+  const inner = $('#rin'); if (!inner || pi < 0) return; trlStrip(); const rows = rowsOf();
   const W = inner.clientWidth, Hh = inner.clientHeight, rowH = Hh / rows;
   let fs = rowH * 0.78; $('#rpage').style.setProperty('--fs', fs + 'px');
   for (let it = 0; it < 3; it++) {
@@ -170,7 +177,7 @@ function fit() {
     });
     if (!need) break; const f = fs * Math.min(1, (W * 0.972) / need); if (Math.abs(f - fs) < 0.3 && it) break; fs = f; $('#rpage').style.setProperty('--fs', fs + 'px');
   }
-  $('#rpage').style.setProperty('--fs', Math.min(fs, rowH * 0.78) + 'px'); $('#rpage').style.setProperty('--hb', (rowH * .92).toFixed(1) + 'px'); $('#rpage').style.setProperty('--rh', rowH.toFixed(2) + 'px'); placeTabs(); fitKit();
+  $('#rpage').style.setProperty('--fs', Math.min(fs, rowH * 0.78) + 'px'); $('#rpage').style.setProperty('--hb', (rowH * .92).toFixed(1) + 'px'); $('#rpage').style.setProperty('--rh', rowH.toFixed(2) + 'px'); placeTabs(); fitKit(); trlApply();
 }
 /* side badges of the Ottoman (arch) pages that would stick out above / below the text area are nudged back inside */
 function clampBadges() {
@@ -436,7 +443,7 @@ function renderPage0(anim) {
 }
 function renderOne() {
   const L = M.L[lay], lines = L.pages[PG[pi]];
-  $('#rpage').classList.toggle('trv', trvOn()); if (trvOn()) { renderTrv(lines); return; }
+  $('#rpage').classList.remove('trv');
   const arch = +PG[pi] <= 2; let nE = lines.filter(ln => lineParts(ln).k !== 'e').length; archRows = arch ? nE : 0;
   let ln2 = lines.slice(), duaN = 0; if (!arch) { let t = ln2.length; while (t > 0 && lineParts(ln2[t - 1]).k === 'e') t--; if (ln2.length - t >= 2) { duaN = ln2.length - t; ln2 = ln2.slice(0, t); } }
   rowX = lines.reduce((q, ln) => { const k = lineParts(ln).k; return q + (k[0] === 'h' && k.length > 1 ? .75 : k === 'b' ? .32 : 0); }, 0); const rows = rowsOf();
@@ -541,18 +548,18 @@ function ayWords(s, a) { const ai = AYI[s + ':' + a]; return ai === undefined ? 
 function startTick() {
   clearInterval(tickT);
   tickT = setInterval(() => {
-    if (seqOn && rau.duration && !rau.paused && rau._sil && !rau._fired) { const sl = rau._sil, endS = sl.dur - sl.trail; if (endS > .5 && rau.currentTime >= endS + .12) { rau._fired = 1; const f = rau.onended; if (f) f(); return; } }
+    if (seqOn && !inBism && curAy && rau.duration && !rau.paused && !rau._fired && preEl) { const tt = wtGet(curAy.s, curAy.a); if (tt) { const endMs = tt[tt.length - 1]; if (endMs > 500 && rau.currentTime * 1000 >= endMs + 700 && rau.currentTime < rau.duration - .08) { rau._fired = 1; const f = rau.onended; if (f) f(); return; } } }
     if (inBism) return;
     if (!curAy || !rau.duration || rau.paused) return;
     const ws = ayWords(curAy.s, curAy.a); if (!ws.length) return;
-    const tot = ws.reduce((x, y) => x + y.wt, 0), lead = Math.min(.18, rau.duration * .04), tail = Math.min(.3, rau.duration * .05), t = Math.max(0, Math.min(1, (rau.currentTime - lead) / Math.max(.5, rau.duration - lead - tail))) * tot;
-    let acc = 0, pick = ws[ws.length - 1];
-    for (const w of ws) { acc += w.wt; if (t <= acc) { pick = w; break; } }
+    let pick = ws[ws.length - 1]; const tt = wtGet(curAy.s, curAy.a);
+    if (tt) { const ms = rau.currentTime * 1000 + 30, n = tt.length - 1; let k = 0; for (let i = 0; i < n; i++) if (tt[i] <= ms) k = i; pick = ws[Math.min(ws.length - 1, n === ws.length ? k : Math.floor(k * ws.length / n))]; }
+    else { const tot = ws.reduce((x, y) => x + y.wt, 0), lead = Math.min(.35, rau.duration * .06), tail = Math.min(.6, rau.duration * .1), t = Math.max(0, Math.min(1, (rau.currentTime - lead) / Math.max(.5, rau.duration - lead - tail))) * tot; let acc = 0; for (const w of ws) { acc += w.wt; if (t <= acc) { pick = w; break; } } }
     if (hot !== pick.loc) { const o = hot && q(hot); if (o) o.classList.remove('hot'); hot = pick.loc; ensureLoc(pick.loc); const e = q(pick.loc); if (e) { e.classList.add('hot', 'cur'); if (!hz.on) trk(e); } if (rev) { qa(curAy.s, curAy.a).forEach(x => x.classList.add('rev')); } }
   }, 50);
 }
 function setPlaying(p) { playing = p; if (p) wakeOn(); else if (!hz.on) wakeOff(); $('#rIcoP').style.display = p ? 'none' : ''; $('#rIcoS').style.display = p ? '' : 'none'; bgSync(p); if (p) mediaSess(); try { trSync(); } catch (e) { } }
-function stopAudio() { inBism = false; stopMine(); stopCorr(); try { stopWordAu(); } catch (e) { } try { speechSynthesis.cancel(); } catch (e) { } seqOn = false; rau.onended = null; rau.onerror = null; try { rau.pause(); } catch (e) { } clearInterval(tickT); setPlaying(false); clearHl(); document.querySelectorAll('#rpage .rev').forEach(e => e.classList.remove('rev')); hot = null; }
+function stopAudio() { inBism = false; document.querySelectorAll("#rpage .tl .tp.on").forEach(e => e.classList.remove("on")); try { if (trEl) { trEl.onended = null; trEl.pause(); trEl = null; } } catch (e) { } stopMine(); stopCorr(); try { stopWordAu(); } catch (e) { } try { speechSynthesis.cancel(); } catch (e) { } seqOn = false; rau.onended = null; rau.onerror = null; try { rau.pause(); } catch (e) { } clearInterval(tickT); setPlaying(false); clearHl(); document.querySelectorAll('#rpage .rev').forEach(e => e.classList.remove('rev')); hot = null; }
 let seqEnd = -1, seqFrom = 0, seqLeft = 1;
 function playRange(fi, ti, reps) { stopAudio(); seqEnd = ti; seqFrom = fi; seqLeft = Math.max(1, reps || 1); playSeq(fi, true); }
 /* Build 30: pause keeps the exact spot. Resume within 60 s continues from that second; after a longer break the ayah starts again from its beginning */
@@ -578,6 +585,11 @@ function ayaSil(url) {
 const BISM_URL = () => auUrl(1, 1);
 const needBism = y => y && y.a === 1 && y.s !== 1 && y.s !== 9;
 function attachSil(el, url) { el._sil = null; el._fired = 0; ayaSil(url).then(sl => { if (sl && el.src && el.src.indexOf(url.split('/').pop()) >= 0) el._sil = sl; }); }
+/* Build 32: translation voice after each ayah — the recorded translation audio the app already uses (EveryAyah: Urdu Shamshad Ali Khan, English Ibrahim Walk) */
+const TRAU = { ur: 'translations/urdu_shamshad_ali_khan_46kbps', en: 'English/Sahih_Intnl_Ibrahim_Walk_192kbps', fa: 'translations/Makarem_Kabiri_16Kbps' };
+function trAuUrl(y) { const c = trCode(), k = (c.startsWith('ur') || c === 'rur') ? 'ur' : TRAU[c] ? c : null; return k ? `https://everyayah.com/data/${TRAU[k]}/${pad(y.s)}${pad(y.a)}.mp3` : null; }
+let trEl = null;
+function playTrAu(url, done) { try { if (trEl) trEl.pause(); } catch (e) { } trEl = new Audio(url); let fin = false; const go = () => { if (fin) return; fin = true; trEl = null; if (seqOn) done(); }; trEl.onended = go; trEl.onerror = go; const pr = trEl.play(); if (pr && pr.catch) pr.catch(go); }
 function playSeq(ai, keep, resumeT, noBism) {
   if (!resumeT) pausedSt = null; if (!keep) seqEnd = -1;
   if (seqEnd >= 0 && ai > seqEnd) { if (seqLeft > 1) { seqLeft--; ai = seqFrom; } else { seqEnd = -1; stopAudio(); return; } }
@@ -589,23 +601,22 @@ function playSeq(ai, keep, resumeT, noBism) {
   const url = auUrl(y.s, y.a), swap = preEl && preUrl === url && !(resumeT > 0);
   if (swap) { const old = rau; old.onended = null; old.onerror = null; try { old.pause(); } catch (e) { } rau = preEl; preEl = null; preUrl = ''; }
   rau.onerror = () => { stopAudio(); A.toast(R('audioErr')); };
-  rau.onended = () => { if (!seqOn) return; rau.onended = null; playSeq(ai + 1, true); };
-  if (!swap) rau.src = url; setRate(rau, 1); attachSil(rau, url);
-  if (swap && !(resumeT > 0)) { const sl = SIL[url]; if (sl && sl.then) sl.then(v => { if (v && rau.currentTime < .05 && v.lead > .25) try { rau.currentTime = v.lead - .2; } catch (e) { } }); }
+  rau.onended = () => { if (!seqOn) return; rau.onended = null; const tu = trAuUrl(y); if (tu && A.st().trw && !hz.on) playTrAu(tu, () => playSeq(ai + 1, true)); else playSeq(ai + 1, true); };
+  if (!swap) rau.src = url; setRate(rau, 1); rau._fired = 0; wtLoad(rec(), y.s);
   if (resumeT > 0) { let tr = 0; const seekTo = () => { if (Math.abs(rau.currentTime - resumeT) > .4 && tr++ < 6) { try { rau.currentTime = Math.min(resumeT, Math.max(0, (rau.duration || resumeT + 1) - .2)); } catch (e) { } } }; ['loadedmetadata', 'loadeddata', 'canplay', 'playing', 'progress'].forEach(ev => rau.addEventListener(ev, seekTo, { once: true })); }
   const pr = rau.play(); if (pr && pr.catch) pr.catch(() => { stopAudio(); A.toast(R('audioErr')); });
   startTick(); preloadNext(ai);
 }
 let preEl = null, preUrl = '';
-function preloadNext(ai) { try { const n = AY[ai + 1]; if (!n) return; const u = needBism(n) ? BISM_URL() : auUrl(n.s, n.a); ayaSil(u); if (preUrl === u) return; preEl = new Audio(); preEl.preload = 'auto'; preEl.src = u; preUrl = u; preEl.load(); } catch (e) { preEl = null; preUrl = ''; } }
+function preloadNext(ai) { try { const n = AY[ai + 1]; if (!n) return; const u = needBism(n) ? BISM_URL() : auUrl(n.s, n.a); wtLoad(rec(), n.s); if (preUrl === u) return; preEl = new Audio(); preEl.preload = 'auto'; preEl.src = u; preUrl = u; preEl.load(); } catch (e) { preEl = null; preUrl = ''; } }
 function playBism(ai) {
   const url = BISM_URL(), swap = preEl && preUrl === url; inBism = true; clearHl();
   if (swap) { const old = rau; old.onended = null; old.onerror = null; try { old.pause(); } catch (e) { } rau = preEl; preEl = null; preUrl = ''; }
   rau.onerror = () => { inBism = false; if (seqOn) playSeq(ai, true, 0, true); };
   rau.onended = () => { if (!seqOn) return; rau.onended = null; inBism = false; playSeq(ai, true, 0, true); };
-  if (!swap) rau.src = url; setRate(rau, 1); attachSil(rau, url);
+  if (!swap) rau.src = url; setRate(rau, 1); rau._fired = 0; wtLoad(rec(), 1);
   const pr = rau.play(); if (pr && pr.catch) pr.catch(() => { inBism = false; stopAudio(); A.toast(R('audioErr')); });
-  startTick(); try { const y = AY[ai], u2 = auUrl(y.s, y.a); ayaSil(u2); if (preUrl !== u2) { preEl = new Audio(); preEl.preload = 'auto'; preEl.src = u2; preUrl = u2; preEl.load(); } } catch (e) { }
+  startTick(); try { const y = AY[ai], u2 = auUrl(y.s, y.a); wtLoad(rec(), y.s); if (preUrl !== u2) { preEl = new Audio(); preEl.preload = 'auto'; preEl.src = u2; preUrl = u2; preEl.load(); } } catch (e) { }
 }
 /* play one ayah, then call cb (used by Hafiz mode) */
 function playOnce(s, a, reveal, cb) {
@@ -703,7 +714,7 @@ let LNG = null; fetch('q/langs.json').then(r => r.json()).then(j => { LNG = {}; 
 function trOpts() { const cur = trCode(); return TRC.map(c => `<option value="${c}" ${c === cur ? 'selected' : ''}>${esc((LNG && LNG[c]) || c)}</option>`).join(''); }
 function trvOn() { try { return A.st().rtr === 'on' && !hz.on && pi >= 0; } catch (e) { return false; } }
 function trvSize() { const p = $('#rpage'), st = $('#rstage'); if (!p || !st) return; p.style.height = Math.max(240, st.clientHeight - 16) + 'px'; const w = p.clientWidth || 360; p.style.setProperty('--fs', Math.max(24, Math.min(36, w / 12)).toFixed(1) + 'px'); p.style.setProperty('--rh', '46px'); p.style.setProperty('--hb', '42px'); }
-function trvScroll(e) { if (!e || !$('#rpage').classList.contains('trv')) return; const g = e.closest('.tva'); if (!g) return; const box = $('#rin'), r = g.getBoundingClientRect(), b = box.getBoundingClientRect(); if (r.top < b.top + 8 || r.bottom > b.bottom - 8) { try { g.scrollIntoView({ block: 'center', behavior: 'smooth' }); } catch (er) { } } }
+function trvScroll(e) { if (!e) return; const P = $('#rpage'); if (P.classList.contains('trl')) { const l = e.closest('.ml'), st0 = $('#rstage'); if (!l || !st0) return; const r = l.getBoundingClientRect(), b = st0.getBoundingClientRect(); if (r.top < b.top + 10 || r.bottom + 60 > b.bottom) { try { l.scrollIntoView({ block: 'center', behavior: 'smooth' }); } catch (er) { } } return; } if (!P.classList.contains('trv')) return; const g = e.closest('.tva'); if (!g) return; const box = $('#rin'), r = g.getBoundingClientRect(), b = box.getBoundingClientRect(); if (r.top < b.top + 8 || r.bottom > b.bottom - 8) { try { g.scrollIntoView({ block: 'center', behavior: 'smooth' }); } catch (er) { } } }
 function renderTrv(lines) {
   const p0 = $('#rpage'); p0.classList.remove('cover', 'arch'); archRows = 0; rowX = 0;
   let h = '', grp = [], gs = null; const code = trCode(), rtl = code.startsWith('ur') || code === 'fa';
@@ -740,11 +751,45 @@ function ayFull(s, a) {
 function lpInit() {
   const st = $('#rstage'); if (!st || st._lp) return; st._lp = 1;
   const cancel = () => { clearTimeout(lpT); lpT = 0; };
-  st.addEventListener('pointerdown', e => { if (hz.on) return; const w = e.target.closest('.wd'); if (!w || !w.dataset.loc) return; lpXY = [e.clientX, e.clientY]; cancel(); lpT = setTimeout(() => { lpT = 0; lpFired = true; const [s1, a1] = w.dataset.loc.split(':').map(Number); try { navigator.vibrate && navigator.vibrate(18); } catch (er) { } ayFull(s1, a1); }, 850); });
-  st.addEventListener('pointermove', e => { if (lpT && lpXY && Math.hypot(e.clientX - lpXY[0], e.clientY - lpXY[1]) > 12) cancel(); });
-  ['pointerup', 'pointercancel', 'pointerleave'].forEach(ev => st.addEventListener(ev, cancel));
+  const start = (tg, x, y) => { if (hz.on) return; const w = tg && tg.closest && (tg.closest('.wd[data-loc]') || tg.closest('.tp[data-ay]')); if (!w) return; lpXY = [x, y]; cancel();
+    lpT = setTimeout(() => { lpT = 0; lpFired = true; let s1, a1; if (w.dataset.loc) [s1, a1] = w.dataset.loc.split(':').map(Number); else [s1, a1] = w.dataset.ay.split(':').map(Number); try { navigator.vibrate && navigator.vibrate(18); } catch (er) { } ayFull(s1, a1); setTimeout(() => { lpFired = false; }, 900); }, 750); };
+  /* touch (Android WebView / iPhone): touch events are reliable for a hold, pointer events get cancelled by the browser */
+  st.addEventListener('touchstart', e => { if (e.touches.length !== 1) { cancel(); return; } const t = e.touches[0]; start(e.target, t.clientX, t.clientY); }, { passive: true });
+  st.addEventListener('touchmove', e => { if (!lpT || !lpXY) return; const t = e.touches[0]; if (Math.hypot(t.clientX - lpXY[0], t.clientY - lpXY[1]) > 14) cancel(); }, { passive: true });
+  st.addEventListener('touchend', e => { cancel(); if (lpFired) { e.preventDefault(); } }, { passive: false });
+  st.addEventListener('touchcancel', cancel, { passive: true });
+  /* mouse (PC) */
+  st.addEventListener('mousedown', e => { if (e.button === 0) start(e.target, e.clientX, e.clientY); });
+  st.addEventListener('mousemove', e => { if (lpT && lpXY && Math.hypot(e.clientX - lpXY[0], e.clientY - lpXY[1]) > 12) cancel(); });
+  st.addEventListener('mouseup', cancel); st.addEventListener('mouseleave', cancel);
   st.addEventListener('click', e => { if (lpFired) { lpFired = false; e.stopImmediatePropagation(); e.preventDefault(); } }, true);
-  st.addEventListener('contextmenu', e => { if (e.target.closest('.wd')) e.preventDefault(); });
+  st.addEventListener('contextmenu', e => { if (e.target.closest('.wd,.tp')) e.preventDefault(); });
+  window.FahmOverlays = window.FahmOverlays || []; window.FahmOverlays.push({ isOpen: () => { const o = $('#rfs'); return !!(o && !o.hidden); }, close: () => { const o = $('#rfs'); o.classList.remove('on'); o.hidden = true; } });
+}
+/* Build 32: translation under every LINE of the real 15/13-line mushaf (like a printed translation Quran).
+   Each ayah's translation is shared out over the lines it occupies in proportion to its Arabic words; the ayah number closes its piece. */
+const MKW = {}; function ayN(s, a) { const k = s + ':' + a; if (MKW[k]) return MKW[k]; const w = (M.w && M.w[k]) || []; return (MKW[k] = w.filter(x => x[0] !== '۝').length || 1); }
+function trlStrip() { const p = $('#rpage'); if (!p) return; p.querySelectorAll('#rin .tl').forEach(e => e.remove()); if (p.classList.contains('trl')) { p.classList.remove('trl'); if (p.dataset.h0) p.style.height = p.dataset.h0; try { if (!p.classList.contains('cover') && !p.classList.contains('arch')) drawFrame(p.offsetWidth, p.offsetHeight); } catch (e) { } } }
+let trlTok = 0;
+function trlApply() {
+  const p = $('#rpage'), inner = $('#rin'); if (!p || !inner) return; trlStrip(); if (!trvOn() || twoUp || p.classList.contains('cover')) return;
+  const code = trCode(), rtl = code.startsWith('ur') && code !== 'rur' || code === 'fa', tok = ++trlTok, need = new Set(), rows = [];
+  inner.querySelectorAll('.ml').forEach(ml => {
+    if (ml.matches('.e,.h,.b,.dua')) return; const g = []; let cur = null;
+    ml.querySelectorAll('.wd[data-loc]').forEach(w => { const [s1, a1, w1] = w.dataset.loc.split(':').map(Number); const k = s1 + ':' + a1; if (!cur || cur.k !== k) { cur = { k, s: s1, a: a1, lo: w1, hi: w1 }; g.push(cur); } else { cur.lo = Math.min(cur.lo, w1); cur.hi = Math.max(cur.hi, w1); } });
+    if (!g.length) return; g.forEach(x => need.add(x.k)); const tl = document.createElement('div'); tl.className = 'tl' + (rtl ? ' rt' : ''); tl.dir = rtl ? 'rtl' : 'ltr'; ml.after(tl); rows.push([tl, g]);
+  });
+  if (!rows.length) return; p.dataset.h0 = p.style.height; p.classList.add('trl'); p.style.height = 'auto';
+  const reframe = () => { try { if (!p.classList.contains('arch')) drawFrame(p.offsetWidth, p.offsetHeight); placeTabs(); } catch (e) { } }; reframe();
+  const fs = parseFloat(getComputedStyle(p).getPropertyValue('--fs')) || 24; p.style.setProperty('--tfs', Math.max(11.5, Math.min(17, fs * .5)).toFixed(1) + 'px');
+  const ur = A.st().ui === 'ur';
+  Promise.all([...need].map(k => { const [s1, a1] = k.split(':').map(Number); return trGet(s1, a1, code).then(t => [k, t || '']); })).then(list => {
+    if (tok !== trlTok) return; const T = Object.fromEntries(list);
+    rows.forEach(([tl, g]) => {
+      tl.innerHTML = g.map(x => { const words = String(T[x.k] || '').split(/\s+/).filter(Boolean), n = ayN(x.s, x.a), L = words.length; if (!L) return ''; const i0 = x.lo <= 1 ? 0 : Math.round((x.lo - 1) / n * L), i1 = x.hi >= n ? L : Math.round(x.hi / n * L), piece = words.slice(i0, Math.max(i0, i1)).join(' '); const end = x.hi >= n; return `<span class="tp" data-ay="${x.k}">${esc(piece)}${end ? ` <i class="tn">${ur ? '﴿' + adx(x.a) + '﴾' : '(' + x.a + ')'}</i>` : ''}</span>`; }).join(' ');
+    });
+    reframe();
+  });
 }
 function trCode() { if (A.st().rtrc) return A.st().rtrc; const tl = (A.st().tl || []).filter(c => c !== 'ar'); return tl[0] || (A.st().ui === 'en' ? 'en' : 'ur'); }
 function trGet(sn, a, code) {
@@ -1440,7 +1485,7 @@ function popLayout() {
   const recs = (window.FAHM_RECS || []).map(r => `<option value="${esc(r[0])}" ${r[0] === rec() ? 'selected' : ''}>${esc(st.ui === 'ur' ? r[2] : r[1])}</option>`).join('');
   $('#rpop').innerHTML = `<h4>${esc(R('layout'))}</h4>` + ['15', '13q', '13t'].map(k => row(k, R('lay' + k), lay === k)).join('') +
     `<div class="pr"><span>${esc(R('spL'))}</span>${sw('rsp', 'auto', R('spA'), !st.rsp || st.rsp === 'auto')}${sw('rsp', 'on', R('spOn'), st.rsp === 'on')}${sw('rsp', 'off', R('spOff'), st.rsp === 'off')}</div>` +
-    `<div class="pr"><span>${esc(R('trL'))}</span>${sw('rtr', 'on', R('on'), st.rtr === 'on')}${sw('rtr', 'off', R('off'), st.rtr !== 'on')}</div>` + (st.rtr === 'on' ? `<div class="pr"><span>${esc(R('trW'))}</span><select id="rTrc" class="sel">${trOpts()}</select></div>` : '') + `<div class="pr"><small>${esc(R('trN'))}</small></div>` +
+    `<div class="pr"><span>${esc(R('trL'))}</span>${sw('rtr', 'on', R('on'), st.rtr === 'on')}${sw('rtr', 'off', R('off'), st.rtr !== 'on')}</div>` + (st.rtr === 'on' ? `<div class="pr"><span>${esc(R('trW'))}</span><select id="rTrc" class="sel">${trOpts()}</select></div>` : '') + `<div class="pr"><span>${esc(R('trV'))}</span>${sw('trw', 'on', R('on'), st.trw !== false)}${sw('trw', 'off', R('off'), st.trw === false)}</div>` + `<div class="pr"><small>${esc(R('trN'))}</small></div>` +
     `<div class="pr"><span>${esc(R('dmL'))}</span>${sw('rflip', 'curl', R('dmC'), (st.rflip || 'curl') === 'curl')}${sw('rflip', 'slide', R('dmS'), st.rflip === 'slide')}${sw('rflip', 'off', R('dmI'), st.rflip === 'off')}</div>` +
     `<div class="pr"><span>${esc(R('thL'))}</span>${sw('rtheme', 'dark', R('thD'), !light)}${sw('rtheme', 'light', R('thLt'), light)}</div>` +
     `<div class="pr"><span>${esc(R('qrL'))}</span><select id="rQ" class="sel">${recs}</select></div>` +
@@ -1498,7 +1543,7 @@ function openAt(s, a) {
   });
 }
 function applyRot() { sizePage(); }
-function close() { hzStop(); resHide(); stopAudio(); open = false; $('#reader').hidden = true; popClose(); A.onClose(); }
+function close() { try { const c0 = curAy || A.st().rlast; if (c0) { A.st().rcur = { s: c0.s, a: c0.a }; A.save(); } } catch (e) { } hzStop(); resHide(); stopAudio(); open = false; $('#reader').hidden = true; popClose(); A.onClose(); }
 function relayout(k) {
   const keep = curAy || (SC[0] && { s: SC[0].s, a: SC[0].a }); const was = hz.on; if (was) hzStop(); stopAudio();
   lay = k; A.st().lay = k; A.save(); buildIndex();
@@ -1669,7 +1714,7 @@ function init(api) {
     if (e.target.closest('[data-hres]')) { if (snapGet()) { hzResumeSnap(); return; } const st = A.st(), la = st.hlast, pl = Object.assign({}, planDefault()); const fi = AYI[la.s + ':' + la.a]; let ti = AYI[pl.ts + ':' + pl.ta]; if (ti < fi) { let j = fi; while (j + 1 < AY.length && AY[j + 1].s === la.s) j++; ti = j; } const y = AY[fi], z = AY[ti]; hzStart(fi, { fs: y.s, fa: y.a, ts: z.s, ta: z.a, reps: pl.reps || 1 }); return; }
     if (e.target.closest('[data-hgo]')) { hzStart(null, readPlan2()); return; }
     if (e.target.closest('[data-rgopen]')) { popRange(); return; }
-    const rkb = e.target.closest('[data-rk]'); if (rkb) { const st = A.st(), k2 = rkb.dataset.rk, v2 = rkb.dataset.rv; if (k2 === 'rtheme') { const tb = document.getElementById('btnTheme'); if (tb && (v2 === 'light') !== document.body.classList.contains('light')) tb.click(); setTimeout(popLayout, 150); return; } st[k2] = v2; A.save(); if (k2 === 'rhl') applyHl(); if (k2 === 'rsp') { renderPage(false); } if (k2 === 'rtr') { renderPage(false); popLayout(); } if (k2 === 'rbg' && v2 === 'off') bgSync(false); else if (k2 === 'rbg' && playing) bgSync(true); popLayout(); return; }
+    const rkb = e.target.closest('[data-rk]'); if (rkb) { const st = A.st(), k2 = rkb.dataset.rk, v2 = rkb.dataset.rv; if (k2 === 'rtheme') { const tb = document.getElementById('btnTheme'); if (tb && (v2 === 'light') !== document.body.classList.contains('light')) tb.click(); setTimeout(popLayout, 150); return; } st[k2] = k2 === 'trw' ? v2 === 'on' : v2; A.save(); if (k2 === 'trw') { popLayout(); return; } if (k2 === 'rhl') applyHl(); if (k2 === 'rsp') { renderPage(false); } if (k2 === 'rtr') { renderPage(false); popLayout(); } if (k2 === 'rbg' && v2 === 'off') bgSync(false); else if (k2 === 'rbg' && playing) bgSync(true); popLayout(); return; }
     if (e.target.closest('[data-bmadd]')) { let L = bmLoad(); if (bmHere().length) L = L.filter(b => bmPage(b) !== pi); else { const y = bmFirstAy(); if (y) L.push({ s: y.s, a: y.a, t: Date.now() }); } bmSave(L); bmUpd(); popBm(); return; }
     const bg = e.target.closest('[data-bmgo]'); if (bg) { const b = bmLoad()[+bg.dataset.bmgo]; if (b) { popClose(); goPage(bmPage(b)); } return; }
     const bx = e.target.closest('[data-bmx]'); if (bx) { const L = bmLoad(); L.splice(+bx.dataset.bmx, 1); bmSave(L); bmUpd(); popBm(); return; }
@@ -1719,6 +1764,9 @@ function init(api) {
 window.FahmReader = {
   init, isOpen: () => open,
   open: (s, a) => openAt(s || 1, a || 1),
+  /* open at an ayah and mark it (search results) */
+  hafizRange: (s0, a0, s1, a1) => { openAt(s0, a0); setTimeout(() => { try { const f = AYI[s0 + ':' + a0], t = AYI[s1 + ':' + a1]; if (f != null && t != null) hzStart(f, { fs: s0, fa: a0, ts: s1, ta: a1, reps: 1 }); } catch (e) { } }, 900); },
+  openHl: (s, a) => { openAt(s, a); const mark = () => { document.querySelectorAll('#rpage .wd.srhl').forEach(e => e.classList.remove('srhl')); qa(s, a).forEach(e => e.classList.add('srhl')); const f = qa(s, a)[0]; if (f) { try { f.scrollIntoView({ block: 'center' }); } catch (er) { } } }; [300, 900, 1800].forEach(t => setTimeout(mark, t)); setCur(s, a); },
   gotoSurah: s => { if (!open) return; stopAudio(); if (hz.on) hzStop(); const w = SC.find(x => x.s === s); if (w) { goPage(LP[w.loc]); } },
   back: () => { if (!$('#rpop').hidden) { popClose(); return true; } close(); return true; },
   /* test hooks */
