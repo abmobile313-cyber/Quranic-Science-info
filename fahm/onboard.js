@@ -33,7 +33,7 @@ const A = () => window.__fahmApp, ST = () => A().st(), lg = () => L[ST().ui] || 
 /* ---------- voice (free: phone's own speech engine). Urdu text is spoken for both Urdu and Roman-Urdu users. ---------- */
 const voiceOn = () => ST().onv !== 0;
 /* Build 27: no phone / Google voice any more. Only recorded ElevenLabs clips play (vo/ob/<key>.mp3 listed in OBV); anything without a clip stays silent. */
-const OBV = {}; (() => { [['ur', 'hu'], ['en', 'en']].forEach(([k, l]) => { L[k].steps.forEach((t, i) => { OBV[t] = `vo/ob/s${i + 1}_${l}.mp3`; }); OBV[L[k].hello] = `vo/ob/hello_${l}.mp3`; }); })();
+const OBV = {}; (() => { [['ur', 'hu'], ['en', 'en']].forEach(([k, l]) => { OBV[L[k].hello] = `vo/ob/hello_${l}.mp3`; }); })();
 function say(text, done) {
   stopV();
   const f = OBV[text];
@@ -142,24 +142,17 @@ function wuzu() {
   box.hidden = false; waterScene(box.querySelector('.ob-wv'), { pool: .72, spread: .2 }); setTimeout(() => { if (step === 'wuzu') clip('wudu', spoken().q + ' ' + spoken().qs); }, 450);
 }
 
-/* ---------- 4. guided, spoken wudu ---------- */
-function steps(i, quiet) {
-  step = 'steps'; si = Math.max(0, Math.min(8, i || 0)); const t = lg(), u = ST().ui, uk = DET[u] ? u : 'ru', rtl = u === 'ur', last = si === 8, N = 9;
-  const title = si < 8 ? t.steps[si] : (STEP9[uk] || STEP9.ru), det = (DET[uk] || DET.ru)[si];
-  const shia = (ST().tl || []).includes('urn');
-  const dua = last ? `<div class="ob-dua"><p class="ar" dir="rtl">${DUA.ar}</p><p ${rtl ? 'dir="rtl" class="u"' : ''}>${DUA[uk] || DUA.ru}</p><small>${DUA.src[uk] || DUA.src.ru}</small></div>` : '';
-  shell().innerHTML = `<div class="ob-in c">${bubbles}${vbtn()}<h5>${t.st}</h5>
-  <div class="ob-prog">${Array.from({ length: N }, (_, k) => `<i class="${k < si ? 'd' : k === si ? 'n' : ''}"></i>`).join('')}</div>
-  <div class="ob-step">${last ? '' : `<div class="ob-wv"><span class="ob-em">${ICON[si]}</span></div>`}
-  <div class="ob-sn">${t.stp} ${si + 1} / ${N}</div><h2 ${rtl ? 'dir="rtl"' : ''}>${title}</h2><p class="ob-det" ${rtl ? 'dir="rtl"' : ''}>${det}</p>${dua}${shia && si === 0 ? `<p class="ob-note" ${rtl ? 'dir="rtl"' : ''}>${SHIA[uk] || SHIA.ru}</p>` : ''}</div>
-  ${si < 8 ? `<div class="ob-row"><button class="ob-alt b3d sm" data-a="rp">🔊 ${t.rp}</button></div>` : ''}
-  ${last ? `<button class="ob-go b3d gold" data-a="yes">${t.done}</button><button class="ob-alt b3d" data-a="yes">${t.look}</button>` : `<button class="ob-go b3d gold" data-a="nx">${t.nx}</button>`}
-  <button class="ob-alt b3d" data-a="${si ? 'pv' : 'wuzu'}">${t.back}</button></div>`;
-  box.hidden = false; if (last) return;
-  waterScene(box.querySelector('.ob-wv'), { pool: .76, spread: .16, startY: 44 }); if (!quiet) say(spoken().steps[si]);
-  /* real wudu clip (16:9): loaded straight away (a HEAD probe fails inside the Android app); the icon stays if it cannot load */
-  { const n = si + 1, src = 'vo/wudu/w' + n + '.mp4', wv = box.querySelector('.ob-wv'); if (wv) { const v = D.createElement('video'); v.className = 'ob-vid'; v.muted = true; v.loop = true; v.autoplay = true; v.playsInline = true; v.setAttribute('playsinline', ''); v.setAttribute('webkit-playsinline', ''); v.oncanplay = () => { if (step !== 'steps' || si !== n - 1) return; wv.classList.add('vid'); const em = wv.querySelector('.ob-em'); if (em) em.remove(); }; v.onerror = () => v.remove(); v.src = src; wv.appendChild(v); const p = v.play(); if (p && p.catch) p.catch(() => { }); } }
+/* ---------- 4. wudu method (Build 33): written steps with photos, no video, no step voice ---------- */
+function steps(i) {
+  step = 'steps'; si = 0; const t = lg(), u = ST().ui, uk = DET[u] ? u : 'ru', rtl = u === 'ur', D9 = DET[uk] || DET.ru;
+  const shia = (ST().tl || []).includes('urn'), dir = rtl ? ' dir="rtl"' : '';
+  const cards = t.steps.slice(0, 8).map((ti, k) => `<article class="wd-c" id="wd${k}"><div class="wd-ph"><img src="vo/wudu_img/s${k + 1}.webp" alt="" loading="${k < 2 ? 'eager' : 'lazy'}" decoding="async"><span class="wd-n">${k + 1}</span></div><div class="wd-tx"${dir}><h3>${ICON[k]} ${ti}</h3><p>${D9[k]}</p></div></article>`).join('');
+  const dua = `<article class="wd-c wd-dua"><div class="wd-tx"${dir}><h3>${ICON[8]} ${STEP9[uk] || STEP9.ru}</h3><p class="ar" dir="rtl">${DUA.ar}</p><p>${DUA[uk] || DUA.ru}</p><small>${DUA.src[uk] || DUA.src.ru}</small></div></article>`;
+  shell().innerHTML = `<div class="ob-in wd">${vbtn()}<h2 class="wd-h"${dir}>💧 ${t.st}</h2>${shia ? `<p class="ob-note"${dir}>${SHIA[uk] || SHIA.ru}</p>` : ''}<div class="wd-l">${cards}${dua}</div>
+  <div class="wd-f"><button class="ob-go b3d gold" data-a="yes">${t.done}</button><button class="ob-alt b3d sm" data-a="wuzu">${t.back}</button></div></div>`;
+  box.hidden = false; const l = box.querySelector('.wd-l'); if (l && i) { const c = box.querySelector('#wd' + i); if (c) c.scrollIntoView(); }
 }
+window.__fahmOnbBack = () => { if (!box) return false; if (step === 'steps') { wuzu(); return true; } close(); return true; };
 
 function shell() { if (!box) { box = D.createElement('div'); box.id = 'onb'; D.body.appendChild(box); box.addEventListener('click', onClick); } return box; }
 function close() { stopV(); killGlobe(); if (box) { box.classList.add('out'); setTimeout(() => { box && box.remove(); box = null; step = ''; }, 380); } }
@@ -169,9 +162,8 @@ function onClick(e) {
   if (b.dataset.p === 'mk') { a.setMaslak(b.dataset.v); setup(); return; }
   if (b.dataset.p) { a.setPref(b.dataset.p, b.dataset.v); setup(); return; }
   const k = b.dataset.a; if (!k) return;
-  if (k === 'vol') { s.onv = voiceOn() ? 0 : 1; a.save(); b.textContent = voiceOn() ? '🔊' : '🔇'; if (!voiceOn()) stopV(); else if (step === 'wuzu') clip('wudu', spoken().q); else if (step === 'steps') say(spoken().steps[si]); return; }
-  if (k === 'rp') { say(spoken().steps[si]); return; }
-  if (k === 'next') { s.onb = 1; a.save(); wuzu(); } else if (k === 'no') { steps(0, true); clip('wuduno', spoken().q, () => { if (step === 'steps' && si === 0) say(spoken().steps[0]); }); } else if (k === 'see') steps(0); else if (k === 'nx') steps(si + 1); else if (k === 'pv') steps(si - 1); else if (k === 'wuzu') wuzu(); else if (k === 'yes') close();
+  if (k === 'vol') { s.onv = voiceOn() ? 0 : 1; a.save(); b.textContent = voiceOn() ? '🔊' : '🔇'; if (!voiceOn()) stopV(); else if (step === 'wuzu') clip('wudu', spoken().q); return; }
+  if (k === 'next') { s.onb = 1; a.save(); wuzu(); } else if (k === 'no') { steps(0); clip('wuduno', spoken().q); } else if (k === 'see') steps(0); else if (k === 'wuzu') wuzu(); else if (k === 'yes') close();
 }
 function start() { if (window.__fahmOnb) return; window.__fahmOnb = 1; if (!ST().onb) { shell(); lang(); } else { shell(); wuzu(); } }
 let ready = false, splashGone = !D.documentElement.classList.contains('splashing') && !D.getElementById('splash');

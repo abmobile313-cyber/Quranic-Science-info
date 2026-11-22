@@ -680,6 +680,7 @@ function recStop() {
 }
 /* called by the Android shell: type = partial | final | end | error */
 window.__fahmSpeech = function (type, text) {
+  if (window.__fahmVS && window.__fahmVS.active()) return window.__fahmVS.cb(type, text);
   if (!hz.on || !hz.native) return;
   if (type === 'partial') onHeard(0, text, false);
   else if (type === 'final') onHeard(0, text, true);

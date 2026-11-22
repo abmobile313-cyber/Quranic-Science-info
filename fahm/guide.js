@@ -55,3 +55,5 @@ window.addEventListener('fahm-ready', au); if (document.readyState === 'complete
 new MutationObserver(() => { const r = $('#reader'); if (r && !r.hidden) { try { if (!(ST().guide || {}).reader) setTimeout(() => { const rr = $('#reader'); if (rr && !rr.hidden && !box) start(false, 'reader'); }, 1500); } catch (e) { } } }).observe(document.documentElement, { attributes: true, subtree: true, attributeFilter: ['hidden'] });
 })();
 document.addEventListener('click', e => { if (e.target.closest('[data-guide]')) { const s = document.getElementById('settings'); if (s) s.hidden = true; window.FahmGuide && FahmGuide.start(true, 'main'); } });
+/* reader mic label in the user's language */
+(function () { const L = { ru: 'Hafiz: sunayein', ur: 'حافظ: سنائیں', en: 'Hafiz: recite' }; function set() { const t = document.querySelector('#rMic .rmic-t'); if (!t) return; let u = 'ru'; try { u = window.__fahmApp.st().ui || 'ru'; } catch (e) { } t.textContent = L[u] || L.ru; } setInterval(set, 1500); set(); })();

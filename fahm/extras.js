@@ -191,3 +191,11 @@ if (window.__fahmApp) mount();
 window.FahmTools = { hifz: openHifz, root: openRoot, quiz: openQuiz, _gi: gi, _sa: sa };
 })();
 document.addEventListener('click', e => { const b = e.target.closest('[data-rmap]'); if (b && window.FahmTools) { e.stopPropagation(); FahmTools.root(b.dataset.rmap); } }, true);
+/* Build 33: tapping the ayah anywhere on the main screen (ayah number, story caption, translation text) recites it */
+document.addEventListener('click', e => {
+  const t = e.target; if (!t || !t.closest) return;
+  if (t.closest('button, a, input, select, [data-rmap]')) return;
+  const hit = t.closest('#ayahNo, #cx, #trans .tr, #trans p, #trans .tx, #trans');
+  if (!hit || !hit.closest('#main')) return;
+  try { const F = window.__fahm; F.goTo(F.st.s, F.st.a, 0, true, true); } catch (er) { }
+});

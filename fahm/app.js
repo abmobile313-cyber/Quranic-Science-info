@@ -237,7 +237,7 @@ window.FahmOverlays = window.FahmOverlays || [];
 function navPop() { const fn = window.FahmNav.st.pop(); if (fn) { try { fn(); } catch (e) { } } }
 /* returns true when the app used the back press itself */
 window.__fahmBack = function () {
-  if (window.__fahmOnbOpen && window.__fahmOnbOpen()) return false;
+  if (window.__fahmOnbOpen && window.__fahmOnbOpen()) return window.__fahmOnbBack ? window.__fahmOnbBack() : false;
   if (!$('#web').hidden) { closeWeb(); return true; }
   const sup = document.getElementById('sup'); if (sup && !sup.hidden) { sup.hidden = true; return true; }
   const mk = document.getElementById('mkh'); if (mk && !mk.hidden) { mk.hidden = true; return true; }
@@ -360,7 +360,7 @@ function openSettings() {
   $('#setT').textContent = T('settings');
   const seg = (items, cur, key) => `<div class="seg">${items.map(([v, l]) => `<button data-k="${key}" data-v="${v}" class="${cur === v ? 'on' : ''}">${esc(l)}</button>`).join('')}</div>`;
   $('#setBody').innerHTML =
-    `<div class="set-g"><button class="gd-open" data-guide="1">🧭 ${({ ur: 'گائیڈ — ایپ کیسے چلائیں', ru: 'Guide — app kaise chalayein', en: 'Guide — how to use the app' })[st.ui] || 'Guide'}</button></div>` +
+    `<div class="set-g"><button class="gd-open" data-guide="1">🧭 ${({ ur: 'گائیڈ — ایپ کیسے چلائیں', ru: 'Guide — app kaise chalayein', en: 'Guide — how to use the app' })[st.ui] || 'Guide'}</button><button class="gd-open" data-updchk="1" style="margin-top:8px">⬇ ${window.FahmUpdate ? FahmUpdate.label() : 'Update'}</button></div>` +
     `<div class="set-g"><h5>${T('ui')}</h5>${seg(I.ui, st.ui, 'ui')}</div>` +
     `<div class="set-g"><h5>${T('theme')}</h5>${seg([['dark', T('dark')], ['light', T('light')]], st.theme, 'theme')}</div>` +
     `<div class="set-g"><h5>${T('sfx')}</h5>${seg([['0', T('sfxOff')], ['1', T('sfxLow')], ['2', T('sfxMid')]], String(st.sfx), 'sfx')}</div>` +

@@ -231,17 +231,21 @@ function director(W, S, A) {
 function compose(S, A) {
   const key = S.n + ':' + A.v; if (cache.has(key)) return cache.get(key);
   const W = words(A), nW = W.length, hit = [];
-  TH.forEach(t => {
-    let wi = -1;
-    for (let i = 0; i < nW; i++) { if (t.re.test(W[i].en) || (t.id === 'one' && /^ahad|^samad/.test(W[i].tl)) || (t.rtx && t.rtx.some(r => W[i].root === r || (r.length === 3 && W[i].root.length === 3 && W[i].root === r)))) { wi = i; break; } }
-    if (wi >= 0) hit.push({ t, wi });
-  });
-  hit.sort((a, b) => b.t.pr - a.t.pr || a.wi - b.wi);
-  const pick = [], seenSky = new Set(); let nItems = 0;
-  for (const h of hit) { if (pick.length >= 4) break; const its = h.t.it(); if (nItems + its.length > 6 && pick.length) continue; pick.push(h); nItems += its.length; }
+  /* Build 33: every word gets its own beat — a theme is matched word by word (not just its first hit), so the scene changes as each word is recited */
+  const match = (t, i) => t.re.test(W[i].en) || (t.id === 'one' && /^ahad|^samad/.test(W[i].tl)) || (t.rtx && t.rtx.some(r => W[i].root === r));
+  const last = {};
+  for (let i = 0; i < nW; i++) {
+    let best = null; TH.forEach(t => { if (!best || t.pr > best.pr) { if (match(t, i)) best = t; } });
+    if (!best) continue; if (last[best.id] != null && i - last[best.id] < 3) continue; last[best.id] = i; hit.push({ t: best, wi: i });
+  }
+  const pick = []; let nItems = 0;
+  { const byPr = hit.slice().sort((a, b) => b.t.pr - a.t.pr || a.wi - b.wi); const keep = new Set();
+    for (const h of byPr) { if (keep.size >= 8) break; const n = h.t.it().length; if (nItems + n > 12 && keep.size) continue; keep.add(h); nItems += n; }
+    hit.forEach(h => { if (keep.has(h)) pick.push(h); }); }
+  const seenSky = new Set(); const pickPr = pick.slice().sort((a, b) => b.t.pr - a.t.pr);
   const r0 = hs(S.n, A.v);
   /* sky: strongest sky-bearing theme, else varied by place + hash */
-  let sky = pick.length ? pick[0].t.sky : null, moon = null;
+  let sky = pickPr.length ? (pickPr.find(h => h.t.sky) || pickPr[0]).t.sky : null, moon = null;
   pick.forEach(h => { if (h.t.moon) moon = h.t.moon; });
   if (!sky) sky = SKIES[Math.floor(r0 * SKIES.length)];
   if (sky === 'day' && !pick.some(h => h.t.id === 'sun' || h.t.id === 'water' || h.t.id === 'plant' || h.t.id === 'birds' || h.t.id === 'camel' || h.t.id === 'people')) sky = r0 < 0.5 ? 'dawn' : 'holy';
@@ -262,7 +266,7 @@ function compose(S, A) {
     W.forEach((w, k) => { if (/\ballah\b|\blord\b|\bgod\b/.test(w.en) && !items.some(it => it.a === 'beam' && Math.abs(it.w - k) < 2)) items.push({ a: 'beam', w: k, x: cast.na ? 135 : 295, y: 214, col: '#f3d98b' }); }); }
   let gr = need ? (sky === 'day' || sky === 'holy' ? 'flat' : (r0 < 0.6 ? 'dunes' : 'flat')) : 'none';
   if (pick.some(h => ['kaaba', 'camel', 'prayer', 'journey', 'elephant'].includes(h.t.id))) gr = 'dunes';
-  const cx = pick.length ? { uru: pick.slice(0, 2).map(h => h.t.caps[0]).join(' '), ur: pick.slice(0, 2).map(h => h.t.caps[1]).join(' '), en: pick.slice(0, 2).map(h => h.t.caps[2]).join(' ') } : { uru: 'آیت کے الفاظ کے ساتھ روشنی ابھرتی ہے۔', ur: 'Ayat ke alfaaz ke saath roshni ubharti hai.', en: 'Light rises with the words of the ayah.' };
+  const cx = pick.length ? { uru: pickPr.slice(0, 2).map(h => h.t.caps[0]).join(' '), ur: pickPr.slice(0, 2).map(h => h.t.caps[1]).join(' '), en: pickPr.slice(0, 2).map(h => h.t.caps[2]).join(' ') } : { uru: 'آیت کے الفاظ کے ساتھ روشنی ابھرتی ہے۔', ur: 'Ayat ke alfaaz ke saath roshni ubharti hai.', en: 'Light rises with the words of the ayah.' };
   const spec = { sky, gr, items, cx }; if (moon) spec.moon = moon;
   cache.set(key, spec); if (cache.size > 400) cache.delete(cache.keys().next().value);
   return spec;

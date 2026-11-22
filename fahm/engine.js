@@ -1,3 +1,5 @@
+/* Build 33: is a full-screen layer covering the main screen? then the main canvases need not draw */
+window.__fahmCovered = (function () { let t = 0, v = false; return function () { const n = performance.now(); if (n - t < 250) return v; t = n; v = false; for (const id of ['reader', 'sr', 'xt', 'onb', 'web', 'menu', 'settings']) { const el = document.getElementById(id); if (el && !el.hidden && el.getClientRects().length && el.getBoundingClientRect().height > innerHeight * .6) { v = true; break; } } return v; }; })();
 /* Fahm scene engine: stateless procedural canvas animation. No faces are drawn on any figure. */
 (function () {
 const W = 400, H = 300, TAU = Math.PI * 2;
@@ -480,7 +482,7 @@ class Scene {
   all() { this.show(99); }
   start() { if (!this.running) { this.running = true; requestAnimationFrame(this._raf); } }
   stop() { this.running = false; }
-  _raf() { if (!this.running) return; this.draw(); requestAnimationFrame(this._raf); }
+  _raf(ts) { if (!this.running) return; requestAnimationFrame(this._raf); if (!this._io && window.IntersectionObserver && this.cv) { this._vis = true; this._io = new IntersectionObserver(en => { this._vis = en[0].isIntersecting; }); this._io.observe(this.cv); } if (document.hidden || this._vis === false || window.__fahmCovered()) return; if (ts && this._lt && ts - this._lt < 30) return; this._lt = ts; this.draw(); }
   draw() {
     const c = this.c, k = this.cv.width / W, G = (performance.now() - this.t0) / 1000;
     c.setTransform(k, 0, 0, k, 0, 0); c.clearRect(0, 0, W, this.cv.height / k);

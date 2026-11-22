@@ -143,16 +143,82 @@
     ts.forEach(t => { try { const re = new RegExp('(' + t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')', 'gi'); h = h.replace(re, '<mark>$1</mark>'); } catch (e) { } });
     return h;
   }
+
+  /* ---------- voice search: recite an ayah, say a word, or say a topic ---------- */
+  const VTT = {
+    ru: { title: 'Bol kar dhoondein', ay: 'Ayat ya lafz padhein (Arabi)', ayS: 'Koi ayat ka hissa padhein — wahi ayat milegi. Sirf ek lafz bolein — us lafz wali saari ayaat.', tp: 'Mauzu bolein (Urdu / English)', tpS: 'Jaise: "sabr", "walidain", "jannat"', lis: 'Sun raha hoon… bolte rahein', stop: 'Bas', no: 'Aawaz samajh nahin aayi. Dobara koshish karein.', mic: 'Mic ki ijazat dein (Settings → Apps → Fahm → Permissions).', nos: 'Is phone par aawaz pehchanne ki suvidha nahin mili (Google app update karein).', here: 'Yahin se', ayF: 'milti julti ayaat — sabse upar wahi jo aap ne padhi', wF: 'is lafz wali ayaat' },
+    ur: { title: 'بول کر تلاش', ay: 'آیت یا لفظ پڑھیں (عربی)', ayS: 'کسی آیت کا حصہ پڑھیں — وہی آیت ملے گی۔ صرف ایک لفظ بولیں — اس لفظ والی ساری آیات۔', tp: 'موضوع بولیں (اردو / انگریزی)', tpS: 'جیسے: "صبر"، "والدین"، "جنت"', lis: 'سن رہا ہوں… بولتے رہیں', stop: 'بس', no: 'آواز سمجھ نہیں آئی۔ دوبارہ کوشش کریں۔', mic: 'مائک کی اجازت دیں (Settings → Apps → Fahm → Permissions)۔', nos: 'اس فون پر آواز پہچاننے کی سہولت نہیں ملی (گوگل ایپ اپڈیٹ کریں)۔', here: 'یہیں سے', ayF: 'ملتی جلتی آیات — سب سے اوپر وہی جو آپ نے پڑھی', wF: 'اس لفظ والی آیات' },
+    en: { title: 'Search by voice', ay: 'Recite an ayah or a word (Arabic)', ayS: 'Recite part of any ayah to find it. Say a single word to get every ayah with that word.', tp: 'Say a topic (Urdu / English)', tpS: 'e.g. "patience", "parents", "paradise"', lis: 'Listening… keep speaking', stop: 'Stop', no: "Couldn't catch that. Please try again.", mic: 'Allow the microphone (Settings → Apps → Fahm → Permissions).', nos: 'Speech recognition is not available on this phone (update the Google app).', here: 'From here', ayF: 'matching ayat — the closest one first', wF: 'ayat with this word' }
+  };
+  const VT = () => VTT[ui()] || VTT.ru;
+  const vs = { on: false, mode: '', txt: '', web: null, tm: 0, done: false };
+  const natOk = () => { try { return !!(window.FahmAndroid && FahmAndroid.speechAvailable && FahmAndroid.speechAvailable()); } catch (e) { return false; } };
+  const webSR = () => window.SpeechRecognition || window.webkitSpeechRecognition;
+  function vsPanel(force) {
+    const P = ov.querySelector('.srv'); if (!force && !P.hidden && !vs.on) { P.hidden = true; return; } const t = VT(); P.hidden = false;
+    P.innerHTML = `<div class="srvt">🎙 ${esc(t.title)}</div><button class="srvb" data-vs="ar"><b>🕌 ${esc(t.ay)}</b><small>${esc(t.ayS)}</small></button><button class="srvb" data-vs="tp"><b>💬 ${esc(t.tp)}</b><small>${esc(t.tpS)}</small></button>`;
+  }
+  function vsUI(txt) { const P = ov.querySelector('.srv'), t = VT(); P.hidden = false; P.innerHTML = `<div class="srvl"><span class="srvw"><i></i><i></i><i></i><i></i><i></i></span><b>${esc(t.lis)}</b></div><div class="srvx${vs.mode === 'ar' ? ' ar' : ''}">${esc(txt || '…')}</div><button class="po on" data-vstop="1">${esc(t.stop)}</button>`; }
+  (window.FahmOverlays = window.FahmOverlays || []).push({ isOpen: () => !!(ov && !ov.hidden && !ov.querySelector('.srv').hidden), close: () => { vsStop(false); ov.querySelector('.srv').hidden = true; } });
+  window.__fahmVS = { active: () => vs.on, cb(type, text) {
+    if (!vs.on) return;
+    if (type === 'partial') { vs.txt = text; vsUI(text); }
+    else if (type === 'final') { vs.txt = text; vsDone(); }
+    else if (type === 'permok') { try { FahmAndroid.startListen(vs.lang); } catch (e) { } }
+    else if (type === 'permno') { vs.on = false; toastS(VT().mic); vsPanel(true); }
+    else if (type === 'end') { if (!vs.done) vsDone(); }
+    else if (type === 'error') { vs.on = false; toastS(/perm/i.test(text || '') ? VT().mic : VT().no); vsPanel(true); }
+  } };
+  function vsStart(mode) {
+    vsStop(false); sStop(); try { window.__fahmApp && __fahmApp.stopAll(); } catch (e) { }
+    const u = ui(); vs.mode = mode; vs.txt = ''; vs.done = false; vs.lang = mode === 'ar' ? 'ar-SA' : (u === 'en' ? 'en-IN' : 'ur-PK');
+    if (natOk()) { vs.on = true; vsUI(''); try { FahmAndroid.startListen(vs.lang); } catch (e) { vs.on = false; toastS(VT().nos); } return; }
+    const SR = webSR(); if (!SR) { toastS(VT().nos); return; }
+    const r = new SR(); vs.web = r; vs.on = true; r.lang = vs.lang; r.interimResults = true; r.continuous = false; r.maxAlternatives = 1;
+    r.onresult = e => { let f = '', fin = false; for (let i = 0; i < e.results.length; i++) { f += e.results[i][0].transcript + ' '; if (e.results[i].isFinal) fin = true; } vs.txt = f.trim(); vsUI(vs.txt); if (fin) vsDone(); };
+    r.onerror = e => { vs.on = false; toastS(/not-allowed|service/.test(e.error) ? VT().mic : VT().no); vsPanel(true); };
+    r.onend = () => { if (vs.on && !vs.done) vsDone(); };
+    vsUI(''); try { r.start(); } catch (e) { vs.on = false; }
+  }
+  function vsStop(apply) {
+    if (vs.web) { try { vs.web.onend = null; vs.web.abort(); } catch (e) { } vs.web = null; }
+    if (vs.on) { try { window.FahmAndroid && FahmAndroid.stopListen && FahmAndroid.stopListen(); } catch (e) { } }
+    const was = vs.on; vs.on = false; if (apply && was && vs.txt) vsDone(); else if (apply) vsPanel(true);
+  }
+  /* fuzzy ayah finder: in-order token overlap between what was heard and each ayah (plus the next one, for recitations that cross the ayah end) */
+  function vsFind(heard) {
+    const tok = v => String(v || '').split(/\s+/).map(arn).filter(w => w.length > 1); const H = tok(heard); if (!H.length) return [];
+    const sim = (a, b) => a === b || (a.length >= 3 && b.length >= 3 && (a.indexOf(b) >= 0 || b.indexOf(a) >= 0));
+    if (H.length === 1) { const w = H[0]; return DB.filter(x => (x._t || (x._t = tok(x.ar))).some(t => sim(t, w))).map(x => ({ x, sc: 1 })); }
+    const out = [];
+    DB.forEach((x, i) => {
+      const T0 = x._t || (x._t = tok(x.ar)); let best = 0;
+      for (let st = 0; st < T0.length; st++) { if (!sim(T0[st], H[0]) && !(H[1] && sim(T0[st], H[1]))) continue; let j = st, k = 0, m = 0; while (j < T0.length && k < H.length) { if (sim(T0[j], H[k])) { m++; j++; k++; } else if (k + 1 < H.length && sim(T0[j], H[k + 1])) { k++; } else j++; } if (m > best) best = m; }
+      if (best >= Math.min(2, H.length)) out.push({ x, sc: best / H.length + (best / T0.length) * .25 });
+    });
+    out.sort((a, b) => b.sc - a.sc); return out.slice(0, 30);
+  }
+  function vsDone() {
+    if (vs.done) return; vs.done = true; vs.on = false; if (vs.web) { try { vs.web.onend = null; vs.web.abort(); } catch (e) { } vs.web = null; }
+    const txt = (vs.txt || '').trim(), t = VT(), P = ov.querySelector('.srv'); if (!txt) { toastS(t.no); vsPanel(true); return; }
+    P.hidden = true; const inp = ov.querySelector('#srq'); inp.value = txt;
+    if (vs.mode !== 'ar') { go(txt); return; }
+    const finish = () => { const list = vsFind(txt), one = String(txt).split(/\s+/).map(arn).filter(w => w.length > 1).length === 1; ov.querySelector('.srp').hidden = true;
+      cur = { list, terms: [], topics: [] }; shown = 0; ov.querySelector('.srl').innerHTML = '';
+      ov.querySelector('.srt').innerHTML = list.length ? `<b>${list.length}</b> ${esc(one ? t.wF : t.ayF)} · <span class="ar">${esc(txt)}</span>` : esc(T().none); render(false); };
+    if (!DB) load().then(finish); else finish();
+  }
   let ov = null, shown = 0, cur = null;
   const surahName = n => { try { const s = D().surahs[n - 1]; return s.en; } catch (e) { return 'Surah ' + n; } };
   function build() {
     if (ov) return ov; ov = document.createElement('div'); ov.id = 'sr'; ov.hidden = true;
-    ov.innerHTML = '<div class="srh"><button class="srx" aria-label="close"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button><div class="srb"><svg viewBox="0 0 24 24" class="srm"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg><input id="srq" type="search" enterkeyhint="search" autocomplete="off" autocapitalize="off" spellcheck="false"></div></div><div class="srt"></div><div class="srp"></div><div class="srl"></div>';
+    ov.innerHTML = '<div class="srh"><button class="srx" aria-label="close"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button><div class="srb"><svg viewBox="0 0 24 24" class="srm"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg><input id="srq" type="search" enterkeyhint="search" autocomplete="off" autocapitalize="off" spellcheck="false"><button class="srmic" aria-label="mic"><svg viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21M8.5 21h7"/></svg></button></div></div><div class="srv" hidden></div><div class="srt"></div><div class="srp"></div><div class="srl"></div>';
     document.body.appendChild(ov);
     ov.querySelector('.srx').onclick = close;
     const inp = ov.querySelector('#srq'); let tm = 0; inp.addEventListener('input', () => { clearTimeout(tm); tm = setTimeout(() => go(inp.value), 220); });
     inp.addEventListener('keydown', e => { if (e.key === 'Enter') { clearTimeout(tm); go(inp.value); inp.blur(); } });
     ov.addEventListener('click', e => {
+      if (e.target.closest('.srmic')) { vsPanel(); return; } const vk = e.target.closest('[data-vs]'); if (vk) { vsStart(vk.dataset.vs); return; } if (e.target.closest('[data-vstop]')) { vsStop(true); return; } const pl = e.target.closest('[data-play]'); if (pl) { const [s2, a2] = pl.dataset.play.split(':').map(Number); sStop(); hideKeep(); try { window.__fahm.goTo(s2 - 1, a2 - 1, 0, true); } catch (er) { } return; }
       const ch = e.target.closest('[data-q]'); if (ch) { inp.value = ch.dataset.q; go(ch.dataset.q); return; }
       const mo = e.target.closest('[data-more]'); if (mo) { render(true); return; }
       const rd = e.target.closest('[data-read]'); if (rd) { const [s, a] = rd.dataset.read.split(':').map(Number); sStop(); hideKeep(); try { window.__fahm.goTo(s - 1, a - 1, 0, false, true); } catch (er) { } try { window.FahmReader.openHl(s, a); } catch (er) { } return; }
@@ -181,7 +247,7 @@
     const end = Math.min(cur.list.length, shown + 40), parts = [];
     for (let i = shown; i < end; i++) {
       const { x } = cur.list[i]; const tr = x.raw[key] || x.raw.en;
-      parts.push(`<article class="sri"><div class="srr"><b>${esc(surahName(x.s))} ${x.s}:${x.a}</b><span><button class="po sm" data-read="${x.s}:${x.a}">${esc(t.read)}</button><button class="po sm" data-wbw="${x.s}:${x.a}">${esc(t.wbw)}</button></span></div><div class="sra ar">${esc(x.ar)}</div><p class="srtx${key === 'ur' ? ' ur' : ''}">${hl(tr, cur.terms)}</p><div class="srac"><button class="po sm" data-qir="${x.s}:${x.a}">▶ ${esc(t.qir)}</button><button class="po sm" data-trs="${x.s}:${x.a}">▶ ${esc(t.trs)}</button><button class="po sm" data-taf="${x.s}:${x.a}">📖 ${esc(t.taf)}</button></div><div class="srtb"></div></article>`);
+      parts.push(`<article class="sri"><div class="srr"><b>${esc(surahName(x.s))} ${x.s}:${x.a}</b><span><button class="po sm on" data-play="${x.s}:${x.a}">▶ ${esc(VT().here)}</button><button class="po sm" data-read="${x.s}:${x.a}">${esc(t.read)}</button><button class="po sm" data-wbw="${x.s}:${x.a}">${esc(t.wbw)}</button></span></div><div class="sra ar" data-qir="${x.s}:${x.a}" role="button">${esc(x.ar)}</div><p class="srtx${key === 'ur' ? ' ur' : ''}">${hl(tr, cur.terms)}</p><div class="srac"><button class="po sm" data-qir="${x.s}:${x.a}">▶ ${esc(t.qir)}</button><button class="po sm" data-trs="${x.s}:${x.a}">▶ ${esc(t.trs)}</button><button class="po sm" data-taf="${x.s}:${x.a}">📖 ${esc(t.taf)}</button></div><div class="srtb"></div></article>`);
     }
     L.insertAdjacentHTML('beforeend', parts.join('')); shown = end;
     if (shown < cur.list.length) L.insertAdjacentHTML('beforeend', `<button class="po on srmore" data-more="1">${esc(t.more)} (${cur.list.length - shown})</button>`);
@@ -192,7 +258,7 @@
     load(); setTimeout(() => { try { ov.querySelector('#srq').focus(); } catch (e) { } }, 200);
     try { window.__sfx && window.__sfx.tap && window.__sfx.tap(); } catch (e) { }
   }
-  function close() { sStop(); if (ov) ov.hidden = true; }
+  function close() { sStop(); vsStop(false); if (ov) { ov.hidden = true; const P = ov.querySelector('.srv'); if (P) P.hidden = true; } }
   /* hide but keep the results, so Back from the reader / main screen returns to this exact search */
   function hideKeep() { if (!ov) return; ov.hidden = true; try { window.FahmNav && FahmNav.push(() => { ov.hidden = false; }); } catch (e) { } }
   /* header button, placed just before the language button */

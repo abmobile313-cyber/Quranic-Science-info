@@ -135,12 +135,41 @@ public class MainActivity extends Activity {
             ui.post(new Runnable() { @Override public void run() { ttsSay(txt, lang, rate); } });
             return "ok";
         }
+        /** Update system: the app asks the site for the newest build and compares it with its own versionCode. */
+        @JavascriptInterface public int appVersion() {
+            try { return getPackageManager().getPackageInfo(getPackageName(), 0).versionCode; } catch (Exception e) { return 0; }
+        }
+        @JavascriptInterface public void notifyUpdate(final String title, final String text, final String url) {
+            ui.post(new Runnable() { @Override public void run() { postUpdate(title, text, url); } });
+        }
+        @JavascriptInterface public void openUrl(final String url) {
+            ui.post(new Runnable() { @Override public void run() { try { startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(url))); } catch (Exception ignored) { } } });
+        }
         @JavascriptInterface public void stopListen() {
             ui.post(new Runnable() { @Override public void run() { if (sr != null) { try { sr.cancel(); sr.destroy(); } catch (Exception ignored) { } sr = null; } } });
         }
     }
+    private String[] pendingNote = null;
+    private void postUpdate(String title, String text, String url) {
+        try {
+            if (Build.VERSION.SDK_INT >= 33 && checkSelfPermission("android.permission.POST_NOTIFICATIONS") != PackageManager.PERMISSION_GRANTED) {
+                pendingNote = new String[]{title, text, url}; requestPermissions(new String[]{"android.permission.POST_NOTIFICATIONS"}, 78); return;
+            }
+            android.app.NotificationManager nm = (android.app.NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+            android.app.Notification.Builder nb;
+            if (Build.VERSION.SDK_INT >= 26) {
+                nm.createNotificationChannel(new android.app.NotificationChannel("fahm_upd", "App updates", android.app.NotificationManager.IMPORTANCE_DEFAULT));
+                nb = new android.app.Notification.Builder(this, "fahm_upd");
+            } else nb = new android.app.Notification.Builder(this);
+            int fl = Build.VERSION.SDK_INT >= 23 ? android.app.PendingIntent.FLAG_IMMUTABLE : 0;
+            android.app.PendingIntent pi = android.app.PendingIntent.getActivity(this, 5, new Intent(Intent.ACTION_VIEW, Uri.parse(url)), fl | android.app.PendingIntent.FLAG_UPDATE_CURRENT);
+            nb.setSmallIcon(getApplicationInfo().icon).setContentTitle(title).setContentText(text).setAutoCancel(true).setContentIntent(pi);
+            nm.notify(4242, nb.build());
+        } catch (Exception ignored) { }
+    }
     @Override public void onRequestPermissionsResult(int code, String[] p, int[] g) {
         super.onRequestPermissionsResult(code, p, g);
+        if (code == 78) { if (g.length > 0 && g[0] == PackageManager.PERMISSION_GRANTED && pendingNote != null) postUpdate(pendingNote[0], pendingNote[1], pendingNote[2]); pendingNote = null; return; }
         if (code == 77) js(g.length > 0 && g[0] == PackageManager.PERMISSION_GRANTED ? "permok" : "permno", "");
     }
     @Override protected void onDestroy() { try { if (tts != null) { tts.stop(); tts.shutdown(); } } catch (Exception ignored) { } try { stopService(new Intent(this, PlayService.class)); } catch (Exception ignored) { } if (sr != null) { try { sr.destroy(); } catch (Exception ignored) { } } super.onDestroy(); }

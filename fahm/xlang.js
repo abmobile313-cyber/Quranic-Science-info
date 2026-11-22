@@ -83,5 +83,6 @@
   document.addEventListener('click', function (e) { var b = e.target.closest && e.target.closest('#btnLang'); if (b && app()) { e.stopImmediatePropagation(); e.preventDefault(); panel(); } }, true);
   window.addEventListener('fahm-ready', function () { var st = app().st(); if (st.xl && D.T[st.xl]) { apply(st.xl); setTimeout(function () { apply(st.xl); }, 800); } });
   setInterval(function () { if (lang) headerLabels(); }, 900);
+  (window.FahmOverlays = window.FahmOverlays || []).push({ isOpen: function () { var o = document.getElementById('xlp'); return !!(o && !o.hidden); }, close: function () { document.getElementById('xlp').hidden = true; } });
   window.FahmXL = { apply: apply, choose: choose, t: function (x) { return map ? tr(x) : x; }, lang: function () { return lang; }, bcp: function () { return lang ? (TCODE[lang] || lang) : ''; } };
 })();

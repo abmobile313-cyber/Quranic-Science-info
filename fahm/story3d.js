@@ -52,7 +52,7 @@ function ok() { if (ctxOK != null) return ctxOK; try { const c = document.create
 class Story {
   constructor(cv) {
     this.cv = cv; this.spec = { sky: 'night', items: [] }; this.reveal = -1; this.running = false; this.t0 = performance.now(); this.acts = []; this.gtype = '';
-    const r = this.r = new T.WebGLRenderer({ canvas: cv, antialias: true, powerPreference: 'high-performance' });
+    const r = this.r = new T.WebGLRenderer({ canvas: cv, antialias: (window.devicePixelRatio || 1) < 2, powerPreference: 'high-performance' }); try { r.debug.checkShaderErrors = false; } catch (e) { }
     r.outputColorSpace = T.SRGBColorSpace; r.toneMapping = T.ACESFilmicToneMapping; r.toneMappingExposure = 1.15; r.shadowMap.enabled = true; r.shadowMap.type = T.PCFSoftShadowMap;
     const sc = this.sc = new T.Scene(); sc.fog = new T.Fog('#101c3e', 14, 46);
     this.cam = new T.PerspectiveCamera(45, 4 / 3, .1, 200);
@@ -70,7 +70,7 @@ class Story {
   }
   resize() {
     const b = this.cv.getBoundingClientRect(), w = Math.max(2, Math.round(b.width)), h = Math.max(2, Math.round(b.height));
-    this.r.setPixelRatio(Math.min(window.devicePixelRatio || 1, w > 700 ? 1.5 : 2)); this.r.setSize(w, h, false); this.cam.aspect = w / h; this.cam.updateProjectionMatrix(); this.aspect = w / h;
+    this.r.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5)); this.r.setSize(w, h, false); this.cam.aspect = w / h; this.cam.updateProjectionMatrix(); this.aspect = w / h;
   }
   /* ---- ground ---- */
   buildGround(type, tint) {
@@ -102,7 +102,7 @@ class Story {
     this.key.color.set(P.key[0]); this.key.intensity = P.key[1]; this.key.position.set(...P.key[2]); this.key.target.position.set(0, 0, 0); this.rim.color.set(P.rim); this.rim.intensity = .8;
     this.stars.visible = P.stars > 0; this.stars.material.opacity = P.stars; this.stars.material.userData.base = P.stars;
     if (this.spec.moon) { this.moon.visible = true; this.moon.position.set(X(this.spec.moon[0]) * 4, Y(this.spec.moon[1]) * 4 + 8, -30); this.moon.scale.set(14, 14, 1); } else this.moon.visible = false;
-    this.zoom = 0; this.items = items;
+    this.zoom = 0; this.items = items; this.fx = null; this.fT = 0;
     items.forEach(it => {
       const bld = B[it.a]; let a = null;
       if (bld) { CUR = []; try { a = bld(it, this); } catch (e) { console.warn('3d actor', it.a, e); } a = a && a.g ? a : null; if (a) { a.mats = CUR; a.born = null; a.it = it; a.g.visible = false; this.world.add(a.g); this.acts.push(a); } CUR = null; }
@@ -110,11 +110,11 @@ class Story {
     });
     this.show(0);
   }
-  show(w) { const now = performance.now() / 1000; if (w > this.reveal) this.reveal = w; this.acts.forEach(a => { if (a.born == null && a.it.w <= this.reveal) { a.born = now; a.fin = false; if (this.onBorn) try { this.onBorn(a.it); } catch (e) { } } }); }
+  show(w) { const now = performance.now() / 1000; if (w > this.reveal) this.reveal = w; this.acts.forEach(a => { if (a.born == null && a.it.w <= this.reveal) { a.born = now; a.fin = false; if (a.it.a !== 'cast' && a.it.x !== undefined && w < 99) { this.fx = X(a.it.x); this.fT = now; } if (this.onBorn) try { this.onBorn(a.it); } catch (e) { } } }); }
   all() { this.show(99); }
   start() { if (!this.running) { this.running = true; requestAnimationFrame(this._raf); } }
   stop() { this.running = false; }
-  _raf() { if (!this.running) return; try { this.draw(); } catch (e) { console.warn('story draw', e); } requestAnimationFrame(this._raf); }
+  _raf(ts) { if (!this.running) return; requestAnimationFrame(this._raf); const cv = this.r && this.r.domElement; if (!this._io && window.IntersectionObserver && cv) { this._vis = true; this._io = new IntersectionObserver(en => { this._vis = en[0].isIntersecting; }); this._io.observe(cv); } if (document.hidden || this._vis === false || (window.__fahmCovered && window.__fahmCovered())) return; const big = cv && cv.closest && cv.closest('.big'); if (!big && ts && this._lt && ts - this._lt < 30) return; this._lt = ts; try { this.draw(); } catch (e) { console.warn('story draw', e); } }
   draw() {
     const now = performance.now() / 1000, G = (performance.now() - this.t0) / 1000;
     this.acts.forEach(a => {
@@ -127,7 +127,9 @@ class Story {
       if (a.u) a.u(t, A, G, now);
     });
     /* cinematic camera: slow push-in + gentle sway */
-    const asp = this.aspect, zc = 9 * Math.pow(1.333 / Math.max(asp, .72), .85) - Math.min(G, 18) * .045, sw = Math.sin(G * .17) * .55, cam = this.cam;
+    /* Build 33: the camera follows the story — it eases toward whatever the current word brought in, with a short push-in on each new beat */
+    if (this.cfx == null) this.cfx = 0; const tfx = this.fx != null ? Math.max(-3.2, Math.min(3.2, this.fx * .55)) : 0; this.cfx += (tfx - this.cfx) * .045; const bump = this.fT ? Math.exp(-(now - this.fT) / 1.6) : 0;
+    const asp = this.aspect, zc = 9 * Math.pow(1.333 / Math.max(asp, .72), .85) - Math.min(G, 18) * .045 - bump * .9, sw = Math.sin(G * .17) * .45 + this.cfx, cam = this.cam;
     cam.position.set(sw, 2.3 + Math.sin(G * .11) * .12, zc); cam.lookAt(sw * .35, 1.5 + (asp < 1 ? .5 : 0), 0);
     if (this.stars.visible) this.stars.rotation.y = G * .004;
     this.r.render(this.sc, cam);
