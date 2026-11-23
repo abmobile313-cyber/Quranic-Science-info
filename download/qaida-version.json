@@ -1,10 +1,10 @@
 {
-  "code": 1,
-  "name": "1.0.1",
-  "apk": "https://github.com/abmobile313-cyber/Quranic-Science-info/releases/download/qaida-1/NooraniQaida.apk",
+  "code": 2,
+  "name": "1.0.2",
+  "apk": "https://github.com/abmobile313-cyber/Quranic-Science-info/releases/download/qaida-2/NooraniQaida.apk",
   "notes": {
-    "ru": "Noorani Qaida ka pehla version: poora qaida (takhti 1 se 17) bilkul kitaab jaisa, rangeen tajweed, har khane par tap karke awaaz, poora safha chalana, 'Suno aur pehchano' khel, aur ustad ki awaaz record karne ka system.",
-    "ur": "نورانی قاعدہ کا پہلا ورژن: پورا قاعدہ (تختی ۱ سے ۱۷) بالکل کتاب جیسا، رنگین تجوید، ہر خانے پر ٹیپ کر کے آواز، پورا صفحہ چلانا، سنو اور پہچانو کھیل، اور استاد کی آواز ریکارڈ کرنے کا نظام۔",
-    "en": "First version: the complete Noorani Qaida (lessons 1–17) exactly like the book, colour tajweed, tap any box to hear it, play a whole page, a listen-and-find game, and teacher voice recording."
+    "ru": "Naya Noorani Qaida: Hardoi wala mukammal qaida — 28 takhtiyan + azaan, bilkul kitaab jaisa. Har harf aur lafz ki asli Arabi awaaz, hijje ke saath (baa zabar ba). Mic se padhiye: sahi ho to hara, ghalat ho to laal. 'Sabak sunaiye' aur 'Ustad ke saath' modes, kahan se kahan tak sabak chunein. Qawaid aur hidayaat Urdu awaaz mein.",
+    "ur": "نیا نورانی قاعدہ: ہردوئی والا مکمل قاعدہ — ۲۸ تختیاں اور اذان، بالکل کتاب جیسا۔ ہر حرف اور لفظ کی اصل عربی آواز، ہجے کے ساتھ (با زبر بَ)۔ مائک سے پڑھیے: صحیح ہو تو ہرا، غلط ہو تو لال۔ سبق سنائیے اور استاد کے ساتھ، کہاں سے کہاں تک سبق چنیں۔ قواعد اور ہدایات اردو آواز میں۔",
+    "en": "New Noorani Qaida: the complete Hardoi qaida — 28 lessons plus adhan, exactly like the book. Real Arabic audio for every letter and word, with spelling (hijje). Read into the mic: green if right, red if wrong. 'Recite lesson' and 'With teacher' modes with your own range. Rules and notes spoken in Urdu."
   }
 }
