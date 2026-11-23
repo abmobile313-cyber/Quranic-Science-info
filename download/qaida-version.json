@@ -1,10 +1,10 @@
 {
-  "code": 3,
-  "name": "1.0.3",
-  "apk": "https://github.com/abmobile313-cyber/Quranic-Science-info/releases/download/qaida-3/NooraniQaida.apk",
+  "code": 4,
+  "name": "1.0.4",
+  "apk": "https://github.com/abmobile313-cyber/Quranic-Science-info/releases/download/qaida-4/NooraniQaida.apk",
   "notes": {
-    "ru": "Naya roop: kitaab jaisa rangeen qaida — teal-sunehra phoolon wala border, rangeen heading, har khana alag pastel rang. Roshan aur andhera dono theme (Settings). Asli qari ki insaani awaaz zyada-tar khanon mein (pehle wali computer awaaz hata di). Laam-alif (لا) ki sahi shakal. Hijje ke waqt jis harf ki baat ho rahi hai wo chamakta hai. Mic checking bachchon ke liye aasaan. Naya logo.",
-    "ur": "نیا روپ: کتاب جیسا رنگین قاعدہ — ٹیل اور سنہرا پھولوں والا بارڈر، رنگین سرخی، ہر خانہ الگ رنگ۔ روشن اور اندھیرا دونوں تھیم۔ اکثر خانوں میں اصل قاری کی آواز۔ لا کی صحیح شکل۔ ہجے کے وقت حرف چمکتا ہے۔ مائک چیکنگ بچوں کے لیے آسان۔ نیا لوگو۔",
-    "en": "New look: a colourful book-style qaida — teal and gold floral frame, coloured headings, pastel boxes. Light and dark themes. Real human qari audio for most boxes. Correct laam-alif (لا) shape. During spelling (hijje) the letter being spelled lights up. Easier mic checking for children. New logo."
+    "ru": "Ab ek hi qari ki awaaz: harf, harakat wale harf aur alfaaz sab ek hi qari padhta hai (ElevenLabs ki saari awaazein hata di, sirf 'shabash / phir se suniye' rakhi). Hijje mein bhi har harf usi ek awaaz mein. Qari ki raftaar darmiyani — Settings mein Aahista / Darmiyani / Tez. Hidayaat ab phone ki Urdu awaaz mein. Naya khoobsurat icon, nayi opening animation, aur wuzu wala system (shuru mein puchta hai, tareeqa tasveeron ke saath). Har takhti ab kitaab ke safhon jaisi — scroll nahi, swipe karke safha palatiye.",
+    "ur": "اب ایک ہی قاری کی آواز: حرف، حرکات اور الفاظ سب ایک ہی قاری پڑھتا ہے۔ ہجے میں بھی ایک ہی آواز۔ قاری کی رفتار درمیانی — ترتیبات میں آہستہ / درمیانی / تیز۔ ہدایات اب فون کی اردو آواز میں۔ نیا آئیکن، نئی اوپننگ اینیمیشن، اور وضو والا نظام۔ ہر تختی اب کتاب کے صفحوں جیسی — سوائپ کر کے صفحہ پلٹیے۔",
+    "en": "One reciter for everything: letters, vowelled letters and words are now read by a single qari (all ElevenLabs voices removed except the praise/retry phrases). Spelling (hijje) uses the same voice. Medium reciter speed by default — Slow / Medium / Fast in Settings. Teacher notes use the phone's Urdu voice. New icon, opening animation, and the wudu check. Every lesson is now laid out as book pages — swipe to turn the page."
   }
 }
