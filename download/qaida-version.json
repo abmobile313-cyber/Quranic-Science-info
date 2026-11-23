@@ -1,10 +1,10 @@
 {
-  "code": 4,
-  "name": "1.0.4",
-  "apk": "https://github.com/abmobile313-cyber/Quranic-Science-info/releases/download/qaida-4/NooraniQaida.apk",
+  "code": 5,
+  "name": "1.0.5",
+  "apk": "https://github.com/abmobile313-cyber/Quranic-Science-info/releases/download/qaida-5/NooraniQaida.apk",
   "notes": {
-    "ru": "Ab ek hi qari ki awaaz: harf, harakat wale harf aur alfaaz sab ek hi qari padhta hai (ElevenLabs ki saari awaazein hata di, sirf 'shabash / phir se suniye' rakhi). Hijje mein bhi har harf usi ek awaaz mein. Qari ki raftaar darmiyani — Settings mein Aahista / Darmiyani / Tez. Hidayaat ab phone ki Urdu awaaz mein. Naya khoobsurat icon, nayi opening animation, aur wuzu wala system (shuru mein puchta hai, tareeqa tasveeron ke saath). Har takhti ab kitaab ke safhon jaisi — scroll nahi, swipe karke safha palatiye.",
-    "ur": "اب ایک ہی قاری کی آواز: حرف، حرکات اور الفاظ سب ایک ہی قاری پڑھتا ہے۔ ہجے میں بھی ایک ہی آواز۔ قاری کی رفتار درمیانی — ترتیبات میں آہستہ / درمیانی / تیز۔ ہدایات اب فون کی اردو آواز میں۔ نیا آئیکن، نئی اوپننگ اینیمیشن، اور وضو والا نظام۔ ہر تختی اب کتاب کے صفحوں جیسی — سوائپ کر کے صفحہ پلٹیے۔",
-    "en": "One reciter for everything: letters, vowelled letters and words are now read by a single qari (all ElevenLabs voices removed except the praise/retry phrases). Spelling (hijje) uses the same voice. Medium reciter speed by default — Slow / Medium / Fast in Settings. Teacher notes use the phone's Urdu voice. New icon, opening animation, and the wudu check. Every lesson is now laid out as book pages — swipe to turn the page."
+    "ru": "Naya roop: har safhe ke gird phoolon ki bel (bel-buti) wala frame, khaanon mein chhote phool, rangeen ghar ka screen. Awaaz: Google/phone ki awaaz bilkul hata di — sirf qari sahab ki asli awaaz. Jis khane ki alag recording nahi, wahan usi qari ki awaaz mein hijje sunai deti hai. Huroof-e-muqatta'at, Quran ke alfaaz aur azaan ke kalimaat ab asli tilawat/azaan se. Wuzu ke sawaal aur tareeqe mein Fahmul Quraan wali awaaz. Mic: choti ghalti par atakta nahi — 2 baar ke baad khud aage badhta hai; sirf badi ghalti (jaise ba ki jagah ta) ghalat maani jaati hai.",
+    "ur": "نیا روپ: ہر صفحے کے گرد پھولوں کی بیل والا فریم۔ گوگل/فون کی آواز ختم — صرف قاری صاحب کی اصل آواز۔ وضو میں فہم القرآن والی آواز۔ مائک: چھوٹی غلطی پر نہیں اٹکتا، صرف بڑی غلطی پکڑتا ہے۔",
+    "en": "New look: a floral vine (bel-buti) frame around every page. No phone/Google voice any more — only the qari's real recordings; boxes without their own recording are spelled out (hijje) in the same voice. Wudu screen uses the Fahmul Quraan voice. Mic check forgives small slips and never gets stuck; only a clearly different letter counts as wrong."
   }
 }
