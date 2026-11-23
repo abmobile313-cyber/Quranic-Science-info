@@ -5,16 +5,16 @@
 const $ = (s, r = document) => r.querySelector(s), $$ = (s, r = document) => [...r.querySelectorAll(s)];
 const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
 const LS = 'qaida.v2';
-const S = Object.assign({ ui: 'ru', rep: 1, tk: 1, heard: {}, good: {}, done: {}, auto: 1, gap: 1, vo: 1, tries: 3, hj: 0 }, (() => { try { return JSON.parse(localStorage.getItem(LS) || '{}'); } catch (e) { return {}; } })());
+const S = Object.assign({ ui: 'ru', rep: 1, tk: 1, heard: {}, good: {}, done: {}, auto: 1, gap: 1, vo: 1, tries: 3, hj: 0, th: 'l' }, (() => { try { return JSON.parse(localStorage.getItem(LS) || '{}'); } catch (e) { return {}; } })());
 const save = () => { try { localStorage.setItem(LS, JSON.stringify(S)); } catch (e) { } };
 const C = () => window.QaidaCheck;
 
 const TK = { 1: 'Mufradaat — akele huroof', 2: 'Murakkabaat — jude huroof', 3: 'Harakaat — zabar, zer, pesh', 4: 'Huroof-e-madda', 5: 'Huroof-e-leen', 6: 'Mashq: harakaat, madda, leen', 7: 'Tanween', 8: 'Tanween o noon saakin', 9: 'Izhaar', 10: 'Ikhfa', 11: 'Jazm — sukoon', 12: 'Mashq-e-sukoon', 13: 'Tashdeed', 14: 'Raa saakina o mushaddada', 15: 'Huroof qamari o shamsi', 16: 'Lafz Allah ka qaida', 17: 'Waqf ke qaide', 18: 'Tashdeed ma\'a tashdeed', 19: 'Madd ka bayan', 20: 'Tashdeed ba\'d huroof-e-madda', 21: 'Huroof-e-muqatta\'aat', 22: 'Meem saakin ke qaide', 23: 'Iqlaab', 24: 'Idgham yarmaloon', 25: 'Rasm-ul-khat', 26: 'Alamaat-e-waqf', 27: 'Ijra-e-qawaid', 28: 'Kalimaat-e-Islam', 29: 'Azaan o iqamat' };
 const TKE = { 1: 'Single letters', 2: 'Joined letters', 3: 'Short vowels', 4: 'Long vowels', 5: 'Soft letters', 6: 'Practice', 7: 'Tanween', 8: 'Tanween & noon saakin', 9: 'Izhar', 10: 'Ikhfa', 11: 'Sukoon', 12: 'Sukoon practice', 13: 'Shaddah', 14: 'Raa rules', 15: 'Moon & sun letters', 16: 'The word Allah', 17: 'Stopping rules', 18: 'Double shaddah', 19: 'Madd', 20: 'Shaddah after madd', 21: 'Disjointed letters', 22: 'Meem saakin', 23: 'Iqlab', 24: 'Idgham', 25: 'Quranic spelling', 26: 'Stop signs', 27: 'Applying the rules', 28: 'Kalimas of Islam', 29: 'Adhan & iqamah' };
 const L = {
-  ru: { hj: 'Hijje (baa zabar ba)', hjA: 'Takhti 3–13', hjY: 'Har jagah', hjN: 'Sirf rawaan', hT: 'Noorani Qaida — aap ka ustad', hD: 'Har harf aur lafz par tap karein — suniye. Mic se padhiye — sahi ho to hara, ghalat ho to laal. Jab tak sahi na ho, aage nahi.', go: 'Shuru karein', cont: 'Jaari rakhein · Takhti ', sec: 'Takhtiyan', takhti: 'Takhti', page: 'Safha', done: 'mukammal', m1: 'Parhiye', m1s: 'Tap karein aur suniye', m2: 'Sabak sunaiye', m2s: 'Bachcha padhe, app check kare', m3: 'Ustad ke saath', m3s: 'Ustad padhe, bachcha dohraye', hid: 'Hidayaat', hidAll: 'Hidayaat (shuru ki baatein)', listen: 'Suniye', set: 'Settings', lang: 'Zaban', rep: 'Har lafz kitni baar', auto: 'Agli takhti khud', on: 'Haan', off: 'Nahin', vo: 'Ustad ki awaaz (shabash wagaira)', tries: 'Ghalti par kitni baar dobara', rec: 'Ustad ki awaaz record karein', recS: 'Har khana apni awaaz mein record karein', upd: 'Update check karein', reset: 'Progress mitayein', resetQ: 'Sach mein saari progress mitani hai?', from: 'Kahan se', to: 'kahan tak', pickFrom: 'Jis khane se shuru karna hai us par tap karein', pickTo: 'Ab aakhri khane par tap karein', all: 'Poori takhti', stop: 'Rukein', speakNow: 'Ab padhiye…', listenNow: 'Ghaur se suniye…', wrong: 'Ghalat — dobara padhiye', right: 'Shabash!', heardT: 'Suna gaya', skip: 'Aage chalein', retry: 'Phir se koshish', result: 'Natija', firstTry: 'Pehli baar mein sahi', mistakes: 'Ghaltiyan', again: 'Ghalat khane phir se', close: 'Band karein', noMic: 'Is phone mein awaaz pehchanne ka system nahi mila. Google app / Speech Services update karein.', micNo: 'Mic ki ijazat dijiye', noA: 'Is khane ki awaaz jald aayegi — abhi phone ki awaaz', heard: 'suna', good: 'sahi', tap: 'Tap: suniye · Lamba dabayein: padh kar check', play: 'Poori takhti suniye', mash: 'MashaAllah! Takhti mukammal', note: 'Note: akele harfon mein phone kabhi kabhi theek se nahi pehchanta — ustad saath ho to behtar.' },
-  ur: { hj: 'ہجے (با زبر بَ)', hjA: 'تختی ۳–۱۳', hjY: 'ہر جگہ', hjN: 'صرف رواں', hT: 'نورانی قاعدہ — آپ کا استاد', hD: 'ہر حرف اور لفظ پر ٹیپ کریں — سنیے۔ مائک سے پڑھیے — صحیح ہو تو ہرا، غلط ہو تو لال۔ جب تک صحیح نہ ہو، آگے نہیں۔', go: 'شروع کریں', cont: 'جاری رکھیں · تختی ', sec: 'تختیاں', takhti: 'تختی', page: 'صفحہ', done: 'مکمل', m1: 'پڑھیے', m1s: 'ٹیپ کریں اور سنیے', m2: 'سبق سنائیے', m2s: 'بچہ پڑھے، ایپ چیک کرے', m3: 'استاد کے ساتھ', m3s: 'استاد پڑھے، بچہ دہرائے', hid: 'ہدایات', hidAll: 'ہدایات (شروع کی باتیں)', listen: 'سنیے', set: 'ترتیبات', lang: 'زبان', rep: 'ہر لفظ کتنی بار', auto: 'اگلی تختی خود', on: 'ہاں', off: 'نہیں', vo: 'استاد کی آواز (شاباش وغیرہ)', tries: 'غلطی پر کتنی بار دوبارہ', rec: 'استاد کی آواز ریکارڈ کریں', recS: 'ہر خانہ اپنی آواز میں ریکارڈ کریں', upd: 'اپڈیٹ چیک کریں', reset: 'پروگریس مٹائیں', resetQ: 'کیا واقعی ساری پروگریس مٹانی ہے؟', from: 'کہاں سے', to: 'کہاں تک', pickFrom: 'جس خانے سے شروع کرنا ہے اس پر ٹیپ کریں', pickTo: 'اب آخری خانے پر ٹیپ کریں', all: 'پوری تختی', stop: 'رکیں', speakNow: 'اب پڑھیے…', listenNow: 'غور سے سنیے…', wrong: 'غلط — دوبارہ پڑھیے', right: 'شاباش!', heardT: 'سنا گیا', skip: 'آگے چلیں', retry: 'پھر سے کوشش', result: 'نتیجہ', firstTry: 'پہلی بار میں صحیح', mistakes: 'غلطیاں', again: 'غلط خانے پھر سے', close: 'بند کریں', noMic: 'اس فون میں آواز پہچاننے کا نظام نہیں ملا۔', micNo: 'مائک کی اجازت دیجیے', noA: 'اس خانے کی آواز جلد آئے گی — ابھی فون کی آواز', heard: 'سنا', good: 'صحیح', tap: 'ٹیپ: سنیے · لمبا دبائیں: پڑھ کر چیک', play: 'پوری تختی سنیے', mash: 'ماشاءاللہ! تختی مکمل', note: 'نوٹ: اکیلے حرفوں میں فون کبھی کبھی ٹھیک سے نہیں پہچانتا۔' },
-  en: { hj: 'Spelling (hijje)', hjA: 'Lessons 3–13', hjY: 'Everywhere', hjN: 'Fluent only', hT: 'Noorani Qaida — your teacher', hD: 'Tap any letter or word to hear it. Read into the mic — green if right, red if wrong. You move on only when it is right.', go: 'Start', cont: 'Continue · Lesson ', sec: 'Lessons (Takhti)', takhti: 'Lesson', page: 'Page', done: 'done', m1: 'Read', m1s: 'Tap and listen', m2: 'Recite lesson', m2s: 'Child reads, app checks', m3: 'With teacher', m3s: 'Teacher reads, child repeats', hid: 'Notes', hidAll: 'Teacher notes (introduction)', listen: 'Listen', set: 'Settings', lang: 'Language', rep: 'Repeat each item', auto: 'Next lesson automatically', on: 'On', off: 'Off', vo: 'Teacher voice (praise etc.)', tries: 'Retries on a mistake', rec: 'Record teacher voice', recS: 'Record every box in your own voice', upd: 'Check for update', reset: 'Reset progress', resetQ: 'Really erase all progress?', from: 'From', to: 'to', pickFrom: 'Tap the box to start from', pickTo: 'Now tap the last box', all: 'Whole lesson', stop: 'Stop', speakNow: 'Now read…', listenNow: 'Listen carefully…', wrong: 'Wrong — read again', right: 'Well done!', heardT: 'Heard', skip: 'Move on', retry: 'Try again', result: 'Result', firstTry: 'Right first time', mistakes: 'Mistakes', again: 'Practise mistakes', close: 'Close', noMic: 'No speech recognition on this phone.', micNo: 'Please allow the microphone', noA: 'Audio for this box is coming — phone voice for now', heard: 'heard', good: 'correct', tap: 'Tap: listen · Long press: read & check', play: 'Play whole lesson', mash: 'MashaAllah! Lesson complete', note: 'Note: for single letters the phone does not always recognise well.' }
+  ru: { th: 'Rang (theme)', thL: 'Roshan', thD: 'Andhera', hj: 'Hijje (baa zabar ba)', hjA: 'Takhti 3–13', hjY: 'Har jagah', hjN: 'Sirf rawaan', hT: 'Noorani Qaida — aap ka ustad', hD: 'Har harf aur lafz par tap karein — suniye. Mic se padhiye — sahi ho to hara, ghalat ho to laal. Jab tak sahi na ho, aage nahi.', go: 'Shuru karein', cont: 'Jaari rakhein · Takhti ', sec: 'Takhtiyan', takhti: 'Takhti', page: 'Safha', done: 'mukammal', m1: 'Parhiye', m1s: 'Tap karein aur suniye', m2: 'Sabak sunaiye', m2s: 'Bachcha padhe, app check kare', m3: 'Ustad ke saath', m3s: 'Ustad padhe, bachcha dohraye', hid: 'Hidayaat', hidAll: 'Hidayaat (shuru ki baatein)', listen: 'Suniye', set: 'Settings', lang: 'Zaban', rep: 'Har lafz kitni baar', auto: 'Agli takhti khud', on: 'Haan', off: 'Nahin', vo: 'Ustad ki awaaz (shabash wagaira)', tries: 'Ghalti par kitni baar dobara', rec: 'Ustad ki awaaz record karein', recS: 'Har khana apni awaaz mein record karein', upd: 'Update check karein', reset: 'Progress mitayein', resetQ: 'Sach mein saari progress mitani hai?', from: 'Kahan se', to: 'kahan tak', pickFrom: 'Jis khane se shuru karna hai us par tap karein', pickTo: 'Ab aakhri khane par tap karein', all: 'Poori takhti', stop: 'Rukein', speakNow: 'Ab padhiye…', listenNow: 'Ghaur se suniye…', wrong: 'Ghalat — dobara padhiye', right: 'Shabash!', heardT: 'Suna gaya', skip: 'Aage chalein', retry: 'Phir se koshish', result: 'Natija', firstTry: 'Pehli baar mein sahi', mistakes: 'Ghaltiyan', again: 'Ghalat khane phir se', close: 'Band karein', noMic: 'Is phone mein awaaz pehchanne ka system nahi mila. Google app / Speech Services update karein.', micNo: 'Mic ki ijazat dijiye', noA: 'Is khane ki awaaz jald aayegi — abhi phone ki awaaz', heard: 'suna', good: 'sahi', tap: 'Tap: suniye · Lamba dabayein: padh kar check', play: 'Poori takhti suniye', mash: 'MashaAllah! Takhti mukammal', note: 'Note: akele harfon mein phone kabhi kabhi theek se nahi pehchanta — ustad saath ho to behtar.' },
+  ur: { th: 'رنگ', thL: 'روشن', thD: 'اندھیرا', hj: 'ہجے (با زبر بَ)', hjA: 'تختی ۳–۱۳', hjY: 'ہر جگہ', hjN: 'صرف رواں', hT: 'نورانی قاعدہ — آپ کا استاد', hD: 'ہر حرف اور لفظ پر ٹیپ کریں — سنیے۔ مائک سے پڑھیے — صحیح ہو تو ہرا، غلط ہو تو لال۔ جب تک صحیح نہ ہو، آگے نہیں۔', go: 'شروع کریں', cont: 'جاری رکھیں · تختی ', sec: 'تختیاں', takhti: 'تختی', page: 'صفحہ', done: 'مکمل', m1: 'پڑھیے', m1s: 'ٹیپ کریں اور سنیے', m2: 'سبق سنائیے', m2s: 'بچہ پڑھے، ایپ چیک کرے', m3: 'استاد کے ساتھ', m3s: 'استاد پڑھے، بچہ دہرائے', hid: 'ہدایات', hidAll: 'ہدایات (شروع کی باتیں)', listen: 'سنیے', set: 'ترتیبات', lang: 'زبان', rep: 'ہر لفظ کتنی بار', auto: 'اگلی تختی خود', on: 'ہاں', off: 'نہیں', vo: 'استاد کی آواز (شاباش وغیرہ)', tries: 'غلطی پر کتنی بار دوبارہ', rec: 'استاد کی آواز ریکارڈ کریں', recS: 'ہر خانہ اپنی آواز میں ریکارڈ کریں', upd: 'اپڈیٹ چیک کریں', reset: 'پروگریس مٹائیں', resetQ: 'کیا واقعی ساری پروگریس مٹانی ہے؟', from: 'کہاں سے', to: 'کہاں تک', pickFrom: 'جس خانے سے شروع کرنا ہے اس پر ٹیپ کریں', pickTo: 'اب آخری خانے پر ٹیپ کریں', all: 'پوری تختی', stop: 'رکیں', speakNow: 'اب پڑھیے…', listenNow: 'غور سے سنیے…', wrong: 'غلط — دوبارہ پڑھیے', right: 'شاباش!', heardT: 'سنا گیا', skip: 'آگے چلیں', retry: 'پھر سے کوشش', result: 'نتیجہ', firstTry: 'پہلی بار میں صحیح', mistakes: 'غلطیاں', again: 'غلط خانے پھر سے', close: 'بند کریں', noMic: 'اس فون میں آواز پہچاننے کا نظام نہیں ملا۔', micNo: 'مائک کی اجازت دیجیے', noA: 'اس خانے کی آواز جلد آئے گی — ابھی فون کی آواز', heard: 'سنا', good: 'صحیح', tap: 'ٹیپ: سنیے · لمبا دبائیں: پڑھ کر چیک', play: 'پوری تختی سنیے', mash: 'ماشاءاللہ! تختی مکمل', note: 'نوٹ: اکیلے حرفوں میں فون کبھی کبھی ٹھیک سے نہیں پہچانتا۔' },
+  en: { th: 'Theme', thL: 'Light', thD: 'Dark', hj: 'Spelling (hijje)', hjA: 'Lessons 3–13', hjY: 'Everywhere', hjN: 'Fluent only', hT: 'Noorani Qaida — your teacher', hD: 'Tap any letter or word to hear it. Read into the mic — green if right, red if wrong. You move on only when it is right.', go: 'Start', cont: 'Continue · Lesson ', sec: 'Lessons (Takhti)', takhti: 'Lesson', page: 'Page', done: 'done', m1: 'Read', m1s: 'Tap and listen', m2: 'Recite lesson', m2s: 'Child reads, app checks', m3: 'With teacher', m3s: 'Teacher reads, child repeats', hid: 'Notes', hidAll: 'Teacher notes (introduction)', listen: 'Listen', set: 'Settings', lang: 'Language', rep: 'Repeat each item', auto: 'Next lesson automatically', on: 'On', off: 'Off', vo: 'Teacher voice (praise etc.)', tries: 'Retries on a mistake', rec: 'Record teacher voice', recS: 'Record every box in your own voice', upd: 'Check for update', reset: 'Reset progress', resetQ: 'Really erase all progress?', from: 'From', to: 'to', pickFrom: 'Tap the box to start from', pickTo: 'Now tap the last box', all: 'Whole lesson', stop: 'Stop', speakNow: 'Now read…', listenNow: 'Listen carefully…', wrong: 'Wrong — read again', right: 'Well done!', heardT: 'Heard', skip: 'Move on', retry: 'Try again', result: 'Result', firstTry: 'Right first time', mistakes: 'Mistakes', again: 'Practise mistakes', close: 'Close', noMic: 'No speech recognition on this phone.', micNo: 'Please allow the microphone', noA: 'Audio for this box is coming — phone voice for now', heard: 'heard', good: 'correct', tap: 'Tap: listen · Long press: read & check', play: 'Play whole lesson', mash: 'MashaAllah! Lesson complete', note: 'Note: for single letters the phone does not always recognise well.' }
 };
 const T = k => (L[S.ui] || L.ru)[k] || L.ru[k] || k;
 const LEG = [['g', 'Mota harf', 'موٹا حرف', 'Heavy'], ['o', 'Ikhfa', 'اخفا', 'Ikhfa'], ['b', 'Qalqala', 'قلقلہ', 'Qalqalah'], ['r', 'Ghunna', 'غنہ', 'Ghunnah']];
@@ -40,6 +40,10 @@ function colourWord(s, mode, idx) {
   for (let i = 0; i < g.length; i++) {
     const x = g[i], c = x[0];
     if (c === ' ') { out.push(' '); continue; }
+    /* laam + alif must stay in one span so the لا ligature is drawn */
+    if (c === 'ل' && g[i + 1] && 'اآأإٱ'.includes(g[i + 1][0])) {
+      out.push([mode === 'auto' ? 'm' : (alt++ % 2 ? 'k' : 'm'), x + g[i + 1], i, 2]); i++; continue;
+    }
     let col = null;
     if (mode !== 'alt') {
       const sk = has(x, 'ْ'), sh = has(x, 'ّ'), kas = has(x, 'ِ') || has(x, 'ٍ'), tanw = /[ً-ٍ]/.test(x);
@@ -51,15 +55,16 @@ function colourWord(s, mode, idx) {
       else if (c === 'ر') { if (kas) col = 'k'; else if (sk) { const pv = g[i - 1] || ''; col = has(pv, 'ِ') ? 'k' : 'g'; } else col = 'g'; }
     }
     if (!col) col = mode === 'auto' ? 'm' : (alt++ % 2 ? 'k' : 'm');
-    out.push([col, x]);
+    out.push([col, x, i, 1]);
   }
   let h = '';
   for (let i = 0; i < out.length; i++) {
     const it = out[i]; if (typeof it === 'string') { h += it; continue; }
     const pv = out[i - 1], nx = out[i + 1];
     const jp = pv && typeof pv !== 'string' && pv[0] !== it[0] && joinsNext(pv[1][0]) && joinsPrev(it[1][0]);
-    const jn = nx && typeof nx !== 'string' && nx[0] !== it[0] && joinsNext(it[1][0]) && joinsPrev(nx[1][0]);
-    h += `<span class="c-${it[0]}">${jp ? '‍' : ''}${esc(it[1])}${jn ? '‍' : ''}</span>`;
+    const lb = [...it[1]].filter(ch => !MARK.test(ch)).pop() || it[1][0];
+    const jn = nx && typeof nx !== 'string' && nx[0] !== it[0] && joinsNext(lb) && joinsPrev(nx[1][0]);
+    h += `<span class="c-${it[0]}" data-g="${it[2]}" data-gn="${it[3]}">${jp ? '‍' : ''}${esc(it[1])}${jn ? '‍' : ''}</span>`;
   }
   return h;
 }
@@ -72,12 +77,12 @@ function fsFor(cols, cells) {
 }
 function takhtiHTML(t) {
   if (!t) return '';
-  let h = `<div class="book" data-t="${t.n}"><span class="bno">${t.pages[0] || ''}</span><div class="bin">`, wi = 0;
-  h += `<div class="ban"><div>${t.n < 29 ? `تختی نمبر <span class="n">${t.n}</span> ` : ''}${esc(t.title)}</div></div>`;
+  let h = `<div class="book" data-t="${t.n}"><i class="cn tl"></i><i class="cn tr"></i><i class="cn bl"></i><i class="cn br"></i><span class="bno">${t.pages[0] || ''}</span><div class="bin">`, wi = 0;
+  h += `<div class="ban"><div><i class="bi">${t.n < 29 ? `<span class="tno">تختی نمبر</span><span class="n">${t.n}</span> ` : ''}${esc(t.title)}</i></div></div>`;
   if (t.hid) h += `<button class="hidbtn" data-hid="${t.n}">📖 ${T('hid')} · ${T('takhti')} ${t.n < 29 ? t.n : ''}</button>`;
   let ri = 0;
   for (const b of t.blocks) {
-    if (b.t === 'bism') h += `<div class="ban bism"><div>بِسْمِ اللّٰهِ الرَّحْمٰنِ الرَّحِيْمِ</div></div>`;
+    if (b.t === 'bism') h += `<div class="ban bism"><div><i class="bi">بِسْمِ اللّٰهِ الرَّحْمٰنِ الرَّحِيْمِ</i></div></div>`;
     else if (b.t === 'dua') h += `<div class="dua"><span class="w ${clsOf(b.it.id)}" data-id="${b.it.id}">${esc(b.it.ar)}</span></div>`;
     else if (b.t === 'rule') { h += `<div class="hid rule" data-rule="${t.n}-${ri}"><button class="rsay" aria-label="listen">🔊</button>${ruleHTML(b.ur)}</div>`; ri++; }
     else if (b.t === 'sub') h += `<div class="subh"><span>${esc(b.ur)}</span></div>`;
@@ -125,6 +130,7 @@ function takhtiHTML(t) {
 function ruleHTML(t) { return esc(t).replace(/(تنبیہ|نوٹ|ہدایت|قاعدہ|ہجے)\s*:/g, m => `<b class="h">${m}</b>`).replace(/(\([۰-۹0-9]+\))/g, '<b class="h">$1</b>'); }
 
 /* ---------- screens ---------- */
+function applyTheme() { const r = document.documentElement; r.classList.toggle('lt', S.th !== 'd'); r.classList.toggle('dk', S.th === 'd'); }
 function show(id) { $$('.scr').forEach(s => s.classList.toggle('on', s.id === id)); }
 function home() {
   stopAll(); show('home');
@@ -138,10 +144,10 @@ function home() {
     return `<button class="tk ${S.done[t.n] ? 'done' : ''}" data-tk="${t.n}" style="animation-delay:${(i + 1) * 30}ms"><span class="no"><b>${t.n < 29 ? t.n : '★'}</b></span><span class="tt"><b class="nq">${esc(t.title)}</b><small>${esc(S.ui === 'en' ? TKE[t.n] : TK[t.n] || '')} · ${ids.length}</small></span><span class="ex">${esc(firstText(t))}</span><i class="bar" style="width:${pct}%"></i></button>`;
   }).join('');
   $('#bUpd').textContent = T('upd'); $('#ver').textContent = verName();
-  document.documentElement.dir = S.ui === 'ur' ? 'rtl' : 'ltr';
+  document.documentElement.dir = S.ui === 'ur' ? 'rtl' : 'ltr'; applyTheme();
 }
 function itemIds(t) { const o = []; t.blocks.forEach(b => { if (b.it) o.push(b.it.id); (b.rows || []).forEach(r => { if (r.cells) r.cells.forEach(c => c.id && o.push(c.id)); if (r.r) o.push(r.r.id); }); }); return o; }
-function firstText(t) { for (const b of t.blocks) { if (b.t === 'grid' || b.t === 'lines') { const c = b.rows[0].cells.filter(x => x.ar).slice(0, b.t === 'grid' ? 3 : 1).map(x => x.ar); return c.join(' '); } if (b.it) return b.it.ar.split(' ').slice(0, 2).join(' '); if (b.t === 'table') return b.rows[0].r.ar; } return ''; }
+function firstText(t) { for (const b of t.blocks) { if (b.t === 'grid' || b.t === 'lines') { const c = b.rows[0].cells.filter(x => x.ar).slice(0, b.t === 'grid' ? 3 : 1).map(x => x.ar); return c.join(' '); } if (b.it && b.t !== 'dua') return b.it.ar.split(' ').slice(0, 2).join(' '); if (b.t === 'table') return b.rows[0].r.ar; } return ''; }
 function verName() { try { return window.QaidaAndroid && QaidaAndroid.appVersion ? 'v1.0.' + QaidaAndroid.appVersion() : 'web'; } catch (e) { return ''; } }
 
 let curT = 1;
@@ -209,31 +215,52 @@ const clip = k => AU[k] ? 'a/' + AU[k] : null;
 function hijjeOn(id) { if (S.hj === 2) return false; const n = +String(id).split('-')[0]; if (S.hj === 1) return n >= 2; return n >= 3 && n <= 13; }
 function hijjeList(id) {
   const it = itemAr(id); if (!it || !it.ar) return null;
-  const words = it.ar.trim().split(/\s+/); if (words.length > 3) return null;
-  const out = []; let any = false;
-  for (const w of words) {
-    const g = graphemes(w).filter(x => x !== 'ـ'); let prev = '';
-    for (const x of g) {
-      const c = x[0], ms = [...x.slice(1)].map(ch => MK[ch]).filter(Boolean);
-      /* alif carrying a vowel is read as hamza: "hamza zabar a" */
-      const base = c === 'ا' && ms.some(m => m !== 'madd') ? 'ء' : NORM[c] || c; const nm = clip('n:' + base); if (!nm) return null; out.push(nm);
-      /* tashdeed first, then the vowel — "baa tashdeed zabar" */
-      ms.sort((a, b) => (b === 'tashdeed') - (a === 'tashdeed'));
-      ms.forEach(m => { const u = clip('m:' + m); if (u) { out.push(u); any = true; } });
-      let s = null;
-      if (ms.some(m => m !== 'jazm' && m !== 'tashdeed')) { s = clip('t:' + x) || clip('t:' + x.replace('ّ', '')); prev = x; }
-      else { prev += x; s = clip('t:' + prev); }
-      if (s && out[out.length - 1] !== s) out.push(s);
-    }
-  }
+  const all = graphemes(it.ar.trim()); if (all.filter(x => x === ' ').length > 2) return null;
+  const out = []; let any = false, prev = '';
+  const push = (u, g, cap) => { if (u && !(out.length && out[out.length - 1].u === u)) out.push({ u, g, cap }); };
+  all.forEach((x, gi) => {
+    if (x === ' ' || x === 'ـ') { prev = ''; return; }
+    if (out === null) return;
+    const c = x[0], ms = [...x.slice(1)].map(ch => MK[ch]).filter(Boolean);
+    /* alif carrying a vowel is read as hamza: "hamza zabar a" */
+    const base = c === 'ا' && ms.some(m => m !== 'madd') ? 'ء' : NORM[c] || c; const nm = clip('n:' + base);
+    if (!nm) { any = null; return; }
+    push(nm, gi, [x, RN[base] || '']);
+    /* tashdeed first, then the vowel — "baa tashdeed zabar" */
+    ms.sort((a, b) => (b === 'tashdeed') - (a === 'tashdeed'));
+    ms.forEach(m => { const u = clip('m:' + m); if (u) { push(u, gi, [x, (RN[base] || '') + ' · ' + (MR[m] || m)]); if (any !== null) any = true; } });
+    let s = null;
+    if (ms.some(m => m !== 'jazm' && m !== 'tashdeed')) { s = clip('t:' + x) || clip('t:' + x.replace('ّ', '')); prev = x; }
+    else { prev += x; s = clip('t:' + prev); }
+    if (s) push(s, gi, [prev || x, '']);
+  });
   if (!any) return null;
-  const whole = srcOf(id); if (whole && !whole.blob && !whole.start && out[out.length - 1] !== whole.url) out.push(whole.url);
+  const whole = srcOf(id); if (whole && !whole.blob && !whole.start) push(whole.url, -1, [it.ar, '']);
   return out;
 }
-function playUrls(id, urls) {
+const RN = { 'ا': 'Alif', 'ب': 'Baa', 'ت': 'Taa', 'ث': 'Saa', 'ج': 'Jeem', 'ح': 'Haa', 'خ': 'Khaa', 'د': 'Daal', 'ذ': 'Zaal', 'ر': 'Raa', 'ز': 'Zaa', 'س': 'Seen', 'ش': 'Sheen', 'ص': 'Saad', 'ض': 'Zaad', 'ط': 'Toa', 'ظ': 'Zoa', 'ع': 'Ain', 'غ': 'Ghain', 'ف': 'Faa', 'ق': 'Qaaf', 'ك': 'Kaaf', 'ل': 'Laam', 'م': 'Meem', 'ن': 'Noon', 'و': 'Waao', 'ه': 'Haa', 'ء': 'Hamza', 'ي': 'Yaa' };
+const MR = { zabar: 'zabar', zer: 'zer', pesh: 'pesh', dozabar: 'do zabar', dozer: 'do zer', dopesh: 'do pesh', jazm: 'jazm', tashdeed: 'tashdeed', kzabar: 'khada zabar', kzer: 'khadi zer', upesh: 'ulta pesh', madd: 'madd' };
+function hjMark(id, g) {
+  $$('.hjon').forEach(e => e.classList.remove('hjon'));
+  const el = itemEl(id); if (!el || g < 0) return;
+  const sp = [...el.querySelectorAll('[data-g]')].find(s => g >= +s.dataset.g && g < +s.dataset.g + (+s.dataset.gn || 1));
+  if (sp) sp.classList.add('hjon');
+}
+function hjCap(cap) {
+  let c = $('.hjcap'); if (!cap) { c && c.remove(); return; }
+  if (!c) { c = document.createElement('div'); c.className = 'hjcap'; document.body.appendChild(c); }
+  c.innerHTML = `<b>${esc(cap[0])}</b>${cap[1] ? `<span>${esc(cap[1])}</span>` : ''}`;
+}
+function playUrls(id, steps) {
   return new Promise(res => {
     let i = 0;
-    const nx = () => { if (playing !== id) return res(false); if (i >= urls.length) return res(true); A.onended = () => setTimeout(nx, 90); A.onerror = () => { i++; nx(); }; A.src = urls[i++]; const p = A.play(); if (p && p.catch) p.catch(() => { }); };
+    const end = v => { hjMark(id, -1); hjCap(null); res(v); };
+    const nx = () => {
+      if (playing !== id) return end(false); if (i >= steps.length) return end(true);
+      const s = typeof steps[i] === 'string' ? { u: steps[i], g: -1 } : steps[i]; i++;
+      hjMark(id, s.g); hjCap(s.cap && s.g >= 0 ? s.cap : null);
+      A.onended = () => setTimeout(nx, 120); A.onerror = () => nx(); A.src = s.u; const p = A.play(); if (p && p.catch) p.catch(() => { });
+    };
     nx();
   });
 }
@@ -359,6 +386,7 @@ function settings() {
     `<div class="row"><label>${T('lang')}</label>${seg('ui', [['ru', 'Roman Urdu'], ['ur', 'اردو'], ['en', 'English']])}</div>` +
     `<div class="row"><label>${T('rep')}</label>${seg('rep', [[1, '1'], [2, '2'], [3, '3'], [5, '5']])}</div>` +
     `<div class="row"><label>${T('tries')}</label>${seg('tries', [[2, '2'], [3, '3'], [5, '5']])}</div>` +
+    `<div class="row"><label>${T('th')}</label>${seg('th', [['l', '☀️ ' + T('thL')], ['d', '🌙 ' + T('thD')]])}</div>` +
     `<div class="row"><label>${T('hj')}</label>${seg('hj', [[0, T('hjA')], [1, T('hjY')], [2, T('hjN')]])}</div>` +
     `<div class="row"><label>${T('vo')}</label>${seg('vo', [[1, T('on')], [0, T('off')]])}</div>` +
     `<div class="row"><label>${T('auto')}</label>${seg('auto', [[1, T('on')], [0, T('off')]])}</div>` +
@@ -367,7 +395,7 @@ function settings() {
     `<button class="btn r" data-a="reset">${T('reset')}</button>` +
     `<p class="note">Noorani Qaida · Quranic Science · ${verName()}<br>Mukammal Noorani Qaida — Majlis Dawat-ul-Haq, Hardoi</p>`,
     e => {
-      const b = e.target.closest('[data-k]'); if (b) { const k = b.dataset.k, v = b.dataset.v; S[k] = isNaN(+v) ? v : +v; save(); C().setVoice(!!S.vo); settings(); refresh(); return; }
+      const b = e.target.closest('[data-k]'); if (b) { const k = b.dataset.k, v = b.dataset.v; S[k] = isNaN(+v) ? v : +v; save(); applyTheme(); C().setVoice(!!S.vo); settings(); refresh(); return; }
       const a = e.target.closest('[data-a]'); if (!a) return;
       if (a.dataset.a === 'upd') window.QaidaUpdate && QaidaUpdate.check(true);
       if (a.dataset.a === 'rec') { closeSheet(); window.QaidaRec && QaidaRec.open(curT); }
@@ -447,7 +475,7 @@ function back() {
   return false;
 }
 window.__qaidaBack = back;
-window.Qaida = { S, save, toast, BYT, ORDER, takhtiHTML, fit, srcOf, itemAr, items: () => pgItems(), cur: () => curT, refresh, stop: stopAll, T, A, graphemes, openTakhti, runMode, practiseOne, back, hijjeList, playItem };
+window.Qaida = { S, save, toast, BYT, ORDER, takhtiHTML, fit, srcOf, itemAr, items: () => pgItems(), cur: () => curT, refresh, stop: stopAll, T, A, graphemes, openTakhti, runMode, practiseOne, back, hijjeList, playItem, AU: () => AU };
 
 (async () => {
   await load(); bind(); home(); C().setVoice(!!S.vo);

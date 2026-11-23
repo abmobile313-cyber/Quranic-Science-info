@@ -34,11 +34,11 @@ function segs(rec) { /* events: [{i, a:'s'|'e', t}] — the last start of an ite
 all().then(rs => { rs.forEach(index); try { Q() && Q().refresh && document.getElementById('pg').classList.contains('on') && Q().refresh(); } catch (e) { } }).catch(() => { });
 
 /* ---- recorder UI ---- */
-let el = null, st = null;
+let el = null, st = null, ONLY = false;
 function open(p) {
   close(); const q = Q(); q.stop();
   el = document.createElement('div'); el.id = 'rec';
-  el.innerHTML = `<div class="rtop"><button class="ib" data-r="close" aria-label="back"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button><b>🎙 ${t('t')}</b><button class="ib" data-r="list" aria-label="list"><svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h10"/></svg></button></div>
+  el.innerHTML = `<div class="rtop"><button class="ib" data-r="close" aria-label="back"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button><b>🎙 ${t('t')}</b><button class="ib" data-r="only" aria-label="only remaining" style="font-size:12px;width:auto;padding:0 10px">${ONLY ? '★ Baqi' : '☆ Sab'}</button><button class="ib" data-r="list" aria-label="list"><svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h10"/></svg></button></div>
   <div class="rpage"></div>
   <div class="rpanel"><div class="rinfo"><span class="ri"></span><span class="rt"></span></div><div class="lvl"><i></i></div><div class="cur"></div><div class="rbtns"></div><p class="rh" style="color:var(--mut);font-size:12px;margin:8px 0 0">${t('help')}</p></div>`;
   document.body.appendChild(el);
@@ -49,7 +49,9 @@ function open(p) {
 function load(p) {
   const q = Q(); st.p = p; st.i = 0; st.ev = []; st.on = false;
   el.querySelector('.rpage').innerHTML = q.takhtiHTML(q.BYT[p]); q.fit(el.querySelector('.rpage'));
-  st.ids = [...el.querySelectorAll('.rpage [data-id]')].map(e => e.dataset.id);
+  const EL = new Set((q.AU && q.AU()._el) || []);
+  el.querySelectorAll('.rpage [data-id]').forEach(e => EL.has(e.dataset.id) && e.classList.add('elx'));
+  st.ids = [...el.querySelectorAll('.rpage [data-id]')].map(e => e.dataset.id).filter(id => !ONLY || EL.has(id));
   paint();
 }
 function paint() {
@@ -133,6 +135,7 @@ function onClick(e) {
   const b = e.target.closest('[data-r]'); if (!b) return; const a = b.dataset.r;
   if (a === 'close') close(); else if (a === 'start') start(); else if (a === 'next') next(); else if (a === 'redo') redo(); else if (a === 'stop') finish();
   else if (a === 'list') listView();
+  else if (a === 'only') { if (st.on) return; ONLY = !ONLY; b.textContent = ONLY ? '★ Baqi' : '☆ Sab'; load(st.p); }
   else if (a === 'prevp' || a === 'nextp') { const O = Q().ORDER, i = O.indexOf(st.p) + (a === 'nextp' ? 1 : -1); if (i >= 0 && i < O.length) load(O[i]); }
 }
 function close() { if (!el) return; if (st && st.on) finish(); el.remove(); el = null; const sh = document.getElementById('sheet'); if (sh && !sh.hidden && sh.querySelector('[data-exp]')) { sh.hidden = true; sh.innerHTML = ''; } try { Q().refresh(); } catch (e) { } }

@@ -1,0 +1,125 @@
+/* ===== Noorani Qaida — book look (light + dark), modelled on the classic coloured qaida ===== */
+:root{--teal:#1d8f8c;--teal2:#0f6f6c;--goldl:#e9c45a;--goldd:#a87916;
+--p1:#fdf3c2;--p2:#d7ebfa;--p3:#fbdcc6;--p4:#dcefd0;--p5:#f8d6e6;--pb:#d9c79a;
+--ban:linear-gradient(90deg,#c2187a 0%,#8a2c9c 30%,#1f8f9a 66%,#2f9e48 100%)}
+html.lt{--bg:#f4ecda;--bg2:#efe3c8;--panel:#fffaf0;--line:#d9c79a;--gold:#b8861c;--gold2:#8a5d10;--mar:#c2187a;--txt:#2b2116;--mut:#7d6a4c;
+--paper:#fdf9ee;--cell:#fffdf6;--grid:#d9c79a;--k:#1d1a17;--m:#c2187a;--p:#7b2ea6;--g:#11883c;--o:#e87400;--b:#1f6fd0;--r:#d7262b}
+html.dk{--bg:#0c151b;--bg2:#101d25;--panel:#15242d;--line:#2c4a52;--gold:#e3b95a;--gold2:#f2d58a;--mar:#8a1550;--txt:#efe6d2;--mut:#9fb2b4;
+--paper:#13212a;--cell:#1a2b35;--grid:#2c4650;--k:#f3ead6;--m:#ff6fb8;--p:#c79bff;--g:#4fd77f;--o:#ffa940;--b:#6fb7ff;--r:#ff6b6b;
+--p1:#3a3520;--p2:#1d3446;--p3:#41291e;--p4:#22381f;--p5:#3d2232;--pb:#3c5560}
+
+/* ---- app chrome ---- */
+html.lt body{background:var(--bg)}
+html.lt .scr{background:radial-gradient(120% 70% at 50% -10%,#fffaf0 0,#f4ecda 55%,#eadcbc 100%)}
+html.dk .scr{background:radial-gradient(120% 70% at 50% -10%,#16303a 0,#0c151b 60%)}
+.scr::before{content:'';position:absolute;inset:0;pointer-events:none;opacity:.07;background:url(icons/corner.svg) 0 0/140px,url(icons/corner.svg) 100% 100%/140px;background-repeat:no-repeat}
+html.lt .ib::before,html.lt .ib::after{background:#fffaf0;border-color:#d9c79a}
+html.lt .ib{color:#8a5d10}
+html.lt .ib.gold{color:#2a1604}html.lt .ib.gold::before,html.lt .ib.gold::after{background:linear-gradient(145deg,#f0c75a,#c8932a);border-color:#f6dc8a}
+html.lt .ib:active::before,html.lt .ib:active::after,html.lt .ib.on::before,html.lt .ib.on::after{background:#f8d6e6}
+.logo{border-radius:12px;box-shadow:0 4px 14px #0003}
+html.lt .ht b{color:#7b2ea6}html.lt .ht small{color:var(--mut)}
+.hero{position:relative;overflow:hidden}
+html.lt .hero{background:linear-gradient(150deg,#ffffff,#fbf2dc);border:1px solid #e3cf98;box-shadow:0 14px 30px #8a5d1022}
+html.dk .hero{background:linear-gradient(150deg,#17313b,#0f1d25);border:1px solid #2c4a52}
+.hero::after{content:'';position:absolute;right:-30px;top:-30px;width:130px;height:130px;background:url(icons/corner.svg) center/contain no-repeat;transform:scaleX(-1);opacity:.55;pointer-events:none}
+html.lt .hero-t h1{color:#7b2ea6}html.lt .hero-t p{color:var(--mut)}
+.hero-pg{background:url(icons/icon-192.png) center/cover!important;border-radius:16px!important;box-shadow:0 10px 24px #0003!important;border:0!important}
+.hero-pg *{display:none}
+.mode{border:0!important;color:#fff}
+.mode.read{background:linear-gradient(150deg,#1f8f9a,#0f5a63)!important}
+.mode.sabak{background:linear-gradient(150deg,#2f9e48,#146b2c)!important}
+.mode.learn{background:linear-gradient(150deg,#c2187a,#7b2ea6)!important}
+html.lt .legend span{background:#fffaf0;border-color:#e3cf98;color:var(--txt)}
+html.lt .sec{color:#c2187a}
+.tk{border-radius:18px!important}
+html.lt .tk{background:#fffdf7;border:1px solid #e6d6a8;box-shadow:0 6px 16px #8a5d1014}
+html.lt .tk:nth-child(5n+1){background:linear-gradient(90deg,#fffdf7 55%,var(--p1))}
+html.lt .tk:nth-child(5n+2){background:linear-gradient(90deg,#fffdf7 55%,var(--p2))}
+html.lt .tk:nth-child(5n+3){background:linear-gradient(90deg,#fffdf7 55%,var(--p3))}
+html.lt .tk:nth-child(5n+4){background:linear-gradient(90deg,#fffdf7 55%,var(--p4))}
+html.lt .tk:nth-child(5n+5){background:linear-gradient(90deg,#fffdf7 55%,var(--p5))}
+html.dk .tk{background:linear-gradient(160deg,#17313b,#11222b);border:1px solid #2c4a52}
+.tk .no::before,.tk .no::after{background:var(--ban)!important}
+.tk .no b{color:#fff!important;text-shadow:0 1px 2px #0006}
+.tk.done .no::before,.tk.done .no::after{background:linear-gradient(145deg,#4ed38a,#11883c)!important}
+html.lt .tk .tt b{color:#2b2116}html.lt .tk .ex{color:#7b2ea6}
+html.lt .pt b{color:#7b2ea6}
+html.lt .pnav{background:linear-gradient(0deg,#efe3c8,#efe3c800)}
+html.lt .sh{background:linear-gradient(180deg,#fffaf0,#f6ecd5);border-color:#e3cf98;color:var(--txt)}
+html.lt .sh-h{background:#fffaf0}html.lt .sh-h b{color:#7b2ea6}
+html.lt .row{border-color:#0000000f}
+html.lt .seg button{background:#fff;border-color:#e3cf98}
+html.lt .btn{background:#fff;border-color:#e3cf98}
+html.lt .btn.r{background:#c0303e;color:#fff;border-color:#c0303e}
+html.lt .ring b{background:#fffaf0}
+html.lt #mbar b{color:#7b2ea6}html.lt #mbar i{background:#0000001a}
+html.lt #toast{background:#2b2116ee}
+html.lt #upd .upd-c{background:linear-gradient(180deg,#fffaf0,#f6ecd5);color:var(--txt)}
+html.lt #rec{background:var(--bg)}html.lt #rec .rpanel{background:#fffaf0;border-color:#e3cf98}html.lt #rec .cur{color:#7b2ea6}
+html.lt #splash{background:#f4ecda}
+
+/* ---- the page (book) ---- */
+.book{background:var(--paper)!important;border-radius:14px!important;padding:26px 16px 30px!important;color:var(--k);
+ box-shadow:0 0 0 2px var(--goldl),0 0 0 9px var(--teal),0 0 0 11px var(--goldl),0 18px 40px #0004!important;margin:14px auto 22px!important}
+html.dk .book{box-shadow:0 0 0 2px #b88a2a,0 0 0 9px #0f5f60,0 0 0 11px #b88a2a,0 18px 40px #0008!important}
+.book::before,.book::after{display:none!important}
+.book>.cn{position:absolute;width:66px;height:66px;background:url(icons/corner.svg) center/contain no-repeat;z-index:3;pointer-events:none}
+.book>.cn.tl{left:-10px;top:-10px}.book>.cn.tr{right:-10px;top:-10px;transform:scaleX(-1)}
+.book>.cn.bl{left:-10px;bottom:-10px;transform:scaleY(-1)}.book>.cn.br{right:-10px;bottom:-10px;transform:scale(-1,-1)}
+.book .bno{top:auto!important;bottom:-21px;border-radius:999px!important;border:2px solid var(--goldl)!important;background:var(--paper)!important;color:var(--k)!important;height:26px!important;line-height:22px!important;font:700 13px/22px system-ui!important;z-index:4!important}
+.book .bno::before{content:'Page '}
+.bin{margin:2px 4px!important}
+/* banner — pointed ribbon with gold rim */
+.ban{background:none!important;box-shadow:none!important;padding:0!important;margin:6px 0 12px!important;filter:drop-shadow(0 4px 6px #0003)}
+.ban>div{background:var(--goldl)!important;border:0!important;outline:0!important;padding:3px!important;clip-path:polygon(4% 0,96% 0,100% 50%,96% 100%,4% 100%,0 50%);border-radius:0!important}
+.ban>div>i.bi{display:block;background:var(--ban);clip-path:polygon(4% 0,96% 0,100% 50%,96% 100%,4% 100%,0 50%);padding:6px 34px;color:#fff;font:400 22px/1.9 NQ,serif;text-shadow:0 2px 3px #0006;font-style:normal}
+.ban>div::before,.ban>div::after{display:none!important}
+.ban .n{background:#fff!important;color:#8a2c9c!important;box-shadow:0 0 0 2px var(--goldl)}
+.ban .tno{font-size:15px;opacity:.95;margin-inline-end:6px}
+.ban.bism>div>i.bi{font:400 26px/1.8 var(--ar)}
+html.dk .ban>div{background:#b88a2a!important}
+/* grids: pastel cards */
+.grid{background:transparent!important;border:0!important;gap:7px!important;margin:8px 0!important}
+.cell{border-radius:12px;border:1.5px solid var(--pb);box-shadow:0 2px 0 #0000000d;background:var(--p1)}
+.grid .cell:nth-child(5n+2){background:var(--p2)}.grid .cell:nth-child(5n+3){background:var(--p3)}
+.grid .cell:nth-child(5n+4){background:var(--p4)}.grid .cell:nth-child(5n+5){background:var(--p5)}
+.cell.e{background:transparent!important;border-color:transparent;box-shadow:none}
+.cell.deco{background:transparent!important;border-color:transparent;box-shadow:none}
+.cell.mk{background:transparent!important;border-color:transparent;box-shadow:none}
+.cell .nm{position:absolute!important;transform:none!important;left:0!important;right:0!important;bottom:4px!important;top:auto!important;text-align:center;font:400 12px/1.4 NQ,serif!important;color:var(--k)!important;opacity:.7}
+.grid:not(.shp) .cell:has(.nm){padding-bottom:22px!important;min-height:calc(var(--ch,64px) + 18px)}
+.grid:not(.shp) .cell{flex-direction:column}
+/* lines */
+.lines{border:0!important;display:flex;flex-direction:column;gap:6px}
+.ln{border:1.5px solid var(--pb)!important;border-radius:12px;background:var(--p1)!important}
+.lines .ln:nth-child(5n+2){background:var(--p2)!important}.lines .ln:nth-child(5n+3){background:var(--p3)!important}
+.lines .ln:nth-child(5n+4){background:var(--p4)!important}.lines .ln:nth-child(5n+5){background:var(--p5)!important}
+/* notes, tables */
+.hid{border-radius:12px;border:1.5px solid var(--pb)!important}
+html.dk .hid{background:#182a33!important;color:#e9e0cc!important}
+html.dk .subh span{background:#182a33;color:#f2d58a;border-color:#b88a2a}
+html.dk .keys b{background:#182a33;border-color:#b88a2a}
+.tbl{border-radius:12px;overflow:hidden}
+html.dk .tbl,html.dk .kal{background:#182a33!important}
+html.dk .tbl td{color:var(--k)}html.dk .ktr,html.dk .foot{color:#b9c6c8!important}
+html.dk .cell.e,html.dk .cell.deco{background:transparent!important}
+.tbl th{background:var(--ban)!important}
+.kn{background:var(--ban)!important}
+.hidbtn{background:var(--ban)!important;box-shadow:0 0 0 2px var(--goldl)}
+.cover{border-radius:12px}
+html.dk .cell:active,html.dk .w:active{background:#2a4450}
+/* states keep high contrast on any pastel */
+.cell.on,.w.on{background:radial-gradient(circle,#fff6cf 0,#ffe082 60%,#ffcf40 100%)!important;color:#1d1a17}
+html.dk .cell.good,html.dk .w.good{background:#174a2c!important}
+html.dk .cell.bad,html.dk .w.bad{background:#5a1b22!important}
+/* hijje: the letter being spelled glows */
+.hjon{background:#ffe066;border-radius:6px;box-shadow:0 0 0 2px #ffb300,0 0 14px #ffcf40;color:#7a0d44!important}
+.hjcap{position:fixed;left:50%;top:calc(64px + env(safe-area-inset-top));transform:translateX(-50%);z-index:46;display:flex;gap:10px;align-items:center;padding:6px 16px;border-radius:999px;background:var(--ban);color:#fff;box-shadow:0 0 0 2px var(--goldl),0 10px 24px #0005;font:600 15px system-ui;white-space:nowrap;animation:up .2s}
+.hjcap b{font:400 30px/1.4 var(--ar)}
+.tk .tt b{line-height:2.1!important}.tk .tt small{margin-top:0!important;position:relative;z-index:1}
+
+#rec .elx{outline:2px dashed #e87400;outline-offset:-3px}
+.keys b{border-radius:12px!important;border:1.5px solid var(--pb)!important;background:var(--p2)!important;box-shadow:0 2px 0 #0000000d}
+.keys b:nth-child(2n){background:var(--p3)!important}.keys b:nth-child(3n){background:var(--p4)!important}
+html.dk .keys b{color:var(--m)!important}

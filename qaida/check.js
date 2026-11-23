@@ -31,6 +31,8 @@ function vowelClash(exp, heard) {
   if (exp.length > 3) return false; const ve = v(exp.slice(1)), vh = v(heard.slice(1));
   return ve && vh && ve[0] !== vh[0];
 }
+const SOFT = { 'ث': 'س', 'ص': 'س', 'ذ': 'ز', 'ظ': 'ز', 'ض': 'د', 'ح': 'ه', 'ط': 'ت', 'ق': 'ك', 'ع': 'ا', 'ء': 'ا', 'ى': 'ي', 'غ': 'خ' };
+const soft = s => [...s].map(c => SOFT[c] || c).join('').replace(/(.)\1+/g, '$1');
 function score(ar, heardList) {
   const vs = variants(ar); let best = 0, bh = '';
   for (const raw of heardList) {
@@ -39,12 +41,15 @@ function score(ar, heardList) {
     for (const h of cands) for (const e of vs) {
       if (!h || !e) continue;
       let r = 1 - lev(e, h) / Math.max(e.length, h.length);
+      /* children + phone recognisers mix close sounds (ث/س, ذ/ز/ظ, ص/س, ح/ه, ط/ت, ض/د, ق/ك, ع/ا/ء): be generous */
+      const se = soft(e), sh = soft(h); r = Math.max(r, (1 - lev(se, sh) / Math.max(se.length, sh.length)) * .95);
+      if (se.length <= 3 && sh[0] === se[0]) r = Math.max(r, .55);
       if (h.length > e.length + 2 && h.includes(e)) r = Math.max(r, .8);
       if (vowelClash(e, h)) r = Math.min(r, .4);
       if (r > best) { best = r; bh = raw; }
     }
   }
-  const len = skel(ar).length, need = len <= 2 ? .5 : len <= 4 ? .6 : .66;
+  const len = skel(ar).length, need = len <= 2 ? .45 : len <= 4 ? .5 : .55;
   return { ok: best >= need, score: best, heard: bh };
 }
 
