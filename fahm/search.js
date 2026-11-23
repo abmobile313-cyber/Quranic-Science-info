@@ -85,7 +85,7 @@
     if (box.dataset.open === '1') { box.dataset.open = '0'; box.innerHTML = ''; return; } box.dataset.open = '1';
     const u = ui(), id = u === 'en' ? 169 : 160, key = id + ':' + s + ':' + a, t = T(); box.innerHTML = `<p class="dim">${esc(t.tafL)}</p>`;
     (TAFC[key] ? Promise.resolve(TAFC[key]) : fetch(`https://api.quran.com/api/v4/tafsirs/${id}/by_ayah/${s}:${a}`).then(r => { if (!r.ok) throw 0; return r.json(); }).then(j => (TAFC[key] = { t: String(j.tafsir.text || '').replace(/<(?!\/?(p|br|b|i)\b)[^>]*>/gi, ''), n: j.tafsir.resource_name || '' })))
-      .then(async v => { let tx = v.t; if (u === 'ru' && window.FahmConv) { try { await FahmConv.load(); tx = FahmConv.roman(tx); } catch (e) { } } box.innerHTML = `<div class="srtaf"${u === 'ur' ? ' dir="rtl"' : ''}>${tx}</div><small>${esc(v.n)} · Quran.com</small>`; })
+      .then(async v => { let tx = v.t; if (u === 'ru' && window.FahmConv) { try { await FahmConv.load(); tx = String(tx).replace(/(<[^>]+>)|([^<]+)/g, (m, tg, tt) => tg ? tg : FahmConv.roman(tt)); } catch (e) { } } box.innerHTML = `<div class="srtaf"${u === 'ur' ? ' dir="rtl"' : ''}>${tx}</div><small>${esc(v.n)} · Quran.com</small>`; })
       .catch(() => { box.innerHTML = `<p class="dim">${esc(t.tafE)}</p>`; });
   }
   const D = () => { try { const f = window.__fahm; return typeof f.D === 'function' ? f.D() : f.D; } catch (e) { return null; } };
@@ -269,5 +269,5 @@
     const lang = document.getElementById('btnLang'); top.insertBefore(b, lang || top.lastElementChild);
   }
   document.addEventListener('DOMContentLoaded', mount); if (document.readyState !== 'loading') mount();
-  window.FahmSearch = { open, close, run: q => load().then(() => run(q)), _topicsFor: topicsFor };
+  window.FahmSearch = { taf: (box, s1, a1) => sTaf(box, s1, a1), T: () => T(), open, close, run: q => load().then(() => run(q)), _topicsFor: topicsFor };
 })();

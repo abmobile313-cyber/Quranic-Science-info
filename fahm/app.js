@@ -281,7 +281,9 @@ function prev() { if (st.a > 0) goTo(st.s, st.a - 1); else if (st.s > 0) goTo(st
 
 /* ---------- audio ---------- */
 function setPlaying(p) { playing = p; if (window.FahmWS) FahmWS.updPlay(); $('#icoPlay').style.display = p ? 'none' : ''; $('#icoPause').style.display = p ? '' : 'none'; $('#sPlay').innerHTML = p ? '<svg viewBox="0 0 24 24"><path d="M7 5h4v14H7zM13 5h4v14h-4z" style="fill:currentColor;stroke:none"/></svg>' : '<svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z" style="fill:currentColor;stroke:none"/></svg>'; }
-function stopAll() { FahmSfx.stop(); try { $('#sv').pause(); } catch (e) { } clearInterval(timer); timer = null; try { au.pause(); } catch (e) { } if (wordAu) { try { wordAu.pause(); } catch (e) { } } try { speechSynthesis.cancel(); } catch (e) { } setPlaying(false); }
+/* Build 34: pause → play within 1 minute continues from the same word; after a longer break the ayah starts again */
+let mainPause = null;
+function stopAll() { try { if (playing && au.src && !au.paused && au.currentTime > .3 && au.src === ayahUrl()) mainPause = { s: st.s, a: st.a, t: au.currentTime, at: Date.now() }; } catch (e) { } FahmSfx.stop(); try { $('#sv').pause(); } catch (e) { } clearInterval(timer); timer = null; try { au.pause(); } catch (e) { } if (wordAu) { try { wordAu.pause(); } catch (e) { } } try { speechSynthesis.cancel(); } catch (e) { } setPlaying(false); }
 function computeBounds() {
   const { A } = cur(); if (window.FahmTiming) { bounds = FahmTiming.bounds(A.words); return; }
   const wts = A.words.map(w => stripD(w.ar).length + 1.2), tot = wts.reduce((x, y) => x + y, 0); bounds = []; let acc = 0;
@@ -301,7 +303,10 @@ function playAyah() {
   au.onerror = fallback; au.onended = onEnded;
   const sync = () => { if (!au.duration || failed || au.paused) return; { const k = wtIdx(); if (k >= 0) { if (k !== st.w) setWord(k, true, true); return; } } const lead = Math.min(0.18, au.duration * 0.04), tail = Math.min(0.3, au.duration * 0.05), f = Math.max(0, Math.min(1, (au.currentTime - lead) / Math.max(0.1, au.duration - lead - tail))); const i = idxAt(f); if (i !== st.w) setWord(i, true, true); };
   au.ontimeupdate = sync; clearInterval(timer); timer = setInterval(sync, 50);
-  au.src = ayahUrl(); const pr = au.play(); if (pr && pr.catch) pr.catch(() => fallback());
+  const mp = mainPause; mainPause = null; const rt = mp && mp.s === st.s && mp.a === st.a && Date.now() - mp.at < 60000 ? Math.max(0, mp.t - .15) : 0;
+  au.src = ayahUrl();
+  if (rt > 0) { let tr = 0; const seek = () => { if (Math.abs(au.currentTime - rt) > .4 && tr++ < 6) { try { au.currentTime = rt; } catch (e) { } } }; au.addEventListener('loadedmetadata', seek, { once: true }); au.addEventListener('canplay', seek, { once: true }); try { au.currentTime = rt; } catch (e) { } }
+  const pr = au.play(); if (pr && pr.catch) pr.catch(() => fallback());
 }
 function onEnded() {
   scene.all(); const wsOn = window.FahmWS && FahmWS.isOpen(); if (wsOn) FahmWS.set(cur().A.words.length);
@@ -442,7 +447,7 @@ function iosHint() {
 
 async function init() {
   window.FahmSfx = window.FahmSfx || { unlock() { }, setLevel() { }, cue() { }, start() { }, stop() { } };
-  scene = (window.FahmStory && FahmStory.ok()) ? new FahmStory($('#cv')) : new FahmScene($('#cv')); if (window.FahmLab) FahmLab.lang = st.ui, FahmLab.init($('#stage'));
+  scene = (window.FahmCine && FahmCine.ok()) ? new FahmCine($('#cv')) : (window.FahmStory && FahmStory.ok()) ? new FahmStory($('#cv')) : new FahmScene($('#cv')); if (window.FahmLab) FahmLab.lang = st.ui, FahmLab.init($('#stage'));
   D = await FahmData.init();
   if (!st.v2) { st.v2 = 1; st.s = 0; st.a = 0; st.w = 0; save(); }   /* surah index now covers all 114 surahs */
   if (st.hzTr === undefined) st.hzTr = true;

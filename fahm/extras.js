@@ -32,8 +32,16 @@ const dirA = () => UI() === 'ur' ? ' dir="rtl"' : '';
 let ov = null, cur = '';
 function sheet(id, title, body) {
   if (!ov) { ov = document.createElement('div'); ov.id = 'xt'; ov.hidden = true; document.body.appendChild(ov); ov.addEventListener('click', onClick); ov.addEventListener('change', onChange); ov.addEventListener('input', onInput);
-    (window.FahmOverlays = window.FahmOverlays || []).push({ isOpen: () => ov && !ov.hidden, close: closeX }); }
+    (window.FahmOverlays = window.FahmOverlays || []).push({ isOpen: () => ov && !ov.hidden, close: innerBack }); }
   cur = id; ov.className = 'x-' + id; ov.innerHTML = `<div class="xt-h"><button class="xt-x" data-x="close" aria-label="close">✕</button><b${dirA()}>${esc(title)}</b></div><div class="xt-b"${dirA()}>${body}</div>`; ov.hidden = false; document.body.classList.add('noscroll');
+}
+/* Build 34: the phone's back button steps back inside a tool before leaving it */
+function innerBack() {
+  if (!ov || ov.hidden) return;
+  if (cur === 'quiz' && ov.querySelector('.kq-q, .kq-end')) { openQuiz(); return; }
+  if (cur === 'hifz' && ov.querySelector('#hpS') && hp()) { openHifz(); return; }
+  if (cur === 'root') { const o = $('#rmOcc'); if (o && o.innerHTML.trim()) { o.innerHTML = ''; ov.querySelector('.xt-b').scrollTop = 0; return; } }
+  closeX();
 }
 function closeX() { if (ov) ov.hidden = true; document.body.classList.remove('noscroll'); try { window.FahmNav && FahmNav.st.length && FahmNav.st.pop()(); } catch (e) { } }
 const reopen = fn => { try { window.FahmNav && FahmNav.push(fn); } catch (e) { } };
@@ -86,12 +94,12 @@ setInterval(hpCheckReminder, 60000); setTimeout(hpCheckReminder, 8000);
 /* ================= ROOT MAP ================= */
 let RM = null; const rmLoad = () => RM ? Promise.resolve(RM) : fetch('q/rmap.json').then(r => r.json()).then(j => (RM = j));
 function openRoot(root) {
-  tap(); const t = T(); sheet('root', t.rootH, `<div class="rm-in"><input id="rmQ" class="sel" dir="rtl" placeholder="${esc(t.rootPh)}" value="${esc(root ? [...root].join(' ') : '')}"></div><div id="rmBody"><p class="xt-n">…</p></div>`);
+  tap(); const t = T(); sheet('root', t.rootH, `<div class="rm-in"><input id="rmQ" class="sel" dir="rtl" placeholder="ر ح م" value="${esc(root ? [...root].join(' ') : '')}"></div><div id="rmBody"><p class="xt-n">…</p></div>`);
   rmLoad().then(() => rmShow(root || (() => { try { return window.__fahm && __fahm.D && (() => { const st = ST(), S = D().surahs[st.s]; return S.ayat[st.a].words[st.w].root; })(); } catch (e) { return ''; } })()));
 }
 function rmShow(root) {
   const t = T(), box = $('#rmBody'); if (!box) return; root = String(root || '').replace(/[^ء-ي]/g, '');
-  const E = RM && RM[root]; if (!E) { box.innerHTML = `<p class="xt-n">${esc(root ? t.rootNo : t.rootPh)}</p>`; return; }
+  const E = RM && RM[root]; if (!E) { const pop = ['رحم', 'علم', 'كتب', 'صلو', 'سجد', 'نور', 'هدي', 'صبر', 'شكر', 'جنن', 'خلق', 'ذكر'].filter(r => RM && RM[r]); box.innerHTML = `<p class="xt-n">${esc(root ? t.rootNo : t.rootPh).replace(/([ء-ي](?:\s[ء-ي])+)/g, '<bdi dir="rtl">$1</bdi>')}</p><div class="rm-pop">${pop.map(r => `<button class="rm-pc ar" dir="rtl" data-x="rmpick" data-r="${r}">${[...r].join(' ')}</button>`).join('')}</div>`; return; }
   const f = E.f, tot = E.o.length, top = f.map((x, i) => [x, i]).sort((a, b) => b[0][4] - a[0][4]).slice(0, 24), mx = Math.max(...f.map(x => x[4])), N = top.length, W = 360, H = 360, cx = W / 2, cy = H / 2;
   const mean = x => UI() === 'ur' ? x[2] : UI() === 'en' ? x[1] : x[3];
   const nodes = top.map(([x, oi], i) => { const ring = N > 12 ? (i % 2 ? 1 : 0) : 0, R = 108 + ring * 50, a = -Math.PI / 2 + i / N * Math.PI * 2, r = 10 + 14 * Math.sqrt(x[4] / mx); return { i: oi, k: i, x: cx + Math.cos(a) * R, y: cy + Math.sin(a) * R, r, d: x }; });
@@ -165,6 +173,7 @@ function onClick(e) {
   if (x === 'hpdone') { const p = hp(), d = hifzToday(p), k = b.dataset.k; d.done[k] = !d.done[k]; if (k === 'sabaq') { if (d.done[k]) p.pos = Math.max(p.pos, d.s1 + 1); else p.pos = Math.min(p.pos, d.s0); } if (k === 'manzil' && d.done[k]) { const s0 = p.start || 0, bk = Math.max(s0, p.pos - p.per * p.back); p.mzPos = Math.max(s0, p.mzPos || s0) + Math.round(p.mz * 208); if (p.mzPos >= bk) p.mzPos = s0; } SAVE(); try { __sfx && __sfx.ding && __sfx.ding(); } catch (er) { } openHifz(); return; }
   if (x === 'hpopen' || x === 'hphz') { const r = b.dataset.r.split(':').map(Number); ov.hidden = true; document.body.classList.remove('noscroll'); reopen(() => openHifz()); try { if (x === 'hphz') window.FahmReader.hafizRange(r[0], r[1], r[2], r[3]); else window.FahmReader.openHl(r[0], r[1]); } catch (er) { } return; }
   if (x === 'rmf') { rmForm(b.dataset.i); return; }
+  if (x === 'rmpick') { const q = $('#rmQ'); if (q) q.value = [...b.dataset.r].join(' '); rmShow(b.dataset.r); return; }
   if (x === 'rmgo') { const [s, a, w] = b.dataset.r.split(':').map(Number); const root = $('#rmBody').dataset.root; ov.hidden = true; document.body.classList.remove('noscroll'); reopen(() => openRoot(root)); try { window.__fahm.goTo(s - 1, a - 1, w - 1); } catch (er) { } return; }
   if (x === 'kqstart') { const n = $('#kqN'); if (n) { kq().name = n.value.trim(); SAVE(); } qz = { n: 0, score: 0, lvl: 1, streak: 0 }; qNext(); return; }
   if (x === 'kqans') { qAns(b); return; }

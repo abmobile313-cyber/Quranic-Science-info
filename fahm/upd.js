@@ -38,6 +38,13 @@
   (window.FahmOverlays = window.FahmOverlays || []).push({ isOpen: () => !!document.getElementById('upd'), close: () => { const b = document.getElementById('upd'); if (b) b.remove(); const o = rd(); o.later = Date.now(); wr(o); } });
   window.FahmUpdate = { check, label: () => T().chk };
   document.addEventListener('click', e => { if (e.target.closest('[data-updchk]')) check(true); });
-  function boot() { setTimeout(() => check(false), 8000); setInterval(() => check(false), 6 * 3600e3); }
+  /* anonymous counters on GitHub: one fetch per install and one per day (no personal data is sent) */
+  function count() {
+    if (!mine()) return; const o = rd(), day = new Date().toISOString().slice(0, 10), B = 'https://github.com/abmobile313-cyber/Quranic-Science-info/releases/download/fahm-stats/';
+    const hit = f => fetch(B + f, { mode: 'no-cors', cache: 'no-store' }).then(() => true).catch(() => false);
+    if (!o.inst) hit('install.txt').then(ok => { if (ok) { const p = rd(); p.inst = 1; wr(p); } });
+    if (o.day !== day) hit('open.txt').then(ok => { if (ok) { const p = rd(); p.day = day; wr(p); } });
+  }
+  function boot() { setTimeout(count, 5000); setTimeout(() => check(false), 8000); setInterval(() => check(false), 6 * 3600e3); }
   if (document.readyState === 'complete') boot(); else window.addEventListener('load', boot);
 })();

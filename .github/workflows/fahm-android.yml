@@ -39,8 +39,19 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           NOTES='{}'; [ -f fahm/whatsnew.json ] && NOTES=$(cat fahm/whatsnew.json)
-          jq -n --argjson c ${{ github.run_number }} --argjson n "$NOTES" '{code:$c,name:("1.0."+($c|tostring)),apk:"https://quranicscience.info/download/Fahm.apk",notes:$n}' > download/fahm-version.json
+          jq -n --argjson c ${{ github.run_number }} --argjson n "$NOTES" '{code:$c,name:("1.0."+($c|tostring)),apk:"https://github.com/abmobile313-cyber/Quranic-Science-info/releases/latest/download/Fahm.apk",notes:$n}' > download/fahm-version.json
           git add download/Fahm.apk download/fahm-version.json
           git commit -m "Fahm Android app build ${{ github.run_number }} [skip ci]" || exit 0
           git pull --rebase origin main
           git push
+      - name: Publish GitHub release (download counting) + counters
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          R=${{ github.repository }}; N=${{ github.run_number }}
+          if ! gh release view fahm-stats -R $R >/dev/null 2>&1; then
+            echo "Fahmul Quraan install counter" > install.txt; echo "Fahmul Quraan daily open counter" > open.txt
+            gh release create fahm-stats install.txt open.txt -R $R --title "Fahmul Quraan - counters (do not delete)" --notes "The app fetches install.txt once per install and open.txt once per day. Their download counts = installs and daily opens." --latest=false
+          fi
+          NOTE=$(jq -r '.ru // "Naya version"' fahm/whatsnew.json 2>/dev/null || echo "Naya version")
+          gh release create fahm-$N download/Fahm.apk -R $R --title "Fahmul Quraan 1.0.$N" --notes "$NOTE" --latest

@@ -741,11 +741,32 @@ function ayWordsText(s, a) {
   return out.join(' ');
 }
 let lpT = 0, lpFired = false, lpXY = null;
+/* Build 34: long-press card = the search result format (ayah, translation, qirat, translation voice, tafseer, word by word, play from here) in the full-screen look */
+let fsAu = null, fsBtn = null;
+function fsStop() { try { if (fsAu) { fsAu.onended = null; fsAu.pause(); } } catch (e) { } fsAu = null; if (fsBtn) { fsBtn.classList.remove('pl'); fsBtn.innerHTML = fsBtn.dataset.lbl; } fsBtn = null; }
+function fsPlay(btn, url) { const same = fsBtn === btn; fsStop(); if (same || !url) return; stopAudio(); fsAu = new Audio(url); fsBtn = btn; btn.dataset.lbl = btn.dataset.lbl || btn.innerHTML; btn.classList.add('pl'); btn.innerHTML = '■ ' + esc(btn.textContent.replace(/^▶\s*/, '')); fsAu.onended = fsStop; fsAu.onerror = fsStop; const p = fsAu.play(); if (p && p.catch) p.catch(fsStop); }
+function fsClose(o) { fsStop(); o.classList.remove('on'); setTimeout(() => { o.hidden = true; }, 220); }
 function ayFull(s, a) {
-  let o = $('#rfs'); if (!o) { o = document.createElement('div'); o.id = 'rfs'; document.body.appendChild(o); o.addEventListener('click', e => { if (e.target.closest('[data-fsx]') || e.target === o) { o.classList.remove('on'); setTimeout(() => { o.hidden = true; }, 220); } else if (e.target.closest('[data-fsp]')) { const ai = AYI[o.dataset.ay]; o.classList.remove('on'); o.hidden = true; if (ai != null) { stopAudio(); playRange(ai, ai, 1); } } }); }
-  const code = trCode(), rtl = code.startsWith('ur') || code === 'fa', ur = A.st().ui === 'ur';
-  o.dataset.ay = s + ':' + a; o.hidden = false;
-  o.innerHTML = `<div class="fs-in"><div class="fs-top"><b>${esc(surahName(s))} · ${ur ? ad(a) : a}</b><button class="ib" data-fsx="1" aria-label="close">✕</button></div><div class="fs-ar" dir="rtl">${esc(ayWordsText(s, a))}</div><div class="fs-tr" dir="${rtl ? 'rtl' : 'ltr'}"></div><small class="fs-by">${esc((LNG && LNG[code]) || '')}</small><button class="fs-play" data-fsp="1">▶ ${esc(R('fsPlay'))}</button></div>`;
+  let o = $('#rfs');
+  if (!o) {
+    o = document.createElement('div'); o.id = 'rfs'; document.body.appendChild(o);
+    o.addEventListener('click', e => {
+      const [s1, a1] = (o.dataset.ay || '0:0').split(':').map(Number), ai = AYI[o.dataset.ay];
+      if (e.target.closest('[data-fsx]') || e.target === o) { fsClose(o); return; }
+      if (e.target.closest('[data-fsp]')) { fsStop(); o.classList.remove('on'); o.hidden = true; if (ai != null) { stopAudio(); playSeq(ai); } return; }
+      const q1 = e.target.closest('[data-fsq]'); if (q1) { fsPlay(q1, auUrl(s1, a1)); return; }
+      const t1 = e.target.closest('[data-fst]'); if (t1) { fsPlay(t1, window.FahmWT && FahmWT.trUrl ? FahmWT.trUrl(s1, a1, A.st().ui) : null); return; }
+      const f1 = e.target.closest('[data-fsf]'); if (f1) { const bx = o.querySelector('.fs-taf'); if (bx.innerHTML) { bx.innerHTML = ''; return; } if (window.FahmSearch && FahmSearch.taf) { FahmSearch.taf(bx, s1, a1); bx.scrollIntoView({ block: 'nearest', behavior: 'smooth' }); const mo = new MutationObserver(() => { bx.scrollIntoView({ block: 'start', behavior: 'smooth' }); mo.disconnect(); }); mo.observe(bx, { childList: true }); } return; }
+      const w1 = e.target.closest('[data-fsw]'); if (w1) { fsStop(); o.hidden = true; o.classList.remove('on'); try { close(); window.__fahm.goTo(s1 - 1, a1 - 1, 0); } catch (er) { } return; }
+    });
+    (window.FahmOverlays = window.FahmOverlays || []).push({ isOpen: () => !o.hidden, close: () => fsClose(o) });
+  }
+  const code = trCode(), rtl = code.startsWith('ur') || code === 'fa', u = A.st().ui, ur = u === 'ur';
+  const L = ({ ur: ['تلاوت', 'ترجمہ سنیں', 'تفسیر', 'لفظ بہ لفظ', 'یہیں سے پڑھیں'], en: ['Recitation', 'Translation audio', 'Tafseer', 'Word by word', 'Recite from here'], ru: ['Qirat', 'Tarjuma sunein', 'Tafseer', 'Lafz ba lafz', 'Yahin se padhein'] })[u] || ['Qirat', 'Tarjuma sunein', 'Tafseer', 'Lafz ba lafz', 'Yahin se padhein'];
+  fsStop(); o.dataset.ay = s + ':' + a; o.hidden = false;
+  o.innerHTML = `<div class="fs-in"><div class="fs-top"><b>${esc(surahName(s))} · ${ur ? ad(a) : a}</b><button class="fs-x" data-fsx="1" aria-label="close">✕</button></div><div class="fs-sc"><div class="fs-ar" dir="rtl">${esc(ayWordsText(s, a))}</div><div class="fs-tr" dir="${rtl ? 'rtl' : 'ltr'}"></div><small class="fs-by">${esc((LNG && LNG[code]) || '')}</small>
+  <div class="fs-acts"><button class="po sm" data-fsq="1">▶ ${esc(L[0])}</button><button class="po sm" data-fst="1">▶ ${esc(L[1])}</button><button class="po sm" data-fsf="1">📖 ${esc(L[2])}</button><button class="po sm" data-fsw="1">🔤 ${esc(L[3])}</button></div><div class="fs-taf srtb"></div></div>
+  <button class="fs-play" data-fsp="1">▶ ${esc(L[4])}</button></div>`;
   trGet(s, a, code).then(t => { const e = o.querySelector('.fs-tr'); if (e && o.dataset.ay === s + ':' + a) e.textContent = t || ''; });
   requestAnimationFrame(() => o.classList.add('on'));
 }

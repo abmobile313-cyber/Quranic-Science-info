@@ -137,9 +137,9 @@ function waterScene(host, opt) {
 /* ---------- 3. wuzu question (spoken) ---------- */
 function wuzu() {
   step = 'wuzu'; killGlobe(); const t = lg();
-  shell().innerHTML = `<div class="ob-in c">${bubbles}${vbtn()}<div class="ob-wv big"></div><h2>${t.q}</h2><p>${t.qs}</p>
+  shell().innerHTML = `<div class="ob-in c">${bubbles}${vbtn()}<div class="ob-hero"><img src="vo/wudu_img/q.webp" alt="" decoding="async"><i></i></div><h2>${t.q}</h2><p>${t.qs}</p>
   <button class="ob-go b3d gold" data-a="yes">${t.yes}</button><button class="ob-alt b3d" data-a="no">${t.no}</button><button class="ob-alt b3d sm" data-a="see">💧 ${t.see}</button></div>`;
-  box.hidden = false; waterScene(box.querySelector('.ob-wv'), { pool: .72, spread: .2 }); setTimeout(() => { if (step === 'wuzu') clip('wudu', spoken().q + ' ' + spoken().qs); }, 450);
+  box.hidden = false; setTimeout(() => { if (step === 'wuzu') clip('wudu', spoken().q + ' ' + spoken().qs); }, 450);
 }
 
 /* ---------- 4. wudu method (Build 33): written steps with photos, no video, no step voice ---------- */
