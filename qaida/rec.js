@@ -49,7 +49,7 @@ function open(p) {
 function load(p) {
   const q = Q(); st.p = p; st.i = 0; st.ev = []; st.on = false;
   el.querySelector('.rpage').innerHTML = q.takhtiHTML(q.BYT[p]); q.fit(el.querySelector('.rpage'));
-  const EL = new Set((q.AU && q.AU()._el) || []);
+  const AUM = (q.AU && q.AU()) || {}; const EL = { has: id => !AUM[id] };
   el.querySelectorAll('.rpage [data-id]').forEach(e => EL.has(e.dataset.id) && e.classList.add('elx'));
   st.ids = [...el.querySelectorAll('.rpage [data-id]')].map(e => e.dataset.id).filter(id => !ONLY || EL.has(id));
   paint();
