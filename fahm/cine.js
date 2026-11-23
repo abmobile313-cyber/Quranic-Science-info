@@ -11,13 +11,16 @@ function hs(a, b, c) { let h = 2166136261 ^ (a * 374761393) ^ ((b || 0) * 668265
 const strip = s => String(s || '').replace(/[ً-ٰٟۖ-ۭ࣓-ࣿـ]/g, '');
 
 let MAP = null, MAPP = null;
-function loadMap() { if (MAPP) return MAPP; MAPP = fetch('q/cine.json').then(r => r.json()).then(j => { MAP = { c: j.c.map(x => ({ id: x[0], roots: new Set(x[1]), rx: new RegExp(x[2], 'i'), fx: x[3] })), n: j.n || {} }; MAP.byId = {}; MAP.c.forEach(c => MAP.byId[c.id] = c); return MAP; }).catch(() => null); return MAPP; }
+function loadMap() { if (MAPP) return MAPP; MAPP = fetch('q/cine.json').then(r => r.json()).then(j => { MAP = { c: j.c.map(x => ({ id: x[0], roots: new Set(x[1]), rx: new RegExp(x[2], 'i'), fx: x[3] })), f: (j.f || []).map(x => ({ id: x[0], rx: new RegExp(x[1], 'i') })), p: j.p || {}, n: j.n || {} }; MAP.byId = {}; MAP.c.forEach(c => MAP.byId[c.id] = c); return MAP; }).catch(() => null); return MAPP; }
 loadMap();
 
 function conceptOf(w) {
   if (!MAP || !w) return null; const g = String(w.en || '');
   for (const c of MAP.c) if (MAP.n[c.id] && c.rx.test(g)) return c.id;
   if (w.root) for (const c of MAP.c) if (MAP.n[c.id] && c.roots.has(w.root)) return c.id;
+  /* Build 35: particles, pronouns and other small words get their own family picture too, so every word has a shot */
+  for (const f of MAP.f) if (MAP.n[f.id] && f.rx.test(g)) return f.id;
+  const pp = MAP.p[String(w.pos || '').split('+')[0]]; if (pp && MAP.n[pp]) return pp;
   return null;
 }
 
@@ -44,12 +47,12 @@ class Cine {
     const ids = W.map(conceptOf); let first = ids.find(Boolean) || 'signs';
     let prev = null; const shots = [];
     W.forEach((w, i) => {
-      const own = ids[i], cid = own || prev || first, vs = MAP.n[cid] || [0], n = vs.length, r = (j) => hs(S.n * 1000 + A.v, i + 1, j);
+      const own = ids[i], cid = own || prev || first, vs = MAP.n[cid] || [0], n = vs.length, lastS = shots[shots.length - 1], r = (j) => hs(S.n * 1000 + A.v, i + 1, j);
       const cont = !own && shots.length && shots[shots.length - 1].cid === cid;
       const L = Math.max(1, strip(w.ar).replace(/\s/g, '').length);
       let s;
       if (cont) { const p = shots[shots.length - 1]; s = { cid, v: p.v, z0: p.z1, z1: Math.min(1.75, p.z1 + .08 + r(1) * .08), fx0: p.fx1, fy0: p.fy1, fx1: clamp(p.fx1 + (r(2) - .5) * .18, .25, .75), fy1: clamp(p.fy1 + (r(3) - .5) * .12, .3, .7), L, ar: w.ar, own: false }; }
-      else { const z0 = 1.04 + r(1) * .1, dir = r(4) < .5 ? 1 : -1; s = { cid, v: vs[Math.floor(r(0) * n) % n], z0, z1: z0 + .14 + r(5) * .16, fx0: .5 - dir * (.06 + r(2) * .08), fy0: .45 + (r(3) - .5) * .1, fx1: .5 + dir * (.06 + r(6) * .08), fy1: .5 + (r(7) - .5) * .1, L, ar: w.ar, own: !!own }; }
+      else { const z0 = 1.04 + r(1) * .1, dir = r(4) < .5 ? 1 : -1; let vi = Math.floor(r(0) * n) % n; if (lastS && lastS.cid === cid && n > 1 && vs[vi] === lastS.v) vi = (vi + 1) % n; s = { cid, v: vs[vi], z0, z1: z0 + .14 + r(5) * .16, fx0: .5 - dir * (.06 + r(2) * .08), fy0: .45 + (r(3) - .5) * .1, fx1: .5 + dir * (.06 + r(6) * .08), fy1: .5 + (r(7) - .5) * .1, L, ar: w.ar, own: !!own }; }
       shots.push(s); prev = cid;
     });
     shots.forEach(s => img(srcOf(s.cid, s.v)));

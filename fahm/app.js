@@ -232,9 +232,10 @@ function setFull(id, on) {
   setTimeout(() => { if (window.FahmLab) FahmLab.resize(); scene.resize(); }, 40);
 }
 /* Build 32: "came from" stack — closing a screen opened from another screen (search -> reader, etc.) returns to that screen */
-window.FahmNav = window.FahmNav || { st: [], push(fn) { this.st.push(fn); if (this.st.length > 12) this.st.shift(); }, clear() { this.st = []; } };
+/* Build 35: each entry remembers which screen it was opened for ('reader' or 'main'), so only closing that screen returns to the tool/search it came from */
+window.FahmNav = window.FahmNav || { st: [], push(fn, t) { this.st.push({ fn, t: t || 'reader', at: Date.now() }); if (this.st.length > 12) this.st.shift(); }, clear() { this.st = []; } };
 window.FahmOverlays = window.FahmOverlays || [];
-function navPop() { const fn = window.FahmNav.st.pop(); if (fn) { try { fn(); } catch (e) { } } }
+function navPop(t) { const S = window.FahmNav.st; while (S.length && Date.now() - S[S.length - 1].at > 15 * 60e3) S.pop(); const top = S[S.length - 1]; if (!top || (t && top.t !== t)) return false; S.pop(); try { top.fn(); } catch (e) { } return true; }
 /* returns true when the app used the back press itself */
 window.__fahmBack = function () {
   if (window.__fahmOnbOpen && window.__fahmOnbOpen()) return window.__fahmOnbBack ? window.__fahmOnbBack() : false;
@@ -243,11 +244,12 @@ window.__fahmBack = function () {
   const mk = document.getElementById('mkh'); if (mk && !mk.hidden) { mk.hidden = true; return true; }
   if (window.FahmWS && FahmWS.isOpen()) { FahmWS.close(); return true; }
   { const ovs = window.FahmOverlays || []; for (let i = ovs.length - 1; i >= 0; i--) { try { if (ovs[i].isOpen()) { ovs[i].close(); return true; } } catch (e) { } } }
-  if (FahmReader.isOpen()) { FahmReader.back(); if (!FahmReader.isOpen()) navPop(); return true; }
-  { const sr = document.getElementById('sr'); if (sr && !sr.hidden) { sr.hidden = true; navPop(); return true; } }
+  if (FahmReader.isOpen()) { FahmReader.back(); return true; }
+  { const sr = document.getElementById('sr'); if (sr && !sr.hidden) { sr.hidden = true; return true; } }
   for (const id of ['#pick', '#settings', '#menu']) if (!$(id).hidden) { $(id).hidden = true; return true; }
   if ($('#stage').classList.contains('big')) { setFull('#stage', false); return true; }
   if ($('#story').classList.contains('big')) { setFull('#story', false); return true; }
+  if (navPop('main')) return true;
   if (hist.length) { const [s, a] = hist.pop(); goTo(s, a, 0, false, true); return true; }
   const now = Date.now(); if (now - exitAt < 2500) return false; exitAt = now; toast(T('exit'), 2300); return true;
 };
@@ -456,7 +458,7 @@ async function init() {
   try { await ensureS(st.s); } catch (e) { }
   if (st.a >= D.surahs[st.s].ayat.length) st.a = 0;
   FahmSfx.setLevel(st.sfx); scene.onBorn = it => { if (playing && st.sfx) FahmSfx.cue(it.a); };
-  FahmReader.init({ D: () => D, st: () => st, save, toast, openMenu, onClose: () => { document.body.classList.toggle('noscroll', anyFull()); const l = st.rcur; if (l && D && D.surahs[l.s - 1] && (l.s - 1 !== st.s || l.a - 1 !== st.a)) goTo(l.s - 1, l.a - 1, 0, false, true); } });
+  FahmReader.init({ D: () => D, st: () => st, save, toast, openMenu, onClose: () => { document.body.classList.toggle('noscroll', anyFull()); const l = st.rcur; if (l && D && D.surahs[l.s - 1] && (l.s - 1 !== st.s || l.a - 1 !== st.a)) goTo(l.s - 1, l.a - 1, 0, false, true); setTimeout(() => navPop('reader'), 0); } });
   FahmWS.init({
     st: () => st, cur, wordMeaning, lemKey, strip: stripD, sName,
     pickWord: i => { stopAll(); setWord(i); try { playWord(); } catch (e) { } FahmWS.set(i); },

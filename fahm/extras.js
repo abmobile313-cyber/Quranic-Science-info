@@ -33,7 +33,7 @@ let ov = null, cur = '';
 function sheet(id, title, body) {
   if (!ov) { ov = document.createElement('div'); ov.id = 'xt'; ov.hidden = true; document.body.appendChild(ov); ov.addEventListener('click', onClick); ov.addEventListener('change', onChange); ov.addEventListener('input', onInput);
     (window.FahmOverlays = window.FahmOverlays || []).push({ isOpen: () => ov && !ov.hidden, close: innerBack }); }
-  cur = id; ov.className = 'x-' + id; ov.innerHTML = `<div class="xt-h"><button class="xt-x" data-x="close" aria-label="close">✕</button><b${dirA()}>${esc(title)}</b></div><div class="xt-b"${dirA()}>${body}</div>`; ov.hidden = false; document.body.classList.add('noscroll');
+  cur = id; ov.className = 'x-' + id; ov.innerHTML = `<div class="xt-h"><button class="ib xt-x" data-x="close" aria-label="back"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button><b${dirA()}>${esc(title)}</b></div><div class="xt-b"${dirA()}>${body}</div>`; ov.hidden = false; document.body.classList.add('noscroll');
 }
 /* Build 34: the phone's back button steps back inside a tool before leaving it */
 function innerBack() {
@@ -43,8 +43,8 @@ function innerBack() {
   if (cur === 'root') { const o = $('#rmOcc'); if (o && o.innerHTML.trim()) { o.innerHTML = ''; ov.querySelector('.xt-b').scrollTop = 0; return; } }
   closeX();
 }
-function closeX() { if (ov) ov.hidden = true; document.body.classList.remove('noscroll'); try { window.FahmNav && FahmNav.st.length && FahmNav.st.pop()(); } catch (e) { } }
-const reopen = fn => { try { window.FahmNav && FahmNav.push(fn); } catch (e) { } };
+function closeX() { if (ov) ov.hidden = true; document.body.classList.remove('noscroll'); }
+const reopen = (fn, t) => { try { window.FahmNav && FahmNav.push(fn, t || 'reader'); } catch (e) { } };
 
 /* ---------- global ayah index ---------- */
 let CNT = null; function counts() { if (CNT) return CNT; try { CNT = D().surahs.map(s => s.count); } catch (e) { CNT = []; } return CNT; }
@@ -167,14 +167,14 @@ function confetti() { const c = document.createElement('div'); c.className = 'kq
 /* ---------- events ---------- */
 function onClick(e) {
   const b = e.target.closest('[data-x]'); if (!b) return; const x = b.dataset.x, t = T();
-  if (x === 'close') { closeX(); return; }
+  if (x === 'close') { innerBack(); return; }
   if (x === 'hpsave') { const s = +$('#hpS').value, a = Math.max(1, Math.min(counts()[s - 1] || 1, +$('#hpA').value || 1)), p = hp() || { days: {} }; const g = gi(s, a); if (p.start == null || p.start > g || g !== p.pos) p.start = g; Object.assign(p, { pos: g, per: +$('#hpP').value, back: +$('#hpB').value, mz: +$('#hpM').value, rem: $('#hpR').value, mzPos: p.mzPos || 0 }); ST().hp = p; SAVE(); try { if ('Notification' in window && Notification.permission === 'default') Notification.requestPermission(); } catch (er) { } const d = p.days[today()]; if (d && !d.done.sabaq) delete p.days[today()]; openHifz(); return; }
   if (x === 'hpedit') { openHifz(true); return; }
   if (x === 'hpdone') { const p = hp(), d = hifzToday(p), k = b.dataset.k; d.done[k] = !d.done[k]; if (k === 'sabaq') { if (d.done[k]) p.pos = Math.max(p.pos, d.s1 + 1); else p.pos = Math.min(p.pos, d.s0); } if (k === 'manzil' && d.done[k]) { const s0 = p.start || 0, bk = Math.max(s0, p.pos - p.per * p.back); p.mzPos = Math.max(s0, p.mzPos || s0) + Math.round(p.mz * 208); if (p.mzPos >= bk) p.mzPos = s0; } SAVE(); try { __sfx && __sfx.ding && __sfx.ding(); } catch (er) { } openHifz(); return; }
   if (x === 'hpopen' || x === 'hphz') { const r = b.dataset.r.split(':').map(Number); ov.hidden = true; document.body.classList.remove('noscroll'); reopen(() => openHifz()); try { if (x === 'hphz') window.FahmReader.hafizRange(r[0], r[1], r[2], r[3]); else window.FahmReader.openHl(r[0], r[1]); } catch (er) { } return; }
   if (x === 'rmf') { rmForm(b.dataset.i); return; }
   if (x === 'rmpick') { const q = $('#rmQ'); if (q) q.value = [...b.dataset.r].join(' '); rmShow(b.dataset.r); return; }
-  if (x === 'rmgo') { const [s, a, w] = b.dataset.r.split(':').map(Number); const root = $('#rmBody').dataset.root; ov.hidden = true; document.body.classList.remove('noscroll'); reopen(() => openRoot(root)); try { window.__fahm.goTo(s - 1, a - 1, w - 1); } catch (er) { } return; }
+  if (x === 'rmgo') { const [s, a, w] = b.dataset.r.split(':').map(Number); const root = $('#rmBody').dataset.root; ov.hidden = true; document.body.classList.remove('noscroll'); reopen(() => openRoot(root), 'main'); try { window.__fahm.goTo(s - 1, a - 1, w - 1); } catch (er) { } return; }
   if (x === 'kqstart') { const n = $('#kqN'); if (n) { kq().name = n.value.trim(); SAVE(); } qz = { n: 0, score: 0, lvl: 1, streak: 0 }; qNext(); return; }
   if (x === 'kqans') { qAns(b); return; }
   if (x === 'kqnext') { qNext(); return; }

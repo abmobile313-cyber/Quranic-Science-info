@@ -212,17 +212,17 @@
   const surahName = n => { try { const s = D().surahs[n - 1]; return s.en; } catch (e) { return 'Surah ' + n; } };
   function build() {
     if (ov) return ov; ov = document.createElement('div'); ov.id = 'sr'; ov.hidden = true;
-    ov.innerHTML = '<div class="srh"><button class="srx" aria-label="close"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button><div class="srb"><svg viewBox="0 0 24 24" class="srm"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg><input id="srq" type="search" enterkeyhint="search" autocomplete="off" autocapitalize="off" spellcheck="false"><button class="srmic" aria-label="mic"><svg viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21M8.5 21h7"/></svg></button></div></div><div class="srv" hidden></div><div class="srt"></div><div class="srp"></div><div class="srl"></div>';
+    ov.innerHTML = '<div class="srh"><button class="ib srx" aria-label="back"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button><div class="srb"><svg viewBox="0 0 24 24" class="srm"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg><input id="srq" type="search" enterkeyhint="search" autocomplete="off" autocapitalize="off" spellcheck="false"><button class="srmic" aria-label="mic"><svg viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21M8.5 21h7"/></svg></button></div></div><div class="srv" hidden></div><div class="srt"></div><div class="srp"></div><div class="srl"></div>';
     document.body.appendChild(ov);
     ov.querySelector('.srx').onclick = close;
     const inp = ov.querySelector('#srq'); let tm = 0; inp.addEventListener('input', () => { clearTimeout(tm); tm = setTimeout(() => go(inp.value), 220); });
     inp.addEventListener('keydown', e => { if (e.key === 'Enter') { clearTimeout(tm); go(inp.value); inp.blur(); } });
     ov.addEventListener('click', e => {
-      if (e.target.closest('.srmic')) { vsPanel(); return; } const vk = e.target.closest('[data-vs]'); if (vk) { vsStart(vk.dataset.vs); return; } if (e.target.closest('[data-vstop]')) { vsStop(true); return; } const pl = e.target.closest('[data-play]'); if (pl) { const [s2, a2] = pl.dataset.play.split(':').map(Number); sStop(); hideKeep(); try { window.__fahm.goTo(s2 - 1, a2 - 1, 0, true); } catch (er) { } return; }
+      if (e.target.closest('.srmic')) { vsPanel(); return; } const vk = e.target.closest('[data-vs]'); if (vk) { vsStart(vk.dataset.vs); return; } if (e.target.closest('[data-vstop]')) { vsStop(true); return; } const pl = e.target.closest('[data-play]'); if (pl) { const [s2, a2] = pl.dataset.play.split(':').map(Number); sStop(); hideKeep('main'); try { window.__fahm.goTo(s2 - 1, a2 - 1, 0, true); } catch (er) { } return; }
       const ch = e.target.closest('[data-q]'); if (ch) { inp.value = ch.dataset.q; go(ch.dataset.q); return; }
       const mo = e.target.closest('[data-more]'); if (mo) { render(true); return; }
       const rd = e.target.closest('[data-read]'); if (rd) { const [s, a] = rd.dataset.read.split(':').map(Number); sStop(); hideKeep(); try { window.__fahm.goTo(s - 1, a - 1, 0, false, true); } catch (er) { } try { window.FahmReader.openHl(s, a); } catch (er) { } return; }
-      const wb = e.target.closest('[data-wbw]'); if (wb) { const [s, a] = wb.dataset.wbw.split(':').map(Number); sStop(); hideKeep(); try { window.__fahm.goTo(s - 1, a - 1, 0); } catch (er) { } return; }
+      const wb = e.target.closest('[data-wbw]'); if (wb) { const [s, a] = wb.dataset.wbw.split(':').map(Number); sStop(); hideKeep('main'); try { window.__fahm.goTo(s - 1, a - 1, 0); } catch (er) { } return; }
       const qb = e.target.closest('[data-qir]'); if (qb) { const [s, a] = qb.dataset.qir.split(':').map(Number); const st = (window.__fahmApp && __fahmApp.st()) || {}; sPlay(qb, window.FahmWT ? FahmWT.url(st.rec || 'Alafasy_128kbps', s, a) : `https://everyayah.com/data/Alafasy_128kbps/${String(s).padStart(3, '0')}${String(a).padStart(3, '0')}.mp3`); return; }
       const tb = e.target.closest('[data-trs]'); if (tb) { const [s, a] = tb.dataset.trs.split(':').map(Number); sPlay(tb, window.FahmWT && FahmWT.trUrl ? FahmWT.trUrl(s, a, ui()) : null); return; }
       const fb = e.target.closest('[data-taf]'); if (fb) { const [s, a] = fb.dataset.taf.split(':').map(Number); sTaf(fb.closest('.sri').querySelector('.srtb'), s, a); return; }
@@ -260,7 +260,7 @@
   }
   function close() { sStop(); vsStop(false); if (ov) { ov.hidden = true; const P = ov.querySelector('.srv'); if (P) P.hidden = true; } }
   /* hide but keep the results, so Back from the reader / main screen returns to this exact search */
-  function hideKeep() { if (!ov) return; ov.hidden = true; try { window.FahmNav && FahmNav.push(() => { ov.hidden = false; }); } catch (e) { } }
+  function hideKeep(t) { if (!ov) return; ov.hidden = true; try { window.FahmNav && FahmNav.push(() => { ov.hidden = false; }, t || 'reader'); } catch (e) { } }
   /* header button, placed just before the language button */
   function mount() {
     const top = document.querySelector('header.top'); if (!top || document.getElementById('btnFind')) return;

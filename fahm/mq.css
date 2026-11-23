@@ -705,3 +705,8 @@ body.light #xt .xt-h{background:linear-gradient(180deg,#7a1a2c,#5a1424)}body.lig
 @keyframes obkb{from{transform:scale(1.02)}to{transform:scale(1.14) translate(-2%,-1%)}}
 @keyframes obgl{0%,100%{opacity:.7}50%{opacity:1}}
 @media (orientation:landscape) and (max-height:520px){#onb .ob-hero{width:min(56vw,360px)}}
+/* Build 35: tool/long-press back buttons use the app's star-shaped .ib button */
+#xt .xt-x,#rfs .fs-x{width:44px!important;height:44px!important;border:0!important;border-radius:0!important;background:transparent!important;box-shadow:none!important;padding:0!important;position:relative;display:grid;place-items:center;color:var(--gold,#dcab40)}
+#xt .xt-x svg,#rfs .fs-x svg{position:relative;z-index:2;width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
+#sr .srx.ib{width:44px!important;height:44px!important;border:0!important;border-radius:0!important;background:transparent!important;box-shadow:none!important;padding:0!important;position:relative;display:grid;place-items:center;color:var(--gold,#dcab40);flex:none}
+#sr .srx.ib svg{position:relative;z-index:2;width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
