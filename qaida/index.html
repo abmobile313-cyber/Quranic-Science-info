@@ -33,6 +33,7 @@
         <div class="hst" id="hStat"></div>
       </div>
     </div>
+    <div class="modes" id="modes"></div>
     <div class="legend" id="legend"></div>
     <h2 class="sec" id="secT"></h2>
     <div id="tlist" class="tlist"></div>
@@ -51,17 +52,19 @@
   <div id="pview"><div id="ptrack"></div></div>
   <nav class="pnav">
     <button class="ib" id="bNext" aria-label="next"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button>
-    <div class="pno"><b id="pNo"></b><div class="pdots" id="pDots"></div></div>
+    <button class="pm sab" id="bSabak"><i>🎙</i><span>سبق سنائیے</span></button>
     <button class="ib gold big" id="bPlay" aria-label="play"><svg class="i-pl" viewBox="0 0 24 24"><path d="M8 5l11 7-11 7z"/></svg><svg class="i-pa" viewBox="0 0 24 24"><path d="M7 5h4v14H7zM13 5h4v14h-4z"/></svg></button>
-    <button class="ib" id="bQuiz" aria-label="quiz"><svg viewBox="0 0 24 24"><path d="M12 3l2.6 5.6 6 .7-4.5 4.1 1.2 6L12 16.4 6.7 19.4l1.2-6L3.4 9.3l6-.7z"/></svg></button>
+    <button class="pm lrn" id="bLearn"><i>🧑‍🏫</i><span>استاد کے ساتھ</span></button>
     <button class="ib" id="bPrev" aria-label="previous"><svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg></button>
   </nav>
+  <div class="pinfo"><b id="pNo"></b><div class="pdots" id="pDots"></div></div>
 </section>
 
 <div id="sheet" hidden></div>
 <div id="toast"></div>
 <div id="fx"></div>
 
+<script src="check.js"></script>
 <script src="app.js"></script>
 <script src="rec.js"></script>
 <script src="upd.js"></script>

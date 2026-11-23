@@ -1,51 +1,39 @@
-/* Noorani Qaida by Quranic Science — page-exact Noorani Qaida (Maulana Noor Muhammad Ludhianvi, takhti 1–17)
-   with tap-to-hear for every letter, syllable and word. */
+/* Noorani Qaida by Quranic Science — "Mukammal Noorani Qaida" (Majlis Dawat-ul-Haq Hardoi), takhti 1–28 + azaan.
+   Every letter, syllable and word: tap to hear, mic to check (green/red). Modes: Parhiye, Sabak Sunao, Ustad ke saath. */
 (function () {
 'use strict';
 const $ = (s, r = document) => r.querySelector(s), $$ = (s, r = document) => [...r.querySelectorAll(s)];
 const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
-const LS = 'qaida.v1';
-const S = Object.assign({ ui: 'ru', rep: 1, page: 2, heard: {}, done: {}, auto: 1, hid: 1, gap: 1 }, (() => { try { return JSON.parse(localStorage.getItem(LS) || '{}'); } catch (e) { return {}; } })());
+const LS = 'qaida.v2';
+const S = Object.assign({ ui: 'ru', rep: 1, tk: 1, heard: {}, good: {}, done: {}, auto: 1, gap: 1, vo: 1, tries: 3, hj: 0 }, (() => { try { return JSON.parse(localStorage.getItem(LS) || '{}'); } catch (e) { return {}; } })());
 const save = () => { try { localStorage.setItem(LS, JSON.stringify(S)); } catch (e) { } };
+const C = () => window.QaidaCheck;
 
-/* ---------- texts ---------- */
-const TK = {
-  1: ['Huroof-e-Mufradaat', 'Single letters'], 2: ['Huroof-e-Murakkabaat', 'Joined letters'], 3: ['Huroof-e-Muqatta\'aat', 'Disjointed letters'],
-  4: ['Harakaat', 'Short vowels'], 5: ['Tanween', 'Nunation'], 6: ['Mashq: Harakaat o Tanween', 'Practice: vowels & tanween'],
-  7: ['Khara Zabar, Khari Zer, Ulta Pesh', 'Standing vowels'], 8: ['Madd o Leen', 'Long & soft letters'], 9: ['Mashq: sab qawaid', 'Practice: all rules'],
-  10: ['Sukoon yaani Jazm', 'Sukoon (Jazm)'], 11: ['Mashq-e-Sukoon', 'Practice: sukoon'], 12: ['Tashdeed', 'Shaddah'], 13: ['Mashq-e-Tashdeed', 'Practice: shaddah'],
-  14: ['Tashdeed ma\'a Sukoon', 'Shaddah with sukoon'], 15: ['Tashdeed ma\'a Tashdeed', 'Shaddah with shaddah'], 16: ['Tashdeed ba\'d Huroof-e-Madda', 'Shaddah after long letters'],
-  17: ['Khatma: Ijra-e-Qawaid', 'Closing rules'], 0: ['Zameema: Rasm-ul-Khat', 'Appendix: Quranic spelling']
-};
+const TK = { 1: 'Mufradaat — akele huroof', 2: 'Murakkabaat — jude huroof', 3: 'Harakaat — zabar, zer, pesh', 4: 'Huroof-e-madda', 5: 'Huroof-e-leen', 6: 'Mashq: harakaat, madda, leen', 7: 'Tanween', 8: 'Tanween o noon saakin', 9: 'Izhaar', 10: 'Ikhfa', 11: 'Jazm — sukoon', 12: 'Mashq-e-sukoon', 13: 'Tashdeed', 14: 'Raa saakina o mushaddada', 15: 'Huroof qamari o shamsi', 16: 'Lafz Allah ka qaida', 17: 'Waqf ke qaide', 18: 'Tashdeed ma\'a tashdeed', 19: 'Madd ka bayan', 20: 'Tashdeed ba\'d huroof-e-madda', 21: 'Huroof-e-muqatta\'aat', 22: 'Meem saakin ke qaide', 23: 'Iqlaab', 24: 'Idgham yarmaloon', 25: 'Rasm-ul-khat', 26: 'Alamaat-e-waqf', 27: 'Ijra-e-qawaid', 28: 'Kalimaat-e-Islam', 29: 'Azaan o iqamat' };
+const TKE = { 1: 'Single letters', 2: 'Joined letters', 3: 'Short vowels', 4: 'Long vowels', 5: 'Soft letters', 6: 'Practice', 7: 'Tanween', 8: 'Tanween & noon saakin', 9: 'Izhar', 10: 'Ikhfa', 11: 'Sukoon', 12: 'Sukoon practice', 13: 'Shaddah', 14: 'Raa rules', 15: 'Moon & sun letters', 16: 'The word Allah', 17: 'Stopping rules', 18: 'Double shaddah', 19: 'Madd', 20: 'Shaddah after madd', 21: 'Disjointed letters', 22: 'Meem saakin', 23: 'Iqlab', 24: 'Idgham', 25: 'Quranic spelling', 26: 'Stop signs', 27: 'Applying the rules', 28: 'Kalimas of Islam', 29: 'Adhan & iqamah' };
 const L = {
-  ru: { hT: 'Noorani Qaida — har harf ki awaaz ke saath', hD: 'Bilkul kitaab jaisa. Kisi bhi harf ya lafz par tap karein, woh padha jayega. Poora safha bhi chala sakte hain.', go: 'Shuru karein', cont: 'Jaari rakhein · safha ', sec: 'Takhtiyan', page: 'Safha', of: '', takhti: 'Takhti', done: 'mukammal', rep: 'Har lafz kitni baar', auto: 'Safha khatm ho to agla safha', on: 'Haan', off: 'Nahin', hid: 'Hidayaat dikhayein', set: 'Settings', lang: 'Zaban', rec: 'Ustad ki awaaz record karein', recS: 'Har lafz apni awaaz mein record karein (sirf ustad ke liye)', upd: 'Update check karein', noA: 'Is ki awaaz jald aa rahi hai', mash: 'MashaAllah! Safha mukammal', qz: 'Suno aur pehchano', qzS: 'Awaaz suniye aur sahi khana chuniye', score: 'Score', again: 'Phir se suniye', nextQ: 'Agla', qzNo: 'Is safhe par abhi awaaz wale khane kam hain', help: 'Is takhti ki hidayaat', lg: 'Rang ka matlab', gap: 'Lafzon ke beech waqfa', reset: 'Progress mitayein', resetQ: 'Sach mein saari progress mitani hai?', aud: 'Awaaz', audR: 'Ustad ki awaaz', audQ: 'Qari (Quran) ki awaaz', heard: 'suna', play: 'Poora safha suniye' },
-  ur: { hT: 'نورانی قاعدہ — ہر حرف کی آواز کے ساتھ', hD: 'بالکل کتاب جیسا۔ کسی بھی حرف یا لفظ پر ٹیپ کریں، وہ پڑھا جائے گا۔ پورا صفحہ بھی چلا سکتے ہیں۔', go: 'شروع کریں', cont: 'جاری رکھیں · صفحہ ', sec: 'تختیاں', page: 'صفحہ', of: '', takhti: 'تختی', done: 'مکمل', rep: 'ہر لفظ کتنی بار', auto: 'صفحہ ختم ہو تو اگلا صفحہ', on: 'ہاں', off: 'نہیں', hid: 'ہدایات دکھائیں', set: 'ترتیبات', lang: 'زبان', rec: 'استاد کی آواز ریکارڈ کریں', recS: 'ہر لفظ اپنی آواز میں ریکارڈ کریں (صرف استاد کے لیے)', upd: 'اپڈیٹ چیک کریں', noA: 'اس کی آواز جلد آ رہی ہے', mash: 'ماشاءاللہ! صفحہ مکمل', qz: 'سنو اور پہچانو', qzS: 'آواز سنیں اور صحیح خانہ چنیں', score: 'اسکور', again: 'پھر سے سنیں', nextQ: 'اگلا', qzNo: 'اس صفحے پر ابھی آواز والے خانے کم ہیں', help: 'اس تختی کی ہدایات', lg: 'رنگ کا مطلب', gap: 'لفظوں کے بیچ وقفہ', reset: 'پروگریس مٹائیں', resetQ: 'کیا واقعی ساری پروگریس مٹانی ہے؟', aud: 'آواز', audR: 'استاد کی آواز', audQ: 'قاری (قرآن) کی آواز', heard: 'سنا', play: 'پورا صفحہ سنیں' },
-  en: { hT: 'Noorani Qaida — every letter with sound', hD: 'Exactly like the book. Tap any letter or word to hear it, or play the whole page.', go: 'Start', cont: 'Continue · page ', sec: 'Lessons (Takhti)', page: 'Page', of: '', takhti: 'Lesson', done: 'done', rep: 'Repeat each item', auto: 'Go to next page automatically', on: 'On', off: 'Off', hid: 'Show teacher notes', set: 'Settings', lang: 'Language', rec: 'Record teacher voice', recS: 'Record every item in your own voice (teachers only)', upd: 'Check for update', noA: 'Audio for this is coming soon', mash: 'MashaAllah! Page complete', qz: 'Listen & find', qzS: 'Listen and tap the right box', score: 'Score', again: 'Listen again', nextQ: 'Next', qzNo: 'Not enough audio on this page yet', help: 'Notes for this lesson', lg: 'Colour key', gap: 'Pause between items', reset: 'Reset progress', resetQ: 'Really erase all progress?', aud: 'Audio', audR: 'Teacher voice', audQ: 'Qari (Quran) voice', heard: 'heard', play: 'Play whole page' }
+  ru: { hj: 'Hijje (baa zabar ba)', hjA: 'Takhti 3–13', hjY: 'Har jagah', hjN: 'Sirf rawaan', hT: 'Noorani Qaida — aap ka ustad', hD: 'Har harf aur lafz par tap karein — suniye. Mic se padhiye — sahi ho to hara, ghalat ho to laal. Jab tak sahi na ho, aage nahi.', go: 'Shuru karein', cont: 'Jaari rakhein · Takhti ', sec: 'Takhtiyan', takhti: 'Takhti', page: 'Safha', done: 'mukammal', m1: 'Parhiye', m1s: 'Tap karein aur suniye', m2: 'Sabak sunaiye', m2s: 'Bachcha padhe, app check kare', m3: 'Ustad ke saath', m3s: 'Ustad padhe, bachcha dohraye', hid: 'Hidayaat', hidAll: 'Hidayaat (shuru ki baatein)', listen: 'Suniye', set: 'Settings', lang: 'Zaban', rep: 'Har lafz kitni baar', auto: 'Agli takhti khud', on: 'Haan', off: 'Nahin', vo: 'Ustad ki awaaz (shabash wagaira)', tries: 'Ghalti par kitni baar dobara', rec: 'Ustad ki awaaz record karein', recS: 'Har khana apni awaaz mein record karein', upd: 'Update check karein', reset: 'Progress mitayein', resetQ: 'Sach mein saari progress mitani hai?', from: 'Kahan se', to: 'kahan tak', pickFrom: 'Jis khane se shuru karna hai us par tap karein', pickTo: 'Ab aakhri khane par tap karein', all: 'Poori takhti', stop: 'Rukein', speakNow: 'Ab padhiye…', listenNow: 'Ghaur se suniye…', wrong: 'Ghalat — dobara padhiye', right: 'Shabash!', heardT: 'Suna gaya', skip: 'Aage chalein', retry: 'Phir se koshish', result: 'Natija', firstTry: 'Pehli baar mein sahi', mistakes: 'Ghaltiyan', again: 'Ghalat khane phir se', close: 'Band karein', noMic: 'Is phone mein awaaz pehchanne ka system nahi mila. Google app / Speech Services update karein.', micNo: 'Mic ki ijazat dijiye', noA: 'Is khane ki awaaz jald aayegi — abhi phone ki awaaz', heard: 'suna', good: 'sahi', tap: 'Tap: suniye · Lamba dabayein: padh kar check', play: 'Poori takhti suniye', mash: 'MashaAllah! Takhti mukammal', note: 'Note: akele harfon mein phone kabhi kabhi theek se nahi pehchanta — ustad saath ho to behtar.' },
+  ur: { hj: 'ہجے (با زبر بَ)', hjA: 'تختی ۳–۱۳', hjY: 'ہر جگہ', hjN: 'صرف رواں', hT: 'نورانی قاعدہ — آپ کا استاد', hD: 'ہر حرف اور لفظ پر ٹیپ کریں — سنیے۔ مائک سے پڑھیے — صحیح ہو تو ہرا، غلط ہو تو لال۔ جب تک صحیح نہ ہو، آگے نہیں۔', go: 'شروع کریں', cont: 'جاری رکھیں · تختی ', sec: 'تختیاں', takhti: 'تختی', page: 'صفحہ', done: 'مکمل', m1: 'پڑھیے', m1s: 'ٹیپ کریں اور سنیے', m2: 'سبق سنائیے', m2s: 'بچہ پڑھے، ایپ چیک کرے', m3: 'استاد کے ساتھ', m3s: 'استاد پڑھے، بچہ دہرائے', hid: 'ہدایات', hidAll: 'ہدایات (شروع کی باتیں)', listen: 'سنیے', set: 'ترتیبات', lang: 'زبان', rep: 'ہر لفظ کتنی بار', auto: 'اگلی تختی خود', on: 'ہاں', off: 'نہیں', vo: 'استاد کی آواز (شاباش وغیرہ)', tries: 'غلطی پر کتنی بار دوبارہ', rec: 'استاد کی آواز ریکارڈ کریں', recS: 'ہر خانہ اپنی آواز میں ریکارڈ کریں', upd: 'اپڈیٹ چیک کریں', reset: 'پروگریس مٹائیں', resetQ: 'کیا واقعی ساری پروگریس مٹانی ہے؟', from: 'کہاں سے', to: 'کہاں تک', pickFrom: 'جس خانے سے شروع کرنا ہے اس پر ٹیپ کریں', pickTo: 'اب آخری خانے پر ٹیپ کریں', all: 'پوری تختی', stop: 'رکیں', speakNow: 'اب پڑھیے…', listenNow: 'غور سے سنیے…', wrong: 'غلط — دوبارہ پڑھیے', right: 'شاباش!', heardT: 'سنا گیا', skip: 'آگے چلیں', retry: 'پھر سے کوشش', result: 'نتیجہ', firstTry: 'پہلی بار میں صحیح', mistakes: 'غلطیاں', again: 'غلط خانے پھر سے', close: 'بند کریں', noMic: 'اس فون میں آواز پہچاننے کا نظام نہیں ملا۔', micNo: 'مائک کی اجازت دیجیے', noA: 'اس خانے کی آواز جلد آئے گی — ابھی فون کی آواز', heard: 'سنا', good: 'صحیح', tap: 'ٹیپ: سنیے · لمبا دبائیں: پڑھ کر چیک', play: 'پوری تختی سنیے', mash: 'ماشاءاللہ! تختی مکمل', note: 'نوٹ: اکیلے حرفوں میں فون کبھی کبھی ٹھیک سے نہیں پہچانتا۔' },
+  en: { hj: 'Spelling (hijje)', hjA: 'Lessons 3–13', hjY: 'Everywhere', hjN: 'Fluent only', hT: 'Noorani Qaida — your teacher', hD: 'Tap any letter or word to hear it. Read into the mic — green if right, red if wrong. You move on only when it is right.', go: 'Start', cont: 'Continue · Lesson ', sec: 'Lessons (Takhti)', takhti: 'Lesson', page: 'Page', done: 'done', m1: 'Read', m1s: 'Tap and listen', m2: 'Recite lesson', m2s: 'Child reads, app checks', m3: 'With teacher', m3s: 'Teacher reads, child repeats', hid: 'Notes', hidAll: 'Teacher notes (introduction)', listen: 'Listen', set: 'Settings', lang: 'Language', rep: 'Repeat each item', auto: 'Next lesson automatically', on: 'On', off: 'Off', vo: 'Teacher voice (praise etc.)', tries: 'Retries on a mistake', rec: 'Record teacher voice', recS: 'Record every box in your own voice', upd: 'Check for update', reset: 'Reset progress', resetQ: 'Really erase all progress?', from: 'From', to: 'to', pickFrom: 'Tap the box to start from', pickTo: 'Now tap the last box', all: 'Whole lesson', stop: 'Stop', speakNow: 'Now read…', listenNow: 'Listen carefully…', wrong: 'Wrong — read again', right: 'Well done!', heardT: 'Heard', skip: 'Move on', retry: 'Try again', result: 'Result', firstTry: 'Right first time', mistakes: 'Mistakes', again: 'Practise mistakes', close: 'Close', noMic: 'No speech recognition on this phone.', micNo: 'Please allow the microphone', noA: 'Audio for this box is coming — phone voice for now', heard: 'heard', good: 'correct', tap: 'Tap: listen · Long press: read & check', play: 'Play whole lesson', mash: 'MashaAllah! Lesson complete', note: 'Note: for single letters the phone does not always recognise well.' }
 };
 const T = k => (L[S.ui] || L.ru)[k] || L.ru[k] || k;
-const LEG = [['g', 'Mota (pur) harf', 'موٹا حرف', 'Heavy letter'], ['o', 'Ikhfa', 'اخفا', 'Ikhfa'], ['b', 'Qalqala', 'قلقلہ', 'Qalqalah'], ['r', 'Ghunna', 'غنہ', 'Ghunnah']];
+const LEG = [['g', 'Mota harf', 'موٹا حرف', 'Heavy'], ['o', 'Ikhfa', 'اخفا', 'Ikhfa'], ['b', 'Qalqala', 'قلقلہ', 'Qalqalah'], ['r', 'Ghunna', 'غنہ', 'Ghunnah']];
 
 /* ---------- data ---------- */
-let D = null, AU = {}, QM = {}, HID = {}, PAGES = [], TAK = {}, ORDER = [];
-const BYP = {};
+let D = null, AU = {}, QM = {}, TAKS = [], BYT = {}; const ORDER = [];
 async function load() {
   const j = u => fetch(u).then(r => r.ok ? r.json() : {}).catch(() => ({}));
-  [D, AU, QM, HID] = await Promise.all([j('q/qaida.json'), j('q/audio.json'), j('q/qmatch.json'), j('q/hid.json')]);
-  PAGES = D.pages || []; PAGES.forEach(p => { BYP[p.p] = p; });
-  let cur = 1;
-  PAGES.forEach(p => { p.tk = []; let first = true; p.blocks.forEach(b => { if (b.t === 'head') { cur = b.n; if (!TAK[cur]) TAK[cur] = { n: cur, title: b.title, pages: [] }; if (first && !p.blocks.slice(0, p.blocks.indexOf(b)).some(x => x.t === 'grid' || x.t === 'lines')) first = false; } }); });
-  /* which takhti each page belongs to (for the header) and each takhti's page range */
-  cur = 1; PAGES.forEach(p => { const heads = p.blocks.filter(b => b.t === 'head').map(b => b.n); const startsWithContent = p.blocks.findIndex(b => b.t === 'grid' || b.t === 'lines' || b.t === 'table') < p.blocks.findIndex(b => b.t === 'head'); p.tks = []; if (!heads.length || startsWithContent) p.tks.push(cur); heads.forEach(h => { p.tks.push(h); cur = h; }); p.tks.forEach(t => TAK[t] && !TAK[t].pages.includes(p.p) && TAK[t].pages.push(p.p)); p.tk = p.tks[p.tks.length - 1]; });
-  ORDER = PAGES.map(p => p.p);
+  [D, AU, QM] = await Promise.all([j('q/qaida.json'), j('q/audio.json'), j('q/qmatch.json')]);
+  TAKS = D.takhti || []; TAKS.forEach(t => BYT[t.n] = t); ORDER.length = 0; ORDER.push(...TAKS.map(t => t.n));
 }
 
-/* ---------- tajweed colouring (same colour code as the printed qaida) ---------- */
+/* ---------- tajweed colouring ---------- */
 const MARK = /[ً-ٰٟۖ-ۭ࣓-ࣿ]/;
 const HEAVY = 'خصضغطقظ', QAL = 'قطبجد', IKH = 'تثجدذزسشصضطظفقك';
-const NOLEFT = 'اأإآٱدذرزژوؤءةۀ', NOJOIN = 'ء';
-const joinsNext = c => !NOLEFT.includes(c) && /[\u0620-\u064A\u066E-\u06D3\u06FA-\u06FF]/.test(c);
-const joinsPrev = c => !NOJOIN.includes(c) && /[\u0620-\u064A\u066E-\u06D3\u06FA-\u06FF]/.test(c);
-function graphemes(s) { const g = []; for (const ch of s) { if (MARK.test(ch) && g.length) g[g.length - 1] += ch; else g.push(ch); } return g; }
+const NOLEFT = 'اأإآٱدذرزژوؤءةۀ';
+const joinsNext = c => !NOLEFT.includes(c) && /[ؠ-يٮ-ۓۺ-ۿ]/.test(c);
+const joinsPrev = c => c !== 'ء' && /[ؠ-يٮ-ۓۺ-ۿ]/.test(c);
+function graphemes(s) { const g = []; for (const ch of s) { if ((MARK.test(ch) || ch === 'ـ') && g.length) g[g.length - 1] += ch; else g.push(ch); } return g; }
 const has = (g, m) => g.indexOf(m) > 0;
 function colourWord(s, mode, idx) {
   const g = graphemes(s), out = []; let alt = idx || 0;
@@ -54,9 +42,8 @@ function colourWord(s, mode, idx) {
     if (c === ' ') { out.push(' '); continue; }
     let col = null;
     if (mode !== 'alt') {
-      const sk = has(x, 'ْ'), sh = has(x, 'ّ'), kas = has(x, 'ِ') || has(x, 'ٍ');
-      const tanw = /[ً-ٍ]/.test(x);
-      let nx = ''; for (let j = i + 1; j < g.length; j++) { const b = g[j][0]; if (b === ' ' || 'اى'.includes(b) && !MARK.test(g[j].slice(1))) continue; nx = b; break; }
+      const sk = has(x, 'ْ'), sh = has(x, 'ّ'), kas = has(x, 'ِ') || has(x, 'ٍ'), tanw = /[ً-ٍ]/.test(x);
+      let nx = ''; for (let j = i + 1; j < g.length; j++) { const b = g[j][0]; if (b === ' ' || ('اى'.includes(b) && !MARK.test(g[j].slice(1)))) continue; nx = b; break; }
       if ((c === 'ن' && sk || tanw) && nx && IKH.includes(nx)) col = 'o';
       else if ((c === 'ن' || c === 'م') && sh) col = 'r';
       else if (QAL.includes(c) && sk) col = 'b';
@@ -66,281 +53,404 @@ function colourWord(s, mode, idx) {
     if (!col) col = mode === 'auto' ? 'm' : (alt++ % 2 ? 'k' : 'm');
     out.push([col, x]);
   }
-  /* keep Arabic letters joined across colour changes: zero-width joiners at the span edges */
   let h = '';
   for (let i = 0; i < out.length; i++) {
     const it = out[i]; if (typeof it === 'string') { h += it; continue; }
     const pv = out[i - 1], nx = out[i + 1];
-    const jp = pv && typeof pv !== 'string' && joinsNext(pv[1][0]) && joinsPrev(it[1][0]);
-    const jn = nx && typeof nx !== 'string' && joinsNext(it[1][0]) && joinsPrev(nx[1][0]);
-    h += `<span class="c-${it[0]}">${jp ? '\u200d' : ''}${esc(it[1])}${jn ? '\u200d' : ''}</span>`;
+    const jp = pv && typeof pv !== 'string' && pv[0] !== it[0] && joinsNext(pv[1][0]) && joinsPrev(it[1][0]);
+    const jn = nx && typeof nx !== 'string' && nx[0] !== it[0] && joinsNext(it[1][0]) && joinsPrev(nx[1][0]);
+    h += `<span class="c-${it[0]}">${jp ? '‍' : ''}${esc(it[1])}${jn ? '‍' : ''}</span>`;
   }
   return h;
 }
+const clsOf = id => S.good[id] ? 'good' : S.heard[id] ? 'heard' : '';
 
-/* ---------- page rendering ---------- */
-function fsFor(cols, cells, mode) {
-  const W = Math.min(560, innerWidth - 16) - 40, len = Math.max(1, ...cells.map(c => graphemes(c.ar || '').length));
-  const per = W / cols; let fs = per * (len <= 1 ? .6 : len <= 2 ? .56 : len <= 3 ? .52 : len <= 5 ? .46 : .4);
-  return Math.max(20, Math.min(52, fs));
+/* ---------- takhti rendering ---------- */
+function fsFor(cols, cells) {
+  const W = Math.min(560, innerWidth - 16) - 40, len = Math.max(1, ...cells.filter(c => c.ar).map(c => graphemes(c.ar).length));
+  return Math.max(20, Math.min(52, W / cols * (len <= 1 ? .6 : len <= 2 ? .56 : len <= 3 ? .52 : len <= 5 ? .46 : .4)));
 }
-function bookHTML(p) {
-  if (!p) return '';
-  let h = `<div class="book" data-p="${p.p}"><span class="bno">${p.p}</span><div class="bin">`, wi = 0;
-  for (const b of p.blocks) {
-    if (b.t === 'head') h += `<div class="ban"><div>${b.n ? `تختی نمبر <span class="n">${b.n}</span> ` : ''}${esc(b.title)}</div></div>`;
-    else if (b.t === 'bism') h += `<div class="ban bism"><div>بِسْمِ اللّٰهِ الرَّحْمٰنِ الرَّحِيْمِ</div></div>`;
-    else if (b.t === 'hid' || b.t === 'note') { if (S.hid || b.t === 'note') h += `<div class="hid ${b.t === 'note' ? 'note' : ''}">${hidHTML(b.ur)}</div>`; }
-    else if (b.t === 'foot') h += `<div class="foot">${footHTML(b.ur)}</div>`;
+function takhtiHTML(t) {
+  if (!t) return '';
+  let h = `<div class="book" data-t="${t.n}"><span class="bno">${t.pages[0] || ''}</span><div class="bin">`, wi = 0;
+  h += `<div class="ban"><div>${t.n < 29 ? `تختی نمبر <span class="n">${t.n}</span> ` : ''}${esc(t.title)}</div></div>`;
+  if (t.hid) h += `<button class="hidbtn" data-hid="${t.n}">📖 ${T('hid')} · ${T('takhti')} ${t.n < 29 ? t.n : ''}</button>`;
+  let ri = 0;
+  for (const b of t.blocks) {
+    if (b.t === 'bism') h += `<div class="ban bism"><div>بِسْمِ اللّٰهِ الرَّحْمٰنِ الرَّحِيْمِ</div></div>`;
+    else if (b.t === 'dua') h += `<div class="dua"><span class="w ${clsOf(b.it.id)}" data-id="${b.it.id}">${esc(b.it.ar)}</span></div>`;
+    else if (b.t === 'rule') { h += `<div class="hid rule" data-rule="${t.n}-${ri}"><button class="rsay" aria-label="listen">🔊</button>${ruleHTML(b.ur)}</div>`; ri++; }
+    else if (b.t === 'sub') h += `<div class="subh"><span>${esc(b.ur)}</span></div>`;
+    else if (b.t === 'keys') h += `<div class="keys">${b.ks.map(k => `<b>${esc(k)}</b>`).join('')}</div>`;
     else if (b.t === 'grid') {
-      const cells = b.rows.flatMap(r => r.cells); const fs = fsFor(b.cols, cells, b.mode);
-      h += `<div class="grid" style="grid-template-columns:repeat(${b.cols},1fr);--fs:${fs}px;--ch:${Math.round(fs * 1.75)}px">`;
+      const cells = b.rows.flatMap(r => r.cells); const fs = fsFor(b.cols, cells);
+      h += `<div class="grid ${b.shapes ? 'shp' : ''}" style="grid-template-columns:repeat(${b.cols},1fr);--fs:${fs}px;--ch:${Math.round(fs * 1.75)}px">`;
       for (const r of b.rows) {
-        let used = r.cells.reduce((a, c) => a + (c.span || 1), 0), pad = r.c ? Math.floor((b.cols - used) / 2) : 0;
-        if (r.c) for (let k = 0; k < pad; k++) h += '<div class="cell"></div>';
+        const used = r.cells.reduce((a, c) => a + (c.span || 1), 0), pad = r.c ? Math.floor((b.cols - used) / 2) : 0;
+        for (let k = 0; k < pad; k++) h += '<div class="cell e"></div>';
         for (const c of r.cells) {
           if (c.mark) { h += `<div class="cell mk">${esc(c.mark)}</div>`; continue; }
-          const inner = c.col ? `<span class="c-${c.col}">${esc(c.ar)}</span>` : b.quran ? `<span class="c-${wi++ % 2 ? 'g' : 'm'}">${esc(c.ar)}</span>` : colourWord(c.ar, b.mode, wi++);
-          h += `<div class="cell ${S.heard[c.id] ? 'heard' : ''}" data-id="${c.id}"${c.span ? ` style="grid-column:span ${c.span}"` : ''}>${inner}${c.name ? `<span class="nm">${esc(c.name)}</span>` : ''}</div>`;
+          if (c.deco) { h += `<div class="cell deco">✿</div>`; continue; }
+          const inner = b.quran ? `<span class="c-${wi++ % 2 ? 'g' : 'm'}">${esc(c.ar)}</span>` : colourWord(c.ar, b.mode, wi++);
+          h += `<div class="cell ${clsOf(c.id)}" data-id="${c.id}"${c.span ? ` style="grid-column:span ${c.span}"` : ''}>${inner}${c.name ? `<span class="${b.shapes ? 'shx' : 'nm'}">${esc(c.name)}</span>` : ''}</div>`;
         }
-        if (r.c) for (let k = 0; k < b.cols - used - pad; k++) h += '<div class="cell"></div>';
-        else for (let k = used; k < b.cols; k++) h += '<div class="cell"></div>';
+        for (let k = used + pad; k < b.cols; k++) h += '<div class="cell e"></div>';
       }
       h += '</div>';
     } else if (b.t === 'lines') {
       const W = Math.min(560, innerWidth - 16) - 40; let maxw = 0;
-      b.rows.forEach(r => { const n = r.cells.reduce((a, c) => a + (c.ar ? graphemes(c.ar).length + 1.2 : 1), 0); maxw = Math.max(maxw, n); });
-      const fs = Math.max(22, Math.min(44, W / maxw * 2));
+      b.rows.forEach(r => { maxw = Math.max(maxw, r.cells.reduce((a, c) => a + (c.ar ? graphemes(c.ar).length + 1.5 : 1.2), 0)); });
+      const fs = Math.max(20, Math.min(44, W / maxw * 2));
       h += `<div class="lines" style="--fs:${fs}px">`;
       for (const r of b.rows) {
         h += `<div class="ln ${r.cells.length < 4 ? 'c' : ''}">`;
-        for (const c of r.cells) h += c.mark ? `<span class="mk">${esc(c.mark)}</span>` : `<span class="w ${S.heard[c.id] ? 'heard' : ''}" data-id="${c.id}">${colourWord(c.ar, 'word', wi++)}</span>`;
+        for (const c of r.cells) h += c.mark ? `<span class="mk">${esc(c.mark)}</span>` : `<span class="w ${clsOf(c.id)}" data-id="${c.id}">${colourWord(c.ar, b.mode, wi++)}</span>`;
         h += '</div>';
       }
       h += '</div>';
     } else if (b.t === 'table') {
-      h += `<table class="tbl"><tr><th>#</th><th>لکھنے کی صورت</th><th>پڑھنے کی صورت</th></tr>`;
-      b.rows.forEach((r, i) => { h += `<tr><td class="n">${i + 1}</td><td class="w1">${esc(r.w)}</td><td class="w2 w" data-id="${r.id}">${esc(r.r)}</td></tr>`; });
+      h += `<table class="tbl"><tr><th>لکھنے کی صورت</th><th>پڑھنے کی صورت</th></tr>`;
+      b.rows.forEach(r => { h += `<tr><td class="w1">${esc(r.w)}</td><td class="w2"><span class="w ${clsOf(r.r.id)}" data-id="${r.r.id}">${esc(r.r.ar)}</span></td></tr>`; });
       h += '</table>';
+    } else if (b.t === 'table2') {
+      h += `<table class="tbl t2"><tr><th>علامت</th><th>تشریح</th></tr>`;
+      b.rows.forEach(r => { h += `<tr><td class="m">${esc(r.m)}</td><td class="e">${esc(r.e)}</td></tr>`; });
+      h += '</table>';
+    } else if (b.t === 'kalima') {
+      h += `<div class="kal"><div class="kn">${esc(b.name)}</div><div class="kt"><span class="w ${clsOf(b.it.id)}" data-id="${b.it.id}">${colourWord(b.it.ar, 'word', 0)}</span></div>${b.tr ? `<div class="ktr">${esc(b.tr)}</div>` : ''}</div>`;
     }
   }
-  return h + '</div></div>';
+  return h + `<div class="foot"><b class="c-g">سبز</b> موٹا · <b class="c-o">مالٹا</b> اخفا · <b class="c-b">نیلا</b> قلقلہ · <b class="c-r">سرخ</b> غنہ</div></div></div>`;
 }
-function hidHTML(t) {
-  const s = esc(t).replace(/^(هدایات|ہدایات|قاعدہ نمبر \(۱\)|سوال|حروفِ لین|تنبیہ)\s*:?/, m => `<b class="h">${m}</b>`).replace(/(تنبیہ|نوٹ|قاعدہ نمبر \([۰-۹]+\)|قاعدہ)\s*:/g, m => `<b class="h">${m}</b>`);
-  return s;
-}
-function footHTML(t) { return esc(t).replace('سبز', '<b class="c-g">سبز</b>').replace('مالٹا', '<b class="c-o">مالٹا</b>').replace('نیلے', '<b class="c-b">نیلے</b>').replace('سرخ', '<b class="c-r">سرخ</b>'); }
+function ruleHTML(t) { return esc(t).replace(/(تنبیہ|نوٹ|ہدایت|قاعدہ|ہجے)\s*:/g, m => `<b class="h">${m}</b>`).replace(/(\([۰-۹0-9]+\))/g, '<b class="h">$1</b>'); }
 
 /* ---------- screens ---------- */
 function show(id) { $$('.scr').forEach(s => s.classList.toggle('on', s.id === id)); }
 function home() {
-  stop(); show('home');
+  stopAll(); show('home');
   $('#hTitle').textContent = T('hT'); $('#hDesc').textContent = T('hD'); $('#secT').textContent = T('sec');
-  const started = Object.keys(S.heard).length > 0; $('#bGoT').textContent = started ? T('cont') + S.page : T('go');
-  const nd = ORDER.filter(p => S.done[p]).length; $('#hStat').textContent = `${nd} / ${ORDER.length} ${T('page')} ${T('done')} · ${Object.keys(S.heard).length} ${T('heard')}`;
-  $('#legend').innerHTML = `<span><b>${T('lg')}:</b></span>` + LEG.map(l => `<span><i style="background:var(--${l[0]})"></i>${S.ui === 'ur' ? l[2] : S.ui === 'en' ? l[3] : l[1]}</span>`).join('');
-  const ks = Object.keys(TAK).map(Number).sort((a, b) => (a || 99) - (b || 99));
-  $('#tlist').innerHTML = ks.map((k, i) => {
-    const t = TAK[k], pg = t.pages, dn = pg.filter(p => S.done[p]).length, sub = TK[k] ? (S.ui === 'en' ? TK[k][1] : TK[k][0]) : '';
-    const ex = firstText(pg[0], k);
-    return `<button class="tk ${dn === pg.length ? 'done' : ''}" data-tk="${k}" style="animation-delay:${i * 35}ms"><span class="no"><b>${k || '★'}</b></span><span class="tt"><b class="nq">${esc(t.title)}</b><small>${esc(sub)} · ${T('page')} ${pg.join(', ')}</small></span><span class="ex">${esc(ex)}</span><i class="bar" style="width:${pg.length ? dn / pg.length * 100 : 0}%"></i></button>`;
+  const started = Object.keys(S.heard).length > 0; $('#bGoT').textContent = started ? T('cont') + S.tk : T('go');
+  const nd = ORDER.filter(n => S.done[n]).length; $('#hStat').textContent = `${nd} / ${ORDER.length} ${T('takhti')} ${T('done')} · ${Object.keys(S.good).length} ${T('good')} · ${Object.keys(S.heard).length} ${T('heard')}`;
+  $('#modes').innerHTML = [['m1', '👆', 'read'], ['m2', '🎙', 'sabak'], ['m3', '🧑‍🏫', 'learn']].map(([k, ic, m]) => `<button class="mode ${m}" data-mode="${m}"><i>${ic}</i><b>${T(k)}</b><small>${T(k + 's')}</small></button>`).join('');
+  $('#legend').innerHTML = LEG.map(l => `<span><i style="background:var(--${l[0]})"></i>${S.ui === 'ur' ? l[2] : S.ui === 'en' ? l[3] : l[1]}</span>`).join('');
+  $('#tlist').innerHTML = `<button class="tk intro" data-intro="1"><span class="no"><b>📖</b></span><span class="tt"><b class="nq">ہدایات و طریقۂ تعلیم</b><small>${T('hidAll')}</small></span></button>` + TAKS.map((t, i) => {
+    const ids = itemIds(t), g = ids.filter(x => S.good[x]).length, pct = ids.length ? g / ids.length * 100 : 0;
+    return `<button class="tk ${S.done[t.n] ? 'done' : ''}" data-tk="${t.n}" style="animation-delay:${(i + 1) * 30}ms"><span class="no"><b>${t.n < 29 ? t.n : '★'}</b></span><span class="tt"><b class="nq">${esc(t.title)}</b><small>${esc(S.ui === 'en' ? TKE[t.n] : TK[t.n] || '')} · ${ids.length}</small></span><span class="ex">${esc(firstText(t))}</span><i class="bar" style="width:${pct}%"></i></button>`;
   }).join('');
   $('#bUpd').textContent = T('upd'); $('#ver').textContent = verName();
   document.documentElement.dir = S.ui === 'ur' ? 'rtl' : 'ltr';
 }
-function firstText(pn, tk) {
-  const p = BYP[pn]; if (!p) return ''; let on = false;
-  for (const b of p.blocks) { if (b.t === 'head') on = b.n === tk; if ((on || tk === 1) && (b.t === 'grid' || b.t === 'lines')) { const c = b.rows[0].cells.filter(x => x.ar).slice(0, b.t === 'grid' ? 3 : 1).map(x => x.ar.split(':')[0]); return c.join(' '); } if (b.t === 'table') return b.rows[0].r; }
-  return '';
-}
+function itemIds(t) { const o = []; t.blocks.forEach(b => { if (b.it) o.push(b.it.id); (b.rows || []).forEach(r => { if (r.cells) r.cells.forEach(c => c.id && o.push(c.id)); if (r.r) o.push(r.r.id); }); }); return o; }
+function firstText(t) { for (const b of t.blocks) { if (b.t === 'grid' || b.t === 'lines') { const c = b.rows[0].cells.filter(x => x.ar).slice(0, b.t === 'grid' ? 3 : 1).map(x => x.ar); return c.join(' '); } if (b.it) return b.it.ar.split(' ').slice(0, 2).join(' '); if (b.t === 'table') return b.rows[0].r.ar; } return ''; }
 function verName() { try { return window.QaidaAndroid && QaidaAndroid.appVersion ? 'v1.0.' + QaidaAndroid.appVersion() : 'web'; } catch (e) { return ''; } }
 
-let curP = 2;
-function openPage(p, dir) {
-  if (!BYP[p]) return; stop(); curP = p; S.page = p; save(); show('pg');
-  const tr = $('#ptrack'), sl = document.createElement('div'); sl.className = 'pslot'; sl.innerHTML = bookHTML(BYP[p]);
+let curT = 1;
+function openTakhti(n, dir) {
+  if (!BYT[n]) return; stopAll(); pick = null; banner(null); curT = n; S.tk = n; save(); show('pg');
+  const tr = $('#ptrack'), sl = document.createElement('div'); sl.className = 'pslot'; sl.innerHTML = takhtiHTML(BYT[n]);
   const old = tr.firstElementChild;
   if (old && dir) {
-    sl.style.position = 'absolute'; sl.style.inset = '0'; sl.style.transform = `translateX(${dir > 0 ? -100 : 100}%)`; tr.appendChild(sl);
+    sl.style.cssText = `position:absolute;inset:0;transform:translateX(${dir > 0 ? -100 : 100}%)`; tr.appendChild(sl);
     old.style.transition = sl.style.transition = 'transform .34s cubic-bezier(.2,.8,.2,1),opacity .34s'; sl.getBoundingClientRect();
     old.style.transform = `translateX(${dir > 0 ? 40 : -40}%)`; old.style.opacity = '0'; sl.style.transform = 'none';
-    setTimeout(() => { old.remove(); sl.style.position = ''; sl.style.inset = ''; sl.style.transition = ''; }, 360);
+    setTimeout(() => { old.remove(); sl.style.cssText = ''; }, 360);
   } else { tr.innerHTML = ''; tr.appendChild(sl); }
-  const pp = BYP[p], tk = TAK[pp.tk];
-  $('#pTitle').textContent = tk ? tk.title : ''; $('#pSub').textContent = `${pp.tk ? T('takhti') + ' ' + pp.tk + ' · ' : ''}${T('page')} ${p}`;
-  $('#pNo').textContent = `${p} / ${ORDER[ORDER.length - 1]}`;
-  $('#pDots').innerHTML = ORDER.map(x => `<i class="${x === p ? 'on' : S.done[x] ? 'dn' : ''}"></i>`).join('');
+  const t = BYT[n];
+  $('#pTitle').textContent = t.title; $('#pSub').textContent = `${n < 29 ? T('takhti') + ' ' + n + ' · ' : ''}${T('page')} ${t.pages.join(', ')}`;
+  $('#pNo').textContent = `${n < 29 ? n : '★'} / 28`;
+  $('#pDots').innerHTML = ORDER.map(x => `<i class="${x === n ? 'on' : S.done[x] ? 'dn' : ''}"></i>`).join('');
   $('#repN').textContent = S.rep;
-  fit(sl); prefetch(p);
+  fit(sl); prefetch();
 }
 function fit(root) {
-  root.querySelectorAll('.grid').forEach(g => { let fs = parseFloat(g.style.getPropertyValue('--fs')); const over = () => [...g.querySelectorAll('.cell')].some(c => c.scrollWidth > c.clientWidth + 1); let n = 0; while (over() && fs > 18 && n++ < 20) { fs -= 2; g.style.setProperty('--fs', fs + 'px'); g.style.setProperty('--ch', Math.round(fs * 1.75) + 'px'); } });
-  root.querySelectorAll('.lines').forEach(L => { let fs = parseFloat(L.style.getPropertyValue('--fs')); const over = () => [...L.querySelectorAll('.ln')].some(r => r.scrollWidth > r.clientWidth + 1); let n = 0; while (over() && fs > 18 && n++ < 20) { fs -= 1.5; L.style.setProperty('--fs', fs + 'px'); } });
+  root.querySelectorAll('.grid').forEach(g => { let fs = parseFloat(g.style.getPropertyValue('--fs')); const over = () => [...g.querySelectorAll('.cell')].some(c => c.scrollWidth > c.clientWidth + 1); let n = 0; while (over() && fs > 16 && n++ < 24) { fs -= 2; g.style.setProperty('--fs', fs + 'px'); g.style.setProperty('--ch', Math.round(fs * 1.75) + 'px'); } });
+  root.querySelectorAll('.lines').forEach(Ln => { let fs = parseFloat(Ln.style.getPropertyValue('--fs')); const over = () => [...Ln.querySelectorAll('.ln')].some(r => r.scrollWidth > r.clientWidth + 1); let n = 0; while (over() && fs > 15 && n++ < 24) { fs -= 1.5; Ln.style.setProperty('--fs', fs + 'px'); } });
 }
 const pgItems = () => $$('.pslot:last-child [data-id]');
-function step(d) { const i = ORDER.indexOf(curP) + d; if (i >= 0 && i < ORDER.length) openPage(ORDER[i], d); }
+const itemEl = id => $(`.pslot:last-child [data-id="${id}"]`);
+let IDX = null;
+function itemAr(id) { if (!IDX) { IDX = {}; TAKS.forEach(t => t.blocks.forEach(b => { if (b.it) IDX[b.it.id] = b.it; (b.rows || []).forEach(r => { (r.cells || []).forEach(c => c.id && (IDX[c.id] = c)); if (r.r) IDX[r.r.id] = r.r; }); })); } return IDX[id] || null; }
+function step(d) { const i = ORDER.indexOf(curT) + d; if (i >= 0 && i < ORDER.length) openTakhti(ORDER[i], d); }
 
 /* ---------- audio ---------- */
-const A = new Audio(); A.preload = 'auto'; let playing = null, seq = null, endAt = 0, raf = 0;
+const A = new Audio(); A.preload = 'auto'; let playing = null, seq = null, raf = 0;
 function srcOf(id) {
   const r = window.QaidaRec && QaidaRec.src(id); if (r) return r;
   if (AU[id]) return { url: 'a/' + AU[id], kind: 'r' };
   if (QM[id]) return { url: 'https://audio.qurancdn.com/wbw/' + QM[id] + '.mp3', kind: 'q' };
   return null;
 }
-const hasAudio = id => !!srcOf(id);
-function prefetch(p) { const ids = pgItems().map(e => e.dataset.id).slice(0, 8); ids.forEach(id => { const s = srcOf(id); if (s && !s.blob && !s.start) { const a = new Audio(); a.preload = 'auto'; a.src = s.url; } }); }
-function highlight(id) { $$('.on[data-id]').forEach(e => e.classList.remove('on')); if (!id) return; const e = $(`.pslot:last-child [data-id="${id}"]`); if (e) { e.classList.add('on'); const r = e.getBoundingClientRect(), v = $('#pview').getBoundingClientRect(); if (r.top < v.top + 10 || r.bottom > v.bottom - 10) e.scrollIntoView({ block: 'center', behavior: 'smooth' }); } }
+function prefetch() { pgItems().slice(0, 8).forEach(e => { const s = srcOf(e.dataset.id); if (s && !s.blob) { const a = new Audio(); a.preload = 'auto'; a.src = s.url; } }); }
+function highlight(id, cls) { $$('.on[data-id],.lis[data-id]').forEach(e => e.classList.remove('on', 'lis')); if (!id) return; const e = itemEl(id); if (e) { e.classList.add(cls || 'on'); const r = e.getBoundingClientRect(), v = $('#pview').getBoundingClientRect(); if (r.top < v.top + 10 || r.bottom > v.bottom - 130) e.scrollIntoView({ block: 'center', behavior: 'smooth' }); } }
+/* spoken form for the phone voice: a lone letter is read by its name */
+const LNAME = { 'ا': 'أَلِف', 'ب': 'بَاء', 'ت': 'تَاء', 'ث': 'ثَاء', 'ج': 'جِيم', 'ح': 'حَاء', 'خ': 'خَاء', 'د': 'دَال', 'ذ': 'ذَال', 'ر': 'رَاء', 'ز': 'زَاي', 'س': 'سِين', 'ش': 'شِين', 'ص': 'صَاد', 'ض': 'ضَاد', 'ط': 'طَاء', 'ظ': 'ظَاء', 'ع': 'عَيْن', 'غ': 'غَيْن', 'ف': 'فَاء', 'ق': 'قَاف', 'ك': 'كَاف', 'ل': 'لَام', 'م': 'مِيم', 'ن': 'نُون', 'و': 'وَاو', 'ه': 'هَاء', 'ء': 'هَمْزَة', 'ي': 'يَاء', 'ى': 'يَاء', 'ے': 'يَاء', 'ة': 'تَاء مَرْبُوطَة' };
+function ttsText(ar) { const s = String(ar || '').trim(); return LNAME[s] || s.replace(/[ۖ-ۭ]/g, ''); }
 function playOne(id, times) {
   return new Promise(res => {
-    const s = srcOf(id); highlight(id); playing = id;
-    if (!s) { toastOnce(T('noA')); setTimeout(() => res(false), 450); return; }
-    let left = Math.max(1, times || 1);
+    const s = srcOf(id); playing = id; let left = Math.max(1, times || 1);
+    const tts = () => { const it = itemAr(id); toastOnce(T('noA')); C().speak(ttsText(it ? it.ar : ''), 'ar-SA', .7).then(ok => { if (playing !== id) return res(false); markHeard(id); if (--left > 0 && ok) setTimeout(tts, 250); else res(true); }); };
+    if (!s) { tts(); return; }
     const go = () => {
       cancelAnimationFrame(raf); A.onended = null; A.onerror = null;
-      if (A.src !== s.url) A.src = s.url;
-      const start = s.start || 0; endAt = s.end || 0;
+      if (!A.src.endsWith(s.url)) A.src = s.url;
       const done = () => { cancelAnimationFrame(raf); if (playing !== id) return res(false); markHeard(id); if (--left > 0) setTimeout(go, 250); else res(true); };
-      A.onended = done; A.onerror = () => { if (s.kind === 'q') toastOnce('Internet check karein'); res(false); };
-      try { A.currentTime = start; } catch (e) { }
-      const pr = A.play(); if (pr && pr.catch) pr.catch(() => res(false));
-      if (endAt) { const tick = () => { if (playing !== id) return; if (A.currentTime >= endAt) { A.pause(); done(); } else raf = requestAnimationFrame(tick); }; raf = requestAnimationFrame(tick); }
+      A.onended = done; A.onerror = () => { if (s.kind === 'q') toastOnce('Internet check karein'); tts(); };
+      try { A.currentTime = s.start || 0; } catch (e) { }
+      const pr = A.play(); if (pr && pr.catch) pr.catch(() => { });
+      if (s.end) { const tick = () => { if (playing !== id) return; if (A.currentTime >= s.end) { A.pause(); done(); } else raf = requestAnimationFrame(tick); }; raf = requestAnimationFrame(tick); }
     };
     go();
   });
 }
-function stop() { playing = null; seq = null; cancelAnimationFrame(raf); try { A.pause(); } catch (e) { } highlight(null); $('#bPlay') && $('#bPlay').classList.remove('on'); }
+/* ---------- hijje: "baa zabar ba" — letter name, mark name, syllable; then the whole word ---------- */
+const MK = { 'َ': 'zabar', 'ِ': 'zer', 'ُ': 'pesh', 'ً': 'dozabar', 'ٍ': 'dozer', 'ٌ': 'dopesh', 'ْ': 'jazm', 'ۡ': 'jazm', 'ّ': 'tashdeed', 'ٰ': 'kzabar', 'ٖ': 'kzer', 'ٗ': 'upesh', 'ٓ': 'madd' };
+const NORM = { 'ى': 'ي', 'ی': 'ي', 'ے': 'ي', 'ک': 'ك', 'ہ': 'ه', 'ھ': 'ه', 'أ': 'ء', 'إ': 'ء', 'ؤ': 'ء', 'ئ': 'ء', 'ٱ': 'ا', 'آ': 'ا' };
+const clip = k => AU[k] ? 'a/' + AU[k] : null;
+function hijjeOn(id) { if (S.hj === 2) return false; const n = +String(id).split('-')[0]; if (S.hj === 1) return n >= 2; return n >= 3 && n <= 13; }
+function hijjeList(id) {
+  const it = itemAr(id); if (!it || !it.ar) return null;
+  const words = it.ar.trim().split(/\s+/); if (words.length > 3) return null;
+  const out = []; let any = false;
+  for (const w of words) {
+    const g = graphemes(w).filter(x => x !== 'ـ'); let prev = '';
+    for (const x of g) {
+      const c = x[0], ms = [...x.slice(1)].map(ch => MK[ch]).filter(Boolean);
+      /* alif carrying a vowel is read as hamza: "hamza zabar a" */
+      const base = c === 'ا' && ms.some(m => m !== 'madd') ? 'ء' : NORM[c] || c; const nm = clip('n:' + base); if (!nm) return null; out.push(nm);
+      /* tashdeed first, then the vowel — "baa tashdeed zabar" */
+      ms.sort((a, b) => (b === 'tashdeed') - (a === 'tashdeed'));
+      ms.forEach(m => { const u = clip('m:' + m); if (u) { out.push(u); any = true; } });
+      let s = null;
+      if (ms.some(m => m !== 'jazm' && m !== 'tashdeed')) { s = clip('t:' + x) || clip('t:' + x.replace('ّ', '')); prev = x; }
+      else { prev += x; s = clip('t:' + prev); }
+      if (s && out[out.length - 1] !== s) out.push(s);
+    }
+  }
+  if (!any) return null;
+  const whole = srcOf(id); if (whole && !whole.blob && !whole.start && out[out.length - 1] !== whole.url) out.push(whole.url);
+  return out;
+}
+function playUrls(id, urls) {
+  return new Promise(res => {
+    let i = 0;
+    const nx = () => { if (playing !== id) return res(false); if (i >= urls.length) return res(true); A.onended = () => setTimeout(nx, 90); A.onerror = () => { i++; nx(); }; A.src = urls[i++]; const p = A.play(); if (p && p.catch) p.catch(() => { }); };
+    nx();
+  });
+}
+async function playItem(id, times) {
+  const h = hijjeOn(id) && hijjeList(id);
+  if (!h) return playOne(id, times);
+  playing = id; const ok = await playUrls(id, h); if (ok) markHeard(id); return ok;
+}
+function stopAudio() { playing = null; cancelAnimationFrame(raf); try { A.pause(); } catch (e) { } C() && C().stopSpeak(); }
+function stopAll() { seq = null; stopAudio(); C() && C().stopListen(); highlight(null); $('#bPlay') && $('#bPlay').classList.remove('on'); hideCoach(); modeBar(null); }
 async function playAll(fromId) {
-  if (seq) { stop(); return; }
+  if (seq) { stopAll(); return; }
   const tok = seq = {}; $('#bPlay').classList.add('on');
   let ids = pgItems().map(e => e.dataset.id); if (fromId) ids = ids.slice(ids.indexOf(fromId));
   for (const id of ids) {
-    if (seq !== tok) return;
-    if (!hasAudio(id)) continue;
-    await playOne(id, S.rep);
-    if (seq !== tok) return;
-    await new Promise(r => setTimeout(r, S.gap ? 350 : 60));
+    if (seq !== tok) return; highlight(id);
+    await playOne(id, S.rep); if (seq !== tok) return;
+    await wait(S.gap ? 350 : 60);
   }
-  if (seq !== tok) return;
-  highlight(null); seq = null; $('#bPlay').classList.remove('on');
-  if (S.auto && ORDER.indexOf(curP) < ORDER.length - 1) { step(1); setTimeout(() => playAll(), 700); }
+  if (seq !== tok) return; highlight(null); seq = null; $('#bPlay').classList.remove('on');
+  if (S.auto && ORDER.indexOf(curT) < ORDER.length - 1) { step(1); setTimeout(() => playAll(), 700); }
 }
-function markHeard(id) {
-  if (!S.heard[id]) { S.heard[id] = 1; save(); const e = $(`[data-id="${id}"]`); e && e.classList.add('heard'); }
-  const all = pgItems().map(e => e.dataset.id).filter(hasAudio);
-  if (all.length && !S.done[curP] && all.every(x => S.heard[x])) { S.done[curP] = 1; save(); cheer(T('mash')); $('#pDots').innerHTML = ORDER.map(x => `<i class="${x === curP ? 'on' : S.done[x] ? 'dn' : ''}"></i>`).join(''); }
+const wait = ms => new Promise(r => setTimeout(r, ms));
+function markHeard(id) { if (!S.heard[id]) { S.heard[id] = 1; save(); const e = itemEl(id); e && !e.classList.contains('good') && e.classList.add('heard'); } }
+function markGood(id) {
+  S.good[id] = 1; S.heard[id] = 1; save(); const e = itemEl(id); if (e) { e.classList.remove('heard', 'bad'); e.classList.add('good'); }
+  const ids = itemIds(BYT[curT]); if (!S.done[curT] && ids.every(x => S.good[x])) { S.done[curT] = 1; save(); C().SFX.win(); cheer(T('mash')); }
 }
+
+/* ---------- check one item with the mic ---------- */
+let micOk = null;
+function micReady() { if (micOk === null) micOk = C().available(); if (!micOk) toast(T('noMic')); return micOk; }
+async function checkOne(id) {
+  const it = itemAr(id); const ar = it ? it.ar : '';
+  highlight(id, 'lis'); coach('mic', T('speakNow'), ''); C().SFX.mic(); await wait(180);
+  const r = await C().listen(ar, { onPartial: t => coachHeard(t), max: Math.min(14000, 3800 + ar.length * 280) });
+  if (r.err === 'stopped') return null;
+  if (r.err && /perm|not-allowed|mic/.test(r.err)) { toast(T('micNo')); hideCoach(); return null; }
+  return r;
+}
+async function feedback(ok, id, r) {
+  const e = itemEl(id);
+  if (ok) { markGood(id); flash('ok'); C().SFX.ok(); coach('ok', T('right'), r && r.heard ? T('heardT') + ': ' + r.heard : ''); if (S.vo && Math.random() < .45) await C().say('ok'); else await wait(650); }
+  else { if (e) { e.classList.add('bad'); setTimeout(() => e.classList.remove('bad'), 1600); } flash('bad'); C().SFX.bad(); coach('bad', T('wrong'), r && r.heard ? T('heardT') + ': ' + r.heard : '—'); if (S.vo) await C().say('bad'); else await wait(900); }
+}
+/* long-press: practise one box until it is right */
+async function practiseOne(id) {
+  if (!micReady()) return; stopAll(); const tok = seq = {}; let n = 0;
+  while (seq === tok) {
+    const r = await checkOne(id); if (!r || seq !== tok) break;
+    if (r.ok) { await feedback(true, id, r); break; }
+    n++; await feedback(false, id, r); if (seq !== tok) break;
+    coach('ear', T('listenNow'), ''); highlight(id); await playItem(id, 1); await wait(250);
+    if (n >= 5) break;
+  }
+  if (seq === tok) { seq = null; hideCoach(); highlight(null); }
+}
+/* the shared loop for both modes: teacher=true plays the box first (Ustad ke saath) */
+async function runMode(ids, teacher) {
+  if (!ids.length || !micReady()) return; stopAll(); const tok = seq = {}; const R = { first: 0, mistakes: [], total: ids.length };
+  $('#bPlay').classList.add('on'); modeBar(T(teacher ? 'm3' : 'm2'));
+  if (S.vo) await C().say(teacher ? 'listen' : 'you');
+  for (let i = 0; i < ids.length && seq === tok; i++) {
+    const id = ids[i]; let fails = 0; progress(i, ids.length);
+    while (seq === tok) {
+      if (teacher) { coach('ear', T('listenNow'), ''); highlight(id); await playItem(id, 1); if (seq !== tok) break; await wait(200); }
+      const r = await checkOne(id); if (!r || seq !== tok) break;
+      if (r.ok) { if (!fails) R.first++; await feedback(true, id, r); break; }
+      fails++; if (fails === 1) R.mistakes.push(id);
+      await feedback(false, id, r); if (seq !== tok) break;
+      if (!teacher) { coach('ear', T('listenNow'), ''); highlight(id); await playItem(id, 1); await wait(300); }
+      if (fails >= S.tries) { const a = await ask(T('wrong'), [[T('retry'), 'r'], [T('skip'), 's']]); if (a === 's') break; fails = 0; }
+    }
+  }
+  if (seq === tok) { progress(1, 1); seq = null; hideCoach(); modeBar(null); highlight(null); $('#bPlay').classList.remove('on'); result(R, teacher); }
+}
+let pick = null;
+function modeSetup(teacher) {
+  stopAll(); pick = null;
+  sheet(head(T(teacher ? 'm3' : 'm2')) + `<p>${T(teacher ? 'm3s' : 'm2s')}</p><button class="btn g" data-s="all">▶ ${T('all')}</button><button class="btn" data-s="range">✋ ${T('from')} — ${T('to')}</button><p class="note">${T('note')}</p>`, e => {
+    const b = e.target.closest('[data-s]'); if (!b) return; closeSheet();
+    if (b.dataset.s === 'all') runMode(pgItems().map(x => x.dataset.id), teacher);
+    else { pick = { stage: 'from', teacher }; banner(T('pickFrom')); }
+  });
+}
+function result(R, teacher) {
+  const pct = R.total ? Math.round(R.first / R.total * 100) : 0; if (pct >= 80) { C().SFX.win(); cheer('MashaAllah!'); if (S.vo) C().say('done'); }
+  sheet(head(T('result')) + `<div class="res"><div class="ring" style="--p:${pct}"><b>${pct}%</b></div><p>${T('firstTry')}: <b>${R.first}</b> / ${R.total}</p><p>${T('mistakes')}: <b>${R.mistakes.length}</b></p><div class="mlist">${R.mistakes.map(id => `<span>${esc((itemAr(id) || {}).ar || '')}</span>`).join('')}</div></div>` +
+    (R.mistakes.length ? `<button class="btn g" data-r="again">🔁 ${T('again')}</button>` : '') + `<button class="btn" data-x>${T('close')}</button>`,
+    e => { if (e.target.closest('[data-r]')) { closeSheet(); runMode(R.mistakes, teacher); } });
+}
+
+/* ---------- coach overlay (green / red screens) ---------- */
+function coach(kind, title, sub) {
+  let c = $('#coach'); if (!c) { c = document.createElement('div'); c.id = 'coach'; document.body.appendChild(c); c.addEventListener('click', e => { if (e.target.closest('[data-stop]')) stopAll(); }); }
+  c.className = 'on ' + kind; c.innerHTML = `<div class="ci">${kind === 'mic' ? '<span class="pulse"></span>🎙' : kind === 'ear' ? '👂' : kind === 'ok' ? '✓' : '✗'}</div><div class="ct"><b>${esc(title)}</b><small class="heardx">${esc(sub || '')}</small></div><button class="ib" data-stop aria-label="stop"><svg viewBox="0 0 24 24"><path d="M6 6h12v12H6z"/></svg></button>`;
+}
+function coachHeard(t) { const h = $('#coach .heardx'); if (h) h.textContent = t; }
+function hideCoach() { const c = $('#coach'); if (c) c.className = ''; }
+function flash(k) { const f = document.createElement('div'); f.className = 'flash ' + k; document.body.appendChild(f); setTimeout(() => f.remove(), k === 'bad' ? 1200 : 700); if (k === 'bad' && navigator.vibrate) navigator.vibrate([60, 60, 60]); }
+function progress(i, n) { const p = $('#mprog'); if (p) p.style.width = (i / n * 100) + '%'; }
+function modeBar(t) { let m = $('#mbar'); if (!t) { m && m.remove(); return; } if (!m) { m = document.createElement('div'); m.id = 'mbar'; $('#pg').appendChild(m); } m.innerHTML = `<b>${esc(t)}</b><i><em id="mprog"></em></i>`; }
+function banner(t) { let b = $('#pickb'); if (!t) { b && b.remove(); return; } if (!b) { b = document.createElement('div'); b.id = 'pickb'; $('#pg').appendChild(b); } b.textContent = t; }
+let sheetCancel = null;
+function ask(q, opts) { return new Promise(res => { sheet(head(q) + opts.map(([l, v]) => `<button class="btn ${v === 'r' ? 'g' : ''}" data-a="${v}">${esc(l)}</button>`).join(''), e => { const b = e.target.closest('[data-a]'); if (b) { sheetCancel = null; closeSheet(); res(b.dataset.a); } }); sheetCancel = () => res('s'); }); }
 
 /* ---------- effects ---------- */
 function cheer(msg) {
-  const fx = $('#fx'); for (let i = 0; i < 26; i++) { const s = document.createElement('span'); s.className = 'star'; s.textContent = ['✦', '★', '✧', '❁'][i % 4]; s.style.left = '50%'; s.style.top = '42%'; s.style.color = ['#f2d58a', '#e0b55c', '#4ed38a', '#ff8fc8'][i % 4]; const a = Math.random() * 6.28, r = 90 + Math.random() * 160; s.style.setProperty('--dx', Math.cos(a) * r + 'px'); s.style.setProperty('--dy', Math.sin(a) * r + 'px'); fx.appendChild(s); setTimeout(() => s.remove(), 1500); }
+  const fx = $('#fx'); for (let i = 0; i < 28; i++) { const s = document.createElement('span'); s.className = 'star'; s.textContent = ['✦', '★', '✧', '❁'][i % 4]; s.style.left = '50%'; s.style.top = '42%'; s.style.color = ['#f2d58a', '#e0b55c', '#4ed38a', '#ff8fc8'][i % 4]; const a = Math.random() * 6.28, r = 90 + Math.random() * 170; s.style.setProperty('--dx', Math.cos(a) * r + 'px'); s.style.setProperty('--dy', Math.sin(a) * r + 'px'); fx.appendChild(s); setTimeout(() => s.remove(), 1500); }
   const c = document.createElement('div'); c.className = 'cheer'; c.textContent = msg; document.body.appendChild(c); setTimeout(() => c.remove(), 1800);
 }
 let tT = 0; const shown = {};
-function toast(m) { const t = $('#toast'); t.textContent = m; t.classList.add('on'); clearTimeout(tT); tT = setTimeout(() => t.classList.remove('on'), 2200); }
-function toastOnce(m) { if (shown[m] && Date.now() - shown[m] < 8000) return; shown[m] = Date.now(); toast(m); }
+function toast(m) { const t = $('#toast'); t.textContent = m; t.classList.add('on'); clearTimeout(tT); tT = setTimeout(() => t.classList.remove('on'), 2600); }
+function toastOnce(m) { if (shown[m] && Date.now() - shown[m] < 15000) return; shown[m] = Date.now(); toast(m); }
 
-/* ---------- sheets: settings, help, quiz ---------- */
-function sheet(html, onClick) { const s = $('#sheet'); s.innerHTML = `<div class="sh">${html}</div>`; s.hidden = false; s.onclick = e => { if (e.target === s || e.target.closest('[data-x]')) { closeSheet(); return; } onClick && onClick(e); }; }
-function closeSheet() { const s = $('#sheet'); s.hidden = true; s.innerHTML = ''; if (quiz) { quiz = null; stop(); } }
+/* ---------- sheets ---------- */
+function sheet(html, onClick) { const s = $('#sheet'); s.innerHTML = `<div class="sh">${html}</div>`; s.hidden = false; sheetCancel = null; s.onclick = e => { if (e.target === s || e.target.closest('[data-x]')) { closeSheet(true); return; } onClick && onClick(e); }; }
+function closeSheet(cancel) { const s = $('#sheet'); s.hidden = true; s.innerHTML = ''; stopVoice(); if (cancel && sheetCancel) { const c = sheetCancel; sheetCancel = null; c(); } }
 const head = t => `<div class="sh-h"><button class="ib" data-x aria-label="back"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button><b>${esc(t)}</b></div>`;
 const seg = (k, opts) => `<div class="seg">${opts.map(([v, l]) => `<button data-k="${k}" data-v="${v}" class="${String(S[k]) === String(v) ? 'on' : ''}">${esc(l)}</button>`).join('')}</div>`;
 function settings() {
   sheet(head(T('set')) +
     `<div class="row"><label>${T('lang')}</label>${seg('ui', [['ru', 'Roman Urdu'], ['ur', 'اردو'], ['en', 'English']])}</div>` +
     `<div class="row"><label>${T('rep')}</label>${seg('rep', [[1, '1'], [2, '2'], [3, '3'], [5, '5']])}</div>` +
-    `<div class="row"><label>${T('gap')}</label>${seg('gap', [[1, T('on')], [0, T('off')]])}</div>` +
+    `<div class="row"><label>${T('tries')}</label>${seg('tries', [[2, '2'], [3, '3'], [5, '5']])}</div>` +
+    `<div class="row"><label>${T('hj')}</label>${seg('hj', [[0, T('hjA')], [1, T('hjY')], [2, T('hjN')]])}</div>` +
+    `<div class="row"><label>${T('vo')}</label>${seg('vo', [[1, T('on')], [0, T('off')]])}</div>` +
     `<div class="row"><label>${T('auto')}</label>${seg('auto', [[1, T('on')], [0, T('off')]])}</div>` +
-    `<div class="row"><label>${T('hid')}</label>${seg('hid', [[1, T('on')], [0, T('off')]])}</div>` +
     `<button class="btn" data-a="upd">${T('upd')}</button>` +
     `<button class="btn g" data-a="rec">🎙 ${T('rec')}<small style="display:block;font-weight:400;opacity:.8">${T('recS')}</small></button>` +
     `<button class="btn r" data-a="reset">${T('reset')}</button>` +
-    `<p style="color:var(--mut);font-size:12px;text-align:center;margin-top:14px">Noorani Qaida · Quranic Science · ${verName()}</p>`,
+    `<p class="note">Noorani Qaida · Quranic Science · ${verName()}<br>Mukammal Noorani Qaida — Majlis Dawat-ul-Haq, Hardoi</p>`,
     e => {
-      const b = e.target.closest('[data-k]'); if (b) { const k = b.dataset.k, v = b.dataset.v; S[k] = isNaN(+v) ? v : +v; save(); settings(); refresh(); return; }
+      const b = e.target.closest('[data-k]'); if (b) { const k = b.dataset.k, v = b.dataset.v; S[k] = isNaN(+v) ? v : +v; save(); C().setVoice(!!S.vo); settings(); refresh(); return; }
       const a = e.target.closest('[data-a]'); if (!a) return;
       if (a.dataset.a === 'upd') window.QaidaUpdate && QaidaUpdate.check(true);
-      if (a.dataset.a === 'rec') { closeSheet(); window.QaidaRec && QaidaRec.open(curP); }
-      if (a.dataset.a === 'reset' && confirmBox(T('resetQ'))) { S.heard = {}; S.done = {}; save(); closeSheet(); refresh(); }
+      if (a.dataset.a === 'rec') { closeSheet(); window.QaidaRec && QaidaRec.open(curT); }
+      if (a.dataset.a === 'reset' && confirmBox(T('resetQ'))) { S.heard = {}; S.good = {}; S.done = {}; save(); closeSheet(); refresh(); }
     });
 }
 function confirmBox(q) { try { return window.confirm(q); } catch (e) { return false; } }
-function refresh() { if ($('#pg').classList.contains('on')) openPage(curP); else home(); }
-function help() {
-  const p = BYP[curP]; const tks = p.tks || [p.tk]; let h = head(T('help'));
-  tks.forEach(n => {
-    const pg = TAK[n] && TAK[n].pages[0]; const bp = BYP[pg]; if (!bp) return; let on = false;
-    h += `<div class="ban" style="margin-top:10px"><div>${n ? `تختی نمبر <span class="n">${n}</span> ` : ''}${esc(TAK[n].title)}</div></div>`;
-    let got = false;
-    for (const b of bp.blocks) { if (b.t === 'head') on = b.n === n; if (on && (b.t === 'hid' || b.t === 'note')) { h += `<div class="hid">${hidHTML(b.ur)}</div>`; got = true; } }
-    const tr = HID[n]; if (tr && S.ui !== 'ur') h += `<p style="font-size:14px">${esc(S.ui === 'en' ? tr.en : tr.ru)}</p>`; else if (tr && !got) h += `<p style="font-size:14px">${esc(tr.ru)}</p>`;
+function refresh() { if ($('#pg').classList.contains('on')) openTakhti(curT); else home(); }
+/* spoken Urdu (hidayaat, rules): recorded clip h/<key>.mp3 if present, else the phone's Urdu voice */
+const V = new Audio(); let voiceTok = 0;
+function stopVoice() { voiceTok++; try { V.pause(); } catch (e) { } C() && C().stopSpeak(); $$('.speaking').forEach(e => e.classList.remove('speaking')); }
+async function sayUrdu(key, text, el) {
+  stopVoice(); stopAll(); const tok = ++voiceTok; el && el.classList.add('speaking');
+  const url = AU['h:' + key];
+  if (url) await new Promise(r => { V.src = 'a/' + url; V.onended = V.onerror = () => r(); V.play().catch(() => r()); });
+  else { const ok = await C().speak(text.replace(/[()]/g, ' '), 'ur-PK', .9); if (!ok && tok === voiceTok) toast('Is ki awaaz jald aayegi'); }
+  if (tok === voiceTok) el && el.classList.remove('speaking');
+}
+function hidSheet(title, key, paras) {
+  sheet(head(title) + paras.map((p, i) => `<div class="hid big" data-say="${key}.${i}"><button class="rsay">🔊</button>${ruleHTML(p)}</div>`).join(''), async e => {
+    const b = e.target.closest('[data-say]'); if (!b) return;
+    if (b.classList.contains('speaking')) { stopVoice(); return; }
+    /* play this paragraph and the following ones */
+    const all = $$('#sheet [data-say]'); for (let i = all.indexOf(b); i < all.length; i++) { const t = voiceTok + 1; all[i].scrollIntoView({ block: 'nearest', behavior: 'smooth' }); await sayUrdu(all[i].dataset.say, all[i].textContent.replace('🔊', ''), all[i]); if (voiceTok !== t) break; }
   });
-  h += `<div class="row"><label>${T('lg')}</label></div><div class="legend">` + LEG.map(l => `<span><i style="background:var(--${l[0]})"></i>${S.ui === 'ur' ? l[2] : S.ui === 'en' ? l[3] : l[1]}</span>`).join('') + '</div>';
-  sheet(h);
 }
-let quiz = null;
-function startQuiz() {
-  stop(); const ids = pgItems().map(e => e.dataset.id).filter(hasAudio); const uniq = [...new Set(ids)];
-  if (uniq.length < 4) { toast(T('qzNo')); return; }
-  quiz = { ids: uniq, score: 0, n: 0 }; nextQ();
-}
-function txt(id) { const e = $(`.pslot:last-child [data-id="${id}"]`); return e ? e.innerHTML.replace(/<span class="nm">.*?<\/span>/, '') : ''; }
-function nextQ() {
-  if (!quiz) return; const pool = quiz.ids.slice().sort(() => Math.random() - .5), opts = pool.slice(0, 4), ans = opts[Math.floor(Math.random() * 4)];
-  quiz.ans = ans; quiz.n++; quiz.lock = false;
-  sheet(head(T('qz')) + `<div class="qz"><p>${T('qzS')}</p><button class="btn g" data-q="again">🔊 ${T('again')}</button><div class="opts">${opts.map(o => `<button class="opt" data-o="${o}">${txt(o)}</button>`).join('')}</div><div class="sc">${T('score')}: ${quiz.score} / ${quiz.n - 1}</div></div>`,
-    e => {
-      if (e.target.closest('[data-q]')) { playQ(); return; }
-      const o = e.target.closest('[data-o]'); if (!o || quiz.lock) return; quiz.lock = true;
-      if (o.dataset.o === quiz.ans) { o.classList.add('ok'); quiz.score++; cheer('✓'); setTimeout(nextQ, 1100); }
-      else { o.classList.add('no'); $(`[data-o="${quiz.ans}"]`).classList.add('ok'); setTimeout(nextQ, 1600); }
-    });
-  setTimeout(playQ, 300);
-}
-function playQ() { if (!quiz) return; const s = srcOf(quiz.ans); if (!s) return; playing = 'q'; A.src = s.url; try { A.currentTime = s.start || 0; } catch (e) { } A.play().catch(() => { }); endAt = s.end || 0; cancelAnimationFrame(raf); if (endAt) { const t = () => { if (A.currentTime >= endAt) A.pause(); else raf = requestAnimationFrame(t); }; raf = requestAnimationFrame(t); } }
+function intro() { let n = 0; hidSheet(T('hidAll'), 'i', D.intro.flatMap(s => ['◆ ' + s.title, ...s.paras])); }
 
 /* ---------- input ---------- */
 let pressT = 0, longId = null, sx = 0, sy = 0, moved = false;
+function onItemTap(id) {
+  if (pick) {
+    if (pick.stage === 'from') { pick = { stage: 'to', from: id, teacher: pick.teacher }; highlight(id); banner(T('pickTo')); return; }
+    const ids = pgItems().map(e => e.dataset.id); let a = ids.indexOf(pick.from), b = ids.indexOf(id); if (a > b) [a, b] = [b, a];
+    const teacher = pick.teacher; pick = null; banner(null); runMode(ids.slice(a, b + 1), teacher); return;
+  }
+  const wasSeq = !!seq; stopAll(); stopVoice(); if (wasSeq) return;
+  highlight(id); playItem(id, S.rep).then(() => { if (!seq) highlight(null); });
+}
 function bind() {
-  $('#bGo').onclick = () => openPage(S.page || 2);
+  $('#bGo').onclick = () => openTakhti(S.tk || 1);
   $('#bSet').onclick = settings;
-  $('#tlist').onclick = e => { const t = e.target.closest('[data-tk]'); if (t) openPage(TAK[t.dataset.tk].pages[0]); };
+  $('#modes').onclick = e => { const m = e.target.closest('[data-mode]'); if (!m) return; openTakhti(S.tk || 1); const k = m.dataset.mode; if (k === 'sabak') setTimeout(() => modeSetup(false), 400); if (k === 'learn') setTimeout(() => modeSetup(true), 400); };
+  $('#tlist').onclick = e => { if (e.target.closest('[data-intro]')) { intro(); return; } const t = e.target.closest('[data-tk]'); if (t) openTakhti(+t.dataset.tk); };
   $('#bBack').onclick = () => home();
   $('#bNext').onclick = () => step(1); $('#bPrev').onclick = () => step(-1);
   $('#bPlay').onclick = () => playAll();
   $('#bRep').onclick = () => { const o = [1, 2, 3, 5]; S.rep = o[(o.indexOf(S.rep) + 1) % o.length]; save(); $('#repN').textContent = S.rep; toast(T('rep') + ': ' + S.rep); };
-  $('#bHelp').onclick = help; $('#bQuiz').onclick = startQuiz;
+  $('#bSabak').onclick = () => modeSetup(false); $('#bLearn').onclick = () => modeSetup(true);
+  const openHid = n => { const t = BYT[n]; if (t && t.hid) hidSheet(T('hid') + ' · ' + T('takhti') + ' ' + t.n, 't' + t.n, t.hid.split('\n')); else toast(T('tap')); };
+  $('#bHelp').onclick = () => openHid(curT);
   const v = $('#pview');
-  v.addEventListener('pointerdown', e => { sx = e.clientX; sy = e.clientY; moved = false; const c = e.target.closest('[data-id]'); clearTimeout(pressT); longId = null; if (c) pressT = setTimeout(() => { longId = c.dataset.id; loop(longId); }, 520); });
+  v.addEventListener('click', e => {
+    const h = e.target.closest('[data-hid]'); if (h) { openHid(+h.dataset.hid); return; }
+    const r = e.target.closest('[data-rule]'); if (r) { if (r.classList.contains('speaking')) stopVoice(); else sayUrdu('r' + r.dataset.rule, r.textContent.replace('🔊', ''), r); }
+  });
+  v.addEventListener('pointerdown', e => { sx = e.clientX; sy = e.clientY; moved = false; const c = e.target.closest('[data-id]'); clearTimeout(pressT); longId = null; if (c && !pick) pressT = setTimeout(() => { longId = c.dataset.id; navigator.vibrate && navigator.vibrate(25); practiseOne(longId); }, 480); });
   v.addEventListener('pointermove', e => { if (Math.abs(e.clientX - sx) > 12 || Math.abs(e.clientY - sy) > 12) { moved = true; clearTimeout(pressT); } });
   v.addEventListener('pointerup', e => {
     clearTimeout(pressT); const dx = e.clientX - sx, dy = e.clientY - sy;
-    if (Math.abs(dx) > 70 && Math.abs(dx) > Math.abs(dy) * 1.6) { step(dx > 0 ? 1 : -1); return; } /* Urdu book: swipe right = next page */
+    if (Math.abs(dx) > 70 && Math.abs(dx) > Math.abs(dy) * 1.6) { step(dx > 0 ? 1 : -1); return; }
     if (moved || longId) return;
-    const c = e.target.closest('[data-id]'); if (!c) return;
-    const wasSeq = !!seq; stop(); if (wasSeq) { playAll(c.dataset.id); return; }
-    playOne(c.dataset.id, S.rep).then(() => { if (!seq) highlight(null); });
+    const c = e.target.closest('[data-id]'); if (c) onItemTap(c.dataset.id);
   });
   v.addEventListener('contextmenu', e => e.preventDefault());
-  addEventListener('resize', () => { if ($('#pg').classList.contains('on')) { const y = $('.pslot') && $('.pslot').scrollTop; openPage(curP); if ($('.pslot')) $('.pslot').scrollTop = y; } });
+  addEventListener('resize', () => { if ($('#pg').classList.contains('on') && !seq) { const y = $('.pslot') && $('.pslot').scrollTop; openTakhti(curT); if ($('.pslot')) $('.pslot').scrollTop = y; } });
   document.addEventListener('keydown', e => { if (e.key === 'Escape') back(); });
 }
-async function loop(id) { stop(); navigator.vibrate && navigator.vibrate(20); const tok = seq = {}; $('#bPlay').classList.add('on'); toast('🔁'); while (seq === tok) { await playOne(id, 1); await new Promise(r => setTimeout(r, 500)); } }
-
-/* back button (Android) */
 function back() {
   if (document.getElementById('upd')) { document.getElementById('upd').remove(); return true; }
-  if (!$('#sheet').hidden) { closeSheet(); return true; }
+  if (!$('#sheet').hidden) { closeSheet(true); return true; }
   if (window.QaidaRec && QaidaRec.isOpen()) { QaidaRec.close(); return true; }
+  if (pick) { pick = null; banner(null); highlight(null); return true; }
+  if (seq) { stopAll(); return true; }
+  if ($('.speaking')) { stopVoice(); return true; }
   if ($('#pg').classList.contains('on')) { home(); return true; }
   return false;
 }
 window.__qaidaBack = back;
-window.Qaida = { S, save, toast, BYP, ORDER, bookHTML, fit, srcOf, items: () => pgItems(), cur: () => curP, refresh, stop, T, A, graphemes };
+window.Qaida = { S, save, toast, BYT, ORDER, takhtiHTML, fit, srcOf, itemAr, items: () => pgItems(), cur: () => curT, refresh, stop: stopAll, T, A, graphemes, openTakhti, runMode, practiseOne, back, hijjeList, playItem };
 
 (async () => {
-  await load(); bind(); home();
+  await load(); bind(); home(); C().setVoice(!!S.vo);
   setTimeout(() => $('#splash').classList.add('out'), 600); setTimeout(() => $('#splash').remove(), 1200);
   if ('serviceWorker' in navigator && location.protocol === 'https:' && !window.QaidaAndroid) navigator.serviceWorker.register('sw.js').catch(() => { });
 })();

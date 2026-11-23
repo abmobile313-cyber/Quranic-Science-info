@@ -11,6 +11,14 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.Looper;
 import android.provider.MediaStore;
+import android.speech.RecognitionListener;
+import android.speech.RecognizerIntent;
+import android.speech.SpeechRecognizer;
+import android.speech.tts.TextToSpeech;
+import android.speech.tts.UtteranceProgressListener;
+import java.util.ArrayList;
+import java.util.Locale;
+import org.json.JSONObject;
 import android.util.Base64;
 import android.view.View;
 import android.view.ViewGroup;
@@ -45,7 +53,88 @@ public class MainActivity extends Activity {
     private final android.os.Handler ui = new android.os.Handler(Looper.getMainLooper());
     private OutputStream saveOut = null; private Uri saveUri = null; private String saveName = null; private File saveFile = null;
 
+
+    private SpeechRecognizer sr; private String pendingLang = "ar-SA";
+    private void js(final String type, final String text) {
+        final String call = "window.__qaidaSpeech&&window.__qaidaSpeech('" + type + "'," + JSONObject.quote(text == null ? "" : text) + ")";
+        ui.post(new Runnable() { @Override public void run() { if (web != null) web.evaluateJavascript(call, null); } });
+    }
+    private String all(Bundle b) {
+        ArrayList<String> l = b == null ? null : b.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
+        if (l == null || l.isEmpty()) return ""; StringBuilder s = new StringBuilder(); for (String x : l) { if (s.length() > 0) s.append("|"); s.append(x); } return s.toString();
+    }
+    private void beginListen() {
+        if (sr != null) { try { sr.destroy(); } catch (Exception ignored) { } sr = null; }
+        sr = SpeechRecognizer.createSpeechRecognizer(this);
+        sr.setRecognitionListener(new RecognitionListener() {
+            @Override public void onReadyForSpeech(Bundle p) { js("ready", ""); }
+            @Override public void onBeginningOfSpeech() { js("begin", ""); }
+            @Override public void onRmsChanged(float v) { }
+            @Override public void onBufferReceived(byte[] b) { }
+            @Override public void onEndOfSpeech() { }
+            @Override public void onEvent(int t, Bundle p) { }
+            @Override public void onPartialResults(Bundle p) { String t = all(p); if (!t.isEmpty()) js("partial", t); }
+            @Override public void onResults(Bundle r) { js("final", all(r)); }
+            @Override public void onError(int e) {
+                if (e == SpeechRecognizer.ERROR_INSUFFICIENT_PERMISSIONS) js("error", "permission");
+                else if (e == SpeechRecognizer.ERROR_NO_MATCH || e == SpeechRecognizer.ERROR_SPEECH_TIMEOUT) js("final", "");
+                else js("error", "code" + e);
+            }
+        });
+        Intent i = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
+        i.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
+        i.putExtra(RecognizerIntent.EXTRA_LANGUAGE, pendingLang);
+        i.putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS, true);
+        i.putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 5);
+        i.putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_COMPLETE_SILENCE_LENGTH_MILLIS, 900L);
+        i.putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_POSSIBLY_COMPLETE_SILENCE_LENGTH_MILLIS, 900L);
+        sr.startListening(i);
+    }
+    private TextToSpeech tts; private boolean ttsReady = false; private int ttsSeq = 0;
+    private void ttsDone(final boolean ok) { ui.post(new Runnable() { @Override public void run() { try { web.evaluateJavascript("window.__qaidaSpoke&&window.__qaidaSpoke(" + ok + ")", null); } catch (Exception ignored) { } } }); }
+    private void ttsSay(final String txt, final String lang, final float rate) {
+        if (tts == null) {
+            tts = new TextToSpeech(getApplicationContext(), new TextToSpeech.OnInitListener() { @Override public void onInit(int st) {
+                ttsReady = st == TextToSpeech.SUCCESS;
+                if (ttsReady) tts.setOnUtteranceProgressListener(new UtteranceProgressListener() {
+                    @Override public void onStart(String id) { }
+                    @Override public void onDone(String id) { ttsDone(true); }
+                    @Override public void onError(String id) { ttsDone(false); }
+                });
+                ttsSay(txt, lang, rate);
+            } });
+            return;
+        }
+        if (!ttsReady) { ttsDone(false); return; }
+        try {
+            String[] p = lang.split("-"); Locale loc = p.length > 1 ? new Locale(p[0], p[1]) : new Locale(p[0]);
+            if (tts.isLanguageAvailable(loc) < TextToSpeech.LANG_AVAILABLE) { ttsDone(false); return; }
+            tts.setLanguage(loc); tts.setSpeechRate(rate > 0 ? rate : 0.85f);
+            Bundle pa = new Bundle(); pa.putInt(TextToSpeech.Engine.KEY_PARAM_STREAM, android.media.AudioManager.STREAM_MUSIC);
+            tts.speak(txt, TextToSpeech.QUEUE_FLUSH, pa, "q" + (++ttsSeq));
+        } catch (Exception e) { ttsDone(false); }
+    }
     private class Bridge {
+        @JavascriptInterface public boolean speechAvailable() { return SpeechRecognizer.isRecognitionAvailable(MainActivity.this); }
+        @JavascriptInterface public void startListen(final String lang) {
+            pendingLang = (lang == null || lang.isEmpty()) ? "ar-SA" : lang;
+            ui.post(new Runnable() { @Override public void run() {
+                if (Build.VERSION.SDK_INT >= 23 && checkSelfPermission(Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
+                    js("perm", ""); requestPermissions(new String[]{Manifest.permission.RECORD_AUDIO}, 79); return;
+                }
+                try { beginListen(); } catch (Exception e) { js("error", "start"); }
+            } });
+        }
+        @JavascriptInterface public void stopListen() {
+            ui.post(new Runnable() { @Override public void run() { if (sr != null) { try { sr.cancel(); sr.destroy(); } catch (Exception ignored) { } sr = null; } } });
+        }
+        @JavascriptInterface public void speak(final String txt, final String lang, final float rate) {
+            ui.post(new Runnable() { @Override public void run() { ttsSay(txt, lang, rate); } });
+        }
+        @JavascriptInterface public void stopSpeak() { try { if (tts != null) tts.stop(); } catch (Exception ignored) { } }
+        @JavascriptInterface public boolean hasVoice(String lang) {
+            try { if (tts == null || !ttsReady) return true; String[] p = lang.split("-"); Locale loc = p.length > 1 ? new Locale(p[0], p[1]) : new Locale(p[0]); return tts.isLanguageAvailable(loc) >= TextToSpeech.LANG_AVAILABLE; } catch (Exception e) { return false; }
+        }
         @JavascriptInterface public int appVersion() {
             try { return getPackageManager().getPackageInfo(getPackageName(), 0).versionCode; } catch (Exception e) { return 0; }
         }
@@ -115,6 +204,7 @@ public class MainActivity extends Activity {
     @Override public void onRequestPermissionsResult(int code, String[] p, int[] g) {
         super.onRequestPermissionsResult(code, p, g);
         if (code == 78) { if (g.length > 0 && g[0] == PackageManager.PERMISSION_GRANTED && pendingNote != null) postUpdate(pendingNote[0], pendingNote[1], pendingNote[2]); pendingNote = null; return; }
+        if (code == 79) { js(g.length > 0 && g[0] == PackageManager.PERMISSION_GRANTED ? "permok" : "permno", ""); return; }
         if (code == 77 && pendingMic != null) {
             if (g.length > 0 && g[0] == PackageManager.PERMISSION_GRANTED) pendingMic.grant(new String[]{PermissionRequest.RESOURCE_AUDIO_CAPTURE}); else pendingMic.deny();
             pendingMic = null;
@@ -198,7 +288,7 @@ public class MainActivity extends Activity {
     @Override protected void onSaveInstanceState(Bundle o) { super.onSaveInstanceState(o); web.saveState(o); }
     @Override protected void onPause() { super.onPause(); web.onPause(); }
     @Override protected void onResume() { super.onResume(); web.onResume(); }
-    @Override protected void onDestroy() { closeSave(); super.onDestroy(); }
+    @Override protected void onDestroy() { closeSave(); try { if (tts != null) { tts.stop(); tts.shutdown(); } } catch (Exception ignored) { } if (sr != null) { try { sr.destroy(); } catch (Exception ignored) { } } super.onDestroy(); }
     @Override public void onBackPressed() {
         web.evaluateJavascript("(function(){try{return window.__qaidaBack?String(window.__qaidaBack()):'false'}catch(e){return 'false'}})()", new android.webkit.ValueCallback<String>() {
             @Override public void onReceiveValue(String v) { if (v == null || !v.contains("true")) finish(); }
