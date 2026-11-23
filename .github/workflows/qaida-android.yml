@@ -1,0 +1,56 @@
+name: Build Noorani Qaida Android app
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: ['qaida-android/**', 'qaida/**', '.github/workflows/qaida-android.yml']
+permissions:
+  contents: write
+concurrency: { group: qaida-android, cancel-in-progress: true }
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with: { distribution: temurin, java-version: '17' }
+      - name: Android SDK licences
+        run: yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses > /dev/null || true
+      - uses: gradle/actions/setup-gradle@v4
+        with: { gradle-version: '8.9' }
+      - name: Bundle the web app inside the APK
+        run: |
+          rm -rf qaida-android/app/src/main/assets
+          mkdir -p qaida-android/app/src/main/assets
+          cp -r qaida qaida-android/app/src/main/assets/qaida
+      - name: Build APK
+        working-directory: qaida-android
+        env:
+          QAIDA_VERSION_CODE: ${{ github.run_number }}
+          QAIDA_VERSION_NAME: 1.0.${{ github.run_number }}
+        run: gradle assembleRelease --no-daemon --stacktrace
+      - uses: actions/upload-artifact@v4
+        with: { name: Qaida-apk, path: qaida-android/app/build/outputs/apk/release/app-release.apk }
+      - name: Publish APK to download/
+        run: |
+          N=${{ github.run_number }}
+          mkdir -p download
+          cp qaida-android/app/build/outputs/apk/release/app-release.apk download/NooraniQaida.apk
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          NOTES='{}'; [ -f qaida/whatsnew.json ] && NOTES=$(cat qaida/whatsnew.json)
+          jq -n --argjson c $N --argjson n "$NOTES" '{code:$c,name:("1.0."+($c|tostring)),apk:("https://github.com/abmobile313-cyber/Quranic-Science-info/releases/download/qaida-"+($c|tostring)+"/NooraniQaida.apk"),notes:$n}' > download/qaida-version.json
+          git add download/NooraniQaida.apk download/qaida-version.json
+          git commit -m "Noorani Qaida Android app build $N [skip ci]" || exit 0
+          for i in 1 2 3; do git pull --rebase origin main && git push && break; sleep 5; done
+      - name: Publish GitHub release (download counting) + counters
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          R=${{ github.repository }}; N=${{ github.run_number }}
+          if ! gh release view qaida-stats -R $R >/dev/null 2>&1; then
+            echo "Noorani Qaida install counter" > install.txt; echo "Noorani Qaida daily open counter" > open.txt
+            gh release create qaida-stats install.txt open.txt -R $R --title "Noorani Qaida - counters (do not delete)" --notes "The app fetches install.txt once per install and open.txt once per day." --latest=false
+          fi
+          NOTE=$(jq -r '.ru // "Naya version"' qaida/whatsnew.json 2>/dev/null || echo "Naya version")
+          gh release create qaida-$N download/NooraniQaida.apk -R $R --title "Noorani Qaida 1.0.$N" --notes "$NOTE" --latest=false

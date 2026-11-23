@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="ur">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<meta name="theme-color" content="#12060c">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Noorani Qaida">
+<title>Noorani Qaida by Quranic Science</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<link rel="stylesheet" href="app.css">
+</head>
+<body>
+<div id="splash"><div class="sp-in"><img src="icons/icon-512.png" alt=""><b class="nq">نورانی قاعدہ</b><small>Quranic Science</small></div></div>
+
+<!-- HOME -->
+<section id="home" class="scr on">
+  <header class="hbar">
+    <img class="logo" src="icons/icon-192.png" alt="">
+    <div class="ht"><b class="nq">نورانی قاعدہ</b><small id="hSub">Noorani Qaida · Quranic Science</small></div>
+    <button class="ib" id="bSet" aria-label="settings"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3.2"/><path d="M12 3v2.5M12 18.5V21M3 12h2.5M18.5 12H21M5.6 5.6l1.8 1.8M16.6 16.6l1.8 1.8M5.6 18.4l1.8-1.8M16.6 7.4l1.8-1.8"/></svg></button>
+  </header>
+  <div class="hscroll">
+    <div class="hero">
+      <div class="hero-pg"><span class="nq">نورانی قاعدہ</span><i>مع رنگین تجوید</i></div>
+      <div class="hero-t">
+        <h1 id="hTitle"></h1>
+        <p id="hDesc"></p>
+        <button class="cta" id="bGo"><svg viewBox="0 0 24 24"><path d="M8 5l11 7-11 7z"/></svg><span id="bGoT"></span></button>
+        <div class="hst" id="hStat"></div>
+      </div>
+    </div>
+    <div class="legend" id="legend"></div>
+    <h2 class="sec" id="secT"></h2>
+    <div id="tlist" class="tlist"></div>
+    <div class="hfoot"><button class="lnk" data-updchk id="bUpd"></button><span id="ver"></span></div>
+  </div>
+</section>
+
+<!-- PAGE READER -->
+<section id="pg" class="scr">
+  <header class="pbar">
+    <button class="ib" id="bBack" aria-label="back"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button>
+    <div class="pt"><b class="nq" id="pTitle"></b><small id="pSub"></small></div>
+    <button class="ib" id="bRep" aria-label="repeat"><svg viewBox="0 0 24 24"><path d="M17 2l3 3-3 3M4 11V9a4 4 0 0 1 4-4h12M7 22l-3-3 3-3M20 13v2a4 4 0 0 1-4 4H4"/></svg><em id="repN">1</em></button>
+    <button class="ib" id="bHelp" aria-label="help"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.6 2.6 0 0 1 5 1c0 2-2.5 2-2.5 4M12 17.5v.5"/></svg></button>
+  </header>
+  <div id="pview"><div id="ptrack"></div></div>
+  <nav class="pnav">
+    <button class="ib" id="bNext" aria-label="next"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button>
+    <div class="pno"><b id="pNo"></b><div class="pdots" id="pDots"></div></div>
+    <button class="ib gold big" id="bPlay" aria-label="play"><svg class="i-pl" viewBox="0 0 24 24"><path d="M8 5l11 7-11 7z"/></svg><svg class="i-pa" viewBox="0 0 24 24"><path d="M7 5h4v14H7zM13 5h4v14h-4z"/></svg></button>
+    <button class="ib" id="bQuiz" aria-label="quiz"><svg viewBox="0 0 24 24"><path d="M12 3l2.6 5.6 6 .7-4.5 4.1 1.2 6L12 16.4 6.7 19.4l1.2-6L3.4 9.3l6-.7z"/></svg></button>
+    <button class="ib" id="bPrev" aria-label="previous"><svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg></button>
+  </nav>
+</section>
+
+<div id="sheet" hidden></div>
+<div id="toast"></div>
+<div id="fx"></div>
+
+<script src="app.js"></script>
+<script src="rec.js"></script>
+<script src="upd.js"></script>
+</body>
+</html>
