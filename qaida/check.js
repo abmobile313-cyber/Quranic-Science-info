@@ -31,26 +31,33 @@ function vowelClash(exp, heard) {
   if (exp.length > 3) return false; const ve = v(exp.slice(1)), vh = v(heard.slice(1));
   return ve && vh && ve[0] !== vh[0];
 }
-const SOFT = { 'ث': 'س', 'ص': 'س', 'ذ': 'ز', 'ظ': 'ز', 'ض': 'د', 'ح': 'ه', 'ط': 'ت', 'ق': 'ك', 'ع': 'ا', 'ء': 'ا', 'ى': 'ي', 'غ': 'خ' };
-const soft = s => [...s].map(c => SOFT[c] || c).join('').replace(/(.)\1+/g, '$1');
+/* Only a clearly different consonant is a mistake (ba read as ta). Vowel slips, stretching, close sounds
+   (س/ث/ص, ز/ذ/ظ/ض, ت/ط, ك/ق, ه/ح, ا/ع/ء) and extra sounds the recogniser adds are forgiven. */
+const CLS = { 'ث': 'س', 'ص': 'س', 'ذ': 'ز', 'ظ': 'ز', 'ض': 'ز', 'د': 'د', 'ح': 'ه', 'خ': 'خ', 'غ': 'خ', 'ط': 'ت', 'ق': 'ك', 'ع': '', 'ء': '', 'ا': '', 'و': '', 'ي': '', 'ى': '', 'ه': 'ه' };
+const cons = s => [...skel(s)].map(c => c in CLS ? CLS[c] : c).join('').replace(/(.)\1+/g, '$1');
+function namesOf(ar) { const b = [...String(ar).replace(HAR, '')].filter(c => /[ء-يکیہھے]/.test(c)); return b.length === 1 && !/[ً-ْٰ]/.test(ar) ? (NAMES[skel(b[0])] || []) : []; }
 function score(ar, heardList) {
-  const vs = variants(ar); let best = 0, bh = '';
+  const exp = [cons(ar), cons(String(ar).replace(/ض/g, 'د')), ...namesOf(ar).map(cons)].filter((v, i, a) => a.indexOf(v) === i);
+  let best = 0, bh = '';
   for (const raw of heardList) {
-    const words = raw.split(/\s+/).map(skel).filter(Boolean), joined = words.join('');
-    const cands = [joined, ...words];
-    for (const h of cands) for (const e of vs) {
-      if (!h || !e) continue;
-      let r = 1 - lev(e, h) / Math.max(e.length, h.length);
-      /* children + phone recognisers mix close sounds (ث/س, ذ/ز/ظ, ص/س, ح/ه, ط/ت, ض/د, ق/ك, ع/ا/ء): be generous */
-      const se = soft(e), sh = soft(h); r = Math.max(r, (1 - lev(se, sh) / Math.max(se.length, sh.length)) * .95);
-      if (se.length <= 3 && sh[0] === se[0]) r = Math.max(r, .55);
-      if (h.length > e.length + 2 && h.includes(e)) r = Math.max(r, .8);
-      if (vowelClash(e, h)) r = Math.min(r, .4);
-      if (r > best) { best = r; bh = raw; }
+    const words = String(raw).split(/\s+/).filter(Boolean);
+    for (const hw of [words.join(''), ...words]) {
+      const h = cons(hw);
+      for (const e of exp) {
+        let r;
+        if (!e) r = h || skel(hw) ? 1 : 0;                       /* "اَ", "اُو": any voice is fine */
+        else if (!h) r = 0;
+        else {
+          r = 1 - lev(e, h) / Math.max(e.length, h.length);
+          if (h.includes(e) || e.includes(h) && h.length >= Math.ceil(e.length * .6)) r = Math.max(r, .9);
+          if (h[0] === e[0]) r = Math.max(r, e.length <= 2 ? .8 : .5 + r / 2);
+        }
+        if (r > best) { best = r; bh = raw; }
+      }
     }
   }
-  const len = skel(ar).length, need = len <= 2 ? .45 : len <= 4 ? .5 : .55;
-  return { ok: best >= need, score: best, heard: bh };
+  const len = Math.max(...exp.map(e => e.length)), need = len <= 1 ? .6 : len <= 3 ? .5 : .45;
+  return { ok: best >= need, score: best, heard: bh, empty: !heardList.some(x => skel(x)) };
 }
 
 /* ---------- speech recognition ---------- */

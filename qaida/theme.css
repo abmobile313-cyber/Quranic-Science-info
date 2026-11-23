@@ -182,3 +182,4 @@ html.dk #wudu{background:radial-gradient(120% 70% at 50% 0%,#14424d 0,#0b2830 60
 .wd-tx[dir=rtl] p{font-family:NQ,serif;line-height:2.2}
 .ob-bub{position:absolute;inset:0;pointer-events:none;overflow:hidden}.ob-bub i{position:absolute;bottom:-20px;border-radius:50%;background:#33cbe055;animation:bub 6s linear infinite}
 @keyframes bub{to{transform:translateY(-110vh)}}
+.noh .rsay{display:none}

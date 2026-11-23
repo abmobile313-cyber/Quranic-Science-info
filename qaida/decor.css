@@ -1,0 +1,30 @@
+/* ===== bel-buti: the floral vine frame and flower motifs (loaded after theme.css) ===== */
+.book{border:30px solid transparent!important;border-image:url(icons/bel.svg) 32 round!important;border-radius:0!important;
+ box-shadow:0 0 0 1px #b8841c66,0 18px 36px #6d4a0a33!important;margin:10px auto 22px!important;padding:16px 12px 24px!important;
+ background:url(icons/buti.svg) 0 0/64px 64px,linear-gradient(180deg,#fffdf4,#fff6e0)!important}
+html.dk .book{background:url(icons/buti.svg) 0 0/64px 64px,linear-gradient(180deg,#14262e,#10202a)!important;box-shadow:0 0 0 1px #b8841c88,0 18px 36px #0009!important}
+.book>.cn{width:84px!important;height:84px!important;z-index:5!important}
+.book>.cn.tl{left:-26px!important;top:-26px!important}.book>.cn.tr{right:-26px!important;top:-26px!important}.book>.cn.bl{left:-26px!important;bottom:-26px!important}.book>.cn.br{right:-26px!important;bottom:-26px!important}
+.book .bno{bottom:-42px!important}
+/* printed-qaida boxes: a white inner line and a thin gold rule inside every khana, a sprig in the corner */
+.grid .cell:not(.e):not(.deco):not(.mk){box-shadow:inset 0 0 0 3px #ffffffb0,inset 0 0 0 4px #d6b05677,0 2px 0 #0000000d!important}
+html.dk .grid .cell:not(.e):not(.deco):not(.mk){box-shadow:inset 0 0 0 3px #ffffff14,inset 0 0 0 4px #d6b05655!important}
+.grid .cell:not(.e):not(.deco):not(.mk)::before{content:'';position:absolute;top:4px;right:4px;width:15px;height:15px;background:url(icons/leaf.svg) center/contain no-repeat;transform:scaleX(-1);opacity:.85;pointer-events:none}
+.grid .cell:not(.e):not(.deco):not(.mk):nth-child(2n)::before{right:auto;left:4px;transform:none}
+.grid .cell{position:relative}
+/* lines (mashq rows): flower bullets at both ends */
+.lines .ln,.table .ln{position:relative}
+/* ===== home ===== */
+html.lt body{background:url(icons/buti.svg) 0 0/72px 72px,linear-gradient(180deg,#fbf3df,#f3e6c4)!important}
+html.dk body{background:url(icons/buti.svg) 0 0/72px 72px,#0d1a20!important}
+.sec{letter-spacing:0!important;text-transform:none!important;font:700 21px/1.6 system-ui,NQ,sans-serif!important;color:#9c1f52!important;display:flex;align-items:center;gap:10px;justify-content:center}
+.sec::before,.sec::after{content:'';flex:1;height:14px;background:url(icons/leaf.svg) left center/14px 14px repeat-x;opacity:.9}
+.sec::after{transform:scaleX(-1)}
+.tk{position:relative;overflow:hidden}
+.tk::after{content:'';position:absolute;right:-6px;bottom:-6px;width:54px;height:54px;background:url(icons/corner.svg) center/contain no-repeat;transform:scale(-1,-1);opacity:.5;pointer-events:none}
+html[dir=rtl] .tk::after{right:auto;left:-6px;transform:scaleY(-1)}
+.hero{border:12px solid transparent!important;border-image:url(icons/bel.svg) 32 round!important;border-radius:0!important}
+.hero::after{display:none}
+.mode{position:relative;overflow:hidden}
+.mode::before{content:'';position:absolute;inset:auto -10px -14px auto;width:70px;height:70px;background:url(icons/buti.svg) center/90px;opacity:.9;filter:brightness(2.2) saturate(.2);pointer-events:none}
+@media (prefers-reduced-motion:reduce){.tk{animation:none!important}}

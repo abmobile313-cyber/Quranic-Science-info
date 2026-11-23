@@ -26,19 +26,24 @@ const bubbles = '<div class="ob-bub">' + Array.from({ length: 9 }, (_, i) => `<i
 const S = () => (window.Qaida && Qaida.S) || { ui: 'ru' };
 const lg = () => L[S().ui] || L.ru;
 let box = null;
+/* the same recorded voice as the Fahmul Quraan app (Urdu / English) */
+const VA = new Audio(); VA.preload = 'auto';
+function voice(k) { try { VA.pause(); VA.src = 'wudu/' + k + '-' + (S().ui === 'en' ? 'en' : 'ur') + '.mp3'; const p = VA.play(); if (p && p.catch) p.catch(() => { }); } catch (e) { } }
+function hush() { try { VA.pause(); } catch (e) { } }
 function shell() { if (!box) { box = document.createElement('div'); box.id = 'wudu'; document.body.appendChild(box); box.addEventListener('click', onClick); } return box; }
-function close() { if (box) { box.classList.add('out'); const b = box; box = null; setTimeout(() => b.remove(), 400); } }
+function close() { hush(); if (box) { box.classList.add('out'); const b = box; box = null; setTimeout(() => b.remove(), 400); } }
 function ask() {
   const t = lg(), dir = S().ui === 'ur' ? ' dir="rtl"' : '';
   shell().innerHTML = `<div class="wq">${bubbles}<div class="wq-hero"><img src="wudu/q.webp" alt=""></div><h2${dir}>${t.q}</h2><p${dir}>${t.qs}</p>
   <button class="btn g" data-w="yes">✅ ${t.yes}</button><button class="btn" data-w="steps">💧 ${t.see}</button><button class="btn" data-w="yes">👀 ${t.look}</button></div>`;
+  setTimeout(() => { if (box && !box.querySelector('.wl')) voice('q'); }, 450);
 }
 function steps() {
   const t = lg(), u = S().ui, uk = DET[u] ? u : 'ru', D9 = DET[uk], dir = u === 'ur' ? ' dir="rtl"' : '';
   const cards = t.steps.slice(0, 8).map((ti, k) => `<article class="wd-c"><div class="wd-ph"><img src="wudu/s${k + 1}.webp" alt="" loading="lazy"><span class="wd-n">${k + 1}</span></div><div class="wd-tx"${dir}><h3>${ICON[k]} ${ti}</h3><p>${D9[k]}</p></div></article>`).join('');
   const dua = `<article class="wd-c"><div class="wd-tx"${dir}><h3>${ICON[8]} ${STEP9[uk]}</h3><p class="ar" dir="rtl">${DUA.ar}</p><p>${DUA[uk] || DUA.ru}</p><small>${DUA.src[uk] || DUA.src.ru}</small></div></article>`;
   shell().innerHTML = `<div class="wq wl"><h2${dir}>💧 ${t.st}</h2><div class="wd-l">${cards}${dua}</div><button class="btn g" data-w="yes">${t.done}</button><button class="btn" data-w="ask">${t.back}</button></div>`;
-  box.scrollTop = 0;
+  box.scrollTop = 0; voice('s');
 }
 function onClick(e) { const b = e.target.closest('[data-w]'); if (!b) return; const k = b.dataset.w; if (k === 'yes') close(); else if (k === 'steps') steps(); else if (k === 'ask') ask(); }
 window.QaidaWudu = { ask, steps, close, isOpen: () => !!box, back: () => { if (!box) return false; if (box.querySelector('.wl')) ask(); else close(); return true; } };
